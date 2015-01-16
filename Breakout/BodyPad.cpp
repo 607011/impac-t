@@ -95,13 +95,13 @@ namespace Breakout {
 
   void Pad::moveLeft(void)
   {
-    mTeetingBody->SetLinearVelocity(b2Vec2(-30.f, 0.f));
+    mTeetingBody->SetLinearVelocity(b2Vec2(-25.f, 0.f));
   }
 
 
   void Pad::moveRight(void)
   {
-    mTeetingBody->SetLinearVelocity(b2Vec2(+30.f, 0.f));
+    mTeetingBody->SetLinearVelocity(b2Vec2(+25.f, 0.f));
   }
 
 
