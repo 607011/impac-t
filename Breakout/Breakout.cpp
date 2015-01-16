@@ -229,6 +229,7 @@ namespace Breakout {
   {
     if (!mPaused) {
       mPad->stopMotion();
+      mPad->stopKick();
       if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::KickLeft]))
         mPad->kickLeft();
       if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::KickRight]))
