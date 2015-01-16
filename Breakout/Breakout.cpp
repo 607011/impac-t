@@ -447,12 +447,12 @@ namespace Breakout {
     // create boundaries
     { 
       float32 W = float32(mNumTilesX);
-      float32 H = float32(mNumTilesY) + 2;
+      float32 H = float32(mNumTilesY);
       b2BodyDef bd;
       b2Body *boundaries = mWorld->CreateBody(&bd);
       b2EdgeShape topBoundary;
       topBoundary.Set(b2Vec2(0, 0), b2Vec2(W, 0));
-			boundaries->CreateFixture(&topBoundary, 0);
+      boundaries->CreateFixture(&topBoundary, 0);
       b2EdgeShape rightBoundary;
       rightBoundary.Set(b2Vec2(W, 0), b2Vec2(W, H));
       boundaries->CreateFixture(&rightBoundary, 0.f);
@@ -461,7 +461,7 @@ namespace Breakout {
       boundaries->CreateFixture(&bottomBoundary, 0.f);
       b2EdgeShape leftBoundary;
       leftBoundary.Set(b2Vec2(0, 0), b2Vec2(0, H));
-			boundaries->CreateFixture(&leftBoundary, 0.f);
+      boundaries->CreateFixture(&leftBoundary, 0.f);
     }
 
     // create virtual ground
@@ -472,19 +472,23 @@ namespace Breakout {
     }
 
     // create pad
-    mPad = new Pad(this);
-    mPad->setPosition(float(mNumTilesX / 2), float(mNumTilesY - 1.5f));
-    addBody(mPad);
+    {
+      mPad = new Pad(this);
+      mPad->setPosition(float(mNumTilesX / 2), float(mNumTilesY - 1.5f));
+      addBody(mPad);
+    }
 
     // create blocks
-    for (int y = 0; y < mNumTilesY; ++y) {
-      const uint32_t *mapRow = mapDataScanLine(y);
-      for (int x = 0; x < mNumTilesX; ++x) {
-        const uint32_t tileId = mapRow[x];
-        if (tileId >= mFirstGID) {
-          Block *block = new Block(tileId, this);
-          block->setPosition(float(x), float(y));
-          addBody(block);
+    {
+      for (int y = 0; y < mNumTilesY; ++y) {
+        const uint32_t *mapRow = mapDataScanLine(y);
+        for (int x = 0; x < mNumTilesX; ++x) {
+          const uint32_t tileId = mapRow[x];
+          if (tileId >= mFirstGID) {
+            Block *block = new Block(tileId, this);
+            block->setPosition(float(x), float(y));
+            addBody(block);
+          }
         }
       }
     }

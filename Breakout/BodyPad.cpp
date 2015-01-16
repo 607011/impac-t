@@ -69,7 +69,7 @@ namespace Breakout {
     pjd.bodyB = mBody;
     pjd.collideConnected = false;
     pjd.localAxisA.Set(1.f, 0.f);
-    pjd.localAnchorA.Set(25.f, 23.f);
+    pjd.localAnchorA.Set(mGame->ground()->GetWorldCenter().x, mGame->ground()->GetWorldCenter().y - 1.5f);
     pjd.localAnchorB.SetZero();
     mGame->world()->CreateJoint(&pjd);
 
