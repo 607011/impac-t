@@ -33,7 +33,8 @@ namespace Breakout {
       BlockRed,
       BlockBlue,
       Ball,
-      Pad
+      Pad,
+      Ground
     } BodyType;
 
     typedef enum _ZIndex {
@@ -79,6 +80,7 @@ namespace Breakout {
     uint32_t id(void) const;
 
     b2Body *body(void);
+    virtual void setBody(b2Body *);
 
   protected:
     Body::killed_signal_t signalKilled;

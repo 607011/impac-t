@@ -22,9 +22,9 @@ namespace Breakout {
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
     bd.angle = 0.f;
-    bd.linearDamping = 9.5f;
-    bd.angularDamping = 0.21f;
-    bd.gravityScale = .001f;
+    bd.linearDamping = 0.f;
+    bd.angularDamping = 0.61f;
+    bd.gravityScale = 0.f;
     bd.allowSleep = true;
     bd.awake = false;
     bd.fixedRotation = false;
@@ -42,8 +42,8 @@ namespace Breakout {
     b2FixtureDef fdBox;
     fdBox.shape = &polygon;
     fdBox.density = 11.f;
-    fdBox.friction = .7f;
-    fdBox.restitution = 0.9f;
+    fdBox.friction = 2.f * mGame->world()->GetGravity().y;
+    fdBox.restitution = 0.04f;
     mBody->CreateFixture(&fdBox);
 
     b2CircleShape circleL;
@@ -73,8 +73,9 @@ namespace Breakout {
   void Block::onUpdate(float elapsedSeconds)
   {
     UNUSED(elapsedSeconds);
-    mSprite.setPosition(mGame->tileWidth() * mBody->GetPosition().x, mGame->tileHeight() * mBody->GetPosition().y);
-    mSprite.setRotation(mBody->GetAngle() * _RAD2DEG);
+    const b2Transform &tx = mBody->GetTransform();
+    mSprite.setPosition(mGame->tileWidth() * tx.p.x, mGame->tileHeight() * tx.p.y);
+    mSprite.setRotation(rad2deg(tx.q.GetAngle()));
   }
 
 
@@ -83,4 +84,9 @@ namespace Breakout {
     target.draw(mSprite, states);
   }
 
+
+  void Block::hit(void)
+  {
+    mBody->SetGravityScale(3.f);
+  }
 }

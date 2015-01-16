@@ -157,6 +157,7 @@ namespace Breakout {
     void onPlaying(void);
     void onWelcomeScreen(void);
     void update(float elapsedSeconds);
+    void evaluateCollisions(void);
     void handleEvents(void);
     void handlePlayerInteraction(void);
 

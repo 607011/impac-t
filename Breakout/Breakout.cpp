@@ -181,6 +181,15 @@ namespace Breakout {
   }
 
 
+  void Game::evaluateCollisions(void)
+  {
+    for (int i = 0; i < mPointCount; ++i) {
+      ContactPoint &cp = mPoints[i];
+
+    }
+  }
+
+
   void Game::handleEvents(void)
   {
     sf::Event event;
@@ -194,10 +203,10 @@ namespace Breakout {
         resize();
         break;
       case sf::Event::LostFocus:
-        //pause();
+        pause();
         break;
       case sf::Event::GainedFocus:
-        //resume();
+        resume();
         break;
       case sf::Event::KeyReleased:
         //...
@@ -278,6 +287,8 @@ namespace Breakout {
 
   void Game::update(float elapsedSeconds)
   {
+    evaluateCollisions();
+
     mPointCount = 0;
     mWorld->Step(elapsedSeconds, VelocityIterations, PositionIterations);
     for (BodyList::iterator b = mBodies.begin(); b != mBodies.end(); ++b) {
@@ -326,6 +337,7 @@ namespace Breakout {
       cp->separation = worldManifold.separations[i];
       ++mPointCount;
     }
+
   }
 
 
@@ -345,6 +357,23 @@ namespace Breakout {
   {
     B2_NOT_USED(contact);
     B2_NOT_USED(impulse);
+    void *dA = contact->GetFixtureA()->GetBody()->GetUserData();
+    void *dB = contact->GetFixtureB()->GetBody()->GetUserData();
+
+    if (dA == nullptr || dB == nullptr)
+      return;
+
+    Body *a = reinterpret_cast<Body *>(dA);
+    Body *b = reinterpret_cast<Body *>(dB);
+
+    if (a->type() == Body::BodyType::Block || b->type() == Body::BodyType::Block) {
+      if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
+        Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
+        Ball *ball = reinterpret_cast<Ball*>(a->type() == Body::BodyType::Ball ? a : b);
+        std::cout << impulse->normalImpulses[0] << " / " << impulse->normalImpulses[1] << std::endl;
+        block->hit();
+      }
+    }
   }
 
 

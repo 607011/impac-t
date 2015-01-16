@@ -99,6 +99,7 @@
     <ClInclude Include="Body.h" />
     <ClInclude Include="BodyBall.h" />
     <ClInclude Include="BodyBlock.h" />
+    <ClInclude Include="BodyGround.h" />
     <ClInclude Include="BodyPad.h" />
     <ClInclude Include="Breakout.h" />
     <ClInclude Include="Destructible.h" />

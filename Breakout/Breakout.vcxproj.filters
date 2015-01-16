@@ -77,5 +77,8 @@
     <ClInclude Include="BodyPad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BodyGround.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

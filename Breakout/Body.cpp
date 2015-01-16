@@ -166,4 +166,9 @@ namespace Breakout {
     return mBody;
   }
 
+
+  void Body::setBody(b2Body *body)
+  {
+    mBody = body;
+  }
 }

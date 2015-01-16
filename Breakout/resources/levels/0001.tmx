@@ -64,7 +64,5 @@
    eJztlcEOgCAMQ0GE//9kD7pLE+yK42Cyd+kBtj4TE2q5qeWdRs69sD3VmSv7xwYv7znrG5BRXur9/uQhps2tejFPQ/XCZPtVcM9XvygvBP1OSPSYne/yivaL8tz9/0V5GVF+rEf1MrCvkWR+3l71O6y/k1Tfxdm7sTpvoJd3Tu2Jur97T5IkSZL8mQtqJAEV
   </data>
  </layer>
- <objectgroup name="Boundaries">
-  <object x="0" y="0" width="640" height="580"/>
- </objectgroup>
+ <objectgroup name="Boundaries"/>
 </map>
