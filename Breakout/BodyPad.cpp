@@ -21,11 +21,11 @@ namespace Breakout {
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(0.5f * W, 0.5f * H);
 
+    // hinge
     {
       b2BodyDef bd;
-      bd.position.Set(20.f, 23.f);
+      bd.position.Set(0.f, 1.5f);
       bd.type = b2_dynamicBody;
-      bd.linearDamping = 0.f;
       bd.gravityScale = 0.f;
       bd.allowSleep = true;
       bd.awake = true;
@@ -34,10 +34,10 @@ namespace Breakout {
       mBody = mGame->world()->CreateBody(&bd);
     }
 
+    // pad
     {
       b2BodyDef bd;
       bd.type = b2_dynamicBody;
-      //  bd.angularDamping = 0.21f;
       bd.gravityScale = 0.f;
       bd.allowSleep = true;
       bd.awake = true;
@@ -69,7 +69,7 @@ namespace Breakout {
     pjd.bodyB = mBody;
     pjd.collideConnected = false;
     pjd.localAxisA.Set(1.f, 0.f);
-    pjd.localAnchorA.Set(mGame->ground()->GetWorldCenter().x, mGame->ground()->GetWorldCenter().y - 1.5f);
+    pjd.localAnchorA.SetZero();
     pjd.localAnchorB.SetZero();
     mGame->world()->CreateJoint(&pjd);
 
@@ -82,6 +82,49 @@ namespace Breakout {
     jd.lowerAngle = deg2rad(-17.5f);
     jd.upperAngle = deg2rad(+17.5f);
     mJoint = reinterpret_cast<b2RevoluteJoint*>(mGame->world()->CreateJoint(&jd));
+
+    //// left spring
+    //{
+    //  b2BodyDef bd;
+    //  bd.position.Set(0.f, 1.5f);
+    //  bd.type = b2_dynamicBody;
+    //  bd.allowSleep = true;
+    //  bd.awake = true;
+    //  b2Body *spring = mGame->world()->CreateBody(&bd);
+
+    //  b2DistanceJointDef djd;
+    //  djd.bodyA = spring;
+    //  djd.bodyB = mTeetingBody;
+    //  djd.localAnchorA.SetZero();
+    //  djd.localAnchorB.Set(-16.f, 0.f);
+    //  b2Vec2 d = djd.bodyB->GetWorldPoint(djd.localAnchorB) - djd.bodyA->GetWorldPoint(djd.localAnchorA);
+    //  djd.length = d.Length();
+    //  std::cout << djd.length << std::endl;
+    //  djd.dampingRatio = .1f;
+    //  djd.frequencyHz = 20.f;
+    //  mGame->world()->CreateJoint(&djd);
+    //}
+
+    //// right spring
+    //{
+    //  b2BodyDef bd;
+    //  bd.position.Set(0.f, 1.5f);
+    //  bd.type = b2_dynamicBody;
+    //  b2Body *spring = mGame->world()->CreateBody(&bd);
+
+    //  b2DistanceJointDef djd;
+    //  djd.bodyA = spring;
+    //  djd.bodyB = mTeetingBody;
+    //  djd.localAnchorA.SetZero();
+    //  djd.localAnchorB.Set(+16.f, 0.f);
+    //  b2Vec2 d = djd.bodyB->GetWorldPoint(djd.localAnchorB) - djd.bodyA->GetWorldPoint(djd.localAnchorA);
+    //  djd.length = d.Length();
+    //  std::cout << djd.length << std::endl;
+    //  djd.dampingRatio = .1f;
+    //  djd.frequencyHz = 20.f;
+    //  mGame->world()->CreateJoint(&djd);
+    //}
+
   }
 
 
@@ -113,13 +156,13 @@ namespace Breakout {
 
   void Pad::kickLeft(void)
   {
-    mJoint->SetMotorSpeed(-300.f);
+    mJoint->SetMotorSpeed(-500.f);
   }
 
 
   void Pad::kickRight(void)
   {
-    mJoint->SetMotorSpeed(+300.f);
+    mJoint->SetMotorSpeed(+500.f);
   }
 
 
