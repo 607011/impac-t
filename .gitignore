@@ -1,0 +1,16 @@
+*.obj
+*.sdf
+*.opensdf
+*.suo
+Breakout/Debug
+Breakout/Release
+glfw/Debug
+glfw/Release
+glew/Debug
+glew/Release
+Debug/*
+!Debug/glew32.dll
+Release/*
+!Release/glew32.dll
+ipch/*
+*.vcxproj.user

@@ -1,6 +1,10 @@
 // Copyright (c) 2015 Oliver Lau <oliver@ersatzworld.net>
 // All rights reserved.
 
+#ifdef WIN32
+#pragma once
+#endif
+
 #ifndef __STDAFX_H_
 #define __STDAFX_H_
 
@@ -10,6 +14,7 @@
 #include <boost/signals2.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <boost/foreach.hpp>
 #pragma warning(pop)
 
 #include <limits>
@@ -42,7 +47,13 @@
 #include "main.h"
 #include "util.h"
 
-#include "Level.h"
+#include "Destructible.h"
+#include "TextureCache.h"
+#include "Body.h"
+#include "BodyBlock.h"
+#include "BodyBall.h"
+#include "BodyPad.h"
 #include "Breakout.h"
+
 
 #endif // __STDAFX_H_
