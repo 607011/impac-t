@@ -81,8 +81,6 @@ namespace Breakout {
     void enterLoop(void);
     void addBody(Body *body);
     void onBodyKilled(Body *body);
-    int levelWidth(void) const;
-    int levelHeight(void) const;
     int tileWidth(void) const;
     int tileHeight(void) const;
     int width(void) const;

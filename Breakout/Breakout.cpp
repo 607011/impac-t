@@ -540,18 +540,6 @@ namespace Breakout {
   }
 
 
-  int Game::levelWidth(void) const
-  {
-    return mNumTilesX * mTileWidth;
-  }
-
-
-  int Game::levelHeight(void) const
-  {
-    return mNumTilesY * mTileHeight;
-  }
-
-
   void Game::addBody(Body *body)
   {
     body->setId(mCurrentBodyId++);
