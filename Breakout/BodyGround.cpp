@@ -45,18 +45,9 @@ namespace Breakout {
   }
 
 
-  void Ground::onUpdate(float elapsedSeconds)
+  Ground::~Ground()
   {
-    UNUSED(elapsedSeconds);
+    // ...
   }
-
-
-  void Ground::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
-  {
-    UNUSED(target);
-    UNUSED(states);
-    // target.draw(mSprite, states);
-  }
-
 
 }

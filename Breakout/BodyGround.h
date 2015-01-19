@@ -12,12 +12,8 @@ namespace Breakout {
   class Ground : public Body
   {
   public:
-    Ground(Game *game)
-      : Body(Body::BodyType::Ground, game)
-    {
-      // ...
-    }
-    virtual ~Ground() {}
+    Ground(Game *game);
+    virtual ~Ground();
 
     virtual void setBody(b2Body *body)
     {

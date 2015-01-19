@@ -26,7 +26,7 @@ namespace Breakout {
 
 
     mWindow.setVerticalSyncEnabled(true);
-    glewInit();
+    // glewInit();
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glDisable(GL_DEPTH_TEST);
 
@@ -208,7 +208,7 @@ namespace Breakout {
           if (mBall)
             mBall->kill();
           mBall = new Ball(this);
-          mBall->setPosition(float(mLevel.width() / 2), float(mLevel.height() - 2));
+          mBall->setPosition(float(mLevel.width() / 2), float(mLevel.height() - 2.5f));
           addBody(mBall);
         }
         break;
@@ -389,14 +389,14 @@ namespace Breakout {
     // create virtual ground
     {
       b2BodyDef bd;
-      bd.position.Set(0.f, float32(mLevel.height() - 1));
+      bd.position.Set(0.f, float32(mLevel.height() + 0.5f));
       mGround = mWorld->CreateBody(&bd);
     }
 
     // create pad
     {
       mPad = new Pad(this);
-      mPad->setPosition(float(mLevel.width() / 2), float(mLevel.height() - 1.5f));
+      mPad->setPosition(float(mLevel.width() / 2), float(mLevel.height() - 0.5f));
       addBody(mPad);
     }
 

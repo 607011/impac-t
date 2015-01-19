@@ -27,7 +27,8 @@ namespace Breakout {
     bd.allowSleep = false;
     bd.awake = true;
     bd.fixedRotation = false;
-    bd.linearVelocity = b2Vec2(10.f - 20.f * std::cos(0.5f * _PI * float(std::rand()) / RAND_MAX), -40.f);
+    bd.linearVelocity = b2Vec2(0.f, -1.f);
+    //bd.linearVelocity = b2Vec2(10.f - 20.f * std::cos(0.5f * _PI * float(std::rand()) / RAND_MAX), -40.f);
     bd.bullet = true;
     bd.active = true;
     bd.userData = this;
