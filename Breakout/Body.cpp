@@ -10,13 +10,13 @@ namespace Breakout {
 
   Body::Body(BodyType type, Game *game)
     : mType(type)
-    , mGame(game)
     , mID(0xffffffffU)
     , mAlive(true)
     , mVisible(true)
     , mZIndex(0)
     , mBody(nullptr)
   {
+    setGame(game);
     mSpawned.restart();
   }
 
@@ -108,14 +108,13 @@ namespace Breakout {
       world->DestroyBody(mBody);
       mBody = nullptr;
     }
-    mAlive = false;
-    setVisible(false);
   }
 
 
   void Body::kill(void)
   {
-    remove();
+    mAlive = false;
+    setVisible(false);
     signalKilled(this);
   }
 

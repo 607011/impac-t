@@ -20,7 +20,8 @@ namespace Breakout {
     virtual void onUpdate(float elapsedSeconds);
     virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
 
-    void hit(void);
+    void hit(float impulse);
+
   };
 
 }

@@ -83,9 +83,8 @@ namespace Breakout {
     void onBodyKilled(Body *body);
     int tileWidth(void) const;
     int tileHeight(void) const;
-    int width(void) const;
-    int height(void) const;
     b2World *world(void);
+    const Level *level(void) const;
     b2Body *ground(void) const;
 
   private:
@@ -97,6 +96,8 @@ namespace Breakout {
     sf::Font mFixedFont;
     sf::Clock mClock;
     sf::Clock mWallClock;
+    sf::Text mScoreMsg;
+
 
     // Box2D
     static const int32 VelocityIterations = 8;
@@ -116,23 +117,7 @@ namespace Breakout {
     // level data
     Ball *mBall;
     Pad *mPad;
-    static const std::string LevelsRootDir;
-    void setLevel(int);
-    void loadLevel(void);
-    float mBackgroundImageOpacity;
-    sf::Texture mBackgroundTexture;
-    sf::Sprite mBackgroundSprite;
-    int mLevelNum;
-    uint32_t *mMapData;
-    uLongf mMapDataSize;
-    int mNumTilesX;
-    int mNumTilesY;
-    int mTileWidth;
-    int mTileHeight;
-    uint32_t mFirstGID;
-    uint32_t mapData(int x, int y) const;
-    uint32_t *const mapDataScanLine(int y) const;
-    TextureCache mTextures;
+    Level mLevel;
 
     // game logic
     std::vector<sf::Keyboard::Key> mKeyMapping;

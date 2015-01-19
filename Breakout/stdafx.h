@@ -46,9 +46,9 @@
 
 #include "main.h"
 #include "util.h"
-
+#include "globals.h"
+#include "Level.h"
 #include "Destructible.h"
-#include "TextureCache.h"
 #include "Body.h"
 #include "BodyBlock.h"
 #include "BodyBall.h"

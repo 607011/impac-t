@@ -10,7 +10,7 @@ namespace Breakout {
   {
     setZIndex(Body::ZIndex::Foreground + 0);
     mName = "Ball";
-    mTexture = TextureCache::texture(mName);
+    mTexture = mGame->level()->texture(mName);
 
     const float W = float(mTexture.getSize().x);
     const float H = float(mTexture.getSize().y);

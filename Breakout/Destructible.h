@@ -13,12 +13,17 @@ namespace Breakout {
   public:
     Destructible(int energy = INT_MAX)
       : mEnergy(energy)
+      , mScore(0)
     { /* ... */ }
     virtual ~Destructible()
     { /* ... */ }
     virtual int getScore(void) const
     {
-      return 0;
+      return mScore;
+    }
+    virtual void setScore(int score)
+    {
+      mScore = score;
     }
     virtual bool hit(int energy)
     {
@@ -36,6 +41,7 @@ namespace Breakout {
 
   private:
     int mEnergy;
+    int mScore;
   };
 
 }

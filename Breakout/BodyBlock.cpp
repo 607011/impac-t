@@ -10,7 +10,7 @@ namespace Breakout {
     : Body(Body::BodyType::Block, game)
   {
     setZIndex(Body::ZIndex::Foreground + 0);
-    mTexture = TextureCache::texture(index);
+    mTexture = mGame->level()->texture(index);
     mName = "Block";
 
     const float W = float(mTexture.getSize().x);
@@ -41,32 +41,32 @@ namespace Breakout {
 
     b2FixtureDef fdBox;
     fdBox.shape = &polygon;
-    fdBox.density = 11.f;
-    fdBox.friction = 2.f * mGame->world()->GetGravity().y;
+    fdBox.density = 800.f;
+    fdBox.friction = mGame->world()->GetGravity().y;
     fdBox.restitution = 0.04f;
     mBody->CreateFixture(&fdBox);
 
-    b2CircleShape circleL;
-    circleL.m_p.Set(-8.f * sx, 0.f);
-    circleL.m_radius = 8.f * sx;
+    //b2CircleShape circleL;
+    //circleL.m_p.Set(-8.f * sx, 0.f);
+    //circleL.m_radius = 8.f * sx;
 
-    b2FixtureDef fdCircleL;
-    fdCircleL.shape = &circleL;
-    fdCircleL.density = 11.f;
-    fdCircleL.friction = .7f;
-    fdCircleL.restitution = 0.95f;
-    mBody->CreateFixture(&fdCircleL);
+    //b2FixtureDef fdCircleL;
+    //fdCircleL.shape = &circleL;
+    //fdCircleL.density = 11.f;
+    //fdCircleL.friction = .7f;
+    //fdCircleL.restitution = 0.95f;
+    //mBody->CreateFixture(&fdCircleL);
 
-    b2CircleShape circleR;
-    circleR.m_p.Set(+8.f * sx, 0.f);
-    circleR.m_radius = 8.f * sx;
+    //b2CircleShape circleR;
+    //circleR.m_p.Set(+8.f * sx, 0.f);
+    //circleR.m_radius = 8.f * sx;
 
-    b2FixtureDef fdCircleR;
-    fdCircleR.shape = &circleR;
-    fdCircleR.density = 11.f;
-    fdCircleR.friction = .7f;
-    fdCircleR.restitution = 0.95f;
-    mBody->CreateFixture(&fdCircleR);
+    //b2FixtureDef fdCircleR;
+    //fdCircleR.shape = &circleR;
+    //fdCircleR.density = 11.f;
+    //fdCircleR.friction = .7f;
+    //fdCircleR.restitution = 0.95f;
+    //mBody->CreateFixture(&fdCircleR);
   }
 
 
@@ -85,8 +85,11 @@ namespace Breakout {
   }
 
 
-  void Block::hit(void)
+  void Block::hit(float impulse)
   {
-    mBody->SetGravityScale(3.f);
+    bool destroyed = Body::hit(int(impulse));
+    if (destroyed)
+      kill();
   }
+
 }

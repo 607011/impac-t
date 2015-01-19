@@ -8,7 +8,6 @@ namespace Breakout {
 
   const float Game::ShotSpeed = 9.f;
   const float Game::Scale = 16.f;
-  const std::string Game::LevelsRootDir =  "resources/levels/";
 
   Game::Game(void)
     : mWindow(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Bangout")
@@ -22,14 +21,6 @@ namespace Breakout {
     , mPaused(false)
     , mState(State::Initialization)
     , mKeyMapping(Action::LastAction)
-    , mFirstGID(1)
-    , mMapData(nullptr)
-    , mMapDataSize(0)
-    , mNumTilesX(0)
-    , mNumTilesY(0)
-    , mTileWidth(0)
-    , mTileHeight(0)
-    , mLevelNum(0)
   {
     bool ok;
 
@@ -54,6 +45,10 @@ namespace Breakout {
     if (!ok)
       sf::err() << "resources/fonts/emulogic.ttf failed to load." << std::endl;
 
+    mScoreMsg.setFont(mFixedFont);
+    mScoreMsg.setCharacterSize(22);
+    mScoreMsg.setColor(sf::Color(255, 255, 255));
+
     mKeyMapping[Action::MoveLeft] = sf::Keyboard::Left;
     mKeyMapping[Action::MoveRight] = sf::Keyboard::Right;
     mKeyMapping[Action::SpecialAction] = sf::Keyboard::Y;
@@ -68,18 +63,6 @@ namespace Breakout {
   Game::~Game(void)
   {
     // ...
-  }
-
-
-  b2World *Game::world(void)
-  {
-    return mWorld;
-  }
-
-
-  b2Body *Game::ground(void) const
-  {
-    return mGround;
   }
 
 
@@ -99,7 +82,8 @@ namespace Breakout {
     mLives = DefaultLives;
 #endif
     mTotalScore = 0;
-    setLevel(1);
+    mLevel.set(1);
+    buildLevel();
     setState(State::Playing);
   }
 
@@ -110,7 +94,6 @@ namespace Breakout {
     mDefaultView.setCenter(0.5f * sf::Vector2f(mWindow.getSize()));
     mPlayView = sf::View(sf::FloatRect(0.f, 0.f, float(mWindow.getSize().x), float(mWindow.getSize().y)));
   }
-    
 
 
   void Game::setState(State state)
@@ -225,7 +208,7 @@ namespace Breakout {
           if (mBall)
             mBall->kill();
           mBall = new Ball(this);
-          mBall->setPosition(float(mNumTilesX / 2), float(mNumTilesY - 2));
+          mBall->setPosition(float(mLevel.width() / 2), float(mLevel.height() - 2));
           addBody(mBall);
         }
         break;
@@ -255,12 +238,18 @@ namespace Breakout {
   {
     const sf::Time &elapsed = mClock.restart();
     clearWindow();
-    mWindow.draw(mBackgroundSprite);
+    mWindow.draw(mLevel.backgroundSprite());
     handleEvents();
     handlePlayerInteraction();
     if (!mPaused)
       update(elapsed.asSeconds());
     drawWorld(mPlayView);
+    //std::ostringstream buf;
+    //buf << mScore;
+    //mScoreMsg.setString(buf.str());
+    mScoreMsg.setString(std::to_string(mScore));
+    mScoreMsg.setPosition(mPlayView.getCenter().x + mPlayView.getSize().x / 2 - mScoreMsg.getLocalBounds().width - 20, 20);
+    mWindow.draw(mScoreMsg);
   }
 
 
@@ -302,8 +291,9 @@ namespace Breakout {
     }
     for (BodyList::iterator b = mDeadBodies.begin(); b != mDeadBodies.end(); ++b) {
       Body *deadBody = *b;
+      deadBody->remove(),
       mBodies.remove(deadBody);
-      safeDelete(deadBody);
+      safeDelete(deadBody); // removes b2Body from world, see Body::~Body()
     }
     mDeadBodies.clear();
   }
@@ -311,33 +301,32 @@ namespace Breakout {
 
   void Game::PreSolve(b2Contact *contact, const b2Manifold *oldManifold)
   {
-    const b2Manifold *manifold = contact->GetManifold();
-    if (manifold->pointCount == 0)
-      return;
+    //const b2Manifold *manifold = contact->GetManifold();
+    //if (manifold->pointCount == 0)
+    //  return;
 
-    b2Fixture* fixtureA = contact->GetFixtureA();
-    b2Fixture* fixtureB = contact->GetFixtureB();
+    //b2Fixture* fixtureA = contact->GetFixtureA();
+    //b2Fixture* fixtureB = contact->GetFixtureB();
 
-    b2PointState state1[b2_maxManifoldPoints];
-    b2PointState state2[b2_maxManifoldPoints];
-    b2GetPointStates(state1, state2, oldManifold, manifold);
+    //b2PointState state1[b2_maxManifoldPoints];
+    //b2PointState state2[b2_maxManifoldPoints];
+    //b2GetPointStates(state1, state2, oldManifold, manifold);
 
-    b2WorldManifold worldManifold;
-    contact->GetWorldManifold(&worldManifold);
+    //b2WorldManifold worldManifold;
+    //contact->GetWorldManifold(&worldManifold);
 
-    for (int32 i = 0; i < manifold->pointCount && mPointCount < MaxContactPoints; ++i) {
-      ContactPoint *cp = mPoints + mPointCount;
-      cp->fixtureA = fixtureA;
-      cp->fixtureB = fixtureB;
-      cp->position = worldManifold.points[i];
-      cp->normal = worldManifold.normal;
-      cp->state = state2[i];
-      cp->normalImpulse = manifold->points[i].normalImpulse;
-      cp->tangentImpulse = manifold->points[i].tangentImpulse;
-      cp->separation = worldManifold.separations[i];
-      ++mPointCount;
-    }
-
+    //for (int32 i = 0; i < manifold->pointCount && mPointCount < MaxContactPoints; ++i) {
+    //  ContactPoint *cp = mPoints + mPointCount;
+    //  cp->fixtureA = fixtureA;
+    //  cp->fixtureB = fixtureB;
+    //  cp->position = worldManifold.points[i];
+    //  cp->normal = worldManifold.normal;
+    //  cp->state = state2[i];
+    //  cp->normalImpulse = manifold->points[i].normalImpulse;
+    //  cp->tangentImpulse = manifold->points[i].tangentImpulse;
+    //  cp->separation = worldManifold.separations[i];
+    //  ++mPointCount;
+    //}
   }
 
 
@@ -355,8 +344,6 @@ namespace Breakout {
 
   void Game::PostSolve(b2Contact *contact, const b2ContactImpulse *impulse)
   {
-    B2_NOT_USED(contact);
-    B2_NOT_USED(impulse);
     void *dA = contact->GetFixtureA()->GetBody()->GetUserData();
     void *dB = contact->GetFixtureB()->GetBody()->GetUserData();
 
@@ -370,100 +357,7 @@ namespace Breakout {
       if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
         Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
         Ball *ball = reinterpret_cast<Ball*>(a->type() == Body::BodyType::Ball ? a : b);
-        std::cout << impulse->normalImpulses[0] << " / " << impulse->normalImpulses[1] << std::endl;
-        block->hit();
-      }
-    }
-  }
-
-
-  // level functions
-
-  void Game::setLevel(int level)
-  {
-    mLevelNum = level;
-    if (mLevelNum > 0) {
-      loadLevel();
-      buildLevel();
-    }
-  }
-
-
-  #pragma warning(disable : 4503)
-  void Game::loadLevel(void)
-  {
-    safeFree(mMapData);
-    mBackgroundImageOpacity = 1.f;
-
-    std::ostringstream buf;
-    buf << LevelsRootDir << std::setw(4) << std::setfill('0') << (1) << ".tmx";
-    const std::string &filename = buf.str();
-    bool ok = true;
-    boost::property_tree::ptree pt;
-    try {
-      boost::property_tree::xml_parser::read_xml(filename, pt);
-    }
-    catch (const boost::property_tree::xml_parser::xml_parser_error &ex) {
-      sf::err() << "XML parser error: " << ex.what() << " (line " << ex.line() << ")" << std::endl;
-      ok = false;
-    }
-    if (ok) {
-      const std::string &mapDataB64 = pt.get<std::string>("map.layer.data");
-      mTileWidth = pt.get<int>("map.<xmlattr>.tilewidth");
-      mTileHeight = pt.get<int>("map.<xmlattr>.tileheight");
-      mNumTilesX = pt.get<int>("map.<xmlattr>.width");
-      mNumTilesY = pt.get<int>("map.<xmlattr>.height");
-
-#ifndef NDEBUG
-      std::cout << "Map size: " << mNumTilesX << "x" << mNumTilesY << std::endl;
-#endif
-      uint8_t *compressed = nullptr;
-      uLong compressedSize = 0UL;
-      base64_decode(mapDataB64, compressed, compressedSize);
-      if (compressed != nullptr && compressedSize > 0) {
-        static const int CHUNKSIZE = 1*1024*1024;
-        mMapData = (uint32_t*)std::malloc(CHUNKSIZE);
-        mMapDataSize = CHUNKSIZE;
-        int rc = uncompress((Bytef*)mMapData, &mMapDataSize, (Bytef*)compressed, compressedSize);
-        if (rc == Z_OK) {
-          mMapData = reinterpret_cast<uint32_t*>(std::realloc(mMapData, mMapDataSize));
-#ifndef NDEBUG
-          std::cout << "map data contains " << (mMapDataSize / sizeof(uint32_t)) << " elements." << std::endl;
-#endif
-        }
-        else
-          sf::err() << "Inflating map data failed with code " << rc << "\n";
-        delete [] compressed;
-      }
-      const std::string &backgroundTextureFilename = LevelsRootDir + pt.get<std::string>("map.imagelayer.image.<xmlattr>.source");
-      mBackgroundTexture.loadFromFile(backgroundTextureFilename);
-      mBackgroundSprite.setTexture(mBackgroundTexture);
-      mBackgroundImageOpacity = pt.get<float>("map.imagelayer.<xmlattr>.opacity");
-      mBackgroundSprite.setColor(sf::Color(255, 255, 255, sf::Uint8(mBackgroundImageOpacity * 0xff)));
-
-      mTextures.clear();
-      const boost::property_tree::ptree &tileset = pt.get_child("map.tileset");
-      mFirstGID = tileset.get<uint32_t>("<xmlattr>.firstgid");
-      boost::property_tree::ptree::const_iterator ti;
-      std::string tileName;
-      for (ti = tileset.begin(); ti != tileset.end(); ++ti) {
-        boost::property_tree::ptree tile = ti->second;
-        if (ti->first == "tile") {
-          const int id = mFirstGID + tile.get<int>("<xmlattr>.id");
-          const std::string &filename = LevelsRootDir + tile.get<std::string>("image.<xmlattr>.source");
-          const boost::property_tree::ptree &properties = tile.get_child("properties");
-          boost::property_tree::ptree::const_iterator pi;
-          for (pi = properties.begin(); pi != properties.end(); ++pi) {
-            boost::property_tree::ptree property = pi->second;
-            if (pi->first == "property") {
-              if (property.get<std::string>("<xmlattr>.name") == "Name" ) {
-                tileName = property.get<std::string>("<xmlattr>.value");
-                break;
-              }
-            }
-          }
-          mTextures.add(filename, id, tileName);
-        }
+        block->hit(impulse->normalImpulses[0]);
       }
     }
   }
@@ -476,8 +370,8 @@ namespace Breakout {
 
     // create boundaries
     { 
-      float32 W = float32(mNumTilesX);
-      float32 H = float32(mNumTilesY);
+      float32 W = float32(mLevel.width());
+      float32 H = float32(mLevel.height());
       b2BodyDef bd;
       b2Body *boundaries = mWorld->CreateBody(&bd);
       b2EdgeShape topBoundary;
@@ -497,25 +391,27 @@ namespace Breakout {
     // create virtual ground
     {
       b2BodyDef bd;
-      bd.position.Set(0.f, float32(mNumTilesY - 1));
+      bd.position.Set(0.f, float32(mLevel.height() - 1));
       mGround = mWorld->CreateBody(&bd);
     }
 
     // create pad
     {
       mPad = new Pad(this);
-      mPad->setPosition(float(mNumTilesX / 2), float(mNumTilesY - 1.5f));
+      mPad->setPosition(float(mLevel.width() / 2), float(mLevel.height() - 1.5f));
       addBody(mPad);
     }
 
     // create blocks
     {
-      for (int y = 0; y < mNumTilesY; ++y) {
-        const uint32_t *mapRow = mapDataScanLine(y);
-        for (int x = 0; x < mNumTilesX; ++x) {
+      for (int y = 0; y < mLevel.height(); ++y) {
+        const uint32_t *mapRow = mLevel.mapDataScanLine(y);
+        for (int x = 0; x < mLevel.width(); ++x) {
           const uint32_t tileId = mapRow[x];
-          if (tileId >= mFirstGID) {
+          if (tileId >= mLevel.firstGID()) {
             Block *block = new Block(tileId, this);
+            block->setScore(mLevel.score(tileId));
+            block->setEnergy(100);
             block->setPosition(float(x), float(y));
             addBody(block);
           }
@@ -538,42 +434,6 @@ namespace Breakout {
   }
 
 
-  uint32_t *const Game::mapDataScanLine(int y) const
-  {
-    return mMapData + y * mNumTilesX;
-  }
-
-
-  uint32_t Game::mapData(int x, int y) const
-  {
-    return mapDataScanLine(y)[x];
-  }
-
-
-  int Game::width(void) const
-  {
-    return mNumTilesX;
-  }
-
-
-  int Game::height(void) const
-  {
-    return mNumTilesY;
-  }
-
-
-  int Game::tileWidth(void) const
-  {
-    return mTileWidth;
-  }
-
-
-  int Game::tileHeight(void) const
-  {
-    return mTileHeight;
-  }
-
-
   void Game::addBody(Body *body)
   {
     body->setId(mCurrentBodyId++);
@@ -583,6 +443,39 @@ namespace Breakout {
 
   void Game::onBodyKilled(Body *killedBody)
   {
-    UNUSED(killedBody);
+    mScore += killedBody->getScore();
   }
+
+
+  const Level *Game::level(void) const
+  {
+    return &mLevel;
+  }
+
+
+  b2World *Game::world(void)
+  {
+    return mWorld;
+  }
+
+
+  b2Body *Game::ground(void) const
+  {
+    return mGround;
+  }
+
+
+
+  int Game::tileWidth(void) const
+  {
+    return mLevel.tileWidth();
+  }
+
+
+  int Game::tileHeight(void) const
+  {
+    return mLevel.tileHeight();
+  }
+
+
 }

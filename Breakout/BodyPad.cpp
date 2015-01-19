@@ -9,8 +9,8 @@ namespace Breakout {
     : Body(Body::BodyType::Pad, game)
   {
     setZIndex(Body::ZIndex::Foreground + 0);
-    mName = "Pad";
-    mTexture = TextureCache::texture(mName);
+    mName = std::string("Pad");
+    mTexture = mGame->level()->texture(mName);
 
     const float sx = 1.f / mGame->tileWidth();
     const float sy = 1.f / mGame->tileHeight();

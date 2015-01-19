@@ -88,11 +88,12 @@
     <ClCompile Include="BodyBlock.cpp" />
     <ClCompile Include="BodyPad.cpp" />
     <ClCompile Include="Breakout.cpp" />
+    <ClCompile Include="globals.cpp" />
+    <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -104,9 +105,10 @@
     <ClInclude Include="Breakout.h" />
     <ClInclude Include="Destructible.h" />
     <ClInclude Include="Destructive.h" />
+    <ClInclude Include="globals.h" />
+    <ClInclude Include="Level.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="TextureCache.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
