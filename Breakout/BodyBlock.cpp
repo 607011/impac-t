@@ -10,6 +10,7 @@ namespace Breakout {
     : Body(Body::BodyType::Block, game)
   {
     setZIndex(Body::ZIndex::Foreground + 0);
+    setEnergy(100);
     mTexture = mGame->level()->texture(index);
     mName = "Block";
 
@@ -89,7 +90,7 @@ namespace Breakout {
   {
     bool destroyed = Body::hit(int(impulse));
     if (destroyed)
-      kill();
+      mBody->SetGravityScale(2.f);
   }
 
 }

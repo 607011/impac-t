@@ -244,9 +244,6 @@ namespace Breakout {
     if (!mPaused)
       update(elapsed.asSeconds());
     drawWorld(mPlayView);
-    //std::ostringstream buf;
-    //buf << mScore;
-    //mScoreMsg.setString(buf.str());
     mScoreMsg.setString(std::to_string(mScore));
     mScoreMsg.setPosition(mPlayView.getCenter().x + mPlayView.getSize().x / 2 - mScoreMsg.getLocalBounds().width - 20, 20);
     mWindow.draw(mScoreMsg);
@@ -359,6 +356,7 @@ namespace Breakout {
         Ball *ball = reinterpret_cast<Ball*>(a->type() == Body::BodyType::Ball ? a : b);
         block->hit(impulse->normalImpulses[0]);
       }
+
     }
   }
 
@@ -411,7 +409,6 @@ namespace Breakout {
           if (tileId >= mLevel.firstGID()) {
             Block *block = new Block(tileId, this);
             block->setScore(mLevel.score(tileId));
-            block->setEnergy(100);
             block->setPosition(float(x), float(y));
             addBody(block);
           }

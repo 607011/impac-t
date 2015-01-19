@@ -86,6 +86,7 @@
     <ClCompile Include="Body.cpp" />
     <ClCompile Include="BodyBall.cpp" />
     <ClCompile Include="BodyBlock.cpp" />
+    <ClCompile Include="BodyGround.cpp" />
     <ClCompile Include="BodyPad.cpp" />
     <ClCompile Include="Breakout.cpp" />
     <ClCompile Include="globals.cpp" />
