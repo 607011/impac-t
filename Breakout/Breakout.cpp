@@ -387,11 +387,11 @@ namespace Breakout {
     }
 
     // create virtual ground
-    {
-      b2BodyDef bd;
-      bd.position.Set(0.f, float32(mLevel.height() + 0.5f));
-      mGround = mWorld->CreateBody(&bd);
-    }
+    //{
+    //  b2BodyDef bd;
+    //  bd.position.Set(0.f, float32(mLevel.height() + 0.5f));
+    //  mGround = mWorld->CreateBody(&bd);
+    //}
 
     // create pad
     {
