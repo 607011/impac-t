@@ -28,25 +28,28 @@ namespace Breakout {
     bd.awake = true;
     bd.fixedRotation = false;
     bd.linearVelocity = b2Vec2(0.f, -1.f);
-    //bd.linearVelocity = b2Vec2(10.f - 20.f * std::cos(0.5f * _PI * float(std::rand()) / RAND_MAX), -40.f);
     bd.bullet = true;
     bd.active = true;
     bd.userData = this;
     mBody = game->world()->CreateBody(&bd);
 
-    const float sx = 1.f / game->tileWidth();
-    const float sy = 1.f / game->tileHeight();
-
     b2CircleShape circle;
     circle.m_p.SetZero();
-    circle.m_radius = W * sx * 0.5f;
+    circle.m_radius = W / game->tileWidth() * 0.5f;
 
     b2FixtureDef fd;
     fd.shape = &circle;
     fd.density = 11.f;
     fd.friction = 0.7f;
     fd.restitution = 1.f;
+    fd.userData = nullptr;
     mBody->CreateFixture(&fd);
+  }
+
+
+  Ball::~Ball()
+  {
+    // ...
   }
 
 

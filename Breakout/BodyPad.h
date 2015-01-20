@@ -24,6 +24,7 @@ namespace Breakout {
     void stopKick(void);
 
     virtual void setPosition(float x, float y);
+    virtual const b2Vec2 &position(void) const;
 
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);

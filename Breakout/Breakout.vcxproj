@@ -92,6 +92,7 @@
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
@@ -106,9 +107,11 @@
     <ClInclude Include="Breakout.h" />
     <ClInclude Include="Destructible.h" />
     <ClInclude Include="Destructive.h" />
+    <ClInclude Include="Easings.h" />
     <ClInclude Include="globals.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>

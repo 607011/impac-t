@@ -50,6 +50,7 @@ namespace Breakout {
       KickRight,
       SpecialAction,
       BackAction,
+      Restart,
       LastAction
     } Action;
 
@@ -93,12 +94,10 @@ namespace Breakout {
     sf::RenderWindow mWindow;
     sf::View mDefaultView;
     sf::View mPlayView;
-    sf::Font mDecorationFont;
     sf::Font mFixedFont;
     sf::Clock mClock;
     sf::Clock mWallClock;
     sf::Text mScoreMsg;
-
 
     // Box2D
     static const int32 VelocityIterations = 8;
@@ -127,10 +126,11 @@ namespace Breakout {
     int mScore;
     int mLives;
     bool mPaused;
+    bool mRestartRequested;
     BodyList mBodies;
-    BodyList mDeadBodies;
     unsigned int mCurrentBodyId;
 
+    void gameOver(void);
     void newBall(void);
     void setState(State state);
     void clearWorld(void);

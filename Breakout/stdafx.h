@@ -47,6 +47,7 @@
 #include "main.h"
 #include "util.h"
 #include "globals.h"
+#include "Easings.h"
 #include "Level.h"
 #include "Destructible.h"
 #include "Body.h"
@@ -54,6 +55,7 @@
 #include "BodyBall.h"
 #include "BodyPad.h"
 #include "BodyGround.h"
+#include "ParticleSystem.h"
 #include "Breakout.h"
 
 

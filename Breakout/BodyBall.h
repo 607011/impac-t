@@ -14,7 +14,7 @@ namespace Breakout {
   {
   public:
     Ball(Game *game);
-    virtual ~Ball() {}
+    virtual ~Ball();
 
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);

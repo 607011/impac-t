@@ -13,6 +13,7 @@ namespace Breakout {
     , mID(0xffffffffU)
     , mAlive(true)
     , mVisible(true)
+    , mMaxAge(sf::milliseconds(0))
     , mZIndex(0)
     , mBody(nullptr)
   {
@@ -65,6 +66,12 @@ namespace Breakout {
   }
 
 
+  const b2Vec2 &Body::position(void) const
+  {
+    return mBody->GetPosition();
+  }
+
+
   void Body::setLifetime(const sf::Time &lifetime)
   {
     mMaxAge = lifetime;
@@ -98,6 +105,12 @@ namespace Breakout {
   void Body::setType(Body::BodyType type)
   {
     mType = type;
+  }
+
+
+  const sf::Texture &Body::texture(void) const
+  {
+    return mTexture;
   }
 
   

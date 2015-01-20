@@ -193,4 +193,10 @@ namespace Breakout {
     target.draw(mSprite, states);
   }
 
+
+  const b2Vec2 &Pad::position(void) const
+  {
+    return mTeetingBody->GetPosition();
+  }
+
 }

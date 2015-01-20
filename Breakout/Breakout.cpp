@@ -19,6 +19,7 @@ namespace Breakout {
     , mTotalScore(0)
     , mLives(3)
     , mPaused(false)
+    , mRestartRequested(false)
     , mState(State::Initialization)
     , mKeyMapping(Action::LastAction)
   {
@@ -38,9 +39,6 @@ namespace Breakout {
     //icon.loadFromFile("resources/gui/app-icon.png");
     //mWindow.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 
-    ok = mDecorationFont.loadFromFile("resources/fonts/planetkosmos.ttf");
-    if (!ok)
-      sf::err() << "resources/fonts/planetkosmos.ttf failed to load." << std::endl;
     ok = mFixedFont.loadFromFile("resources/fonts/emulogic.ttf");
     if (!ok)
       sf::err() << "resources/fonts/emulogic.ttf failed to load." << std::endl;
@@ -55,6 +53,7 @@ namespace Breakout {
     mKeyMapping[Action::BackAction] = sf::Keyboard::Escape;
     mKeyMapping[Action::KickLeft] = sf::Keyboard::V;
     mKeyMapping[Action::KickRight] = sf::Keyboard::X;
+    mKeyMapping[Action::Restart] = sf::Keyboard::Delete;
 
     restart();
   }
@@ -70,17 +69,13 @@ namespace Breakout {
   {
     safeRenew(mWorld, new b2World(b2Vec2(0.f, 9.81f)));
     mWorld->SetDestructionListener(&mDestructionListener);
-	  mWorld->SetContactListener(this);
+    mWorld->SetContactListener(this);
     mWorld->SetAllowSleeping(false);
     mWorld->SetWarmStarting(true);
     mWorld->SetContinuousPhysics(false);
     mWorld->SetSubStepping(true);
 
-#ifndef NDEBUG
-    mLives = 1;
-#else
     mLives = DefaultLives;
-#endif
     mTotalScore = 0;
     mLevel.set(1);
     buildLevel();
@@ -159,17 +154,8 @@ namespace Breakout {
 
   void Game::clearWorld(void)
   {
-    // safeDelete(mPlayer);
+    safeDelete(mBall);
     mBodies.clear();
-  }
-
-
-  void Game::evaluateCollisions(void)
-  {
-    for (int i = 0; i < mPointCount; ++i) {
-      ContactPoint &cp = mPoints[i];
-      // ???
-    }
   }
 
 
@@ -198,14 +184,11 @@ namespace Breakout {
         if (event.key.code == mKeyMapping[Action::BackAction]) {
           mWindow.close();
         }
-        else if (event.key.code == mKeyMapping[Action::KickLeft]) {
-				  mPad->kickLeft();
-        }
-        else if (event.key.code == mKeyMapping[Action::KickRight]) {
-				  mPad->kickRight();
-        }
         else if (event.key.code == mKeyMapping[Action::SpecialAction]) {
           newBall();
+        }
+        else if (event.key.code == mKeyMapping[Action::Restart]) {
+          mRestartRequested = true;
         }
         break;
       }
@@ -232,6 +215,12 @@ namespace Breakout {
 
   void Game::onPlaying(void)
   {
+    if (mRestartRequested) {
+      mRestartRequested = false;
+      // restart();
+      std::cout << "mRestartRequested!" << std::endl;
+      return;
+    }
     const sf::Time &elapsed = mClock.restart();
     clearWindow();
     mWindow.draw(mLevel.backgroundSprite());
@@ -243,6 +232,15 @@ namespace Breakout {
     mScoreMsg.setString(std::to_string(mScore));
     mScoreMsg.setPosition(mPlayView.getCenter().x + mPlayView.getSize().x / 2 - mScoreMsg.getLocalBounds().width - 20, 20);
     mWindow.draw(mScoreMsg);
+
+    for (int life = 0; life < mLives; ++life) {
+      const sf::Texture &ballTexture = mLevel.texture(std::string("Ball"));
+      sf::Sprite lifeSprite(ballTexture);
+      lifeSprite.setOrigin(16.f, 16.f);
+      lifeSprite.setPosition((ballTexture.getSize().x * 1.5f) * (1 + life), mPlayView.getCenter().y - 0.5f * mPlayView.getSize().y + 32);
+      mWindow.draw(lifeSprite);
+    }
+
   }
 
 
@@ -267,59 +265,75 @@ namespace Breakout {
   }
 
 
+  void Game::evaluateCollisions(void)
+  {
+    for (int i = 0; i < mPointCount; ++i) {
+      ContactPoint &cp = mPoints[i];
+      void *dA = cp.fixtureA->GetBody()->GetUserData();
+      void *dB = cp.fixtureB->GetBody()->GetUserData();
+
+      if (dA == nullptr || dB == nullptr)
+        return;
+
+      Body *a = reinterpret_cast<Body *>(dA);
+      Body *b = reinterpret_cast<Body *>(dB);
+
+      if (a->type() == Body::BodyType::Block || b->type() == Body::BodyType::Block) {
+        if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
+          Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
+          Ball *ball = reinterpret_cast<Ball*>(a->type() == Body::BodyType::Ball ? a : b);
+          block->hit(cp.normalImpulse);
+        }
+        else if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
+          Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
+          block->kill();
+          ParticleSystem *ps = new ParticleSystem(this);
+          ps->setPosition(block->position().x, block->position().y);
+          addBody(ps);
+        }
+        else if (a->type() == Body::BodyType::Pad || b->type() == Body::BodyType::Pad) {
+          Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
+          block->kill();
+        }
+      }
+      else if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
+        if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
+          Ball *ball = reinterpret_cast<Ball*>(a->type() == Body::BodyType::Ball ? a : b);
+          ball->kill();
+        }
+      }
+    }
+  }
+
+
   void Game::update(float elapsedSeconds)
   {
     evaluateCollisions();
 
-    mPointCount = 0;
-    mWorld->Step(elapsedSeconds, VelocityIterations, PositionIterations);
+    BodyList remainingBodies;
     for (BodyList::iterator b = mBodies.begin(); b != mBodies.end(); ++b) {
       Body *body = *b;
       if (body->isAlive()) {
         body->update(elapsedSeconds);
+        remainingBodies.push_back(body);
       }
       else {
-        mDeadBodies.push_back(*b);
+        if (body->type() == Body::BodyType::Ball)
+          mBall = nullptr;
+        delete body;
       }
     }
-    for (BodyList::iterator b = mDeadBodies.begin(); b != mDeadBodies.end(); ++b) {
-      Body *deadBody = *b;
-      deadBody->remove(),
-      mBodies.remove(deadBody);
-      safeDelete(deadBody); // removes b2Body from world, see Body::~Body()
-    }
-    mDeadBodies.clear();
+    mBodies = remainingBodies;
+
+    mPointCount = 0;
+    mWorld->Step(elapsedSeconds, VelocityIterations, PositionIterations);
   }
 
 
   void Game::PreSolve(b2Contact *contact, const b2Manifold *oldManifold)
   {
-    //const b2Manifold *manifold = contact->GetManifold();
-    //if (manifold->pointCount == 0)
-    //  return;
-
-    //b2Fixture* fixtureA = contact->GetFixtureA();
-    //b2Fixture* fixtureB = contact->GetFixtureB();
-
-    //b2PointState state1[b2_maxManifoldPoints];
-    //b2PointState state2[b2_maxManifoldPoints];
-    //b2GetPointStates(state1, state2, oldManifold, manifold);
-
-    //b2WorldManifold worldManifold;
-    //contact->GetWorldManifold(&worldManifold);
-
-    //for (int32 i = 0; i < manifold->pointCount && mPointCount < MaxContactPoints; ++i) {
-    //  ContactPoint *cp = mPoints + mPointCount;
-    //  cp->fixtureA = fixtureA;
-    //  cp->fixtureB = fixtureB;
-    //  cp->position = worldManifold.points[i];
-    //  cp->normal = worldManifold.normal;
-    //  cp->state = state2[i];
-    //  cp->normalImpulse = manifold->points[i].normalImpulse;
-    //  cp->tangentImpulse = manifold->points[i].tangentImpulse;
-    //  cp->separation = worldManifold.separations[i];
-    //  ++mPointCount;
-    //}
+    B2_NOT_USED(contact);
+    B2_NOT_USED(oldManifold);
   }
 
 
@@ -337,29 +351,7 @@ namespace Breakout {
 
   void Game::PostSolve(b2Contact *contact, const b2ContactImpulse *impulse)
   {
-    void *dA = contact->GetFixtureA()->GetBody()->GetUserData();
-    void *dB = contact->GetFixtureB()->GetBody()->GetUserData();
-
-    if (dA == nullptr || dB == nullptr)
-      return;
-
-    Body *a = reinterpret_cast<Body *>(dA);
-    Body *b = reinterpret_cast<Body *>(dB);
-
-    if (a->type() == Body::BodyType::Block || b->type() == Body::BodyType::Block) {
-      if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
-        Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
-        Ball *ball = reinterpret_cast<Ball*>(a->type() == Body::BodyType::Ball ? a : b);
-        block->hit(impulse->normalImpulses[0]);
-      }
-    }
-    else if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
-      std::cout << "PLOPP!" << std::endl;
-      if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
-        std::cout << "AUTSCH!" << std::endl;
-      }
-    }
-  }
+    b2Fixture* fixtureA = contact->GetFixtureA();    b2Fixture* fixtureB = contact->GetFixtureB();    if (mPointCount < MaxContactPoints) {      ContactPoint *cp = mPoints + mPointCount;      cp->fixtureA = fixtureA;      cp->fixtureB = fixtureB;      cp->position = contact->GetManifold()->points[0].localPoint;      cp->normal = b2Vec2_zero;      cp->normalImpulse = impulse->normalImpulses[0];      cp->tangentImpulse = impulse->tangentImpulses[0];      cp->separation = 0.f;      ++mPointCount;    }  }
 
 
   void Game::buildLevel(void)
@@ -400,17 +392,15 @@ namespace Breakout {
     }
 
     // create blocks
-    {
-      for (int y = 0; y < mLevel.height(); ++y) {
-        const uint32_t *mapRow = mLevel.mapDataScanLine(y);
-        for (int x = 0; x < mLevel.width(); ++x) {
-          const uint32_t tileId = mapRow[x];
-          if (tileId >= mLevel.firstGID()) {
-            Block *block = new Block(tileId, this);
-            block->setScore(mLevel.score(tileId));
-            block->setPosition(float(x), float(y));
-            addBody(block);
-          }
+    for (int y = 0; y < mLevel.height(); ++y) {
+      const uint32_t *mapRow = mLevel.mapDataScanLine(y);
+      for (int x = 0; x < mLevel.width(); ++x) {
+        const uint32_t tileId = mapRow[x];
+        if (tileId >= mLevel.firstGID()) {
+          Block *block = new Block(tileId, this);
+          block->setScore(mLevel.score(tileId));
+          block->setPosition(float(x), float(y));
+          addBody(block);
         }
       }
     }
@@ -419,12 +409,18 @@ namespace Breakout {
   }
 
 
+  void Game::gameOver(void)
+  {
+    std::cout << "gameOver()" << std::endl << std::endl;
+  }
+
+
   void Game::newBall(void)
   {
-    if (mBall)
-      mBall->kill();
+    safeDelete(mBall);
     mBall = new Ball(this);
-    mBall->setPosition(float(mLevel.width() / 2), float(mLevel.height() - 2.5f));
+    const b2Vec2 &padPos = mPad->position();
+    mBall->setPosition(padPos.x, padPos.y - 3.5f);
     addBody(mBall);
   }
 
@@ -451,6 +447,10 @@ namespace Breakout {
   void Game::onBodyKilled(Body *killedBody)
   {
     mScore += killedBody->getScore();
+    if (killedBody->type() == Body::BodyType::Ball) {
+      if (mLives-- == 0)
+        gameOver();
+    }
   }
 
 
@@ -470,7 +470,6 @@ namespace Breakout {
   {
     return mGround;
   }
-
 
 
   int Game::tileWidth(void) const

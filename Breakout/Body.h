@@ -13,7 +13,7 @@
 #include "Destructible.h"
 
 #include <cstdint>
-#include <list>
+#include <vector>
 
 namespace Breakout {
 
@@ -55,6 +55,7 @@ namespace Breakout {
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
     virtual void setPosition(float x, float y);
+    virtual const b2Vec2 &position(void) const;
 
     void setLifetime(const sf::Time &);
     const sf::Time &lifetime(void) const;
@@ -63,6 +64,8 @@ namespace Breakout {
 
     BodyType type(void) const;
     void setType(BodyType);
+
+    const sf::Texture &texture(void) const;
 
     void remove(void);
     virtual void kill(void);
@@ -113,8 +116,8 @@ namespace Breakout {
   };
 
 
-  typedef std::list<Body*> BodyList;
-  typedef std::list<const Body*> ConstBodyList;
+  typedef std::vector<Body*> BodyList;
+  typedef std::vector<const Body*> ConstBodyList;
 
 }
 

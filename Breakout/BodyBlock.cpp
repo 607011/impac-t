@@ -33,11 +33,23 @@ namespace Breakout {
     bd.active = true;
     bd.userData = this;
     mBody = game->world()->CreateBody(&bd);
-    mBody->SetUserData(this);
 
     const float sx = 1.f / game->tileWidth();
     const float sy = 1.f / game->tileHeight();
 
+#define USE_POLYGON_AS_BLOCK_SHAPE
+#ifdef USE_POLYGON_AS_BLOCK_SHAPE
+    b2PolygonShape polygon;
+    polygon.SetAsBox(0.5f * W * sx, 0.5f * H * sy);
+
+    b2FixtureDef fdBox;
+    fdBox.shape = &polygon;
+    fdBox.density = 800.f;
+    fdBox.friction = mGame->world()->GetGravity().y;
+    fdBox.restitution = 0.04f;
+    fdBox.userData = nullptr;
+    mBody->CreateFixture(&fdBox);
+#else
     b2PolygonShape polygon;
     polygon.SetAsBox(0.5f * (W - 8) * sx, 0.5f * H * sy);
 
@@ -46,29 +58,31 @@ namespace Breakout {
     fdBox.density = 800.f;
     fdBox.friction = mGame->world()->GetGravity().y;
     fdBox.restitution = 0.04f;
+    fdBox.userData = nullptr;
     mBody->CreateFixture(&fdBox);
 
-    //b2CircleShape circleL;
-    //circleL.m_p.Set(-8.f * sx, 0.f);
-    //circleL.m_radius = 8.f * sx;
+    b2CircleShape circleL;
+    circleL.m_p.Set(-8.f * sx, 0.f);
+    circleL.m_radius = 8.f * sx;
 
-    //b2FixtureDef fdCircleL;
-    //fdCircleL.shape = &circleL;
-    //fdCircleL.density = 11.f;
-    //fdCircleL.friction = .7f;
-    //fdCircleL.restitution = 0.95f;
-    //mBody->CreateFixture(&fdCircleL);
+    b2FixtureDef fdCircleL;
+    fdCircleL.shape = &circleL;
+    fdCircleL.density = 800.f;
+    fdCircleL.friction = mGame->world()->GetGravity().y;
+    fdCircleL.restitution = 0.04f;
+    mBody->CreateFixture(&fdCircleL);
 
-    //b2CircleShape circleR;
-    //circleR.m_p.Set(+8.f * sx, 0.f);
-    //circleR.m_radius = 8.f * sx;
+    b2CircleShape circleR;
+    circleR.m_p.Set(+8.f * sx, 0.f);
+    circleR.m_radius = 8.f * sx;
 
-    //b2FixtureDef fdCircleR;
-    //fdCircleR.shape = &circleR;
-    //fdCircleR.density = 11.f;
-    //fdCircleR.friction = .7f;
-    //fdCircleR.restitution = 0.95f;
-    //mBody->CreateFixture(&fdCircleR);
+    b2FixtureDef fdCircleR;
+    fdCircleR.shape = &circleR;
+    fdCircleR.density = 800.f;
+    fdCircleR.friction = mGame->world()->GetGravity().y;
+    fdCircleR.restitution = 0.04f;
+    mBody->CreateFixture(&fdCircleR);
+#endif
   }
 
 

@@ -14,8 +14,8 @@ namespace Breakout {
 
     {
       b2BodyDef bd;
+      bd.userData = this;
       mBody = mGame->world()->CreateBody(&bd);
-      mBody->SetUserData(this);
 
       b2EdgeShape bottomBoundary;
       bottomBoundary.Set(b2Vec2_zero, b2Vec2(width, 0.f));
@@ -28,19 +28,6 @@ namespace Breakout {
   Ground::~Ground()
   {
     mGame->world()->DestroyBody(mBody);
-  }
-
-
- 
-  void Ground::onUpdate(float elapsedSeconds)
-  {
-    UNUSED(elapsedSeconds);
-  }
-
-
-  void Ground::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
-  {
-    target.draw(mSprite, states);
   }
 
 

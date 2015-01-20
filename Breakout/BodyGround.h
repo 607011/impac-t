@@ -16,8 +16,8 @@ namespace Breakout {
     virtual ~Ground();
 
     // Body implementation
-    virtual void onUpdate(float elapsedSeconds);
-    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
+    virtual void onUpdate(float) { /* ... */ }
+    virtual void onDraw(sf::RenderTarget &, sf::RenderStates) const  { /* ... */ }
 
   };
 
