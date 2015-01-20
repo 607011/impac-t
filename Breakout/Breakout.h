@@ -13,6 +13,7 @@
 
 #include "BodyBall.h"
 #include "BodyPad.h"
+#include "BodyGround.h"
 
 
 namespace Breakout {
@@ -85,7 +86,7 @@ namespace Breakout {
     int tileHeight(void) const;
     b2World *world(void);
     const Level *level(void) const;
-    b2Body *ground(void) const;
+    Ground *ground(void) const;
 
   private:
     // SFML
@@ -103,7 +104,7 @@ namespace Breakout {
     static const int32 VelocityIterations = 8;
     static const int32 PositionIterations = 4;
     b2World *mWorld;
-    b2Body *mGround;
+    Ground *mGround;
     ContactPoint mPoints[MaxContactPoints];
     DestructionListener mDestructionListener;
     int32 mPointCount;
@@ -130,6 +131,7 @@ namespace Breakout {
     BodyList mDeadBodies;
     unsigned int mCurrentBodyId;
 
+    void newBall(void);
     void setState(State state);
     void clearWorld(void);
     void clearWindow(void);

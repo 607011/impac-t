@@ -12,18 +12,13 @@ namespace Breakout {
   class Ground : public Body
   {
   public:
-    Ground(Game *game);
+    Ground(Game *game, float width);
     virtual ~Ground();
 
-    virtual void setBody(b2Body *body)
-    {
-      Body::setBody(body);
-      body->SetUserData(this);
-    }
-
     // Body implementation
-    virtual void onUpdate(float elapsedSeconds) { /* ... */ }
-    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const  { /* ... */ }
+    virtual void onUpdate(float elapsedSeconds);
+    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
+
   };
 
 }

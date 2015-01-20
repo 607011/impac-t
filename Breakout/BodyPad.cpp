@@ -21,19 +21,6 @@ namespace Breakout {
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(0.5f * W, 0.5f * H);
 
-    // hinge
-    {
-      b2BodyDef bd;
-      bd.position.Set(0.f, 1.5f);
-      bd.type = b2_dynamicBody;
-      bd.gravityScale = 0.f;
-      bd.allowSleep = true;
-      bd.awake = true;
-      bd.userData = this;
-      bd.fixedRotation = true;
-      mBody = mGame->world()->CreateBody(&bd);
-    }
-
     // pad
     {
       b2BodyDef bd;
@@ -64,24 +51,45 @@ namespace Breakout {
       mTeetingBody->CreateFixture(&fd);
     }
 
-    b2PrismaticJointDef pjd;
-    pjd.bodyA = mGame->ground();
-    pjd.bodyB = mBody;
-    pjd.collideConnected = false;
-    pjd.localAxisA.Set(1.f, 0.f);
-    pjd.localAnchorA.SetZero();
-    pjd.localAnchorB.SetZero();
-    mGame->world()->CreateJoint(&pjd);
+    // hinge
+    {
+      b2BodyDef bd;
+      bd.position.Set(0.f, 1.5f);
+      bd.type = b2_dynamicBody;
+      bd.gravityScale = 0.f;
+      bd.allowSleep = true;
+      bd.awake = true;
+      bd.userData = this;
+      bd.fixedRotation = true;
+      mBody = mGame->world()->CreateBody(&bd);
 
-    b2RevoluteJointDef jd;
-    jd.Initialize(mBody, mTeetingBody, b2Vec2_zero);
-    jd.enableMotor = true;
-    jd.maxMotorTorque = 20000.0f;
-    jd.enableLimit = true;
-    jd.motorSpeed = 0.f;
-    jd.lowerAngle = deg2rad(-17.5f);
-    jd.upperAngle = deg2rad(+17.5f);
-    mJoint = reinterpret_cast<b2RevoluteJoint*>(mGame->world()->CreateJoint(&jd));
+      b2RevoluteJointDef jd;
+      jd.Initialize(mBody, mTeetingBody, b2Vec2_zero);
+      jd.enableMotor = true;
+      jd.maxMotorTorque = 20000.0f;
+      jd.enableLimit = true;
+      jd.motorSpeed = 0.f;
+      jd.lowerAngle = deg2rad(-17.5f);
+      jd.upperAngle = deg2rad(+17.5f);
+      mJoint = reinterpret_cast<b2RevoluteJoint*>(mGame->world()->CreateJoint(&jd));
+    }
+
+    // x-axis constraint
+    {
+      b2BodyDef bd;
+      bd.position.Set(0.f, float32(mGame->level()->height()));
+      b2Body *xAxis = mGame->world()->CreateBody(&bd);
+
+      b2PrismaticJointDef pjd;
+      pjd.bodyA = xAxis;
+      pjd.bodyB = mBody;
+      pjd.collideConnected = false;
+      pjd.localAxisA.Set(1.f, 0.f);
+      pjd.localAnchorA.SetZero();
+      pjd.localAnchorB.SetZero();
+      mGame->world()->CreateJoint(&pjd);
+    }
+
 
     //// left spring
     //{

@@ -168,7 +168,7 @@ namespace Breakout {
   {
     for (int i = 0; i < mPointCount; ++i) {
       ContactPoint &cp = mPoints[i];
-
+      // ???
     }
   }
 
@@ -205,11 +205,7 @@ namespace Breakout {
 				  mPad->kickRight();
         }
         else if (event.key.code == mKeyMapping[Action::SpecialAction]) {
-          if (mBall)
-            mBall->kill();
-          mBall = new Ball(this);
-          mBall->setPosition(float(mLevel.width() / 2), float(mLevel.height() - 2.5f));
-          addBody(mBall);
+          newBall();
         }
         break;
       }
@@ -356,7 +352,12 @@ namespace Breakout {
         Ball *ball = reinterpret_cast<Ball*>(a->type() == Body::BodyType::Ball ? a : b);
         block->hit(impulse->normalImpulses[0]);
       }
-
+    }
+    else if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
+      std::cout << "PLOPP!" << std::endl;
+      if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
+        std::cout << "AUTSCH!" << std::endl;
+      }
     }
   }
 
@@ -370,28 +371,26 @@ namespace Breakout {
     { 
       float32 W = float32(mLevel.width());
       float32 H = float32(mLevel.height());
+
       b2BodyDef bd;
       b2Body *boundaries = mWorld->CreateBody(&bd);
+
       b2EdgeShape topBoundary;
       topBoundary.Set(b2Vec2(0, 0), b2Vec2(W, 0));
-      boundaries->CreateFixture(&topBoundary, 0);
+      boundaries->CreateFixture(&topBoundary, 0.f);
+
       b2EdgeShape rightBoundary;
       rightBoundary.Set(b2Vec2(W, 0), b2Vec2(W, H));
       boundaries->CreateFixture(&rightBoundary, 0.f);
-      b2EdgeShape bottomBoundary;
-      bottomBoundary.Set(b2Vec2(0.f, H), b2Vec2(W, H));
-      boundaries->CreateFixture(&bottomBoundary, 0.f);
+
       b2EdgeShape leftBoundary;
       leftBoundary.Set(b2Vec2(0, 0), b2Vec2(0, H));
       boundaries->CreateFixture(&leftBoundary, 0.f);
-    }
 
-    // create virtual ground
-    //{
-    //  b2BodyDef bd;
-    //  bd.position.Set(0.f, float32(mLevel.height() + 0.5f));
-    //  mGround = mWorld->CreateBody(&bd);
-    //}
+      mGround = new Ground(this, W);
+      mGround->setPosition(0.f, float(mLevel.height()));
+      addBody(mGround);
+    }
 
     // create pad
     {
@@ -416,6 +415,17 @@ namespace Breakout {
       }
     }
 
+    newBall();
+  }
+
+
+  void Game::newBall(void)
+  {
+    if (mBall)
+      mBall->kill();
+    mBall = new Ball(this);
+    mBall->setPosition(float(mLevel.width() / 2), float(mLevel.height() - 2.5f));
+    addBody(mBall);
   }
 
 
@@ -456,7 +466,7 @@ namespace Breakout {
   }
 
 
-  b2Body *Game::ground(void) const
+  Ground *Game::ground(void) const
   {
     return mGround;
   }

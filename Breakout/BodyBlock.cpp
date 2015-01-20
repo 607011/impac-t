@@ -9,10 +9,10 @@ namespace Breakout {
   Block::Block(int index, Game *game)
     : Body(Body::BodyType::Block, game)
   {
-    setZIndex(Body::ZIndex::Foreground + 0);
+    setZIndex(Body::ZIndex::Intermediate + 0);
     setEnergy(100);
     mTexture = mGame->level()->texture(index);
-    mName = "Block";
+    mName = std::string("Block");
 
     const float W = float(mTexture.getSize().x);
     const float H = float(mTexture.getSize().y);
@@ -33,6 +33,7 @@ namespace Breakout {
     bd.active = true;
     bd.userData = this;
     mBody = game->world()->CreateBody(&bd);
+    mBody->SetUserData(this);
 
     const float sx = 1.f / game->tileWidth();
     const float sy = 1.f / game->tileHeight();
