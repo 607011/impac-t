@@ -55,12 +55,6 @@
    </properties>
    <image width="64" height="16" source="../images/pad.png"/>
   </tile>
-  <tile id="8">
-   <properties>
-    <property name="Name" value="Ground"/>
-   </properties>
-   <image width="18" height="16" source="../images/ground.png"/>
-  </tile>
  </tileset>
  <imagelayer name="Background" y="-1" opacity="0.5">
   <image source="../backgrounds/urban06.jpg" trans="aaaa00"/>
