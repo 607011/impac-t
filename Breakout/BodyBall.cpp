@@ -47,12 +47,6 @@ namespace Breakout {
   }
 
 
-  Ball::~Ball()
-  {
-    // ...
-  }
-
-
   void Ball::onUpdate(float elapsedSeconds)
   {
     UNUSED(elapsedSeconds);

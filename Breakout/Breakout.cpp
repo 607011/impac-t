@@ -49,10 +49,10 @@ namespace Breakout {
 
     mKeyMapping[Action::MoveLeft] = sf::Keyboard::Left;
     mKeyMapping[Action::MoveRight] = sf::Keyboard::Right;
-    mKeyMapping[Action::SpecialAction] = sf::Keyboard::Y;
+    mKeyMapping[Action::SpecialAction] = sf::Keyboard::Space;
     mKeyMapping[Action::BackAction] = sf::Keyboard::Escape;
-    mKeyMapping[Action::KickLeft] = sf::Keyboard::V;
-    mKeyMapping[Action::KickRight] = sf::Keyboard::X;
+    mKeyMapping[Action::KickLeft] = sf::Keyboard::X;
+    mKeyMapping[Action::KickRight] = sf::Keyboard::Y;
     mKeyMapping[Action::Restart] = sf::Keyboard::Delete;
     mKeyMapping[Action::ExplosionTest] = sf::Keyboard::P;
 
@@ -68,6 +68,10 @@ namespace Breakout {
 
   void Game::restart(void)
   {
+    pause();
+
+
+
     safeRenew(mWorld, new b2World(b2Vec2(0.f, 9.81f)));
     mWorld->SetDestructionListener(&mDestructionListener);
     mWorld->SetContactListener(this);
@@ -81,6 +85,7 @@ namespace Breakout {
     mLevel.set(1);
     buildLevel();
     setState(State::Playing);
+    resume();
   }
 
 
@@ -155,6 +160,12 @@ namespace Breakout {
 
   void Game::clearWorld(void)
   {
+    b2Body* node = mWorld->GetBodyList();
+    while (node) {
+      b2Body* body = node;
+      node = node->GetNext();
+      mWorld->DestroyBody(body);
+    }
     safeDelete(mBall);
     mBodies.clear();
   }
@@ -223,7 +234,7 @@ namespace Breakout {
   {
     if (mRestartRequested) {
       mRestartRequested = false;
-      // restart();
+      restart();
       std::cout << "mRestartRequested!" << std::endl;
       return;
     }
@@ -242,7 +253,7 @@ namespace Breakout {
     for (int life = 0; life < mLives; ++life) {
       const sf::Texture &ballTexture = mLevel.texture(std::string("Ball"));
       sf::Sprite lifeSprite(ballTexture);
-      lifeSprite.setOrigin(16.f, 16.f);
+      lifeSprite.setOrigin(8.f, 8.f);
       lifeSprite.setPosition((ballTexture.getSize().x * 1.5f) * (1 + life), mPlayView.getCenter().y - 0.5f * mPlayView.getSize().y + 32);
       mWindow.draw(lifeSprite);
     }
@@ -275,8 +286,11 @@ namespace Breakout {
   {
     for (int i = 0; i < mPointCount; ++i) {
       ContactPoint &cp = mPoints[i];
-      void *dA = cp.fixtureA->GetBody()->GetUserData();
-      void *dB = cp.fixtureB->GetBody()->GetUserData();
+      b2Body *bodyA = cp.fixtureA->GetBody();
+      b2Body *bodyB = cp.fixtureB->GetBody();
+
+      void *dA = bodyA->GetUserData();
+      void *dB = bodyB->GetUserData();
 
       if (dA == nullptr || dB == nullptr)
         return;
@@ -423,8 +437,7 @@ namespace Breakout {
 
   void Game::newBall(void)
   {
-    safeDelete(mBall);
-    mBall = new Ball(this);
+    safeRenew(mBall, new Ball(this));
     const b2Vec2 &padPos = mPad->position();
     mBall->setPosition(padPos.x, padPos.y - 3.5f);
     addBody(mBall);

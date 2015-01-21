@@ -24,6 +24,9 @@ namespace Breakout {
 
   Body::~Body()
   {
+#ifndef NEDBUG
+    std::cout << "~dtor of " << typeid(this).name() << std::endl;
+#endif
     remove();
   }
 
@@ -116,11 +119,15 @@ namespace Breakout {
   
   void Body::remove(void)
   {
+    std::cout << "Body::remove() " << mName;
     if (mBody) {
+      std::cout << " OK\n";
       b2World *world = mBody->GetWorld();
       world->DestroyBody(mBody);
       mBody = nullptr;
     }
+    else
+      std::cout << " NOTHING DONE\n";
   }
 
 
@@ -181,6 +188,7 @@ namespace Breakout {
 
   void Body::setBody(b2Body *body)
   {
+    remove();
     mBody = body;
   }
 }

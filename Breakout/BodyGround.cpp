@@ -24,11 +24,4 @@ namespace Breakout {
 
   }
 
-
-  Ground::~Ground()
-  {
-    mGame->world()->DestroyBody(mBody);
-  }
-
-
 }

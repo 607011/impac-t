@@ -45,7 +45,7 @@ namespace Breakout {
 
       b2FixtureDef fd;
       fd.shape = &polygon;
-      fd.density = 11.f;
+      fd.density = 10.f;
       fd.friction = .7f;
       fd.restitution = .99f;
       mTeetingBody->CreateFixture(&fd);
@@ -86,7 +86,7 @@ namespace Breakout {
       pjd.collideConnected = false;
       pjd.localAxisA.Set(1.f, 0.f);
       pjd.localAnchorA.SetZero();
-      pjd.localAnchorB.SetZero();
+      pjd.localAnchorB.Set(W * sx * 0.5f, H * sy * 0.5f);
       mGame->world()->CreateJoint(&pjd);
     }
 

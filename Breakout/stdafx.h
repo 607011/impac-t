@@ -31,6 +31,7 @@
 #include <cstdint>
 #include <cassert>
 #include <sstream>
+#include <typeinfo>
 
 #include <glew.h>
 

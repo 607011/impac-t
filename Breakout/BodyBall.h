@@ -14,7 +14,12 @@ namespace Breakout {
   {
   public:
     Ball(Game *game);
-    virtual ~Ball();
+#ifndef NDEBUG
+    ~Ball() {
+      std::cout << "~dtor of " << typeid(this).name() << std::endl;
+    }
+#endif
+
 
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);

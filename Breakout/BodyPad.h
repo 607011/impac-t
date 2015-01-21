@@ -14,7 +14,11 @@ namespace Breakout {
   {
   public:
     Pad(Game *game);
-    virtual ~Pad() {}
+#ifndef NDEBUG
+    ~Pad() {
+      std::cout << "~dtor of " << typeid(this).name() << std::endl;
+    }
+#endif
 
     void moveLeft(void);
     void moveRight(void);

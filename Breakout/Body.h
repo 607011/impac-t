@@ -34,7 +34,8 @@ namespace Breakout {
       BlockBlue,
       Ball,
       Pad,
-      Ground
+      Ground,
+      Particle
     } BodyType;
 
     typedef enum _ZIndex {
@@ -42,6 +43,12 @@ namespace Breakout {
       Intermediate = 0,
       Foreground = +100000
     } ZIndex;
+
+    typedef enum _Mask {
+      DefaultMask = 0x0001,
+      BallMask = 0x0002,
+      ParticleMask = 0x0004
+    } BodyMask;
 
     Body(BodyType, Game *game);
     virtual ~Body();

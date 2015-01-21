@@ -19,6 +19,7 @@ namespace Breakout {
   {
     b2Body *body;
     sf::Time lifeTime;
+    bool dead;
   };
 
 
@@ -36,6 +37,7 @@ namespace Breakout {
     virtual void setColor(const sf::Color &);
 
   protected:
+    static const float sHalfSize;
     static const sf::Time sMaxAge;
     std::vector<SimpleParticle> mParticles;
     sf::Color mColor;

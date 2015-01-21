@@ -23,8 +23,8 @@ namespace Breakout {
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
     bd.angle = 0.f;
-    bd.linearDamping = 0.f;
-    bd.angularDamping = 0.61f;
+    bd.linearDamping = 0.5f;
+    bd.angularDamping = 0.5f;
     bd.gravityScale = 0.f;
     bd.allowSleep = true;
     bd.awake = false;
