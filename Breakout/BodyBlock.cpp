@@ -37,7 +37,7 @@ namespace Breakout {
     const float sx = 1.f / game->tileWidth();
     const float sy = 1.f / game->tileHeight();
 
-#define USE_POLYGON_AS_BLOCK_SHAPE
+// #define USE_POLYGON_AS_BLOCK_SHAPE
 #ifdef USE_POLYGON_AS_BLOCK_SHAPE
     b2PolygonShape polygon;
     polygon.SetAsBox(0.5f * W * sx, 0.5f * H * sy);

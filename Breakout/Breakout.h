@@ -51,6 +51,7 @@ namespace Breakout {
       SpecialAction,
       BackAction,
       Restart,
+      ExplosionTest,
       LastAction
     } Action;
 

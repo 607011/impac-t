@@ -54,6 +54,7 @@ namespace Breakout {
     mKeyMapping[Action::KickLeft] = sf::Keyboard::V;
     mKeyMapping[Action::KickRight] = sf::Keyboard::X;
     mKeyMapping[Action::Restart] = sf::Keyboard::Delete;
+    mKeyMapping[Action::ExplosionTest] = sf::Keyboard::P;
 
     restart();
   }
@@ -189,6 +190,11 @@ namespace Breakout {
         }
         else if (event.key.code == mKeyMapping[Action::Restart]) {
           mRestartRequested = true;
+        }
+        else if (event.key.code == mKeyMapping[Action::ExplosionTest]) {
+          ParticleSystem *ps = new ParticleSystem(this);
+          ps->setPosition(mPad->position().x, mPad->position().y);
+          addBody(ps);
         }
         break;
       }
