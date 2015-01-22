@@ -52,6 +52,7 @@
 #include "Level.h"
 #include "Destructible.h"
 #include "Body.h"
+#include "BodyText.h"
 #include "BodyBlock.h"
 #include "BodyBall.h"
 #include "BodyPad.h"

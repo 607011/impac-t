@@ -70,8 +70,6 @@ namespace Breakout {
   {
     pause();
 
-
-
     safeRenew(mWorld, new b2World(b2Vec2(0.f, 9.81f)));
     // mWorld->SetDestructionListener(&mDestructionListener);
     mWorld->SetContactListener(this);
@@ -85,6 +83,7 @@ namespace Breakout {
     mLevel.set(1);
     buildLevel();
     setState(State::Playing);
+
     resume();
   }
 
@@ -203,9 +202,10 @@ namespace Breakout {
           mRestartRequested = true;
         }
         else if (event.key.code == mKeyMapping[Action::ExplosionTest]) {
-          ParticleSystem *ps = new ParticleSystem(this);
-          ps->setPosition(mPad->position().x, mPad->position().y);
-          addBody(ps);
+          TextBody *text = new TextBody(this, "BLAH!", 12U, sf::milliseconds(250));
+          text->setPosition(mPad->position().x, mPad->position().y);
+          text->setFont(mFixedFont);
+          addBody(text);
         }
         break;
       }
@@ -234,7 +234,7 @@ namespace Breakout {
   {
     if (mRestartRequested) {
       mRestartRequested = false;
-      restart();
+      restart(); // XXX
       std::cout << "mRestartRequested!" << std::endl;
       return;
     }
@@ -300,6 +300,7 @@ namespace Breakout {
         }
         else if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
+          showScore(2 * block->getScore(), block->position());
           block->kill();
           ParticleSystem *ps = new ParticleSystem(this);
           ps->setPosition(block->position().x, block->position().y);
@@ -307,7 +308,11 @@ namespace Breakout {
         }
         else if (a->type() == Body::BodyType::Pad || b->type() == Body::BodyType::Pad) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
+          showScore(2 * block->getScore(), block->position());
           block->kill();
+          ParticleSystem *ps = new ParticleSystem(this);
+          ps->setPosition(block->position().x, block->position().y);
+          addBody(ps);
         }
       }
       else if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
@@ -364,7 +369,7 @@ namespace Breakout {
 
 
   void Game::PostSolve(b2Contact *contact, const b2ContactImpulse *impulse)
-  {    if (mPointCount < MaxContactPoints) {      ContactPoint &cp = mPoints[mPointCount];      cp.fixtureA = contact->GetFixtureA();      cp.fixtureB = contact->GetFixtureB();      Body *bodyA = reinterpret_cast<Body*>(cp.fixtureA->GetUserData());      Body *bodyB = reinterpret_cast<Body*>(cp.fixtureB->GetUserData());      if (bodyA != nullptr && bodyB != nullptr) {        cp.position = contact->GetManifold()->points[0].localPoint;        cp.normal = b2Vec2_zero;        cp.normalImpulse = impulse->normalImpulses[0];        cp.tangentImpulse = impulse->tangentImpulses[0];        cp.separation = 0.f;        ++mPointCount;        if (bodyA->type() == Body::BodyType::Block || bodyB->type() == Body::BodyType::Block) {          if (bodyA->type() == Body::BodyType::Ground || bodyB->type() == Body::BodyType::Ground)            std::cout << "Block hit ground" << std::endl;        }      }    }  }
+  {    if (mPointCount < MaxContactPoints) {      ContactPoint &cp = mPoints[mPointCount];      cp.fixtureA = contact->GetFixtureA();      cp.fixtureB = contact->GetFixtureB();      Body *bodyA = reinterpret_cast<Body*>(cp.fixtureA->GetUserData());      Body *bodyB = reinterpret_cast<Body*>(cp.fixtureB->GetUserData());      if (bodyA != nullptr && bodyB != nullptr) {        cp.position = contact->GetManifold()->points[0].localPoint;        cp.normal = b2Vec2_zero;        cp.normalImpulse = impulse->normalImpulses[0];        cp.tangentImpulse = impulse->tangentImpulses[0];        cp.separation = 0.f;        ++mPointCount;        if (bodyA->type() == Body::BodyType::Block || bodyB->type() == Body::BodyType::Block) {          if (bodyA->type() == Body::BodyType::Ground || bodyB->type() == Body::BodyType::Ground)            std::cout << "Block hit ground." << std::endl;        }      }    }  }
 
 
   void Game::buildLevel(void)
@@ -428,6 +433,24 @@ namespace Breakout {
   }
 
 
+  void Game::showScore(int score, const b2Vec2 &atPos)
+  {
+    addToScore(score);
+    TextBody *scoreText = new TextBody(this, std::to_string(score), 14U);
+    scoreText->setFont(mFixedFont);
+    scoreText->setPosition(atPos.x - 0.5f, atPos.y - 0.5f);
+    addBody(scoreText);
+  }
+
+
+  void Game::addToScore(int points)
+  {
+    mScore += points;
+    if ((mScore % NewLiveAfterSoManyPoints) > ((mScore + points) % NewLiveAfterSoManyPoints))
+      ++mLives;
+  }
+
+
   void Game::newBall(void)
   {
     safeRenew(mBall, new Ball(this));
@@ -458,7 +481,6 @@ namespace Breakout {
 
   void Game::onBodyKilled(Body *killedBody)
   {
-    mScore += killedBody->getScore();
     if (killedBody->type() == Body::BodyType::Ball) {
       if (mLives-- == 0)
         gameOver();

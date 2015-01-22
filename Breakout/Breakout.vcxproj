@@ -88,6 +88,7 @@
     <ClCompile Include="BodyBlock.cpp" />
     <ClCompile Include="BodyGround.cpp" />
     <ClCompile Include="BodyPad.cpp" />
+    <ClCompile Include="BodyText.cpp" />
     <ClCompile Include="Breakout.cpp" />
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="Level.cpp" />
@@ -104,6 +105,7 @@
     <ClInclude Include="BodyBlock.h" />
     <ClInclude Include="BodyGround.h" />
     <ClInclude Include="BodyPad.h" />
+    <ClInclude Include="BodyText.h" />
     <ClInclude Include="Breakout.h" />
     <ClInclude Include="Destructible.h" />
     <ClInclude Include="Destructive.h" />

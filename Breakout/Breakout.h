@@ -75,7 +75,7 @@ namespace Breakout {
     static const int DefaultWindowHeight = 400;
     static const int ColorDepth = 32;
     static const int DefaultLives = 3;
-    static const int NewLiveAfterSoManyPoints = 100000;
+    static const int NewLiveAfterSoManyPoints = 2500;
     static const float ShotSpeed;
     static const float Scale;
 
@@ -101,8 +101,8 @@ namespace Breakout {
     sf::Text mScoreMsg;
 
     // Box2D
-    static const int32 VelocityIterations = 8;
-    static const int32 PositionIterations = 4;
+    static const int32 VelocityIterations = 4;
+    static const int32 PositionIterations = 2;
     b2World *mWorld;
     Ground *mGround;
     ContactPoint mPoints[MaxContactPoints];
@@ -131,6 +131,8 @@ namespace Breakout {
     BodyList mBodies;
     unsigned int mCurrentBodyId;
 
+    void showScore(int score, const b2Vec2 &atPos);
+    void addToScore(int);
     void gameOver(void);
     void newBall(void);
     void setState(State state);

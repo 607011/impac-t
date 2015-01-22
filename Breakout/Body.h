@@ -35,7 +35,8 @@ namespace Breakout {
       Ball,
       Pad,
       Ground,
-      Particle
+      Particle,
+      Text
     } BodyType;
 
     typedef enum _ZIndex {
