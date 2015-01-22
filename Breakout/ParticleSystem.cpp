@@ -72,7 +72,7 @@ namespace Breakout {
       fd.restitution = .1f;
       fd.friction = 1.f;
       fd.filter.categoryBits = Body::BodyMask::ParticleMask;
-      fd.filter.maskBits = 0xffff & ~Body::BodyMask::ParticleMask & ~Body::BodyMask::BallMask;
+      fd.filter.maskBits = 0xffff & ~Body::BodyMask::ParticleMask & ~Body::BodyMask::BallMask & ~Body::BodyMask::PadMask;
       fd.shape = &circleShape;
       p.body->CreateFixture(&fd);
     }

@@ -37,8 +37,7 @@ namespace Breakout {
     const float sx = 1.f / game->tileWidth();
     const float sy = 1.f / game->tileHeight();
 
-// #define USE_POLYGON_AS_BLOCK_SHAPE
-#ifdef USE_POLYGON_AS_BLOCK_SHAPE
+#if 1
     b2PolygonShape polygon;
     polygon.SetAsBox(0.5f * W * sx, 0.5f * H * sy);
 
@@ -47,7 +46,7 @@ namespace Breakout {
     fdBox.density = 800.f;
     fdBox.friction = mGame->world()->GetGravity().y;
     fdBox.restitution = 0.04f;
-    fdBox.userData = nullptr;
+    fdBox.userData = this;
     mBody->CreateFixture(&fdBox);
 #else
     b2PolygonShape polygon;
@@ -58,7 +57,7 @@ namespace Breakout {
     fdBox.density = 800.f;
     fdBox.friction = mGame->world()->GetGravity().y;
     fdBox.restitution = 0.04f;
-    fdBox.userData = nullptr;
+    fdBox.userData = this;
     mBody->CreateFixture(&fdBox);
 
     b2CircleShape circleL;
@@ -70,6 +69,7 @@ namespace Breakout {
     fdCircleL.density = 800.f;
     fdCircleL.friction = mGame->world()->GetGravity().y;
     fdCircleL.restitution = 0.04f;
+    fdCircleL.userData = this;
     mBody->CreateFixture(&fdCircleL);
 
     b2CircleShape circleR;
@@ -81,6 +81,7 @@ namespace Breakout {
     fdCircleR.density = 800.f;
     fdCircleR.friction = mGame->world()->GetGravity().y;
     fdCircleR.restitution = 0.04f;
+    fdCircleR.userData = this;
     mBody->CreateFixture(&fdCircleR);
 #endif
   }

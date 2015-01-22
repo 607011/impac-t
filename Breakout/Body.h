@@ -47,7 +47,8 @@ namespace Breakout {
     typedef enum _Mask {
       DefaultMask = 0x0001,
       BallMask = 0x0002,
-      ParticleMask = 0x0004
+      PadMask = 0x0004,
+      ParticleMask = 0x0008
     } BodyMask;
 
     Body(BodyType, Game *game);

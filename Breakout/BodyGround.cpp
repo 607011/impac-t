@@ -14,12 +14,14 @@ namespace Breakout {
 
     {
       b2BodyDef bd;
+      bd.type = b2_staticBody;
       bd.userData = this;
       mBody = mGame->world()->CreateBody(&bd);
 
       b2EdgeShape bottomBoundary;
       bottomBoundary.Set(b2Vec2_zero, b2Vec2(width, 0.f));
-      mBody->CreateFixture(&bottomBoundary, 0.f);
+      b2Fixture *f = mBody->CreateFixture(&bottomBoundary, 0.f);
+      f->SetUserData(this);
     }
 
   }

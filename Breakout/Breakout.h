@@ -20,12 +20,12 @@ namespace Breakout {
 
   class Game;
 
-  class DestructionListener : public b2DestructionListener {
-  public:
-    void SayGoodbye(b2Fixture* fixture) { B2_NOT_USED(fixture); }
-    void SayGoodbye(b2Joint* joint) { B2_NOT_USED(joint); }
-    Game* test;
-  };
+  //class DestructionListener : public b2DestructionListener {
+  //public:
+  //  void SayGoodbye(b2Fixture* fixture) { B2_NOT_USED(fixture); }
+  //  void SayGoodbye(b2Joint* joint) { B2_NOT_USED(joint); }
+  //  Game *test;
+  //};
 
 
   struct ContactPoint {
@@ -106,7 +106,7 @@ namespace Breakout {
     b2World *mWorld;
     Ground *mGround;
     ContactPoint mPoints[MaxContactPoints];
-    DestructionListener mDestructionListener;
+    //DestructionListener mDestructionListener;
     int32 mPointCount;
 
     // b2ContactListener interface

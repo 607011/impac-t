@@ -73,7 +73,7 @@ namespace Breakout {
 
 
     safeRenew(mWorld, new b2World(b2Vec2(0.f, 9.81f)));
-    mWorld->SetDestructionListener(&mDestructionListener);
+    // mWorld->SetDestructionListener(&mDestructionListener);
     mWorld->SetContactListener(this);
     mWorld->SetAllowSleeping(false);
     mWorld->SetWarmStarting(true);
@@ -288,16 +288,10 @@ namespace Breakout {
       ContactPoint &cp = mPoints[i];
       b2Body *bodyA = cp.fixtureA->GetBody();
       b2Body *bodyB = cp.fixtureB->GetBody();
-
-      void *dA = bodyA->GetUserData();
-      void *dB = bodyB->GetUserData();
-
-      if (dA == nullptr || dB == nullptr)
+      Body *a = reinterpret_cast<Body *>(cp.fixtureA->GetUserData());
+      Body *b = reinterpret_cast<Body *>(cp.fixtureB->GetUserData());
+      if (a == nullptr || b == nullptr)
         return;
-
-      Body *a = reinterpret_cast<Body *>(dA);
-      Body *b = reinterpret_cast<Body *>(dB);
-
       if (a->type() == Body::BodyType::Block || b->type() == Body::BodyType::Block) {
         if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
@@ -370,8 +364,7 @@ namespace Breakout {
 
 
   void Game::PostSolve(b2Contact *contact, const b2ContactImpulse *impulse)
-  {
-    b2Fixture* fixtureA = contact->GetFixtureA();    b2Fixture* fixtureB = contact->GetFixtureB();    if (mPointCount < MaxContactPoints) {      ContactPoint *cp = mPoints + mPointCount;      cp->fixtureA = fixtureA;      cp->fixtureB = fixtureB;      cp->position = contact->GetManifold()->points[0].localPoint;      cp->normal = b2Vec2_zero;      cp->normalImpulse = impulse->normalImpulses[0];      cp->tangentImpulse = impulse->tangentImpulses[0];      cp->separation = 0.f;      ++mPointCount;    }  }
+  {    if (mPointCount < MaxContactPoints) {      ContactPoint &cp = mPoints[mPointCount];      cp.fixtureA = contact->GetFixtureA();      cp.fixtureB = contact->GetFixtureB();      Body *bodyA = reinterpret_cast<Body*>(cp.fixtureA->GetUserData());      Body *bodyB = reinterpret_cast<Body*>(cp.fixtureB->GetUserData());      if (bodyA != nullptr && bodyB != nullptr) {        cp.position = contact->GetManifold()->points[0].localPoint;        cp.normal = b2Vec2_zero;        cp.normalImpulse = impulse->normalImpulses[0];        cp.tangentImpulse = impulse->tangentImpulses[0];        cp.separation = 0.f;        ++mPointCount;        if (bodyA->type() == Body::BodyType::Block || bodyB->type() == Body::BodyType::Block) {          if (bodyA->type() == Body::BodyType::Ground || bodyB->type() == Body::BodyType::Ground)            std::cout << "Block hit ground" << std::endl;        }      }    }  }
 
 
   void Game::buildLevel(void)
@@ -504,3 +497,4 @@ namespace Breakout {
 
 
 }
+

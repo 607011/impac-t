@@ -42,7 +42,7 @@ namespace Breakout {
     fd.density = 11.f;
     fd.friction = 0.7f;
     fd.restitution = 1.f;
-    fd.userData = nullptr;
+    fd.userData = this;
     mBody->CreateFixture(&fd);
   }
 

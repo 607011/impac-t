@@ -48,6 +48,7 @@ namespace Breakout {
       fd.density = 10.f;
       fd.friction = .7f;
       fd.restitution = .99f;
+      fd.userData = this;
       mTeetingBody->CreateFixture(&fd);
     }
 
