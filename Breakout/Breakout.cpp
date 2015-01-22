@@ -93,7 +93,7 @@ namespace Breakout {
     mKeyMapping[Action::MoveRight] = sf::Keyboard::Right;
     mKeyMapping[Action::SpecialAction] = sf::Keyboard::Space;
     mKeyMapping[Action::BackAction] = sf::Keyboard::Escape;
-    mKeyMapping[Action::KickLeft] = sf::Keyboard::C;
+    mKeyMapping[Action::KickLeft] = sf::Keyboard::X;
     mKeyMapping[Action::KickRight] = sf::Keyboard::Y;
     mKeyMapping[Action::Restart] = sf::Keyboard::Delete;
     mKeyMapping[Action::ExplosionTest] = sf::Keyboard::P;
@@ -238,7 +238,8 @@ namespace Breakout {
           mWindow.close();
         }
         else if (event.key.code == mKeyMapping[Action::SpecialAction]) {
-          newBall();
+          if (mBall == nullptr)
+            newBall();
         }
         else if (event.key.code == mKeyMapping[Action::Restart]) {
           mRestartRequested = true;
@@ -276,7 +277,7 @@ namespace Breakout {
   {
     if (mRestartRequested) {
       mRestartRequested = false;
-      restart(); // XXX
+      // restart();
       std::cout << "mRestartRequested!" << std::endl;
       return;
     }
@@ -300,11 +301,16 @@ namespace Breakout {
       mWindow.draw(lifeSprite);
     }
 
-    if (mBall != nullptr) { // check if ball has been kicked out of the screen accidentally
+    if (mBall != nullptr) { // check if ball has been kicked out of the screen
       const float ballX = mBall->position().x;
       const float ballY = mBall->position().y;
-      if (0 > ballX || ballX > float(mLevel.width()) || 0 > ballY || ballY > float(mLevel.height()))
+      if (0 > ballX || ballX > float(mLevel.width()) || 0 > ballY) {
         mBall->kill();
+      }
+      else if (ballY > mLevel.height()) {
+        mBall->lethalHit();
+        mBall->kill();
+      }
     }
 
     if (mPad != nullptr && mPad->position().y > mLevel.height())
@@ -314,7 +320,7 @@ namespace Breakout {
 
   void Game::onWelcomeScreen(void)
   {
-    const sf::Time &elapsed = mClock.restart();
+    //const sf::Time &elapsed = mClock.restart();
     clearWindow();
     drawWorld(mDefaultView);
   }
@@ -373,10 +379,11 @@ namespace Breakout {
       else if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
         if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
           Ball *ball = reinterpret_cast<Ball*>(a->type() == Body::BodyType::Ball ? a : b);
+          ball->lethalHit();
           ball->kill();
         }
         else if (a->type() == Body::BodyType::Pad || b->type() == Body::BodyType::Pad) {
-          if (mPadHitSound.getStatus() != sf::Sound::Playing);
+          if (mPadHitSound.getStatus() != sf::Sound::Playing)
             mPadHitSound.play();
         }
       }
@@ -544,8 +551,10 @@ namespace Breakout {
   {
     if (killedBody->type() == Body::BodyType::Ball) {
       mBallOutSound.play();
-      if (mLives-- == 0)
-        gameOver();
+      if (killedBody->energy() == 0) {
+        if (mLives-- == 0)
+          gameOver();
+      }
     }
   }
 

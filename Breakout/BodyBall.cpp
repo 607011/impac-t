@@ -9,6 +9,7 @@ namespace Breakout {
     : Body(Body::BodyType::Ball, game)
   {
     setZIndex(Body::ZIndex::Foreground + 0);
+    setEnergy(1);
     mName = std::string("Ball");
     mTexture = mGame->level()->texture(mName);
 

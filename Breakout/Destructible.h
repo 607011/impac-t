@@ -30,6 +30,10 @@ namespace Breakout {
       mEnergy = std::max(mEnergy - energy, 0);
       return 0 == mEnergy;
     }
+    virtual void lethalHit(void)
+    {
+      setEnergy(0);
+    }
     virtual void setEnergy(int energy)
     {
       mEnergy = energy;
