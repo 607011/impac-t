@@ -24,12 +24,8 @@ namespace Breakout {
     bd.linearDamping = 0.5f;
     bd.angularDamping = 0.21f;
     bd.gravityScale = 1.f;
-    bd.allowSleep = false;
-    bd.awake = true;
-    bd.fixedRotation = false;
     bd.linearVelocity = b2Vec2(0.f, -1.f);
     bd.bullet = true;
-    bd.active = true;
     bd.userData = this;
     mBody = game->world()->CreateBody(&bd);
 

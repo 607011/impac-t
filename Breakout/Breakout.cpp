@@ -43,6 +43,41 @@ namespace Breakout {
     if (!ok)
       sf::err() << "resources/fonts/emulogic.ttf failed to load." << std::endl;
 
+    ok = mNewBallBuffer.loadFromFile("resources/soundfx/new-ball.wav");
+    if (!ok)
+      sf::err() << "resources/sounds/new-ball.wav failed to load." << std::endl;
+    mNewBallSound.setBuffer(mNewBallBuffer);
+    mNewBallSound.setVolume(100);
+    mNewBallSound.setLoop(false);
+
+    ok = mBallOutBuffer.loadFromFile("resources/soundfx/ball-out.wav");
+    if (!ok)
+      sf::err() << "resources/sounds/ball-out.wav failed to load." << std::endl;
+    mBallOutSound.setBuffer(mBallOutBuffer);
+    mBallOutSound.setVolume(100);
+    mBallOutSound.setLoop(false);
+
+    ok = mBlockHitBuffer.loadFromFile("resources/soundfx/block-hit.wav");
+    if (!ok)
+      sf::err() << "resources/sounds/block-hit.wav failed to load." << std::endl;
+    mBlockHitSound.setBuffer(mBlockHitBuffer);
+    mBlockHitSound.setVolume(100);
+    mBlockHitSound.setLoop(false);
+
+    ok = mPadHitBuffer.loadFromFile("resources/soundfx/pad-hit.wav");
+    if (!ok)
+      sf::err() << "resources/sounds/pad-hit.wav failed to load." << std::endl;
+    mPadHitSound.setBuffer(mPadHitBuffer);
+    mPadHitSound.setVolume(100);
+    mPadHitSound.setLoop(false);
+
+    ok = mExplosionBuffer.loadFromFile("resources/soundfx/explosion.wav");
+    if (!ok)
+      sf::err() << "resources/sounds/pad-hit.wav failed to load." << std::endl;
+    mExplosionSound.setBuffer(mExplosionBuffer);
+    mExplosionSound.setVolume(100);
+    mExplosionSound.setLoop(false);
+
     mScoreMsg.setFont(mFixedFont);
     mScoreMsg.setCharacterSize(22);
     mScoreMsg.setColor(sf::Color(255, 255, 255));
@@ -258,6 +293,15 @@ namespace Breakout {
       mWindow.draw(lifeSprite);
     }
 
+    if (mBall != nullptr) { // check if ball has been kicked out of the screen accidentally
+      const float ballX = mBall->position().x;
+      const float ballY = mBall->position().y;
+      if (0 > ballX || ballX > float(mLevel.width()) || 0 > ballY || ballY > float(mLevel.height()))
+        mBall->kill();
+    }
+
+    if (mPad != nullptr && mPad->position().y > mLevel.height())
+        mPad->setPosition(mPad->position().x, mLevel.height() - 0.5f);
   }
 
 
@@ -297,19 +341,22 @@ namespace Breakout {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
           Ball *ball = reinterpret_cast<Ball*>(a->type() == Body::BodyType::Ball ? a : b);
           block->hit(cp.normalImpulse);
+          mBlockHitSound.play();
         }
         else if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
           showScore(2 * block->getScore(), block->position());
           block->kill();
+          mExplosionSound.play();
           ParticleSystem *ps = new ParticleSystem(this);
           ps->setPosition(block->position().x, block->position().y);
           addBody(ps);
         }
         else if (a->type() == Body::BodyType::Pad || b->type() == Body::BodyType::Pad) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
-          showScore(2 * block->getScore(), block->position());
+          showScore(block->getScore(), block->position(), 2);
           block->kill();
+          mExplosionSound.play();
           ParticleSystem *ps = new ParticleSystem(this);
           ps->setPosition(block->position().x, block->position().y);
           addBody(ps);
@@ -319,6 +366,9 @@ namespace Breakout {
         if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
           Ball *ball = reinterpret_cast<Ball*>(a->type() == Body::BodyType::Ball ? a : b);
           ball->kill();
+        }
+        else if (a->type() == Body::BodyType::Pad || b->type() == Body::BodyType::Pad) {
+          mPadHitSound.play();
         }
       }
     }
@@ -369,7 +419,7 @@ namespace Breakout {
 
 
   void Game::PostSolve(b2Contact *contact, const b2ContactImpulse *impulse)
-  {    if (mPointCount < MaxContactPoints) {      ContactPoint &cp = mPoints[mPointCount];      cp.fixtureA = contact->GetFixtureA();      cp.fixtureB = contact->GetFixtureB();      Body *bodyA = reinterpret_cast<Body*>(cp.fixtureA->GetUserData());      Body *bodyB = reinterpret_cast<Body*>(cp.fixtureB->GetUserData());      if (bodyA != nullptr && bodyB != nullptr) {        cp.position = contact->GetManifold()->points[0].localPoint;        cp.normal = b2Vec2_zero;        cp.normalImpulse = impulse->normalImpulses[0];        cp.tangentImpulse = impulse->tangentImpulses[0];        cp.separation = 0.f;        ++mPointCount;        if (bodyA->type() == Body::BodyType::Block || bodyB->type() == Body::BodyType::Block) {          if (bodyA->type() == Body::BodyType::Ground || bodyB->type() == Body::BodyType::Ground)            std::cout << "Block hit ground." << std::endl;        }      }    }  }
+  {    if (mPointCount < MaxContactPoints) {      ContactPoint &cp = mPoints[mPointCount];      cp.fixtureA = contact->GetFixtureA();      cp.fixtureB = contact->GetFixtureB();      Body *bodyA = reinterpret_cast<Body*>(cp.fixtureA->GetUserData());      Body *bodyB = reinterpret_cast<Body*>(cp.fixtureB->GetUserData());      if (bodyA != nullptr && bodyB != nullptr) {        cp.position = contact->GetManifold()->points[0].localPoint;        cp.normal = b2Vec2_zero;        cp.normalImpulse = impulse->normalImpulses[0];        cp.tangentImpulse = impulse->tangentImpulses[0];        cp.separation = 0.f;        ++mPointCount;      }    }  }
 
 
   void Game::buildLevel(void)
@@ -405,7 +455,7 @@ namespace Breakout {
     // create pad
     {
       mPad = new Pad(this);
-      mPad->setPosition(float(mLevel.width() / 2), float(mLevel.height() - 0.5f));
+      mPad->setPosition(0.5f * mLevel.width(), mLevel.height() - 0.5f);
       addBody(mPad);
     }
 
@@ -433,10 +483,11 @@ namespace Breakout {
   }
 
 
-  void Game::showScore(int score, const b2Vec2 &atPos)
+  void Game::showScore(int score, const b2Vec2 &atPos, int factor)
   {
-    addToScore(score);
-    TextBody *scoreText = new TextBody(this, std::to_string(score), 14U);
+    addToScore(score * factor);
+    std::string text = ((factor > 1) ? (std::to_string(factor) + "*") : "") + std::to_string(score);
+    TextBody *scoreText = new TextBody(this, text, 14U);
     scoreText->setFont(mFixedFont);
     scoreText->setPosition(atPos.x - 0.5f, atPos.y - 0.5f);
     addBody(scoreText);
@@ -453,6 +504,7 @@ namespace Breakout {
 
   void Game::newBall(void)
   {
+    mNewBallSound.play();
     safeRenew(mBall, new Ball(this));
     const b2Vec2 &padPos = mPad->position();
     mBall->setPosition(padPos.x, padPos.y - 3.5f);
@@ -482,6 +534,7 @@ namespace Breakout {
   void Game::onBodyKilled(Body *killedBody)
   {
     if (killedBody->type() == Body::BodyType::Ball) {
+      mBallOutSound.play();
       if (mLives-- == 0)
         gameOver();
     }

@@ -88,6 +88,8 @@ namespace Breakout {
       pjd.localAxisA.Set(1.f, 0.f);
       pjd.localAnchorA.SetZero();
       pjd.localAnchorB.Set(W * sx * 0.5f, H * sy * 0.5f);
+      pjd.lowerTranslation = 0.f;
+      pjd.upperTranslation = W;
       mGame->world()->CreateJoint(&pjd);
     }
 

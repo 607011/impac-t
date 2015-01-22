@@ -99,6 +99,16 @@ namespace Breakout {
     sf::Clock mClock;
     sf::Clock mWallClock;
     sf::Text mScoreMsg;
+    sf::SoundBuffer mNewBallBuffer;
+    sf::Sound mNewBallSound;
+    sf::SoundBuffer mBallOutBuffer;
+    sf::Sound mBallOutSound;
+    sf::SoundBuffer mBlockHitBuffer;
+    sf::Sound mBlockHitSound;
+    sf::SoundBuffer mPadHitBuffer;
+    sf::Sound mPadHitSound;
+    sf::SoundBuffer mExplosionBuffer;
+    sf::Sound mExplosionSound;
 
     // Box2D
     static const int32 VelocityIterations = 4;
@@ -131,7 +141,7 @@ namespace Breakout {
     BodyList mBodies;
     unsigned int mCurrentBodyId;
 
-    void showScore(int score, const b2Vec2 &atPos);
+    void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);
     void gameOver(void);
     void newBall(void);

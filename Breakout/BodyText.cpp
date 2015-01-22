@@ -21,9 +21,8 @@ namespace Breakout {
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
     bd.position.Set(x, y);
-    bd.gravityScale = -1.f;
+    bd.gravityScale = -2.f;
     bd.fixedRotation = true;
-    bd.linearVelocity = b2Vec2(0.f, -1.f);
     mBody = mGame->world()->CreateBody(&bd);
   }
 
