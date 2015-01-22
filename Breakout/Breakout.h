@@ -107,6 +107,8 @@ namespace Breakout {
     sf::Sound mBlockHitSound;
     sf::SoundBuffer mPadHitBuffer;
     sf::Sound mPadHitSound;
+    sf::SoundBuffer mPadHitBlockBuffer;
+    sf::Sound mPadHitBlockSound;
     sf::SoundBuffer mExplosionBuffer;
     sf::Sound mExplosionSound;
 

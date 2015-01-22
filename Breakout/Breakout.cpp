@@ -43,37 +43,44 @@ namespace Breakout {
     if (!ok)
       sf::err() << "resources/fonts/emulogic.ttf failed to load." << std::endl;
 
-    ok = mNewBallBuffer.loadFromFile("resources/soundfx/new-ball.wav");
+    ok = mNewBallBuffer.loadFromFile("resources/soundfx/new-ball.ogg");
     if (!ok)
-      sf::err() << "resources/sounds/new-ball.wav failed to load." << std::endl;
+      sf::err() << "resources/sounds/new-ball.ogg failed to load." << std::endl;
     mNewBallSound.setBuffer(mNewBallBuffer);
     mNewBallSound.setVolume(100);
     mNewBallSound.setLoop(false);
 
-    ok = mBallOutBuffer.loadFromFile("resources/soundfx/ball-out.wav");
+    ok = mBallOutBuffer.loadFromFile("resources/soundfx/ball-out.ogg");
     if (!ok)
-      sf::err() << "resources/sounds/ball-out.wav failed to load." << std::endl;
+      sf::err() << "resources/sounds/ball-out.ogg failed to load." << std::endl;
     mBallOutSound.setBuffer(mBallOutBuffer);
     mBallOutSound.setVolume(100);
     mBallOutSound.setLoop(false);
 
-    ok = mBlockHitBuffer.loadFromFile("resources/soundfx/block-hit.wav");
+    ok = mBlockHitBuffer.loadFromFile("resources/soundfx/block-hit.ogg");
     if (!ok)
-      sf::err() << "resources/sounds/block-hit.wav failed to load." << std::endl;
+      sf::err() << "resources/sounds/block-hit.ogg failed to load." << std::endl;
     mBlockHitSound.setBuffer(mBlockHitBuffer);
     mBlockHitSound.setVolume(100);
     mBlockHitSound.setLoop(false);
 
-    ok = mPadHitBuffer.loadFromFile("resources/soundfx/pad-hit.wav");
+    ok = mPadHitBuffer.loadFromFile("resources/soundfx/pad-hit.ogg");
     if (!ok)
-      sf::err() << "resources/sounds/pad-hit.wav failed to load." << std::endl;
+      sf::err() << "resources/sounds/pad-hit.ogg failed to load." << std::endl;
     mPadHitSound.setBuffer(mPadHitBuffer);
     mPadHitSound.setVolume(100);
     mPadHitSound.setLoop(false);
 
-    ok = mExplosionBuffer.loadFromFile("resources/soundfx/explosion.wav");
+    ok = mPadHitBlockBuffer.loadFromFile("resources/soundfx/pad-hit-block.ogg");
     if (!ok)
-      sf::err() << "resources/sounds/pad-hit.wav failed to load." << std::endl;
+      sf::err() << "resources/sounds/pad-hit-block.ogg failed to load." << std::endl;
+    mPadHitBlockSound.setBuffer(mPadHitBlockBuffer);
+    mPadHitBlockSound.setVolume(100);
+    mPadHitBlockSound.setLoop(false);
+
+    ok = mExplosionBuffer.loadFromFile("resources/soundfx/explosion.ogg");
+    if (!ok)
+      sf::err() << "resources/sounds/explosion.ogg failed to load." << std::endl;
     mExplosionSound.setBuffer(mExplosionBuffer);
     mExplosionSound.setVolume(100);
     mExplosionSound.setLoop(false);
@@ -86,7 +93,7 @@ namespace Breakout {
     mKeyMapping[Action::MoveRight] = sf::Keyboard::Right;
     mKeyMapping[Action::SpecialAction] = sf::Keyboard::Space;
     mKeyMapping[Action::BackAction] = sf::Keyboard::Escape;
-    mKeyMapping[Action::KickLeft] = sf::Keyboard::X;
+    mKeyMapping[Action::KickLeft] = sf::Keyboard::C;
     mKeyMapping[Action::KickRight] = sf::Keyboard::Y;
     mKeyMapping[Action::Restart] = sf::Keyboard::Delete;
     mKeyMapping[Action::ExplosionTest] = sf::Keyboard::P;
@@ -357,6 +364,7 @@ namespace Breakout {
           showScore(block->getScore(), block->position(), 2);
           block->kill();
           mExplosionSound.play();
+          mPadHitBlockSound.play();
           ParticleSystem *ps = new ParticleSystem(this);
           ps->setPosition(block->position().x, block->position().y);
           addBody(ps);
@@ -368,7 +376,8 @@ namespace Breakout {
           ball->kill();
         }
         else if (a->type() == Body::BodyType::Pad || b->type() == Body::BodyType::Pad) {
-          mPadHitSound.play();
+          if (mPadHitSound.getStatus() != sf::Sound::Playing);
+            mPadHitSound.play();
         }
       }
     }
