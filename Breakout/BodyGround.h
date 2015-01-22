@@ -1,8 +1,8 @@
 // Copyright (c) 2015 Oliver Lau <oliver@ersatzworld.net>
 // All rights reserved.
 
-#ifndef __GROUND_H_
-#define __GROUND_H_
+#ifndef __BODYGROUND_H_
+#define __BODYGROUND_H_
 
 #include "Body.h"
 #include "Breakout.h"
@@ -22,10 +22,11 @@ namespace Breakout {
     // Body implementation
     virtual void onUpdate(float) { /* ... */ }
     virtual void onDraw(sf::RenderTarget &, sf::RenderStates) const  { /* ... */ }
+    virtual BodyType type(void) const { return Body::BodyType::Ground; }
 
   };
 
 }
 
-#endif // __GROUND_H_
+#endif // __BODYGROUND_H_
 

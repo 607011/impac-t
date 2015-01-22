@@ -8,8 +8,7 @@ namespace Breakout {
 
   class Destructive {
   public:
-    virtual ~Destructive()
-    { /* ... */ }
+    virtual ~Destructive() {}
     virtual int getDestructiveEnergy(void) const = 0;
     virtual void setDestructiveEnergy(int energy)
     {

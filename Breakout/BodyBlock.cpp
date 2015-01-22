@@ -102,11 +102,12 @@ namespace Breakout {
   }
 
 
-  void Block::hit(float impulse)
+  bool Block::hit(float impulse)
   {
     bool destroyed = Body::hit(int(impulse));
-    if (destroyed)
+    if (!destroyed)
       mBody->SetGravityScale(2.f);
+    return destroyed;
   }
 
 }

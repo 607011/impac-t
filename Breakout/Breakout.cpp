@@ -98,6 +98,10 @@ namespace Breakout {
     mKeyMapping[Action::Restart] = sf::Keyboard::Delete;
     mKeyMapping[Action::ExplosionTest] = sf::Keyboard::P;
 
+    ExplosionParticleSystem::instance()->setGame(this);
+
+    addBody(ExplosionParticleSystem::instance());
+
     restart();
   }
 
@@ -223,6 +227,7 @@ namespace Breakout {
         break;
       case sf::Event::Resized:
         resize();
+        glViewport(0, 0, event.size.width, event.size.height);
         break;
       case sf::Event::LostFocus:
         pause();
@@ -245,10 +250,8 @@ namespace Breakout {
           mRestartRequested = true;
         }
         else if (event.key.code == mKeyMapping[Action::ExplosionTest]) {
-          TextBody *text = new TextBody(this, "BLAH!", 12U, sf::milliseconds(250));
-          text->setPosition(mPad->position().x, mPad->position().y);
-          text->setFont(mFixedFont);
-          addBody(text);
+          ExplosionParticleSystem::instance()->spawn(mPad->position().x, mPad->position().y - 2.f, 100);
+
         }
         break;
       }
@@ -289,7 +292,7 @@ namespace Breakout {
     if (!mPaused)
       update(elapsed.asSeconds());
     drawWorld(mPlayView);
-    mScoreMsg.setString(std::to_string(mScore));
+    mScoreMsg.setString(std::to_string(mScore) + "/" + std::to_string(mWorld->GetBodyCount()));
     mScoreMsg.setPosition(mPlayView.getCenter().x + mPlayView.getSize().x / 2 - mScoreMsg.getLocalBounds().width - 20, 20);
     mWindow.draw(mScoreMsg);
 
@@ -353,8 +356,17 @@ namespace Breakout {
         if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
           Ball *ball = reinterpret_cast<Ball*>(a->type() == Body::BodyType::Ball ? a : b);
-          block->hit(cp.normalImpulse);
-          mBlockHitSound.play();
+          bool destroyed = block->hit(cp.normalImpulse);
+          if (destroyed) {
+            mExplosionSound.play();
+            ParticleSystem *ps = new ParticleSystem(this);
+            ps->setPosition(block->position().x, block->position().y);
+            addBody(ps);
+            block->kill();
+          }
+          else {
+            mBlockHitSound.play();
+          }
         }
         else if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);

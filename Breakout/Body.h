@@ -71,8 +71,7 @@ namespace Breakout {
     const sf::Time &age(void) const;
     bool overAge(void) const;
 
-    BodyType type(void) const;
-    void setType(BodyType);
+    virtual BodyType type(void) const = 0;
 
     const sf::Texture &texture(void) const;
 
@@ -105,7 +104,6 @@ namespace Breakout {
     int mZIndex;
     sf::Clock mSpawned; // milliseconds
     sf::Time mMaxAge;
-    BodyType mType;
     Game *mGame;
 
     void setId(uint32_t);

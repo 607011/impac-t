@@ -1,8 +1,8 @@
 // Copyright (c) 2015 Oliver Lau <oliver@ersatzworld.net>
 // All rights reserved.
 
-#ifndef __BALL_H_
-#define __BALL_H_
+#ifndef __BODYBALL_H_
+#define __BODYBALL_H_
 
 #include "Body.h"
 #include "Breakout.h"
@@ -24,9 +24,10 @@ namespace Breakout {
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);
     virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
+    virtual BodyType type(void) const { return Body::BodyType::Ball; }
   };
 
 }
 
-#endif // __BALL_H_
+#endif // __BODYBALL_H_
 

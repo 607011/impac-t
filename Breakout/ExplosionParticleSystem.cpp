@@ -5,15 +5,16 @@
 
 namespace Breakout {
 
-  const float ParticleSystem::sHalfSize = .1333f;
-  const sf::Time ParticleSystem::sMaxAge = sf::milliseconds(1000);
+  const float ExplosionParticleSystem::sHalfSize = 2.f;
+  const sf::Time ExplosionParticleSystem::sMaxAge = sf::milliseconds(1000);
+  ExplosionParticleSystem *ExplosionParticleSystem::mInstance = nullptr;
 
-
-  ParticleSystem::ParticleSystem(Game *game, int count)
-    : Body(Body::BodyType::Particle, game)
+  ExplosionParticleSystem::ExplosionParticleSystem(void)
+    : Body(Body::BodyType::Particle, nullptr)
     , mColor(sf::Color::White)
-    , mParticles(count)
-    , mVertices(sf::Quads, 4 * count)
+    , mParticles(MaxParticleCount)
+    , mVertices(sf::Quads, 4 * MaxParticleCount)
+    , mCurrentParticleIndex(0)
   {
     setZIndex(Body::ZIndex::Foreground + 0);
     mName = std::string("ParticleSystem");
@@ -21,26 +22,39 @@ namespace Breakout {
   }
 
 
-  ParticleSystem::~ParticleSystem()
+  ExplosionParticleSystem::~ExplosionParticleSystem()
   {
 #ifndef NDEBUG
     std::cout << "~dtor of " << typeid(this).name() << std::endl;
 #endif
     b2World *world = mGame->world();
-    for (std::vector<SimpleParticle>::const_iterator p = mParticles.cbegin(); p != mParticles.cend(); ++p) {
+    for (std::vector<ExplosionParticle>::const_iterator p = mParticles.cbegin(); p != mParticles.cend(); ++p) {
       if (!p->dead)
         world->DestroyBody(p->body);
     }
   }
 
 
-  void ParticleSystem::setPosition(float x, float y)
+  ExplosionParticleSystem *ExplosionParticleSystem::instance(void)
+  {
+    if (mInstance == nullptr)
+      mInstance = new ExplosionParticleSystem;
+    return mInstance;
+  }
+
+
+  void ExplosionParticleSystem::setGame(Game *game)
+  {
+    mGame = game;
+  }
+
+
+  void ExplosionParticleSystem::spawn(float x, float y, const int particleCount)
   {
     b2World *world = mGame->world();
-    const int N = mParticles.size();
 #pragma omp parallel for
-    for (int i = 0; i < N; ++i) {
-      SimpleParticle &p = mParticles[i];
+    for (int i = 0; i < particleCount; ++i) {
+      ExplosionParticle &p = mParticles[(mCurrentParticleIndex + i) % MaxParticleCount];
       p.dead = false;
       p.lifeTime = sf::milliseconds(500 + std::rand() % 500);
 
@@ -76,29 +90,35 @@ namespace Breakout {
       fd.shape = &circleShape;
       p.body->CreateFixture(&fd);
     }
+    mCurrentParticleIndex += particleCount;
   }
 
 
-  void ParticleSystem::setColor(const sf::Color &color)
+  void ExplosionParticleSystem::setPosition(float x, float y)
+  {
+    spawn(x, y);
+  }
+
+
+  void ExplosionParticleSystem::setColor(const sf::Color &color)
   {
     mColor = color;
   }
 
 
-  void ParticleSystem::onUpdate(float elapsedSeconds)
+  void ExplosionParticleSystem::onUpdate(float elapsedSeconds)
   {
     UNUSED(elapsedSeconds);
+    const int N = mParticles.size();
     const float sx = float(mGame->tileWidth());
     const float sy = float(mGame->tileHeight());
     static const sf::Vector2f topLeft(-sHalfSize * sx, -sHalfSize * sy);
     static const sf::Vector2f topRight(sHalfSize * sx, -sHalfSize * sy);
     static const sf::Vector2f bottomRight(sHalfSize * sx, sHalfSize * sy);
     static const sf::Vector2f bottomLeft(-sHalfSize * sx, sHalfSize * sy);
-    bool allDead = true;
-    const int N = mParticles.size();
-#pragma omp parallel for 
+#pragma omp parallel for
     for (int i = 0; i < N; ++i) {
-      SimpleParticle &p = mParticles[i];
+      ExplosionParticle &p = mParticles[i];
       if (age() > p.lifeTime && !p.dead) {
         p.dead = true;
         mGame->world()->DestroyBody(p.body);
@@ -106,28 +126,31 @@ namespace Breakout {
       else {
         const b2Vec2 &pos = p.body->GetPosition();
         sf::Vector2f offset(pos.x * sx, pos.y * sy);
-        const int j = 4 * i;
-        mVertices[j+0].position = offset + topLeft;
-        mVertices[j+1].position = offset + topRight;
-        mVertices[j+2].position = offset + bottomRight;
-        mVertices[j+3].position = offset + bottomLeft;
         const sf::Uint8 alpha = 0xffU - sf::Uint8(Easing<float>::quadEaseIn(age().asSeconds(), 0.0f, 255.0f, p.lifeTime.asSeconds()));
+        const int j = 4 * i;
         mVertices[j+0].color.a = alpha;
         mVertices[j+1].color.a = alpha;
         mVertices[j+2].color.a = alpha;
         mVertices[j+3].color.a = alpha;
       }
-      allDead &= p.dead;
     }
-    if (allDead || overAge())
-      this->kill();
   }
 
 
-  void ParticleSystem::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
+  void ExplosionParticleSystem::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
   {
     states.texture = nullptr;
-    target.draw(mVertices, states);
+    glPushAttrib(0);
+    glPointSize(sHalfSize * 2);
+    glBegin(GL_POINTS);
+    for (std::vector<ExplosionParticle>::const_iterator p = mParticles.cbegin(); p != mParticles.cend(); ++p) {
+      b2Vec2 pos = p->body->GetPosition();
+      const float alpha = Easing<float>::quadEaseIn(age().asSeconds(), 0.f, 1.f, p->lifeTime.asSeconds());
+      glColor4f(mColor.r, mColor.g, mColor.b, alpha);
+      glVertex2f(pos.x, pos.y);
+    }
+    glEnd();
+    glPopAttrib();
   }
 
 }

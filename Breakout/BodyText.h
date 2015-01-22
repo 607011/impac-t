@@ -29,6 +29,7 @@ namespace Breakout {
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);
     virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
+    virtual BodyType type(void) const { return Body::BodyType::Text; }
 
     virtual void setPosition(float x, float y);
 

@@ -9,8 +9,7 @@
 namespace Breakout {
 
   Body::Body(BodyType type, Game *game)
-    : mType(type)
-    , mID(0xffffffffU)
+    : mID(0xffffffffU)
     , mAlive(true)
     , mVisible(true)
     , mMaxAge(sf::milliseconds(0))
@@ -24,7 +23,7 @@ namespace Breakout {
 
   Body::~Body()
   {
-#ifndef NEDBUG
+#ifndef NDEBUG
     std::cout << "~dtor of " << typeid(this).name() << std::endl;
 #endif
     remove();
@@ -99,18 +98,6 @@ namespace Breakout {
   }
 
 
-  Body::BodyType Body::type(void) const
-  {
-    return mType;
-  }
-
-
-  void Body::setType(Body::BodyType type)
-  {
-    mType = type;
-  }
-
-
   const sf::Texture &Body::texture(void) const
   {
     return mTexture;
@@ -119,15 +106,14 @@ namespace Breakout {
   
   void Body::remove(void)
   {
+#ifndef NDEBUG
     std::cout << "Body::remove() " << mName;
+#endif
     if (mBody) {
-      std::cout << " OK\n";
       b2World *world = mBody->GetWorld();
       world->DestroyBody(mBody);
       mBody = nullptr;
     }
-    else
-      std::cout << " NOTHING DONE\n";
   }
 
 

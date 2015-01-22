@@ -58,6 +58,7 @@
 #include "BodyPad.h"
 #include "BodyGround.h"
 #include "ParticleSystem.h"
+#include "ExplosionParticleSystem.h"
 #include "Breakout.h"
 
 

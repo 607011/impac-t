@@ -1,8 +1,8 @@
 // Copyright (c) 2015 Oliver Lau <oliver@ersatzworld.net>
 // All rights reserved.
 
-#ifndef __PARTICLESYSTEM_H_
-#define __PARTICLESYSTEM_H_
+#ifndef __EXPLOSIONPARTICLESYSTEM_H_
+#define __EXPLOSIONPARTICLESYSTEM_H_
 
 #include <Box2D/Box2D.h>
 
@@ -14,7 +14,7 @@
 
 namespace Breakout {
   
-  struct SimpleParticle 
+  struct ExplosionParticle 
   {
     b2Body *body;
     sf::Time lifeTime;
@@ -22,12 +22,16 @@ namespace Breakout {
   };
 
 
-  class ParticleSystem : public Body
+  class ExplosionParticleSystem : public Body
   {
   public:
-    ParticleSystem(Game *game, int count = 100);
-    virtual ~ParticleSystem();
+    static ExplosionParticleSystem *instance(void);
 
+  protected:
+    ExplosionParticleSystem(void);
+    virtual ~ExplosionParticleSystem();
+
+  public:
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);
     virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
@@ -36,14 +40,26 @@ namespace Breakout {
     virtual void setPosition(float x, float y);
     virtual void setColor(const sf::Color &);
 
+    virtual void setGame(Game *);
+
+    void spawn(float x, float y, const int particleCount = 100);
+
   protected:
     static const float sHalfSize;
     static const sf::Time sMaxAge;
-    std::vector<SimpleParticle> mParticles;
+    std::vector<ExplosionParticle> mParticles;
     sf::Color mColor;
     sf::VertexArray mVertices;
+    int mCurrentParticleIndex;
+
+    static const int MaxParticleCount = 4096;
+
+  private:
+    static ExplosionParticleSystem *mInstance;
+    ExplosionParticleSystem(const ExplosionParticleSystem&);
+
   };
 
 }
 
-#endif // __PARTICLESYSTEM_H_
+#endif // __EXPLOSIONPARTICLESYSTEM_H_

@@ -1,8 +1,8 @@
 // Copyright (c) 2015 Oliver Lau <oliver@ersatzworld.net>
 // All rights reserved.
 
-#ifndef __BLOCK_H_
-#define __BLOCK_H_
+#ifndef __BODYBLOCK_H_
+#define __BODYBLOCK_H_
 
 #include "Body.h"
 #include "Breakout.h"
@@ -23,12 +23,12 @@ namespace Breakout {
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);
     virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
+    virtual BodyType type(void) const { return Body::BodyType::Block; }
 
-    void hit(float impulse);
-
+    virtual bool hit(float impulse);
   };
 
 }
 
-#endif // __BLOCK_H_
+#endif // __BODYBLOCK_H_
 

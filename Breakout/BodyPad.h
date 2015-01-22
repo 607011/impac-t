@@ -1,8 +1,8 @@
 // Copyright (c) 2015 Oliver Lau <oliver@ersatzworld.net>
 // All rights reserved.
 
-#ifndef __PAD_H_
-#define __PAD_H_
+#ifndef __BODYPAD_H_
+#define __BODYPAD_H_
 
 #include <Box2D/Box2D.h>
 #include "Body.h"
@@ -33,6 +33,7 @@ namespace Breakout {
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);
     virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
+    virtual BodyType type(void) const { return Body::BodyType::Pad; }
 
   private:
     b2RevoluteJoint* mJoint;
