@@ -38,7 +38,7 @@ namespace Breakout {
   {
     b2World *world = mGame->world();
     const int N = mParticles.size();
-#pragma omp parallel for
+// #pragma omp parallel for
     for (int i = 0; i < N; ++i) {
       SimpleParticle &p = mParticles[i];
       p.dead = false;
@@ -85,9 +85,8 @@ namespace Breakout {
   }
 
 
-  void ParticleSystem::onUpdate(float elapsedSeconds)
+  void ParticleSystem::onUpdate(float)
   {
-    UNUSED(elapsedSeconds);
     const float sx = float(mGame->tileWidth());
     const float sy = float(mGame->tileHeight());
     static const sf::Vector2f topLeft(-sHalfSize * sx, -sHalfSize * sy);
@@ -96,7 +95,7 @@ namespace Breakout {
     static const sf::Vector2f bottomLeft(-sHalfSize * sx, sHalfSize * sy);
     bool allDead = true;
     const int N = mParticles.size();
-#pragma omp parallel for 
+// #pragma omp parallel for
     for (int i = 0; i < N; ++i) {
       SimpleParticle &p = mParticles[i];
       if (age() > p.lifeTime && !p.dead) {

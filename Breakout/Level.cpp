@@ -3,19 +3,18 @@
 
 #include "stdafx.h"
 
-
 namespace Breakout {
 
   Level::Level(void)
-    : mFirstGID(1)
+    : mFirstGID(0)
     , mMapData(nullptr)
-    , mMapDataSize(0)
     , mNumTilesX(0)
     , mNumTilesY(0)
     , mTileWidth(0)
     , mTileHeight(0)
     , mLevelNum(0)
   {
+    // ...
   }
 
 
@@ -32,6 +31,11 @@ namespace Breakout {
       load();
   }
 
+  void Level::gotoNext(void)
+  {
+    set(mLevelNum + 1);
+  }
+
 
 #pragma warning(disable : 4503)
   void Level::load(void)
@@ -40,15 +44,18 @@ namespace Breakout {
     mBackgroundImageOpacity = 1.f;
 
     std::ostringstream buf;
-    buf << gLevelsRootDir << std::setw(4) << std::setfill('0') << (1) << ".tmx";
+    buf << gLevelsRootDir << std::setw(4) << std::setfill('0') << mLevelNum << ".tmx";
     const std::string &filename = buf.str();
+#ifndef NDEBUG
+    std::cout << "Loading level " << filename << " ..." << std::endl;
+#endif
     bool ok = true;
     boost::property_tree::ptree pt;
     try {
       boost::property_tree::xml_parser::read_xml(filename, pt);
     }
     catch (const boost::property_tree::xml_parser::xml_parser_error &ex) {
-      sf::err() << "XML parser error: " << ex.what() << " (line " << ex.line() << ")" << std::endl;
+      std::cerr << "XML parser error: " << ex.what() << " (line " << ex.line() << ")" << std::endl;
       ok = false;
     }
     if (ok) {
@@ -67,12 +74,12 @@ namespace Breakout {
       if (compressed != nullptr && compressedSize > 0) {
         static const int CHUNKSIZE = 1*1024*1024;
         mMapData = (uint32_t*)std::malloc(CHUNKSIZE);
-        mMapDataSize = CHUNKSIZE;
-        int rc = uncompress((Bytef*)mMapData, &mMapDataSize, (Bytef*)compressed, compressedSize);
+        uLongf mapDataSize = CHUNKSIZE;
+        int rc = uncompress((Bytef*)mMapData, &mapDataSize, (Bytef*)compressed, compressedSize);
         if (rc == Z_OK) {
-          mMapData = reinterpret_cast<uint32_t*>(std::realloc(mMapData, mMapDataSize));
+          mMapData = reinterpret_cast<uint32_t*>(std::realloc(mMapData, mapDataSize));
 #ifndef NDEBUG
-          std::cout << "map data contains " << (mMapDataSize / sizeof(uint32_t)) << " elements." << std::endl;
+          std::cout << "map data contains " << (mapDataSize / sizeof(uint32_t)) << " elements." << std::endl;
 #endif
         }
         else

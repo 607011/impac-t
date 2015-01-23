@@ -57,11 +57,11 @@
   </tile>
  </tileset>
  <imagelayer name="Background" y="-1" opacity="0.5">
-  <image source="../backgrounds/urban02.jpg" trans="aaaa00"/>
+  <image source="../backgrounds/urban06.jpg" trans="aaaa00"/>
  </imagelayer>
  <layer name="Tile Layer" width="40" height="25">
   <data encoding="base64" compression="zlib">
-   eJztx8ENACAIADFR9p/Zh8xgCGk/l4v1ZDWaPbOd6m76AAAAv1yPawBl
+   eJztlcEOgCAMQ0GE//9kD7pLE+yK42Cyd+kBtj4TE2q5qeWdRs69sD3VmSv7xwYv7znrG5BRXur9/uQhps2tejFPQ/XCZPtVcM9XvygvBP1OSPSYne/yivaL8tz9/0V5GVF+rEf1MrCvkWR+3l71O6y/k1Tfxdm7sTpvoJd3Tu2Jur97T5IkSZL8mQtqJAEV
   </data>
  </layer>
  <objectgroup name="Boundaries"/>

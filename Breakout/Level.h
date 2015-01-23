@@ -21,6 +21,7 @@ namespace Breakout {
 
     void clear(void);
     void set(int level);
+    void gotoNext(void);
 
     uint32_t firstGID(void) const;
     const sf::Texture &texture(int index) const;
@@ -46,7 +47,6 @@ namespace Breakout {
     sf::Sprite mBackgroundSprite;
     int mLevelNum;
     uint32_t *mMapData;
-    uLongf mMapDataSize;
     int mNumTilesX;
     int mNumTilesY;
     int mTileWidth;

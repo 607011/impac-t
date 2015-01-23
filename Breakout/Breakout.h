@@ -20,14 +20,6 @@ namespace Breakout {
 
   class Game;
 
-  //class DestructionListener : public b2DestructionListener {
-  //public:
-  //  void SayGoodbye(b2Fixture* fixture) { B2_NOT_USED(fixture); }
-  //  void SayGoodbye(b2Joint* joint) { B2_NOT_USED(joint); }
-  //  Game *test;
-  //};
-
-
   struct ContactPoint {
     b2Fixture *fixtureA;
     b2Fixture *fixtureB;
@@ -52,6 +44,7 @@ namespace Breakout {
       BackAction,
       Restart,
       ExplosionTest,
+      ContinueAction,
       LastAction
     } Action;
 
@@ -60,7 +53,6 @@ namespace Breakout {
       WelcomeScreen,
       Playing,
       PlayerKilled,
-      CountdownBeforeLevelStarts,
       PauseAfterLevelCompleted,
       LevelCompleted,
       Pausing,
@@ -70,13 +62,12 @@ namespace Breakout {
 
 
   public:
-    static const int32 MaxContactPoints = 2048;
-    static const int DefaultWindowWidth = 640;
-    static const int DefaultWindowHeight = 400;
+    static const int32 MaxContactPoints = 512;
+    static const int DefaultWindowWidth = 40*16;
+    static const int DefaultWindowHeight = 25*16;
     static const int ColorDepth = 32;
     static const int DefaultLives = 3;
     static const int NewLiveAfterSoManyPoints = 2500;
-    static const float ShotSpeed;
     static const float Scale;
 
     Game(void);
@@ -116,9 +107,14 @@ namespace Breakout {
     sf::View mDefaultView;
     sf::View mPlayView;
     sf::Font mFixedFont;
+    sf::Font mDecorationFont;
     sf::Clock mClock;
     sf::Clock mWallClock;
+    sf::Text mWelcomeMsg;
     sf::Text mScoreMsg;
+    sf::Text mStatMsg;
+    sf::Text mStartMsg;
+    sf::Text mProgramInfoMsg;
     sf::SoundBuffer mNewBallBuffer;
     sf::Sound mNewBallSound;
     sf::SoundBuffer mBallOutBuffer;
@@ -131,15 +127,25 @@ namespace Breakout {
     sf::Sound mPadHitBlockSound;
     sf::SoundBuffer mExplosionBuffer;
     sf::Sound mExplosionSound;
+    sf::Music mWelcomeMusic;
+    sf::Music mBackgroundMusic;
+    sf::Music mLevelCompleteMusic;
+    sf::Music mPlayerKilledMusic;
+    sf::Music mGameOverMusic;
+    sf::Clock mScoreClock;
+    sf::Clock mBlamClock;
+    sf::Clock mCountdownBeforeLevelStarts;
+    sf::Clock mPauseAfterLevelCompleted;
+
+    std::vector<sf::Music*> mMusic;
 
     // Box2D
-    static const int32 VelocityIterations = 4;
-    static const int32 PositionIterations = 2;
+    static const int32 VelocityIterations = 2;
+    static const int32 PositionIterations = 1;
     b2World *mWorld;
     Ground *mGround;
     ContactPoint mPoints[MaxContactPoints];
-    //DestructionListener mDestructionListener;
-    int32 mPointCount;
+    int32 mContactPointCount;
 
     // b2ContactListener interface
     virtual void PreSolve(b2Contact *contact, const b2Manifold *oldManifold)
@@ -169,9 +175,9 @@ namespace Breakout {
     int mScore;
     int mLives;
     bool mPaused;
-    bool mRestartRequested;
     BodyList mBodies;
     unsigned int mCurrentBodyId;
+    int mBlockCount;
 
     void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);
@@ -181,17 +187,23 @@ namespace Breakout {
     void clearWorld(void);
     void clearWindow(void);
     void drawWorld(const sf::View &view);
+    void stopAllMusic(void);
     void restart(void);
     void resize(void);
     void pause(void);
     void resume(void);
     void buildLevel(void);
-    void onPlaying(void);
-    void onWelcomeScreen(void);
     void update(float elapsedSeconds);
     void evaluateCollisions(void);
     void handleEvents(void);
     void handlePlayerInteraction(void);
+
+    void gotoWelcomeScreen(void);
+    void onWelcomeScreen(void);
+
+    void gotoNextLevel(void);
+    void onPlaying(void);
+
 
   };
 
