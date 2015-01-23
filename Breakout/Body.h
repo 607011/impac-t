@@ -64,34 +64,70 @@ namespace Breakout {
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
     virtual void setPosition(float x, float y);
-    virtual const b2Vec2 &position(void) const;
+    virtual inline const b2Vec2 &position(void) const
+    {
+      return mBody->GetPosition();
+    }
 
     void setLifetime(const sf::Time &);
-    const sf::Time &lifetime(void) const;
-    const sf::Time &age(void) const;
-    bool overAge(void) const;
+    inline const sf::Time &lifetime(void) const
+    {
+      return mMaxAge;
+    }
+
+    inline const sf::Time &age(void) const
+    {
+      return mSpawned.getElapsedTime();
+    }
+
+    inline bool overAge(void) const
+    {
+      return age() > lifetime();
+    }
 
     virtual BodyType type(void) const = 0;
 
-    const sf::Texture &texture(void) const;
+    inline const sf::Texture &texture(void) const
+    {
+      return mTexture;
+    }
 
     void remove(void);
     virtual void kill(void);
-    bool isAlive(void) const;
+
+    inline bool isAlive(void) const
+    {
+      return mAlive;
+    }
 
     void setVisible(bool);
-    bool isVisible(void) const;
+    inline bool isVisible(void) const
+    {
+      return mVisible;
+    }
 
     virtual void setZIndex(int);
-    virtual int zIndex(void) const;
+    inline virtual int zIndex(void) const
+    {
+      return mZIndex;
+    }
 
     virtual void setGame(Game *);
-    Game *game(void);
+    inline Game *game(void)
+    {
+      return mGame;
+    }
 
-    uint32_t id(void) const;
+    inline uint32_t id(void) const
+    {
+      return mID;
+    }
 
-    b2Body *body(void);
     virtual void setBody(b2Body *);
+    inline b2Body *body(void)
+    {
+      return mBody;
+    }
 
   protected:
     Body::killed_signal_t signalKilled;
@@ -111,11 +147,10 @@ namespace Breakout {
 
     std::string mName;
 
-
-  private:
     virtual void onUpdate(float elapsedSeconds) = 0;
     virtual void onDraw(sf::RenderTarget& target, sf::RenderStates states) const = 0;
 
+  private:
     uint32_t mID;
     bool mAlive;
     bool mVisible;

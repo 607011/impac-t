@@ -38,12 +38,6 @@ namespace Breakout {
   }
 
 
-  Game *Body::game(void)
-  {
-    return mGame;
-  }
-
-
   boost::signals2::connection Body::doOnKilled(const KilledSlotType &slot)
   {
     return signalKilled.connect(slot);
@@ -68,39 +62,9 @@ namespace Breakout {
   }
 
 
-  const b2Vec2 &Body::position(void) const
-  {
-    return mBody->GetPosition();
-  }
-
-
   void Body::setLifetime(const sf::Time &lifetime)
   {
     mMaxAge = lifetime;
-  }
-
-
-  const sf::Time &Body::lifetime(void) const
-  {
-    return mMaxAge;
-  }
-
-
-  const sf::Time &Body::age(void) const
-  {
-    return mSpawned.getElapsedTime();
-  }
-
-
-  bool Body::overAge(void) const
-  {
-    return age() > lifetime();
-  }
-
-
-  const sf::Texture &Body::texture(void) const
-  {
-    return mTexture;
   }
 
   
@@ -125,21 +89,9 @@ namespace Breakout {
   }
 
 
-  bool Body::isAlive(void) const
-  {
-    return mAlive;
-  }
-
-
   void Body::setVisible(bool visible)
   {
     mVisible = visible;
-  }
-
-
-  bool Body::isVisible(void) const
-  {
-    return mVisible;
   }
 
 
@@ -149,26 +101,9 @@ namespace Breakout {
   }
 
 
-  int Body::zIndex(void) const
-  {
-    return mZIndex;
-  }
-
-
   void Body::setId(uint32_t id)
   {
     mID = id;
-  }
-
-
-  uint32_t Body::id(void) const
-  {
-    return mID;
-  }
-
-  b2Body *Body::body(void)
-  {
-    return mBody;
   }
 
 

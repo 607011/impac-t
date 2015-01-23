@@ -99,7 +99,6 @@ namespace Breakout {
     mKeyMapping[Action::ExplosionTest] = sf::Keyboard::P;
 
     ExplosionParticleSystem::instance()->setGame(this);
-
     addBody(ExplosionParticleSystem::instance());
 
     restart();
@@ -108,13 +107,14 @@ namespace Breakout {
 
   Game::~Game(void)
   {
-    // ...
+    clearWorld();
   }
 
 
   void Game::restart(void)
   {
     pause();
+    clearWorld();
 
     safeRenew(mWorld, new b2World(b2Vec2(0.f, 9.81f)));
     // mWorld->SetDestructionListener(&mDestructionListener);
@@ -130,7 +130,24 @@ namespace Breakout {
     buildLevel();
     setState(State::Playing);
 
+    mPointCount = 0;
+
     resume();
+  }
+
+
+  void Game::clearWorld(void)
+  {
+    if (mWorld != nullptr) {
+      b2Body *node = mWorld->GetBodyList();
+      while (node) {
+        b2Body *body = node;
+        node = node->GetNext();
+        mWorld->DestroyBody(body);
+      }
+    }
+    safeDelete(mBall);
+    mBodies.clear();
   }
 
 
@@ -203,19 +220,6 @@ namespace Breakout {
   }
 
 
-  void Game::clearWorld(void)
-  {
-    b2Body* node = mWorld->GetBodyList();
-    while (node) {
-      b2Body* body = node;
-      node = node->GetNext();
-      mWorld->DestroyBody(body);
-    }
-    safeDelete(mBall);
-    mBodies.clear();
-  }
-
-
   void Game::handleEvents(void)
   {
     sf::Event event;
@@ -280,8 +284,7 @@ namespace Breakout {
   {
     if (mRestartRequested) {
       mRestartRequested = false;
-      // restart();
-      std::cout << "mRestartRequested!" << std::endl;
+      restart();
       return;
     }
     const sf::Time &elapsed = mClock.restart();
@@ -427,25 +430,6 @@ namespace Breakout {
   }
 
 
-  void Game::PreSolve(b2Contact *contact, const b2Manifold *oldManifold)
-  {
-    B2_NOT_USED(contact);
-    B2_NOT_USED(oldManifold);
-  }
-
-
-  void Game::BeginContact(b2Contact *contact)
-  {
-    B2_NOT_USED(contact);
-  }
-
-
-  void Game::EndContact(b2Contact *contact)
-  {
-    B2_NOT_USED(contact);
-  }
-
-
   void Game::PostSolve(b2Contact *contact, const b2ContactImpulse *impulse)
   {    if (mPointCount < MaxContactPoints) {      ContactPoint &cp = mPoints[mPointCount];      cp.fixtureA = contact->GetFixtureA();      cp.fixtureB = contact->GetFixtureB();      Body *bodyA = reinterpret_cast<Body*>(cp.fixtureA->GetUserData());      Body *bodyB = reinterpret_cast<Body*>(cp.fixtureB->GetUserData());      if (bodyA != nullptr && bodyB != nullptr) {        cp.position = contact->GetManifold()->points[0].localPoint;        cp.normal = b2Vec2_zero;        cp.normalImpulse = impulse->normalImpulses[0];        cp.tangentImpulse = impulse->tangentImpulses[0];        cp.separation = 0.f;        ++mPointCount;      }    }  }
 
@@ -453,7 +437,6 @@ namespace Breakout {
   void Game::buildLevel(void)
   {
     mCurrentBodyId = 0;
-    clearWorld();
 
     // create boundaries
     { 
@@ -569,37 +552,6 @@ namespace Breakout {
       }
     }
   }
-
-
-  const Level *Game::level(void) const
-  {
-    return &mLevel;
-  }
-
-
-  b2World *Game::world(void)
-  {
-    return mWorld;
-  }
-
-
-  Ground *Game::ground(void) const
-  {
-    return mGround;
-  }
-
-
-  int Game::tileWidth(void) const
-  {
-    return mLevel.tileWidth();
-  }
-
-
-  int Game::tileHeight(void) const
-  {
-    return mLevel.tileHeight();
-  }
-
 
 }
 

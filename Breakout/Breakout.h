@@ -84,11 +84,31 @@ namespace Breakout {
     void enterLoop(void);
     void addBody(Body *body);
     void onBodyKilled(Body *body);
-    int tileWidth(void) const;
-    int tileHeight(void) const;
-    b2World *world(void);
-    const Level *level(void) const;
-    Ground *ground(void) const;
+
+    inline int tileWidth(void) const
+    {
+      return mLevel.tileWidth();
+    }
+
+    inline int tileHeight(void) const
+    {
+      return mLevel.tileHeight();
+    }
+
+    inline b2World *world(void)
+    {
+      return mWorld;
+    }
+
+    inline const Level *level(void) const
+    {
+      return &mLevel;
+    }
+
+    inline Ground *ground(void) const
+    {
+      return mGround;
+    }
 
   private:
     // SFML
@@ -122,9 +142,19 @@ namespace Breakout {
     int32 mPointCount;
 
     // b2ContactListener interface
-    virtual void PreSolve(b2Contact *contact, const b2Manifold *oldManifold);
-    virtual void BeginContact(b2Contact *contact);
-    virtual void EndContact(b2Contact *contact);
+    virtual void PreSolve(b2Contact *contact, const b2Manifold *oldManifold)
+    {
+      B2_NOT_USED(contact);
+      B2_NOT_USED(oldManifold);
+    }
+    virtual void BeginContact(b2Contact *contact)
+    {
+      B2_NOT_USED(contact);
+    }
+    virtual void EndContact(b2Contact *contact)
+    {
+      B2_NOT_USED(contact);
+    }
     virtual void PostSolve(b2Contact *contact, const b2ContactImpulse *impulse);
 
     // level data
