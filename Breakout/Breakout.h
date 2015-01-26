@@ -57,7 +57,8 @@ namespace Breakout {
       LevelCompleted,
       Pausing,
       CreditsScreen,
-      OptionsScreen
+      OptionsScreen,
+      GameOver
     } State;
 
 
@@ -74,7 +75,6 @@ namespace Breakout {
     ~Game();
     void enterLoop(void);
     void addBody(Body *body);
-    void onBodyKilled(Body *body);
 
     inline int tileWidth(void) const
     {
@@ -101,20 +101,31 @@ namespace Breakout {
       return mGround;
     }
 
+  public: // slots
+    void onBodyKilled(Body *body);
+
   private:
     // SFML
     sf::RenderWindow mWindow;
     sf::View mDefaultView;
-    sf::View mPlayView;
     sf::Font mFixedFont;
     sf::Font mDecorationFont;
+    sf::Texture mBackgroundTexture;
+    sf::Sprite mBackgroundSprite;
     sf::Clock mClock;
     sf::Clock mWallClock;
+    sf::Clock mScoreClock;
+    sf::Clock mBlamClock;
+    sf::Clock mCountdownBeforeLevelStarts;
+    sf::Clock mPauseAfterLevelCompleted;
     sf::Text mWelcomeMsg;
+    sf::Text mLevelCompletedMsg;
+    sf::Text mGameOverMsg;
     sf::Text mScoreMsg;
     sf::Text mStatMsg;
     sf::Text mStartMsg;
     sf::Text mProgramInfoMsg;
+    sf::Text mLevelMsg;
     sf::SoundBuffer mNewBallBuffer;
     sf::Sound mNewBallSound;
     sf::SoundBuffer mBallOutBuffer;
@@ -127,21 +138,17 @@ namespace Breakout {
     sf::Sound mPadHitBlockSound;
     sf::SoundBuffer mExplosionBuffer;
     sf::Sound mExplosionSound;
-    sf::Music mWelcomeMusic;
-    sf::Music mBackgroundMusic;
-    sf::Music mLevelCompleteMusic;
-    sf::Music mPlayerKilledMusic;
-    sf::Music mGameOverMusic;
-    sf::Clock mScoreClock;
-    sf::Clock mBlamClock;
-    sf::Clock mCountdownBeforeLevelStarts;
-    sf::Clock mPauseAfterLevelCompleted;
+    //sf::Music mWelcomeMusic;
+    //sf::Music mBackgroundMusic;
+    //sf::Music mLevelCompleteMusic;
+    //sf::Music mPlayerKilledMusic;
+    //sf::Music mGameOverMusic;
 
     std::vector<sf::Music*> mMusic;
 
     // Box2D
-    static const int32 VelocityIterations = 2;
-    static const int32 PositionIterations = 1;
+    static const int32 VelocityIterations = 4;
+    static const int32 PositionIterations = 2;
     b2World *mWorld;
     Ground *mGround;
     ContactPoint mPoints[MaxContactPoints];
@@ -176,17 +183,17 @@ namespace Breakout {
     int mLives;
     bool mPaused;
     BodyList mBodies;
-    unsigned int mCurrentBodyId;
     int mBlockCount;
 
     void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);
-    void gameOver(void);
     void newBall(void);
     void setState(State state);
     void clearWorld(void);
     void clearWindow(void);
     void drawWorld(const sf::View &view);
+    void drawStartMessage(void);
+    void drawPlayground(void);
     void stopAllMusic(void);
     void restart(void);
     void resize(void);
@@ -204,7 +211,14 @@ namespace Breakout {
     void gotoNextLevel(void);
     void onPlaying(void);
 
+    void gotoLevelCompleted(void);
+    void onLevelCompleted(void);
 
+    void gotoGameOver(void);
+    void onGameOver(void);
+
+    void onPausing(void);
+    void onCreditsScreen(void);
   };
 
 }

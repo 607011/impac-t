@@ -56,6 +56,8 @@ Section "Gee"
   SetOutPath $INSTDIR\resources\soundfx
   File /a /r "..\Breakout\resources\soundfx\"
 
+  SetOutPath $INSTDIR
+
 SectionEnd
 
 

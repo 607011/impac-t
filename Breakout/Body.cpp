@@ -9,10 +9,8 @@
 namespace Breakout {
 
   Body::Body(BodyType type, Game *game)
-    : mID(0xffffffffU)
-    , mAlive(true)
+    : mAlive(true)
     , mVisible(true)
-    , mMaxAge(sf::milliseconds(0))
     , mZIndex(0)
     , mBody(nullptr)
   {
@@ -95,12 +93,6 @@ namespace Breakout {
   void Body::setZIndex(int z)
   {
     mZIndex = z;
-  }
-
-
-  void Body::setId(uint32_t id)
-  {
-    mID = id;
   }
 
 

@@ -25,7 +25,7 @@ namespace Breakout {
   class ParticleSystem : public Body
   {
   public:
-    ParticleSystem(Game *game, int count = 50);
+    ParticleSystem(Game *game, const b2Vec2 &pos, int count = 50);
     virtual ~ParticleSystem();
 
     // Body implementation

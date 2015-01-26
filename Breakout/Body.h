@@ -118,11 +118,6 @@ namespace Breakout {
       return mGame;
     }
 
-    inline uint32_t id(void) const
-    {
-      return mID;
-    }
-
     virtual void setBody(b2Body *);
     inline b2Body *body(void)
     {
@@ -142,7 +137,6 @@ namespace Breakout {
     sf::Time mMaxAge;
     Game *mGame;
 
-    void setId(uint32_t);
     friend class Game;
 
     std::string mName;
@@ -151,7 +145,6 @@ namespace Breakout {
     virtual void onDraw(sf::RenderTarget& target, sf::RenderStates states) const = 0;
 
   private:
-    uint32_t mID;
     bool mAlive;
     bool mVisible;
 

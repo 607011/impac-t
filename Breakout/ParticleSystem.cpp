@@ -9,7 +9,7 @@ namespace Breakout {
   const sf::Time ParticleSystem::sMaxAge = sf::milliseconds(1000);
 
 
-  ParticleSystem::ParticleSystem(Game *game, int count)
+  ParticleSystem::ParticleSystem(Game *game, const b2Vec2 &pos, int count)
     : Body(Body::BodyType::Particle, game)
     , mColor(sf::Color::White)
     , mParticles(count)
@@ -18,6 +18,7 @@ namespace Breakout {
     setZIndex(Body::ZIndex::Foreground + 0);
     mName = std::string("ParticleSystem");
     setLifetime(sMaxAge);
+    setPosition(pos.x, pos.y);
   }
 
 
@@ -36,9 +37,11 @@ namespace Breakout {
 
   void ParticleSystem::setPosition(float x, float y)
   {
+#ifndef NDEBUG
+    std::cout << "ParticleSystem::setPosition(" << x << ", " << y << ")" << std::endl;
+#endif
     b2World *world = mGame->world();
     const int N = mParticles.size();
-// #pragma omp parallel for
     for (int i = 0; i < N; ++i) {
       SimpleParticle &p = mParticles[i];
       p.dead = false;
@@ -55,7 +58,7 @@ namespace Breakout {
 
       b2BodyDef bd;
       bd.type = b2_dynamicBody;
-      bd.position.Set(x, y - 1.f);
+      bd.position.Set(x, y);
       bd.fixedRotation = true;
       bd.bullet = false;
       bd.userData = this;
@@ -95,7 +98,7 @@ namespace Breakout {
     static const sf::Vector2f bottomLeft(-sHalfSize * sx, sHalfSize * sy);
     bool allDead = true;
     const int N = mParticles.size();
-// #pragma omp parallel for
+#pragma omp parallel for reduction(&:allDead)
     for (int i = 0; i < N; ++i) {
       SimpleParticle &p = mParticles[i];
       if (age() > p.lifeTime && !p.dead) {

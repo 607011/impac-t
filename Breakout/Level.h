@@ -9,7 +9,6 @@
 
 #include <map>
 #include <string>
-#include <zlib.h>
 
 
 namespace Breakout {
@@ -20,27 +19,52 @@ namespace Breakout {
     ~Level();
 
     void clear(void);
-    void set(int level);
-    void gotoNext(void);
+    bool set(int level);
+    bool gotoNext(void);
 
-    uint32_t firstGID(void) const;
     const sf::Texture &texture(int index) const;
     const sf::Texture &texture(const std::string &name) const;
     int bodyIndexByTextureName(const std::string &name) const;
     void addTexture(const std::string &filename, int index, const std::string &tileName);
     const std::string &textureName(int index);
-    const sf::Sprite &backgroundSprite(void) const;
     uint32_t mapData(int x, int y) const;
     uint32_t *const mapDataScanLine(int y) const;
     int score(int index) const;
-
-    int width(void) const;
-    int height(void) const;
-    int tileWidth(void) const;
-    int tileHeight(void) const;
+    inline int num(void) const
+    {
+      return mLevelNum;
+    }
+    inline uint32_t firstGID(void) const
+    {
+      return mFirstGID;
+    }
+    inline const sf::Sprite &backgroundSprite(void) const
+    {
+      return mBackgroundSprite;
+    }
+    inline int level(void) const
+    {
+      return mLevelNum;
+    }
+    inline int width(void) const
+    {
+      return mNumTilesX;
+    }
+    inline int height(void) const
+    {
+      return mNumTilesY;
+    }
+    inline int tileWidth(void) const
+    {
+      return mTileWidth;
+    }
+    inline int tileHeight(void) const
+    {
+      return mTileHeight;
+    }
 
   private:
-    void load(void);
+    bool load(void);
 
     float mBackgroundImageOpacity;
     sf::Texture mBackgroundTexture;

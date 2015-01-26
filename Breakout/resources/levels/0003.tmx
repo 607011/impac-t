@@ -56,13 +56,13 @@
    <image width="64" height="16" source="../images/pad.png"/>
   </tile>
  </tileset>
- <imagelayer name="Background" y="-1" opacity="0.5">
-  <image source="../backgrounds/urban02.jpg" trans="aaaa00"/>
+ <imagelayer name="Background" y="-1" opacity="0.9">
+  <image source="../backgrounds/abstract09.jpg" trans="aaaa00"/>
  </imagelayer>
  <layer name="Tile Layer" width="40" height="25">
   <data encoding="base64" compression="zlib">
-   eJztx8ENACAIADFR9p/Zh8xgCGk/l4v1ZDWaPbOd6m76AAAAv1yPawBl
+   eJztjjkOwCAQA5GQ8v8nU9EkK9jDhhSeEi2eae1LN97YRJ0nG7OuE41VB7MRtc1oRG8i9ypbD2l3t7Hyvm9Yjbu2SGPGU/nj8SJ92VskHu+tNo//dtvE6vhLmxBCCCHiDKQnAH8=
   </data>
  </layer>
- <objectgroup name="Boundaries"/>
+ <objectgroup name="Boundaries" visible="0"/>
 </map>

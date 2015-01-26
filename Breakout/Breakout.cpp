@@ -88,11 +88,20 @@ namespace Breakout {
     mWelcomeMsg.setString("c't Breakout");
     mWelcomeMsg.setFont(mDecorationFont);
     mWelcomeMsg.setCharacterSize(113U);
-    mWelcomeMsg.setColor(sf::Color(244, 244, 255));
+    mWelcomeMsg.setColor(sf::Color(255, 255, 255));
+
+    mLevelCompletedMsg.setString("Level complete");
+    mLevelCompletedMsg.setFont(mDecorationFont);
+    mLevelCompletedMsg.setCharacterSize(89U);
+    mLevelCompletedMsg.setColor(sf::Color(255, 255, 255));
+
+    mGameOverMsg.setString("Game over");
+    mGameOverMsg.setFont(mDecorationFont);
+    mGameOverMsg.setCharacterSize(89U);
+    mGameOverMsg.setColor(sf::Color(255, 255, 255));
 
     mStartMsg.setFont(mFixedFont);
     mStartMsg.setCharacterSize(16U);
-    mStartMsg.setColor(sf::Color(255, 128, 64));
     mStartMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mStartMsg.getLocalBounds().width, 1.4f * mDefaultView.getCenter().y);
 
     mStatMsg.setFont(mFixedFont);
@@ -101,7 +110,11 @@ namespace Breakout {
 
     mScoreMsg.setFont(mFixedFont);
     mScoreMsg.setCharacterSize(16U);
-    mScoreMsg.setColor(sf::Color(230, 230, 230));
+    mScoreMsg.setColor(sf::Color(255, 255, 255, 200));
+
+    mLevelMsg.setFont(mFixedFont);
+    mLevelMsg.setCharacterSize(16U);
+    mLevelMsg.setColor(sf::Color(255, 255, 255, 200));
 
     mProgramInfoMsg.setString("c't Breakout v" + std::string(__APP_VERSION) + " " + __TIMESTAMP__ + "\n"
       + "Copyright (c) 2015 Oliver Lau. All rights reserved.");
@@ -109,6 +122,10 @@ namespace Breakout {
     mProgramInfoMsg.setColor(sf::Color::White);
     mProgramInfoMsg.setCharacterSize(8U);
     mProgramInfoMsg.setPosition(8.f, mDefaultView.getCenter().y + 0.5f * mDefaultView.getSize().y - mProgramInfoMsg.getLocalBounds().height - 8.f);
+
+    mBackgroundTexture.loadFromFile("resources/backgrounds/abstract05.jpg");
+    mBackgroundSprite.setTexture(mBackgroundTexture);
+    mBackgroundSprite.setPosition(0.f, 0.f);
 
     mKeyMapping[Action::MoveLeft] = sf::Keyboard::Left;
     mKeyMapping[Action::MoveRight] = sf::Keyboard::Right;
@@ -120,8 +137,8 @@ namespace Breakout {
     mKeyMapping[Action::ExplosionTest] = sf::Keyboard::P;
     mKeyMapping[Action::ContinueAction] = sf::Keyboard::Space;
 
-    //ExplosionParticleSystem::instance()->setGame(this);
-    //addBody(ExplosionParticleSystem::instance());
+    ExplosionParticleSystem::instance()->setGame(this);
+    addBody(ExplosionParticleSystem::instance());
 
     restart();
   }
@@ -183,7 +200,6 @@ namespace Breakout {
   {
     mDefaultView = sf::View(sf::FloatRect(0.f, 0.f, float(mWindow.getSize().x), float(mWindow.getSize().y)));
     mDefaultView.setCenter(0.5f * sf::Vector2f(mWindow.getSize()));
-    mPlayView = sf::View(sf::FloatRect(0.f, 0.f, float(mWindow.getSize().x), float(mWindow.getSize().y)));
   }
 
 
@@ -218,15 +234,19 @@ namespace Breakout {
         break;
 
       case State::LevelCompleted:
-        //onLevelCompleted();
+        onLevelCompleted();
         break;
 
       case State::Pausing:
-        // onPausing();
+        onPausing();
         break;
 
       case State::CreditsScreen:
-        //onCreditsScreen();
+        onCreditsScreen();
+        break;
+
+      case State::GameOver:
+        onGameOver();
         break;
 
       default:
@@ -255,7 +275,7 @@ namespace Breakout {
         break;
       case sf::Event::Resized:
         resize();
-        // glViewport(0, 0, event.size.width, event.size.height);        break;
+        break;
       case sf::Event::LostFocus:
         pause();
         break;
@@ -270,17 +290,22 @@ namespace Breakout {
           mWindow.close();
         }
         else if (event.key.code == mKeyMapping[Action::SpecialAction]) {
-          if (mBall == nullptr)
-            newBall();
+          if (mState == State::Playing) {
+            if (mBall == nullptr)
+              newBall();
+          }
+          else if (mState == State::LevelCompleted) {
+            gotoNextLevel();
+          }
+          else if (mState == State::GameOver) {
+            restart();
+          }
         }
 #ifndef NDEBUG
         else if (event.key.code == mKeyMapping[Action::Restart]) {
-          restart();
+          gotoLevelCompleted();
         }
 #endif
-        //else if (event.key.code == mKeyMapping[Action::ExplosionTest]) {
-        //  ExplosionParticleSystem::instance()->spawn(mPad->position().x, mPad->position().y - 2.f, 100);
-        //}
         break;
       }
     }
@@ -307,12 +332,12 @@ namespace Breakout {
   void Game::gotoWelcomeScreen(void) 
   {
     clearWorld();
-    mWindow.setView(mPlayView);
     stopAllMusic();
     // mWelcomeMusic.play();
     mStartMsg.setString("Press SPACE to start");
     mBlamClock.restart();
     setState(State::WelcomeScreen);
+    mWindow.setView(mDefaultView);
   }
 
 
@@ -333,6 +358,7 @@ namespace Breakout {
       }
     }
     mWindow.clear(sf::Color(31, 31, 47));
+    mWindow.draw(mBackgroundSprite);
 
     update(elapsed.asSeconds());
     drawWorld(mDefaultView);
@@ -340,91 +366,179 @@ namespace Breakout {
     mWelcomeMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mWelcomeMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mWelcomeMsg);
 
-    mStartMsg.setColor(sf::Color(200, 200, 230, sf::Uint8(192.0f + 64.0f * std::sin(14.0f * mWallClock.getElapsedTime().asSeconds()))));
-    mStartMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mStartMsg.getLocalBounds().width, mDefaultView.getCenter().y + mDefaultView.getSize().y / 4);
-    mWindow.draw(mStartMsg);
+    drawStartMessage();
 
     mWindow.draw(mProgramInfoMsg);
 
     if (mBlamClock.getElapsedTime() > sf::milliseconds(999)) {
       mBlamClock.restart();
-      ParticleSystem *ps = new ParticleSystem(this, 20U);
-      ps->setPosition(40.f * std::rand() / RAND_MAX, 25.f * std::rand() / RAND_MAX);
+      ParticleSystem *ps = new ParticleSystem(
+        this,
+        b2Vec2(40.f * std::rand() / RAND_MAX, 25.f * std::rand() / RAND_MAX),
+        111U);
       addBody(ps);
     }
 
   }
 
 
+  void Game::gotoLevelCompleted(void)
+  {
+    mStartMsg.setString("Press SPACE to continue");
+    mBlamClock.restart();
+    mScoreClock.restart();
+    setState(State::LevelCompleted);
+  }
+
+
+  void Game::onLevelCompleted(void)
+  {
+    const sf::Time &elapsed = mClock.restart();
+
+    update(elapsed.asSeconds());
+
+    if (mBlockCount > 0 && mScoreClock.getElapsedTime() > sf::milliseconds(50)) {
+      mScoreClock.restart();
+      BodyList::iterator b = std::find_if(mBodies.begin(), mBodies.end(), [](const Body *body)  {
+        return body->type() == Body::BodyType::Block;
+      });
+      if (b != mBodies.end())
+        (*b)->kill();
+    }
+
+    drawPlayground();
+
+    mLevelCompletedMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mLevelCompletedMsg.getLocalBounds().width, 20.f);
+    mWindow.draw(mLevelCompletedMsg);
+    
+    drawStartMessage();
+  }
+
+
+  void Game::onCreditsScreen(void)
+  {
+    // ...
+  }
+
+
+  void Game::gotoGameOver(void)
+  {
+    mStartMsg.setString("Press SPACE to continue");
+    setState(State::GameOver);
+  }
+
+
+  void Game::onGameOver(void)
+  {
+    const sf::Time &elapsed = mClock.restart();
+
+    update(elapsed.asSeconds());
+
+    drawPlayground();
+
+    mGameOverMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
+    mWindow.draw(mGameOverMsg);
+    
+    drawStartMessage();
+  }
+
+
+  void Game::onPausing(void)
+  {
+    onPlaying();
+  }
+
+
   void Game::gotoNextLevel(void)
   {
-    mLevel.gotoNext();
     stopAllMusic();
     clearWorld();
-    buildLevel();
-    mWindow.setView(mPlayView);
-    // mBackgroundMusic.play();
-    setState(State::Playing);
-    mClock.restart();
+    if (mLevel.gotoNext()) {
+      buildLevel();
+      // mBackgroundMusic.play();
+      setState(State::Playing);
+      mClock.restart();
+    }
+    else {
+      std::cout << "You won!" << std::endl;
+    }
   }
 
 
   void Game::onPlaying(void)
   {
     const sf::Time &elapsed = mClock.restart();
-    clearWindow();
-    mWindow.draw(mLevel.backgroundSprite());
-    handleEvents();
     if (!mPaused) {
       handlePlayerInteraction();
       update(elapsed.asSeconds());
+      if (mState == State::Playing) {
+        if (mBall != nullptr) { // check if ball has been kicked out of the screen
+          const float ballX = mBall->position().x;
+          const float ballY = mBall->position().y;
+          if (0 > ballX || ballX > float(mLevel.width()) || 0 > ballY) {
+            mBall->kill();
+          }
+          else if (ballY > mLevel.height()) {
+            mBall->lethalHit();
+            mBall->kill();
+          }
+        }
+
+        if (mPad != nullptr) { // check if pad has been kicked out of the screen
+          const float padX = mPad->position().x;
+          const float padY = mPad->position().y;
+          if (padY > mLevel.height())
+            mPad->setPosition(padX, mLevel.height() - 0.5f);
+          if (padX < 0.f)
+            mPad->setPosition(1., padY);
+          else if (padX > mLevel.width())
+            mPad->setPosition(mLevel.width() - 1.f, padY);
+        }
+      }
     }
-    drawWorld(mPlayView);
-    mScoreMsg.setString(std::to_string(mScore) + "/" + std::to_string(mWorld->GetBodyCount()));
-    mScoreMsg.setPosition(mPlayView.getCenter().x + mPlayView.getSize().x / 2 - mScoreMsg.getLocalBounds().width - 20, 20);
+    drawPlayground();
+  }
+
+
+  void Game::drawPlayground(void)
+  {
+    handleEvents();
+
+    clearWindow();
+    mWindow.draw(mLevel.backgroundSprite());
+    drawWorld(mDefaultView);
+
+    mLevelMsg.setString("Level " + std::to_string(mLevel.num()));
+    mLevelMsg.setPosition(4, 4);
+    mWindow.draw(mLevelMsg);
+
+    mScoreMsg.setString(std::to_string(mScore));
+    mScoreMsg.setPosition(mDefaultView.getCenter().x + mDefaultView.getSize().x / 2 - mScoreMsg.getLocalBounds().width - 4, 4);
     mWindow.draw(mScoreMsg);
 
     for (int life = 0; life < mLives; ++life) {
       const sf::Texture &ballTexture = mLevel.texture(std::string("Ball"));
       sf::Sprite lifeSprite(ballTexture);
-      lifeSprite.setOrigin(8.f, 8.f);
-      lifeSprite.setPosition((ballTexture.getSize().x * 1.5f) * (1 + life), mPlayView.getCenter().y - 0.5f * mPlayView.getSize().y + 32);
+      lifeSprite.setOrigin(0.f, 0.f);
+      lifeSprite.setColor(sf::Color(255, 255, 255, 128));
+      lifeSprite.setPosition(4 + (ballTexture.getSize().x * 1.5f) * life, mDefaultView.getCenter().y - 0.5f * mDefaultView.getSize().y + 26);
       mWindow.draw(lifeSprite);
     }
+  }
 
-    if (mBall != nullptr) { // check if ball has been kicked out of the screen
-      const float ballX = mBall->position().x;
-      const float ballY = mBall->position().y;
-      if (0 > ballX || ballX > float(mLevel.width()) || 0 > ballY) {
-        mBall->kill();
-      }
-      else if (ballY > mLevel.height()) {
-        mBall->lethalHit();
-        mBall->kill();
-      }
-    }
 
-    if (mPad != nullptr) { // check if pad has been kicked out of the screen
-      const float padX = mPad->position().x;
-      const float padY = mPad->position().y;
-      if (padY > mLevel.height())
-        mPad->setPosition(padX, mLevel.height() - 0.5f);
-      if (padX < 0.f)
-        mPad->setPosition(1., padY);
-      else if (padX > mLevel.width())
-        mPad->setPosition(mLevel.width() - 1.f, padY);
-    }
-
-    if (mBlockCount == 0)
-      gotoNextLevel();
+  void Game::drawStartMessage(void)
+  {
+    mStartMsg.setColor(sf::Color(200, 200, 230, sf::Uint8(192.0f + 64.0f * std::sin(14.0f * mWallClock.getElapsedTime().asSeconds()))));
+    mStartMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mStartMsg.getLocalBounds().width, mDefaultView.getCenter().y + mDefaultView.getSize().y / 4);
+    mWindow.draw(mStartMsg);
   }
 
 
   void Game::drawWorld(const sf::View &view)
   {
     mWindow.setView(view);
-    const BodyList &bodies = mBodies;
-    for (BodyList::const_iterator b = bodies.cbegin(); b != bodies.cend(); ++b) {
+    for (BodyList::const_iterator b = mBodies.cbegin(); b != mBodies.cend(); ++b) {
       const Body *body = *b;
       if (body->isAlive()) {
         mWindow.draw(*body);
@@ -449,11 +563,7 @@ namespace Breakout {
           Ball *ball = reinterpret_cast<Ball*>(a->type() == Body::BodyType::Ball ? a : b);
           bool destroyed = block->hit(cp.normalImpulse);
           if (destroyed) {
-            mExplosionSound.play();
             showScore(block->getScore(), block->position());
-            ParticleSystem *ps = new ParticleSystem(this);
-            ps->setPosition(block->position().x, block->position().y);
-            addBody(ps);
             block->kill();
           }
           else {
@@ -463,20 +573,12 @@ namespace Breakout {
         else if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
           block->kill();
-          mExplosionSound.play();
-          ParticleSystem *ps = new ParticleSystem(this);
-          ps->setPosition(block->position().x, block->position().y);
-          addBody(ps);
         }
         else if (a->type() == Body::BodyType::Pad || b->type() == Body::BodyType::Pad) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
           showScore(block->getScore(), block->position(), 2);
           block->kill();
-          mExplosionSound.play();
           mPadHitBlockSound.play();
-          ParticleSystem *ps = new ParticleSystem(this);
-          ps->setPosition(block->position().x, block->position().y);
-          addBody(ps);
         }
       }
       else if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
@@ -524,9 +626,6 @@ namespace Breakout {
 
   void Game::buildLevel(void)
   {
-    mBlockCount = 0;
-    mCurrentBodyId = 0;
-
     // create boundaries
     { 
       float32 W = float32(mLevel.width());
@@ -560,6 +659,7 @@ namespace Breakout {
     }
 
     // create blocks
+    mBlockCount = 0;
     for (int y = 0; y < mLevel.height(); ++y) {
       const uint32_t *mapRow = mLevel.mapDataScanLine(y);
       for (int x = 0; x < mLevel.width(); ++x) {
@@ -575,12 +675,6 @@ namespace Breakout {
     }
 
     newBall();
-  }
-
-
-  void Game::gameOver(void)
-  {
-    std::cout << "gameOver()" << std::endl << std::endl;
   }
 
 
@@ -627,7 +721,6 @@ namespace Breakout {
 
   void Game::addBody(Body *body)
   {
-    body->setId(mCurrentBodyId++);
     mBodies.push_back(body);
   }
 
@@ -636,10 +729,21 @@ namespace Breakout {
   {
     if (killedBody->type() == Body::BodyType::Ball) {
       mBallOutSound.play();
-      if (killedBody->energy() == 0) {
-        if (mLives-- == 0)
-          gameOver();
+      if (mState == State::Playing) {
+        if (killedBody->energy() == 0) {
+          if (mLives-- == 0) {
+            gotoGameOver();
+          }
+        }
       }
+    }
+    else if (killedBody->type() == Body::BodyType::Block) {
+      --mBlockCount;
+      mExplosionSound.play();
+      ParticleSystem *ps = new ParticleSystem(this, killedBody->position());
+      addBody(ps);
+      if (mBlockCount == 0)
+        gotoLevelCompleted();
     }
   }
 

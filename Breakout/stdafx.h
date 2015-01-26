@@ -32,6 +32,8 @@
 #include <cassert>
 #include <sstream>
 #include <typeinfo>
+#include <future>
+#include <functional>
 
 #include <glew.h>
 

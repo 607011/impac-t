@@ -2,6 +2,8 @@
 // All rights reserved.
 
 #include "stdafx.h"
+#include <sys/stat.h>
+
 
 namespace Breakout {
 
@@ -24,32 +26,51 @@ namespace Breakout {
   }
 
 
-  void Level::set(int level)
+  bool Level::set(int level)
   {
+    bool valid = false;
     mLevelNum = level;
     if (mLevelNum > 0)
-      load();
+      valid = load();
+    return valid;
   }
 
-  void Level::gotoNext(void)
+
+  bool Level::gotoNext(void)
   {
-    set(mLevelNum + 1);
+    return set(mLevelNum + 1);
+  }
+
+
+  static bool fileExists(const std::string &filename)
+  {
+    struct stat buffer;
+    return stat(filename.c_str(), &buffer) == 0;
   }
 
 
 #pragma warning(disable : 4503)
-  void Level::load(void)
+  bool Level::load(void)
   {
+    bool ok = true;
     safeFree(mMapData);
     mBackgroundImageOpacity = 1.f;
 
     std::ostringstream buf;
+#ifndef NDEBUG
+    buf << gLevelsRootDir << std::setw(4) << std::setfill('0') << (3) << ".tmx";
+#else
     buf << gLevelsRootDir << std::setw(4) << std::setfill('0') << mLevelNum << ".tmx";
+#endif
     const std::string &filename = buf.str();
+
+    ok = fileExists(filename.c_str());
+    if (!ok)
+      return false;
+
 #ifndef NDEBUG
     std::cout << "Loading level " << filename << " ..." << std::endl;
 #endif
-    bool ok = true;
     boost::property_tree::ptree pt;
     try {
       boost::property_tree::xml_parser::read_xml(filename, pt);
@@ -58,7 +79,11 @@ namespace Breakout {
       std::cerr << "XML parser error: " << ex.what() << " (line " << ex.line() << ")" << std::endl;
       ok = false;
     }
-    if (ok) {
+
+    if (!ok)
+      return false;
+
+    try {
       const std::string &mapDataB64 = pt.get<std::string>("map.layer.data");
       mTileWidth = pt.get<int>("map.<xmlattr>.tilewidth");
       mTileHeight = pt.get<int>("map.<xmlattr>.tileheight");
@@ -82,10 +107,16 @@ namespace Breakout {
           std::cout << "map data contains " << (mapDataSize / sizeof(uint32_t)) << " elements." << std::endl;
 #endif
         }
-        else
-          sf::err() << "Inflating map data failed with code " << rc << "\n";
+        else {
+          std::cerr << "Inflating map data failed with code " << rc << std::endl;
+          ok = false;
+        }
         delete [] compressed;
       }
+
+      if (!ok)
+        return false;
+
       const std::string &backgroundTextureFilename = gLevelsRootDir + pt.get<std::string>("map.imagelayer.image.<xmlattr>.source");
       mBackgroundTexture.loadFromFile(backgroundTextureFilename);
       mBackgroundSprite.setTexture(mBackgroundTexture);
@@ -122,6 +153,11 @@ namespace Breakout {
         }
       }
     }
+    catch (boost::property_tree::ptree_error &e) {
+      std::cerr << "Error parsing TMX file: " << e.what() << std::endl;
+      ok = false;
+    }
+    return ok;
   }
 
 
@@ -167,42 +203,6 @@ namespace Breakout {
   const std::string &Level::textureName(int index)
   {
     return mTextureNames.at(index);
-  }
-
-
-  uint32_t Level::firstGID(void) const
-  {
-    return mFirstGID;
-  }
-
-
-  const sf::Sprite &Level::backgroundSprite(void) const
-  {
-    return mBackgroundSprite;
-  }
-
-
-  int Level::width(void) const
-  {
-    return mNumTilesX;
-  }
-
-
-  int Level::height(void) const
-  {
-    return mNumTilesY;
-  }
-
-
-  int Level::tileWidth(void) const
-  {
-    return mTileWidth;
-  }
-
-
-  int Level::tileHeight(void) const
-  {
-    return mTileHeight;
   }
 
 
