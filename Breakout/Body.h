@@ -92,7 +92,7 @@ namespace Breakout {
       return mTexture;
     }
 
-    void remove(void);
+    virtual void remove(void);
     virtual void kill(void);
 
     inline bool isAlive(void) const
