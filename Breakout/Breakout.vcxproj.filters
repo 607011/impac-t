@@ -114,5 +114,8 @@
     <None Include="resources\shaders\particlesystem.frag">
       <Filter>Fragment Shaders</Filter>
     </None>
+    <None Include="resources\shaders\title.frag">
+      <Filter>Fragment Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

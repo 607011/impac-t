@@ -14,8 +14,6 @@
 
 namespace Breakout {
   
-#define PARTICLES_WITH_SPRITES
-
   struct SimpleParticle 
   {
     b2Body *body;
@@ -41,6 +39,7 @@ namespace Breakout {
   protected:
     static const float sHalfSize;
     static const sf::Time sMaxAge;
+    static const sf::Color sColor;
     std::vector<SimpleParticle> mParticles;
 #ifndef PARTICLES_WITH_SPRITES
     sf::VertexArray mVertices;

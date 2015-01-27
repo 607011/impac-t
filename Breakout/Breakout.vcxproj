@@ -124,6 +124,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\particlesystem.frag" />
+    <None Include="resources\shaders\title.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -7,7 +7,7 @@ namespace Breakout {
 
   const float ParticleSystem::sHalfSize = .1333f;
   const sf::Time ParticleSystem::sMaxAge = sf::milliseconds(1000);
-
+  const sf::Color ParticleSystem::sColor = sf::Color::White;
 
   ParticleSystem::ParticleSystem(Game *game, const b2Vec2 &pos, int count)
     : Body(Body::BodyType::Particle, game)
@@ -19,10 +19,12 @@ namespace Breakout {
     setZIndex(Body::ZIndex::Foreground + 0);
     mName = std::string("ParticleSystem");
     setLifetime(sMaxAge);
+#ifdef PARTICLES_WITH_SPRITES
     mTexture.loadFromFile("resources/images/particle.png");
     mShader.loadFromFile("resources/shaders/particlesystem.frag", sf::Shader::Fragment);
     mShader.setParameter("uTexture", sf::Shader::CurrentTexture);
     mShader.setParameter("uMaxAge", sMaxAge.asSeconds());
+#endif
 
 #ifndef NDEBUG
     std::cout << "ParticleSystem(" << game << ", " << pos.x << ", " << pos.y << ", " << count << ")" << std::endl;
@@ -33,10 +35,9 @@ namespace Breakout {
       SimpleParticle &p = mParticles[i];
       p.dead = false;
       p.lifeTime = sf::milliseconds(500 + std::rand() % 500);
-
-      float angle = 2.f * _PI * std::rand() / RAND_MAX;
-      float speed = float(Game::Scale * (2 + std::rand() % 5));
-      const b2Vec2 &v = speed * b2Vec2(std::cos(angle), std::sin(angle));
+      b2Rot angle(2.f * _PI * std::rand() / RAND_MAX);
+      float speed = float(Game::Scale * (2 + 5 * float(std::rand()) / RAND_MAX));
+      const b2Vec2 &v = speed * b2Vec2(angle.c, angle.s);
 #ifdef PARTICLES_WITH_SPRITES
       p.sprite.setTexture(mTexture);
       mTexture.setRepeated(false);
@@ -44,10 +45,10 @@ namespace Breakout {
       p.sprite.setOrigin(0.5f * mTexture.getSize().x, 0.5f * mTexture.getSize().y);
 #else
       const int j = 4 * i;
-      mVertices[j+0].color = mColor;
-      mVertices[j+1].color = mColor;
-      mVertices[j+2].color = mColor;
-      mVertices[j+3].color = mColor;
+      mVertices[j+0].color = sColor;
+      mVertices[j+1].color = sColor;
+      mVertices[j+2].color = sColor;
+      mVertices[j+3].color = sColor;
 #endif
 
       b2BodyDef bd;
@@ -101,7 +102,7 @@ namespace Breakout {
 #endif
     bool allDead = true;
     const int N = mParticles.size();
-//#pragma omp parallel for reduction(&:allDead)
+#pragma omp parallel for reduction(&:allDead)
     for (int i = 0; i < N; ++i) {
       SimpleParticle &p = mParticles[i];
       if (age() > p.lifeTime && !p.dead) {
@@ -109,12 +110,12 @@ namespace Breakout {
         mGame->world()->DestroyBody(p.body);
       }
       else {
-        const sf::Uint8 alpha = 0xffU - sf::Uint8(Easing<float>::quadEaseIn(age().asSeconds(), 0.0f, 255.0f, p.lifeTime.asSeconds()));
         const b2Vec2 &pos = p.body->GetPosition();
 #ifdef PARTICLES_WITH_SPRITES
         p.sprite.setPosition(pos.x * sx, pos.y * sy);
-        p.sprite.setColor(sf::Color(255, 255, 255, alpha));
 #else
+        const float lifetime = p.lifeTime.asSeconds();
+        const sf::Uint8 alpha = 0xffU - sf::Uint8(Easing<float>::quadEaseIn(b2Clamp(age().asSeconds(), 0.f, lifetime), 0.0f, 255.0f, lifetime));
         sf::Vector2f offset(pos.x * sx, pos.y * sy);
         const int j = 4 * i;
         mVertices[j+0].position = offset + topLeft;
@@ -125,6 +126,7 @@ namespace Breakout {
         mVertices[j+1].color.a = alpha;
         mVertices[j+2].color.a = alpha;
         mVertices[j+3].color.a = alpha;
+
 #endif
       }
       allDead &= p.dead;
@@ -142,7 +144,8 @@ namespace Breakout {
 #ifdef PARTICLES_WITH_SPRITES
     states.shader = &mShader;
     for (std::vector<SimpleParticle>::const_iterator p = mParticles.cbegin(); p != mParticles.cend(); ++p)
-      target.draw(p->sprite, states);
+      if (!p->dead)
+        target.draw(p->sprite, states);
 #else
     states.texture = nullptr;
     target.draw(mVertices, states);

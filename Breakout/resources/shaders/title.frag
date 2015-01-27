@@ -2,12 +2,12 @@
 // All rights reserved.
 
 uniform sampler2D uTexture;
-uniform float uAge;
-uniform float uMaxAge;
+uniform float uV;
 
 void main()
 {
-	float v = 1.0 - (uAge / uMaxAge);
+    const float s = 115;
+	const float a = 0.003;
 	vec2 pos = gl_TexCoord[0].xy;
-	gl_FragColor = texture2D(uTexture, pos) * vec4(v, 1.0, 1.0 - v, v);
+	gl_FragColor = texture2D(uTexture, pos + a * vec2(sin(s * uV), cos(s * uV)));
 }

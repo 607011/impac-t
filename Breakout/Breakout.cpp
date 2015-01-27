@@ -32,15 +32,12 @@ namespace Breakout {
     resize();
 
     sf::Image icon;
-    std::cout << icon.loadFromFile("resources/images/app-icon.png") << std::endl;
+    icon.loadFromFile("resources/images/app-icon.png");
     mWindow.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 
-    ok = mFixedFont.loadFromFile("resources/fonts/emulogic.ttf");
+    ok = mFixedFont.loadFromFile("resources/fonts/04b_03.ttf");
     if (!ok)
-      sf::err() << "resources/fonts/emulogic.ttf failed to load." << std::endl;
-    ok = mDecorationFont.loadFromFile("resources/fonts/gunmetl.ttf");
-    if (!ok)
-      std::cerr << "resources/fonts/gunmetl.ttf failed to load." << std::endl;
+      sf::err() << "resources/fonts/04b_03.ttf failed to load." << std::endl;
 
     ok = mNewBallBuffer.loadFromFile("resources/soundfx/new-ball.ogg");
     if (!ok)
@@ -91,24 +88,19 @@ namespace Breakout {
     mExplosionSound.setVolume(100);
     mExplosionSound.setLoop(false);
 
-    mWelcomeMsg.setString("c't Breakout");
-    mWelcomeMsg.setFont(mDecorationFont);
-    mWelcomeMsg.setCharacterSize(113U);
-    mWelcomeMsg.setColor(sf::Color(255, 255, 255));
-
     mLevelCompletedMsg.setString("Level complete");
-    mLevelCompletedMsg.setFont(mDecorationFont);
-    mLevelCompletedMsg.setCharacterSize(89U);
+    mLevelCompletedMsg.setFont(mFixedFont);
+    mLevelCompletedMsg.setCharacterSize(64U);
     mLevelCompletedMsg.setColor(sf::Color(255, 255, 255));
 
     mGameOverMsg.setString("Game over");
-    mGameOverMsg.setFont(mDecorationFont);
-    mGameOverMsg.setCharacterSize(89U);
+    mGameOverMsg.setFont(mFixedFont);
+    mGameOverMsg.setCharacterSize(64U);
     mGameOverMsg.setColor(sf::Color(255, 255, 255));
 
     mPlayerWonMsg.setString("You won");
-    mPlayerWonMsg.setFont(mDecorationFont);
-    mPlayerWonMsg.setCharacterSize(89U);
+    mPlayerWonMsg.setFont(mFixedFont);
+    mPlayerWonMsg.setCharacterSize(64U);
     mPlayerWonMsg.setColor(sf::Color(255, 255, 255));
 
     mStartMsg.setFont(mFixedFont);
@@ -127,8 +119,11 @@ namespace Breakout {
     mLevelMsg.setCharacterSize(16U);
     mLevelMsg.setColor(sf::Color(255, 255, 255, 200));
 
-    mProgramInfoMsg.setString("c't Breakout v" + std::string(__APP_VERSION) + " " + __TIMESTAMP__ + "\n"
-      + "Copyright (c) 2015 Oliver Lau. All rights reserved.");
+    mProgramInfoMsg.setString("c't Breakout v" + std::string(BREAKOUT_VERSION) + " " + __TIMESTAMP__ + "\n"
+      + "Copyright (c) 2015 Oliver Lau. All rights reserved.\n"
+      + "Built with SFML " + std::to_string(SFML_VERSION_MAJOR) + "." + std::to_string(SFML_VERSION_MINOR)
+      + " and Box2D " + std::to_string(b2_version.major) + "." + std::to_string(b2_version.minor) + "." + std::to_string(b2_version.revision)
+      + ".");
     mProgramInfoMsg.setFont(mFixedFont);
     mProgramInfoMsg.setColor(sf::Color::White);
     mProgramInfoMsg.setCharacterSize(8U);
@@ -138,18 +133,41 @@ namespace Breakout {
     mBackgroundSprite.setTexture(mBackgroundTexture);
     mBackgroundSprite.setPosition(0.f, 0.f);
 
+    mLogoTexture.loadFromFile("resources/images/ct_logo.gif");
+    mLogoSprite.setTexture(mLogoTexture);
+    mLogoSprite.setPosition(8.f, 8.f);
+
+    mTitleTexture.loadFromFile("resources/images/title.png");
+    mTitleSprite.setTexture(mTitleTexture);
+    mTitleSprite.setPosition(0.f, 0.f);
+
+    mTitleShader.loadFromFile("resources/shaders/title.frag", sf::Shader::Fragment);
+
+    mHelpMsg.setFont(mFixedFont);
+    mHelpMsg.setColor(sf::Color::White);
+    mHelpMsg.setCharacterSize(8U);
+    mHelpMsg.setString(
+      "CONTROLS\n"
+      "  < move left\n"
+      "  > move right\n"
+      "  N new ball if lost\n"
+      "  Y kick paddle clockwise\n"
+      "  X kick paddle counterclockwise\n"
+      "HINT\n"
+      "  catch block with for 2x score\n"
+      );
+    mHelpMsg.setPosition(mDefaultView.getCenter().x + mDefaultView.getSize().x / 2 - mHelpMsg.getLocalBounds().width - 8.f, 8.f);
+
     mKeyMapping[Action::MoveLeft] = sf::Keyboard::Left;
     mKeyMapping[Action::MoveRight] = sf::Keyboard::Right;
     mKeyMapping[Action::SpecialAction] = sf::Keyboard::Space;
+    mKeyMapping[Action::NewBall] = sf::Keyboard::N;
     mKeyMapping[Action::BackAction] = sf::Keyboard::Escape;
     mKeyMapping[Action::KickLeft] = sf::Keyboard::X;
     mKeyMapping[Action::KickRight] = sf::Keyboard::Y;
     mKeyMapping[Action::Restart] = sf::Keyboard::Delete;
     mKeyMapping[Action::ExplosionTest] = sf::Keyboard::P;
     mKeyMapping[Action::ContinueAction] = sf::Keyboard::Space;
-
-    //ExplosionParticleSystem::instance()->setGame(this);
-    //addBody(ExplosionParticleSystem::instance());
 
     restart();
   }
@@ -304,7 +322,7 @@ namespace Breakout {
         if (event.key.code == mKeyMapping[Action::BackAction]) {
           mWindow.close();
         }
-        else if (event.key.code == mKeyMapping[Action::SpecialAction]) {
+        else if (event.key.code == mKeyMapping[Action::NewBall]) {
           if (mState == State::Playing) {
             if (mBall == nullptr)
               newBall();
@@ -377,10 +395,15 @@ namespace Breakout {
     update(elapsed.asSeconds());
     drawWorld(mDefaultView);
     
-    mWelcomeMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mWelcomeMsg.getLocalBounds().width, 20.f);
-    mWindow.draw(mWelcomeMsg);
+    mWindow.draw(mLogoSprite);
+    sf::RenderStates states;
+    states.shader = &mTitleShader;
+    mTitleShader.setParameter("uV", mWallClock.getElapsedTime().asSeconds());
+    mWindow.draw(mTitleSprite, states);
 
     drawStartMessage();
+
+    mWindow.draw(mHelpMsg);
 
     mWindow.draw(mProgramInfoMsg);
   }
@@ -555,7 +578,7 @@ namespace Breakout {
 
   void Game::drawStartMessage(void)
   {
-    mStartMsg.setColor(sf::Color(200, 200, 230, sf::Uint8(192.0f + 64.0f * std::sin(14.0f * mWallClock.getElapsedTime().asSeconds()))));
+    mStartMsg.setColor(sf::Color(255, 255, 255, sf::Uint8(192.0f + 64.0f * std::sin(14.0f * mWallClock.getElapsedTime().asSeconds()))));
     mStartMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mStartMsg.getLocalBounds().width, mDefaultView.getCenter().y + mDefaultView.getSize().y / 4);
     mWindow.draw(mStartMsg);
   }
@@ -708,7 +731,7 @@ namespace Breakout {
   {
     addToScore(score * factor);
     std::string text = ((factor > 1) ? (std::to_string(factor) + "*") : "") + std::to_string(score);
-    TextBody *scoreText = new TextBody(this, text, 14U);
+    TextBody *scoreText = new TextBody(this, text, 24U);
     scoreText->setFont(mFixedFont);
     scoreText->setPosition(atPos.x - 0.5f, atPos.y - 0.5f);
     addBody(scoreText);

@@ -16,6 +16,10 @@
 #include "BodyGround.h"
 
 
+
+// #define PARTICLES_WITH_SPRITES
+
+
 namespace Breakout {
 
   class Game;
@@ -40,6 +44,7 @@ namespace Breakout {
       MoveRight,
       KickLeft,
       KickRight,
+      NewBall,
       SpecialAction,
       BackAction,
       Restart,
@@ -110,16 +115,19 @@ namespace Breakout {
     sf::RenderWindow mWindow;
     sf::View mDefaultView;
     sf::Font mFixedFont;
-    sf::Font mDecorationFont;
     sf::Texture mBackgroundTexture;
     sf::Sprite mBackgroundSprite;
+    sf::Shader mTitleShader;
+    sf::Texture mTitleTexture;
+    sf::Sprite mTitleSprite;
+    sf::Texture mLogoTexture;
+    sf::Sprite mLogoSprite;
     sf::Clock mClock;
     sf::Clock mWallClock;
     sf::Clock mScoreClock;
     sf::Clock mBlamClock;
     sf::Clock mCountdownBeforeLevelStarts;
     sf::Clock mPauseAfterLevelCompleted;
-    sf::Text mWelcomeMsg;
     sf::Text mLevelCompletedMsg;
     sf::Text mGameOverMsg;
     sf::Text mPlayerWonMsg;
@@ -128,6 +136,7 @@ namespace Breakout {
     sf::Text mStartMsg;
     sf::Text mProgramInfoMsg;
     sf::Text mLevelMsg;
+    sf::Text mHelpMsg;
     sf::SoundBuffer mNewBallBuffer;
     sf::Sound mNewBallSound;
     sf::SoundBuffer mBallOutBuffer;
