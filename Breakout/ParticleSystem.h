@@ -14,11 +14,16 @@
 
 namespace Breakout {
   
+#define PARTICLES_WITH_SPRITES
+
   struct SimpleParticle 
   {
     b2Body *body;
     sf::Time lifeTime;
     bool dead;
+#ifdef PARTICLES_WITH_SPRITES
+    sf::Sprite sprite;
+#endif
   };
 
 
@@ -33,15 +38,13 @@ namespace Breakout {
     virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
     virtual BodyType type(void) const { return Body::BodyType::Particle; }
 
-    virtual void setPosition(float x, float y);
-    virtual void setColor(const sf::Color &);
-
   protected:
     static const float sHalfSize;
     static const sf::Time sMaxAge;
     std::vector<SimpleParticle> mParticles;
-    sf::Color mColor;
+#ifndef PARTICLES_WITH_SPRITES
     sf::VertexArray mVertices;
+#endif
   };
 
 }

@@ -58,6 +58,7 @@ namespace Breakout {
       Pausing,
       CreditsScreen,
       OptionsScreen,
+      PlayerWon,
       GameOver
     } State;
 
@@ -121,6 +122,7 @@ namespace Breakout {
     sf::Text mWelcomeMsg;
     sf::Text mLevelCompletedMsg;
     sf::Text mGameOverMsg;
+    sf::Text mPlayerWonMsg;
     sf::Text mScoreMsg;
     sf::Text mStatMsg;
     sf::Text mStartMsg;
@@ -138,6 +140,8 @@ namespace Breakout {
     sf::Sound mPadHitBlockSound;
     sf::SoundBuffer mExplosionBuffer;
     sf::Sound mExplosionSound;
+    sf::SoundBuffer mNewLifeBuffer; 
+    sf::Sound mNewLifeSound;
     //sf::Music mWelcomeMusic;
     //sf::Music mBackgroundMusic;
     //sf::Music mLevelCompleteMusic;
@@ -216,6 +220,9 @@ namespace Breakout {
 
     void gotoGameOver(void);
     void onGameOver(void);
+
+    void gotoPlayerWon(void);
+    void onPlayerWon(void);
 
     void onPausing(void);
     void onCreditsScreen(void);

@@ -9,7 +9,7 @@ namespace Breakout {
   const float Game::Scale = 16.f;
 
   Game::Game(void)
-    : mWindow(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Bangout")
+    : mWindow(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Bangout", sf::Style::Titlebar | sf::Style::Close)
     , mWorld(nullptr)
     , mBall(nullptr)
     , mGround(nullptr)
@@ -23,36 +23,42 @@ namespace Breakout {
     , mBlockCount(0)
   {
     bool ok;
-    mWindow.setVerticalSyncEnabled(false);
-    // glewInit();
+    glewInit();
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glDisable(GL_DEPTH_TEST);
-
     glEnable(GL_TEXTURE_2D);
     mWindow.setActive();
+    mWindow.setVerticalSyncEnabled(false);
     resize();
 
-    //sf::Image icon;
-    //icon.loadFromFile("resources/gui/app-icon.png");
-    //mWindow.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+    sf::Image icon;
+    std::cout << icon.loadFromFile("resources/images/app-icon.png") << std::endl;
+    mWindow.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 
     ok = mFixedFont.loadFromFile("resources/fonts/emulogic.ttf");
     if (!ok)
       sf::err() << "resources/fonts/emulogic.ttf failed to load." << std::endl;
     ok = mDecorationFont.loadFromFile("resources/fonts/gunmetl.ttf");
     if (!ok)
-      sf::err() << "resources/fonts/gunmetl.ttf failed to load." << std::endl;
+      std::cerr << "resources/fonts/gunmetl.ttf failed to load." << std::endl;
 
     ok = mNewBallBuffer.loadFromFile("resources/soundfx/new-ball.ogg");
     if (!ok)
-      sf::err() << "resources/sounds/new-ball.ogg failed to load." << std::endl;
+      std::cerr << "resources/sounds/new-ball.ogg failed to load." << std::endl;
     mNewBallSound.setBuffer(mNewBallBuffer);
     mNewBallSound.setVolume(100);
     mNewBallSound.setLoop(false);
 
+    ok = mNewLifeBuffer.loadFromFile("resources/soundfx/new-life.ogg");
+    if (!ok)
+      std::cerr << "resources/sounds/new-ball.ogg failed to load." << std::endl;
+    mNewLifeSound.setBuffer(mNewLifeBuffer);
+    mNewLifeSound.setVolume(100);
+    mNewLifeSound.setLoop(false);
+
     ok = mBallOutBuffer.loadFromFile("resources/soundfx/ball-out.ogg");
     if (!ok)
-      sf::err() << "resources/soundfx/ball-out.ogg failed to load." << std::endl;
+      std::cerr << "resources/soundfx/ball-out.ogg failed to load." << std::endl;
     mBallOutSound.setBuffer(mBallOutBuffer);
     mBallOutSound.setVolume(100);
     mBallOutSound.setLoop(false);
@@ -66,21 +72,21 @@ namespace Breakout {
 
     ok = mPadHitBuffer.loadFromFile("resources/soundfx/pad-hit.ogg");
     if (!ok)
-      sf::err() << "resources/soundfx/pad-hit.ogg failed to load." << std::endl;
+      std::cerr << "resources/soundfx/pad-hit.ogg failed to load." << std::endl;
     mPadHitSound.setBuffer(mPadHitBuffer);
     mPadHitSound.setVolume(100);
     mPadHitSound.setLoop(false);
 
     ok = mPadHitBlockBuffer.loadFromFile("resources/soundfx/pad-hit-block.ogg");
     if (!ok)
-      sf::err() << "resources/soundfx/pad-hit-block.ogg failed to load." << std::endl;
+      std::cerr << "resources/soundfx/pad-hit-block.ogg failed to load." << std::endl;
     mPadHitBlockSound.setBuffer(mPadHitBlockBuffer);
     mPadHitBlockSound.setVolume(100);
     mPadHitBlockSound.setLoop(false);
 
     ok = mExplosionBuffer.loadFromFile("resources/soundfx/explosion.ogg");
     if (!ok)
-      sf::err() << "resources/soundfx/explosion.ogg failed to load." << std::endl;
+      std::cerr << "resources/soundfx/explosion.ogg failed to load." << std::endl;
     mExplosionSound.setBuffer(mExplosionBuffer);
     mExplosionSound.setVolume(100);
     mExplosionSound.setLoop(false);
@@ -99,6 +105,11 @@ namespace Breakout {
     mGameOverMsg.setFont(mDecorationFont);
     mGameOverMsg.setCharacterSize(89U);
     mGameOverMsg.setColor(sf::Color(255, 255, 255));
+
+    mPlayerWonMsg.setString("You won");
+    mPlayerWonMsg.setFont(mDecorationFont);
+    mPlayerWonMsg.setCharacterSize(89U);
+    mPlayerWonMsg.setColor(sf::Color(255, 255, 255));
 
     mStartMsg.setFont(mFixedFont);
     mStartMsg.setCharacterSize(16U);
@@ -249,6 +260,10 @@ namespace Breakout {
         onGameOver();
         break;
 
+      case State::PlayerWon:
+        onPlayerWon();
+        break;
+
       default:
         break;
       }
@@ -335,7 +350,6 @@ namespace Breakout {
     stopAllMusic();
     // mWelcomeMusic.play();
     mStartMsg.setString("Press SPACE to start");
-    mBlamClock.restart();
     setState(State::WelcomeScreen);
     mWindow.setView(mDefaultView);
   }
@@ -369,16 +383,6 @@ namespace Breakout {
     drawStartMessage();
 
     mWindow.draw(mProgramInfoMsg);
-
-    if (mBlamClock.getElapsedTime() > sf::milliseconds(999)) {
-      mBlamClock.restart();
-      ParticleSystem *ps = new ParticleSystem(
-        this,
-        b2Vec2(40.f * std::rand() / RAND_MAX, 25.f * std::rand() / RAND_MAX),
-        111U);
-      addBody(ps);
-    }
-
   }
 
 
@@ -386,7 +390,7 @@ namespace Breakout {
   {
     mStartMsg.setString("Press SPACE to continue");
     mBlamClock.restart();
-    mScoreClock.restart();
+    mPad->body()->SetLinearVelocity(b2Vec2_zero);
     setState(State::LevelCompleted);
   }
 
@@ -397,8 +401,8 @@ namespace Breakout {
 
     update(elapsed.asSeconds());
 
-    if (mBlockCount > 0 && mScoreClock.getElapsedTime() > sf::milliseconds(50)) {
-      mScoreClock.restart();
+    if (mBlockCount > 0 && mBlamClock.getElapsedTime() > sf::milliseconds(50)) {
+      mBlamClock.restart();
       BodyList::iterator b = std::find_if(mBodies.begin(), mBodies.end(), [](const Body *body)  {
         return body->type() == Body::BodyType::Block;
       });
@@ -418,6 +422,28 @@ namespace Breakout {
   void Game::onCreditsScreen(void)
   {
     // ...
+  }
+
+
+  void Game::gotoPlayerWon(void)
+  {
+    mStartMsg.setString("Press SPACE to start over");
+    setState(State::PlayerWon);
+  }
+
+
+  void Game::onPlayerWon(void)
+  {
+    const sf::Time &elapsed = mClock.restart();
+
+    update(elapsed.asSeconds());
+
+    drawPlayground();
+
+    mPlayerWonMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
+    mWindow.draw(mPlayerWonMsg);
+    
+    drawStartMessage();
   }
 
 
@@ -692,8 +718,10 @@ namespace Breakout {
   void Game::addToScore(int points)
   {
     mScore += points;
-    if ((mScore % NewLiveAfterSoManyPoints) > ((mScore + points) % NewLiveAfterSoManyPoints))
+    if ((mScore % NewLiveAfterSoManyPoints) > ((mScore + points) % NewLiveAfterSoManyPoints)) {
       ++mLives;
+      mNewLifeSound.play();
+    }
   }
 
 

@@ -13,6 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Fragment Shaders">
+      <UniqueIdentifier>{5b9c3794-6170-4971-bfa1-1c337c5bd4db}</UniqueIdentifier>
+      <Extensions>*.frag</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -104,5 +109,10 @@
     <ClInclude Include="BodyText.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\shaders\particlesystem.frag">
+      <Filter>Fragment Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

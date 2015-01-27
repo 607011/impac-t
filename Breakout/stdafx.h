@@ -35,7 +35,8 @@
 #include <future>
 #include <functional>
 
-#include <glew.h>
+#include <GL/glew.h>
+#include <GL/GLU.h>
 
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
@@ -45,7 +46,6 @@
 #include <Box2D/Box2D.h>
 
 #include <zlib.h>
-
 
 #include "main.h"
 #include "util.h"

@@ -42,14 +42,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <ExecutablePath>D:\Developer\SFML-2.1\bin;$(VCInstallDir)bin;$(WindowsSDK_ExecutablePath_x86);$(VSInstallDir)Common7\Tools\bin;$(VSInstallDir)Common7\tools;$(VSInstallDir)Common7\ide;$(ProgramFiles)\HTML Help Workshop;$(MSBuildToolsPath32);$(VSInstallDir);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
-    <IncludePath>D:\Developer\box2d-read-only\Box2D;D:\Developer\boost_1_57_0;D:\Developer\boost_1_56_0;$(SolutionDir)\glew;$(SolutionDir)\zlib\include;D:\Developer\SFML-2.1\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>D:\Developer\box2d-read-only\Box2D;D:\Developer\boost_1_57_0;D:\Developer\boost_1_56_0;D:\Developer\glew-1.9.0\include;$(SolutionDir)\zlib\include;D:\Developer\SFML-2.1\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>$(SolutionDir)\$(Configuration);D:\Developer\glew-1.9.0\lib;$(SolutionDir)\$(Configuration);$(SolutionDir)\zlib\lib;D:\Developer\SFML-2.1\lib;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <ExecutablePath>D:\Developer\SFML-2.1\bin;$(VCInstallDir)bin;$(WindowsSDK_ExecutablePath_x86);$(VSInstallDir)Common7\Tools\bin;$(VSInstallDir)Common7\tools;$(VSInstallDir)Common7\ide;$(ProgramFiles)\HTML Help Workshop;$(MSBuildToolsPath32);$(VSInstallDir);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
     <LibraryPath>$(SolutionDir)\$(Configuration);D:\Developer\glew-1.9.0\lib;$(SolutionDir)\zlib\lib;D:\Developer\SFML-2.1\lib;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86);</LibraryPath>
-    <IncludePath>D:\Developer\box2d-read-only\Box2D;D:\Developer\boost_1_57_0;D:\Developer\boost_1_56_0;$(SolutionDir)\glew;$(SolutionDir)\zlib\include;D:\Developer\SFML-2.1\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>D:\Developer\box2d-read-only\Box2D;D:\Developer\boost_1_57_0;D:\Developer\boost_1_56_0;D:\Developer\glew-1.9.0\include;$(SolutionDir)\glew;$(SolutionDir)\zlib\include;D:\Developer\SFML-2.1\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -61,7 +61,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);sfml-main-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-graphics-d.lib;sfml-audio-d.lib;zdll.lib;OpenGL32.Lib;glew.lib;winmm.lib;Box2D.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);sfml-main-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-graphics-d.lib;sfml-audio-d.lib;zdll.lib;OpenGL32.Lib;glew32.lib;winmm.lib;Box2D.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -123,12 +123,7 @@
     <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\glew\glew.vcxproj">
-      <Project>{acc7ad0b-c434-4584-a5b2-adc41d1d362d}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\glfw\glfw.vcxproj">
-      <Project>{7b63933f-2626-4330-9c21-42bd4e2bc252}</Project>
-    </ProjectReference>
+    <None Include="resources\shaders\particlesystem.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
