@@ -93,7 +93,6 @@
     <ClCompile Include="BodyPad.cpp" />
     <ClCompile Include="BodyText.cpp" />
     <ClCompile Include="Breakout.cpp" />
-    <ClCompile Include="ExplosionParticleSystem.cpp" />
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
@@ -116,7 +115,6 @@
     <ClInclude Include="Destructible.h" />
     <ClInclude Include="Destructive.h" />
     <ClInclude Include="Easings.h" />
-    <ClInclude Include="ExplosionParticleSystem.h" />
     <ClInclude Include="globals.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="main.h" />

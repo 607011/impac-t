@@ -57,11 +57,7 @@ namespace Breakout {
     mBackgroundImageOpacity = 1.f;
 
     std::ostringstream buf;
-#ifndef NDEBUG
-    buf << gLevelsRootDir << std::setw(4) << std::setfill('0') << (3) << ".tmx";
-#else
     buf << gLevelsRootDir << std::setw(4) << std::setfill('0') << mLevelNum << ".tmx";
-#endif
     const std::string &filename = buf.str();
 
     ok = fileExists(filename.c_str());
@@ -120,7 +116,9 @@ namespace Breakout {
       const std::string &backgroundTextureFilename = gLevelsRootDir + pt.get<std::string>("map.imagelayer.image.<xmlattr>.source");
       mBackgroundTexture.loadFromFile(backgroundTextureFilename);
       mBackgroundSprite.setTexture(mBackgroundTexture);
-      mBackgroundImageOpacity = pt.get<float>("map.imagelayer.<xmlattr>.opacity");
+      try {
+        mBackgroundImageOpacity = pt.get<float>("map.imagelayer.<xmlattr>.opacity");
+      } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
       mBackgroundSprite.setColor(sf::Color(255, 255, 255, sf::Uint8(mBackgroundImageOpacity * 0xff)));
 
       mTextures.clear();

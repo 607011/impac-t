@@ -137,8 +137,8 @@ namespace Breakout {
     mKeyMapping[Action::ExplosionTest] = sf::Keyboard::P;
     mKeyMapping[Action::ContinueAction] = sf::Keyboard::Space;
 
-    ExplosionParticleSystem::instance()->setGame(this);
-    addBody(ExplosionParticleSystem::instance());
+    //ExplosionParticleSystem::instance()->setGame(this);
+    //addBody(ExplosionParticleSystem::instance());
 
     restart();
   }
@@ -520,7 +520,7 @@ namespace Breakout {
       const sf::Texture &ballTexture = mLevel.texture(std::string("Ball"));
       sf::Sprite lifeSprite(ballTexture);
       lifeSprite.setOrigin(0.f, 0.f);
-      lifeSprite.setColor(sf::Color(255, 255, 255, 128));
+      lifeSprite.setColor(sf::Color(255, 255, 255, 0xa0));
       lifeSprite.setPosition(4 + (ballTexture.getSize().x * 1.5f) * life, mDefaultView.getCenter().y - 0.5f * mDefaultView.getSize().y + 26);
       mWindow.draw(lifeSprite);
     }
@@ -588,7 +588,7 @@ namespace Breakout {
           ball->kill();
         }
         else if (a->type() == Body::BodyType::Pad || b->type() == Body::BodyType::Pad) {
-          if (mPadHitSound.getStatus() != sf::Sound::Playing)
+          if (cp.normalImpulse > 20)
             mPadHitSound.play();
         }
       }
@@ -728,8 +728,8 @@ namespace Breakout {
   void Game::onBodyKilled(Body *killedBody)
   {
     if (killedBody->type() == Body::BodyType::Ball) {
-      mBallOutSound.play();
       if (mState == State::Playing) {
+        mBallOutSound.play();
         if (killedBody->energy() == 0) {
           if (mLives-- == 0) {
             gotoGameOver();
