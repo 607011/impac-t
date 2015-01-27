@@ -151,6 +151,8 @@ namespace Breakout {
     sf::Sound mExplosionSound;
     sf::SoundBuffer mNewLifeBuffer; 
     sf::Sound mNewLifeSound;
+    sf::SoundBuffer mLevelCompleteBuffer; 
+    sf::Sound mLevelCompleteSound;
     //sf::Music mWelcomeMusic;
     //sf::Music mBackgroundMusic;
     //sf::Music mLevelCompleteMusic;

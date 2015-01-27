@@ -88,6 +88,13 @@ namespace Breakout {
     mExplosionSound.setVolume(100);
     mExplosionSound.setLoop(false);
 
+    ok = mLevelCompleteBuffer.loadFromFile("resources/soundfx/level-complete.ogg");
+    if (!ok)
+      std::cerr << "resources/soundfx/level-complete.ogg failed to load." << std::endl;
+    mLevelCompleteSound.setBuffer(mLevelCompleteBuffer);
+    mLevelCompleteSound.setVolume(100);
+    mLevelCompleteSound.setLoop(false);
+
     mLevelCompletedMsg.setString("Level complete");
     mLevelCompletedMsg.setFont(mFixedFont);
     mLevelCompletedMsg.setCharacterSize(64U);
@@ -138,6 +145,7 @@ namespace Breakout {
     mLogoSprite.setPosition(8.f, 8.f);
 
     mTitleTexture.loadFromFile("resources/images/title.png");
+    mTitleTexture.setSmooth(true);
     mTitleSprite.setTexture(mTitleTexture);
     mTitleSprite.setPosition(0.f, 0.f);
 
@@ -322,7 +330,7 @@ namespace Breakout {
         if (event.key.code == mKeyMapping[Action::BackAction]) {
           mWindow.close();
         }
-        else if (event.key.code == mKeyMapping[Action::NewBall]) {
+        else if (event.key.code == mKeyMapping[Action::NewBall] || event.key.code == sf::Keyboard::Space) {
           if (mState == State::Playing) {
             if (mBall == nullptr)
               newBall();
@@ -411,6 +419,7 @@ namespace Breakout {
 
   void Game::gotoLevelCompleted(void)
   {
+    mLevelCompleteSound.play();
     mStartMsg.setString("Press SPACE to continue");
     mBlamClock.restart();
     mPad->body()->SetLinearVelocity(b2Vec2_zero);
