@@ -128,8 +128,9 @@ namespace Breakout {
 
     mProgramInfoMsg.setString("c't Breakout v" + std::string(BREAKOUT_VERSION) + " " + __TIMESTAMP__ + "\n"
       + "Copyright (c) 2015 Oliver Lau. All rights reserved.\n"
-      + "Built with SFML " + std::to_string(SFML_VERSION_MAJOR) + "." + std::to_string(SFML_VERSION_MINOR)
-      + " and Box2D " + std::to_string(b2_version.major) + "." + std::to_string(b2_version.minor) + "." + std::to_string(b2_version.revision)
+      + "Built with: SFML " + std::to_string(SFML_VERSION_MAJOR) + "." + std::to_string(SFML_VERSION_MINOR) + ", "
+      + "Box2D " + std::to_string(b2_version.major) + "." + std::to_string(b2_version.minor) + "." + std::to_string(b2_version.revision) + ", "
+      + "glew " + std::to_string(GLEW_VERSION) + "." + std::to_string(GLEW_VERSION_MAJOR) + "." + std::to_string(GLEW_VERSION_MINOR)
       + ".");
     mProgramInfoMsg.setFont(mFixedFont);
     mProgramInfoMsg.setColor(sf::Color::White);
@@ -156,11 +157,11 @@ namespace Breakout {
     mHelpMsg.setCharacterSize(8U);
     mHelpMsg.setString(
       "CONTROLS\n"
-      "  < move left\n"
-      "  > move right\n"
-      "  N new ball if lost\n"
-      "  Y kick paddle clockwise\n"
-      "  X kick paddle counterclockwise\n"
+      "  <: move left\n"
+      "  >: move right\n"
+      "  SPACE: new ball if lost\n"
+      "  Y: kick paddle clockwise\n"
+      "  X: kick paddle counterclockwise\n"
       "HINT\n"
       "  catch block with for 2x score\n"
       );
