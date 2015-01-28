@@ -37,15 +37,18 @@ namespace Breakout {
     }
 #endif
 
+#ifndef ENABLE_MOUSEMODE
     void moveLeft(void);
     void moveRight(void);
     void stopMotion(void);
     void kickLeft(void);
     void kickRight(void);
     void stopKick(void);
+#endif
 
     virtual void setPosition(float x, float y);
     virtual const b2Vec2 &position(void) const;
+    virtual void applyLinearVelocity(const b2Vec2 &);
 
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);
@@ -53,8 +56,12 @@ namespace Breakout {
     virtual BodyType type(void) const { return Body::BodyType::Pad; }
 
   private:
+    b2Vec2 mCenter;
+
+#ifndef ENABLE_MOUSEMODE
     b2RevoluteJoint* mJoint;
     b2Body *mTeetingBody;
+#endif
   };
 
 }

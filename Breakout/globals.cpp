@@ -22,6 +22,12 @@
 
 namespace Breakout {
 
-  const std::string gLevelsRootDir =  "resources/levels/";
+  const std::string gResourcesDir = "resources";
+  const std::string gLevelsDir =  gResourcesDir + "/levels";
+  const std::string gSoundFXDir = gResourcesDir + "/soundfx";
+  const std::string gImagesDir = gResourcesDir + "/images";
+  const std::string gBackgroundsDir = gResourcesDir + "/backgrounds";
+  const std::string gFontsDir = gResourcesDir + "/fonts";
+  const std::string gShadersDir = gResourcesDir + "/shaders";
 
 }

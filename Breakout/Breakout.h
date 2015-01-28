@@ -89,9 +89,11 @@ namespace Breakout {
     static const int DefaultWindowHeight = 25*16;
     static const int ColorDepth = 32;
     static const int DefaultLives = 3;
-    static const int NewLiveAfterSoManyPoints = 2500;
+    static const int NewLiveAfterSoManyPointsDefault;
+    static const int NewLiveAfterSoManyPoints[];
     static const float Scale;
     static const float InvScale;
+
 
     Game(void);
     ~Game();
@@ -127,6 +129,10 @@ namespace Breakout {
     void onBodyKilled(Body *body);
 
   private:
+    int mGLVersionMajor;
+    int mGLVersionMinor;
+    const GLubyte *mGLShadingLanguageVersion;
+
     // SFML
     sf::RenderWindow mWindow;
     sf::View mDefaultView;
@@ -148,6 +154,7 @@ namespace Breakout {
     sf::Text mGameOverMsg;
     sf::Text mPlayerWonMsg;
     sf::Text mScoreMsg;
+    sf::Text mTotalScoreMsg;
     sf::Text mStatMsg;
     sf::Text mStartMsg;
     sf::Text mProgramInfoMsg;
@@ -218,10 +225,14 @@ namespace Breakout {
     BodyList mBodies;
     int mBlockCount;
     int mWelcomeLevel;
+    int mExtraLifeIndex;
+    sf::Vector2i mMousePos;
+    sf::Vector2i mLastMousePos;
 
     void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);
     void newBall(void);
+    void extraBall(void);
     void setState(State state);
     void clearWorld(void);
     void clearWindow(void);
@@ -234,10 +245,10 @@ namespace Breakout {
     void pause(void);
     void resume(void);
     void buildLevel(void);
+    void handlePlayerInteraction(float elapsedSeconds);
     void update(float elapsedSeconds);
     void evaluateCollisions(void);
     void handleEvents(void);
-    void handlePlayerInteraction(void);
 
     void gotoWelcomeScreen(void);
     void onWelcomeScreen(void);

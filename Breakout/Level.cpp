@@ -80,8 +80,10 @@ namespace Breakout {
     mBackgroundImageOpacity = 1.f;
 
     std::ostringstream buf;
+#ifndef NDEBUG
     // mLevelNum = 4;
-    buf << gLevelsRootDir << std::setw(4) << std::setfill('0') << mLevelNum << ".tmx";
+#endif
+    buf << gLevelsDir << "/" << std::setw(4) << std::setfill('0') << mLevelNum << ".tmx";
     const std::string &filename = buf.str();
 
     ok = fileExists(filename.c_str());
@@ -119,7 +121,6 @@ namespace Breakout {
         }
       } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
 
-
 #ifndef NDEBUG
       std::cout << "Map size: " << mNumTilesX << "x" << mNumTilesY << std::endl;
 #endif
@@ -147,7 +148,7 @@ namespace Breakout {
       if (!ok)
         return false;
 
-      const std::string &backgroundTextureFilename = gLevelsRootDir + pt.get<std::string>("map.imagelayer.image.<xmlattr>.source");
+      const std::string &backgroundTextureFilename = gLevelsDir + "/" + pt.get<std::string>("map.imagelayer.image.<xmlattr>.source");
       mBackgroundTexture.loadFromFile(backgroundTextureFilename);
       mBackgroundSprite.setTexture(mBackgroundTexture);
       try {
@@ -165,7 +166,7 @@ namespace Breakout {
           std::string tileName;
           int score = -1;
           const int id = mFirstGID + tile.get<int>("<xmlattr>.id");
-          const std::string &filename = gLevelsRootDir + tile.get<std::string>("image.<xmlattr>.source");
+          const std::string &filename = gLevelsDir + "/" + tile.get<std::string>("image.<xmlattr>.source");
           const boost::property_tree::ptree &properties = tile.get_child("properties");
           boost::property_tree::ptree::const_iterator pi;
           for (pi = properties.begin(); pi != properties.end(); ++pi) {

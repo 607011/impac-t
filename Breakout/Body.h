@@ -80,6 +80,9 @@ namespace Breakout {
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
     virtual void setPosition(float x, float y);
+    virtual void setPosition(int x, int y);
+    virtual void setPosition(const b2Vec2 &);
+    virtual void setPosition(const sf::Vector2u &);
     virtual inline const b2Vec2 &position(void) const
     {
       return mBody->GetPosition();

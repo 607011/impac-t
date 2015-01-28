@@ -80,7 +80,7 @@ namespace Breakout {
       p.body = world->CreateBody(&bd);
 
       b2CircleShape circleShape;
-      circleShape.m_radius = 1e-3f * Game::InvScale;
+      circleShape.m_radius = 1e-4f * Game::InvScale;
 
       b2FixtureDef fd;
       fd.density = 0.f;

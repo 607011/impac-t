@@ -23,7 +23,14 @@
 
 namespace Breakout {
 
-  extern const std::string gLevelsRootDir;
+  extern const std::string gResourcesDir;
+
+  extern const std::string gFontsDir;
+  extern const std::string gImagesDir;
+  extern const std::string gLevelsDir;
+  extern const std::string gSoundFXDir;
+  extern const std::string gBackgroundsDir;
+  extern const std::string gShadersDir;
 
 }
 

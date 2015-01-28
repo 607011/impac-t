@@ -70,7 +70,25 @@ namespace Breakout {
 
   void Body::setPosition(float x, float y)
   {
-    mBody->SetTransform(b2Vec2(x + 0.5f * mTexture.getSize().x / mGame->tileWidth(), y + 0.5f * mTexture.getSize().y / mGame->tileHeight()), mBody->GetAngle());
+    mBody->SetTransform(b2Vec2(x + 0.5f * mTexture.getSize().x * Game::InvScale, y + 0.5f * mTexture.getSize().y * Game::InvScale), mBody->GetAngle());
+  }
+
+
+  void Body::setPosition(int x, int y)
+  {
+    this->setPosition(float(x), float(y));
+  }
+
+
+  void Body::setPosition(const b2Vec2 &p)
+  {
+    this->setPosition(p.x, p.y);
+  }
+  
+  
+  void Body::setPosition(const sf::Vector2u &p)
+  {
+    this->setPosition(p.x * Game::Scale, p.y * Game::Scale);
   }
 
 
