@@ -1,5 +1,22 @@
-// Copyright (c) 2015 Oliver Lau <oliver@ersatzworld.net>
-// All rights reserved.
+/*  
+
+    Copyright (c) 2015 Oliver Lau <ola@ct.de>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 
 #include "stdafx.h"
 #include <sys/stat.h>
@@ -8,7 +25,8 @@
 namespace Breakout {
 
   Level::Level(void)
-    : mFirstGID(0)
+    : mBackgroundColor(sf::Color::Black)
+    , mFirstGID(0)
     , mMapData(nullptr)
     , mNumTilesX(0)
     , mNumTilesY(0)
@@ -49,6 +67,11 @@ namespace Breakout {
   }
 
 
+  static inline int digit2Int(char c) {
+    return int(c - '0');
+  }
+
+
 #pragma warning(disable : 4503)
   bool Level::load(void)
   {
@@ -57,6 +80,7 @@ namespace Breakout {
     mBackgroundImageOpacity = 1.f;
 
     std::ostringstream buf;
+    // mLevelNum = 4;
     buf << gLevelsRootDir << std::setw(4) << std::setfill('0') << mLevelNum << ".tmx";
     const std::string &filename = buf.str();
 
@@ -85,6 +109,16 @@ namespace Breakout {
       mTileHeight = pt.get<int>("map.<xmlattr>.tileheight");
       mNumTilesX = pt.get<int>("map.<xmlattr>.width");
       mNumTilesY = pt.get<int>("map.<xmlattr>.height");
+      try {
+        std::string bgColor = pt.get<std::string>("map.<xmlattr>.backgroundcolor");
+        int r = 0, g = 0, b = 0;
+        if (bgColor.size() == 7 && bgColor[0] == '#') {
+          r = digit2Int(bgColor[1]) << 8 | digit2Int(bgColor[2]);
+          g = digit2Int(bgColor[3]) << 8 | digit2Int(bgColor[4]);
+          b = digit2Int(bgColor[5]) << 8 | digit2Int(bgColor[6]);
+        }
+      } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
+
 
 #ifndef NDEBUG
       std::cout << "Map size: " << mNumTilesX << "x" << mNumTilesY << std::endl;

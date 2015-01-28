@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Oliver Lau <oliver@ersatzworld.net>
+// Copyright (c) 2015 Oliver Lau <ola@ct.de>
 // All rights reserved.
 
 uniform sampler2D uTexture;

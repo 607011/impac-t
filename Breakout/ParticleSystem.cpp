@@ -1,11 +1,28 @@
-// Copyright (c) 2015 Oliver Lau <oliver@ersatzworld.net>
-// All rights reserved.
+/*  
+
+    Copyright (c) 2015 Oliver Lau <ola@ct.de>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 
 #include "stdafx.h"
 
 namespace Breakout {
 
-  const float ParticleSystem::sHalfSize = .1333f;
+  const float ParticleSystem::sHalfSize = 2.f * Game::InvScale;
   const sf::Time ParticleSystem::sMaxAge = sf::milliseconds(1000);
   const sf::Color ParticleSystem::sColor = sf::Color::White;
 
@@ -27,7 +44,7 @@ namespace Breakout {
 #endif
 
 #ifndef NDEBUG
-    std::cout << "ParticleSystem(" << game << ", " << pos.x << ", " << pos.y << ", " << count << ")" << std::endl;
+    std::cout << "ParticleSystem(" << pos.x << ", " << pos.y << ", " << count << ")" << std::endl;
 #endif
     b2World *world = mGame->world();
     const int N = mParticles.size();
@@ -63,7 +80,7 @@ namespace Breakout {
       p.body = world->CreateBody(&bd);
 
       b2CircleShape circleShape;
-      circleShape.m_radius = 1e-2f / Breakout::Game::Scale;
+      circleShape.m_radius = 1e-3f * Game::InvScale;
 
       b2FixtureDef fd;
       fd.density = 0.f;

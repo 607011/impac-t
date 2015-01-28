@@ -1,15 +1,17 @@
-// Copyright (c) 2015 Oliver Lau <oliver@ersatzworld.net>
+// Copyright (c) 2015 Oliver Lau <ola@ct.de>
 // All rights reserved.
 
 uniform sampler2D uTexture;
-uniform float uV;
+uniform float uT;
+uniform float uMaxT;
+
+const float tOffset = 0.5;
 
 void main()
 {
-    const float s = 115;
-	const float a = 0.003;
 	vec2 pos = gl_TexCoord[0].xy;
-	const vec2 offset = vec2(0.5, 0.4);
-	vec2 tx = pos - offset;
-	gl_FragColor = texture2D(uTexture, 0.6 * (3 + cos(0.1 * uV) + sin(0.01 * uV)) * tx + offset);
+	const vec2 center = vec2(0.5, 0.4);
+	float v = 1 / min((uT + tOffset) / uMaxT, 1.f);
+	float scale = pow(v, 5.5f);
+	gl_FragColor = texture2D(uTexture, scale * (pos - center) + center);
 }

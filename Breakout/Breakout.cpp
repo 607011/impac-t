@@ -1,5 +1,22 @@
-// Copyright (c) 2015 Oliver Lau <oliver@ersatzworld.net>
-// All rights reserved.
+/*  
+
+    Copyright (c) 2015 Oliver Lau <ola@ct.de>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 
 #include "stdafx.h"
 
@@ -7,6 +24,7 @@
 namespace Breakout {
 
   const float Game::Scale = 16.f;
+  const float Game::InvScale = 1.f / Game::Scale;
 
   Game::Game(void)
     : mWindow(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Bangout", sf::Style::Titlebar | sf::Style::Close)
@@ -38,6 +56,13 @@ namespace Breakout {
     ok = mFixedFont.loadFromFile("resources/fonts/04b_03.ttf");
     if (!ok)
       sf::err() << "resources/fonts/04b_03.ttf failed to load." << std::endl;
+
+    ok = mStartupBuffer.loadFromFile("resources/soundfx/startup.ogg");
+    if (!ok)
+      std::cerr << "resources/sounds/startup.ogg failed to load." << std::endl;
+    mStartupSound.setBuffer(mStartupBuffer);
+    mStartupSound.setVolume(100);
+    mStartupSound.setLoop(false);
 
     ok = mNewBallBuffer.loadFromFile("resources/soundfx/new-ball.ogg");
     if (!ok)
@@ -126,8 +151,8 @@ namespace Breakout {
     mLevelMsg.setCharacterSize(16U);
     mLevelMsg.setColor(sf::Color(255, 255, 255, 200));
 
-    mProgramInfoMsg.setString("c't Breakout v" + std::string(BREAKOUT_VERSION) + " " + __TIMESTAMP__ + "\n"
-      + "Copyright (c) 2015 Oliver Lau. All rights reserved.\n"
+    mProgramInfoMsg.setString("c't Breakout v" + std::string(BREAKOUT_VERSION) + " - " + __TIMESTAMP__ + ". "
+      + "Copyright (c) 2015 Oliver Lau. Alle Rechte vorbehalten.\n"
       + "Built with: SFML " + std::to_string(SFML_VERSION_MAJOR) + "." + std::to_string(SFML_VERSION_MINOR) + ", "
       + "Box2D " + std::to_string(b2_version.major) + "." + std::to_string(b2_version.minor) + "." + std::to_string(b2_version.revision) + ", "
       + "glew " + std::to_string(GLEW_VERSION) + "." + std::to_string(GLEW_VERSION_MAJOR) + "." + std::to_string(GLEW_VERSION_MINOR)
@@ -156,14 +181,10 @@ namespace Breakout {
     mHelpMsg.setColor(sf::Color::White);
     mHelpMsg.setCharacterSize(8U);
     mHelpMsg.setString(
-      "CONTROLS\n"
-      "  <: move left\n"
-      "  >: move right\n"
-      "  SPACE: new ball if lost\n"
-      "  Y: kick paddle clockwise\n"
-      "  X: kick paddle counterclockwise\n"
-      "HINT\n"
-      "  catch block with for 2x score\n"
+      "STEUERUNG\n"
+      "< > nach links/rechts bewegen\n"
+      "Y X Paddle kickt links/rechts hoch\n"
+      "SPACE neuer Ball"
       );
     mHelpMsg.setPosition(mDefaultView.getCenter().x + mDefaultView.getSize().x / 2 - mHelpMsg.getLocalBounds().width - 8.f, 8.f);
 
@@ -300,9 +321,9 @@ namespace Breakout {
   }
 
 
-  void Game::clearWindow(void)
+  inline void Game::clearWindow(void)
   {
-    mWindow.clear();
+    mWindow.clear(mLevel.backgroundColor());
   }
 
 
@@ -375,10 +396,14 @@ namespace Breakout {
   {
     clearWorld();
     stopAllMusic();
-    // mWelcomeMusic.play();
+    mStartupSound.play();
+    mExplosionSound.play();
     mStartMsg.setString("Press SPACE to start");
     setState(State::WelcomeScreen);
     mWindow.setView(mDefaultView);
+    mTitleShader.setParameter("uMaxT", 1.f);
+    mWelcomeLevel = 0;
+    mWallClock.restart();
   }
 
 
@@ -403,18 +428,56 @@ namespace Breakout {
 
     update(elapsed.asSeconds());
     drawWorld(mDefaultView);
-    
-    mWindow.draw(mLogoSprite);
+
+    const float t = mWallClock.getElapsedTime().asSeconds();
     sf::RenderStates states;
     states.shader = &mTitleShader;
-    mTitleShader.setParameter("uV", mWallClock.getElapsedTime().asSeconds());
+    mTitleShader.setParameter("uT", t);
     mWindow.draw(mTitleSprite, states);
 
-    drawStartMessage();
+    if (mWelcomeLevel == 0) {
+        mExplosionSound.play();
+        ParticleSystem *ps = new ParticleSystem(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f), 100U);
+        addBody(ps);
+        mWelcomeLevel = 1;
+    }
 
-    mWindow.draw(mHelpMsg);
-
-    mWindow.draw(mProgramInfoMsg);
+    if (t > 0.5f) {
+      drawStartMessage();
+      if (mWelcomeLevel == 1) {
+        mExplosionSound.play();
+        mWelcomeLevel = 2;
+        ParticleSystem *ps = new ParticleSystem(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y), 100U);
+        addBody(ps);
+      }
+    }
+    if (t > 0.6f) {
+      mWindow.draw(mLogoSprite);
+      if (mWelcomeLevel == 2) {
+        mExplosionSound.play();
+        mWelcomeLevel = 3;
+        ParticleSystem *ps = new ParticleSystem(this, Game::InvScale * b2Vec2(mLogoSprite.getPosition().x, mLogoSprite.getPosition().y), 100U);
+        addBody(ps);
+      }
+    }
+    if (t > 0.7f) {
+      mWindow.draw(mHelpMsg);
+      if (mWelcomeLevel == 3) {
+        mExplosionSound.play();
+        mWelcomeLevel = 4;
+        ParticleSystem *ps = new ParticleSystem(this, Game::InvScale * b2Vec2(mHelpMsg.getPosition().x, mHelpMsg.getPosition().y), 100U);
+        addBody(ps);
+      }
+    }
+    if (t > 0.8f) {
+      mWindow.draw(mProgramInfoMsg);
+      if (mWelcomeLevel == 4) {
+        mExplosionSound.play();
+        mWelcomeLevel = 5;
+        ParticleSystem *ps = new ParticleSystem(this, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y), 100U);
+        addBody(ps);
+      }
+    }
   }
 
 
@@ -594,7 +657,7 @@ namespace Breakout {
   }
 
 
-  void Game::drawWorld(const sf::View &view)
+  inline void Game::drawWorld(const sf::View &view)
   {
     mWindow.setView(view);
     for (BodyList::const_iterator b = mBodies.cbegin(); b != mBodies.cend(); ++b) {
@@ -655,7 +718,7 @@ namespace Breakout {
   }
 
 
-  void Game::update(float elapsedSeconds)
+  inline void Game::update(float elapsedSeconds)
   {
     evaluateCollisions();
 
@@ -711,11 +774,9 @@ namespace Breakout {
     }
 
     // create pad
-    {
-      mPad = new Pad(this);
-      mPad->setPosition(0.5f * mLevel.width(), mLevel.height() - 0.5f);
-      addBody(mPad);
-    }
+    mPad = new Pad(this);
+    mPad->setPosition(0.5f * mLevel.width(), mLevel.height() - 0.5f);
+    addBody(mPad);
 
     // create blocks
     mBlockCount = 0;

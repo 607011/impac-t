@@ -1,8 +1,9 @@
-!define VERSION "0.8.0"
+!define VERSION "0.9.0"
 !define APP "Breakout"
 !define PUBLISHER "c't"
 !define SFMLPATH "D:\Developer\SFML-2.1"
-!define GLEWPATH "D:\Developer\glew-1.9.0"
+!define GLEWPATH "D:\Developer\glew-1.12.0\bin\Release\Win32"
+!define ZLIBPATH "..\zlib"
 
 Name "${APP} ${VERSION}"
 OutFile "${APP}-${VERSION}-setup.exe"
@@ -28,10 +29,12 @@ Section "Breakout"
   CreateDirectory "$INSTDIR\resources\fonts"
   CreateDirectory "$INSTDIR\resources\images"
   CreateDirectory "$INSTDIR\resources\levels"
+  CreateDirectory "$INSTDIR\resources\music"
   CreateDirectory "$INSTDIR\resources\shaders"
   CreateDirectory "$INSTDIR\resources\soundfx"
   File ..\Release\Breakout.exe
-  File ..\zlib\zlib1.dll
+  File ..\Breakout\LICENSE
+  File ${ZLIBPATH}\zlib1.dll
   File ${SFMLPATH}\bin\libsndfile-1.dll
   File ${SFMLPATH}\bin\openal32.dll
   File ${SFMLPATH}\bin\sfml-audio-2.dll
@@ -39,8 +42,7 @@ Section "Breakout"
   File ${SFMLPATH}\bin\sfml-system-2.dll
   File ${SFMLPATH}\bin\sfml-window-2.dll
   File ${SFMLPATH}\bin\sfml-network-2.dll
-  File ${GLEWPATH}\bin\glew32.dll
-  File ..\Breakout\LICENSE
+  File ${GLEWPATH}\glew32.dll
   WriteUninstaller $INSTDIR\uninstall.exe
 
   SetOutPath $INSTDIR\resources\backgrounds
@@ -54,6 +56,9 @@ Section "Breakout"
 
   SetOutPath $INSTDIR\resources\levels
   File /a /r "..\Breakout\resources\levels\"
+
+#  SetOutPath $INSTDIR\resources\music
+#  File /a /r "..\Breakout\resources\music\"
 
   SetOutPath $INSTDIR\resources\shaders
   File /a /r "..\Breakout\resources\shaders\"
