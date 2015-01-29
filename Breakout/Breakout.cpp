@@ -51,7 +51,11 @@ namespace Breakout {
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
     mWindow.setActive();
+#ifdef ENABLE_MOUSEMODE
+    mWindow.setVerticalSyncEnabled(true);
+#else
     mWindow.setVerticalSyncEnabled(false);
+#endif
     resize();
 
     sf::Image icon;
@@ -162,14 +166,18 @@ namespace Breakout {
 
     mProgramInfoMsg.setString("c't Breakout v" + std::string(BREAKOUT_VERSION) + " (" + __TIMESTAMP__ + ")" 
       + " - "
-      + "Copyright (c) 2015 Oliver Lau."
+      + "Copyright (c) 2015 Oliver Lau <ola@ct.de>"
       + "\n"
       + "Built with: SFML " + std::to_string(SFML_VERSION_MAJOR) + "." + std::to_string(SFML_VERSION_MINOR) + ", "
       + "Box2D " + std::to_string(b2_version.major) + "." + std::to_string(b2_version.minor) + "." + std::to_string(b2_version.revision) + ", "
       + "glew " + std::to_string(GLEW_VERSION) + "." + std::to_string(GLEW_VERSION_MAJOR) + "." + std::to_string(GLEW_VERSION_MINOR)
       + " - "
       + "OpenGL " + std::to_string(mGLVersionMajor) + "." + std::to_string(mGLVersionMinor) + ", "
-      + "GLSL " + std::string(reinterpret_cast<const char*>(mGLShadingLanguageVersion)));
+      + "GLSL " + std::string(reinterpret_cast<const char*>(mGLShadingLanguageVersion))
+#ifdef ENABLE_MOUSEMODE
+      + " [MOUSE MODE ENABLED]"
+#endif
+      );
     mProgramInfoMsg.setFont(mFixedFont);
     mProgramInfoMsg.setColor(sf::Color::White);
     mProgramInfoMsg.setCharacterSize(8U);
@@ -421,13 +429,12 @@ namespace Breakout {
   {
     clearWorld();
     stopAllMusic();
-    addBody(new ParticleSystem(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f), 50U));
     mStartupSound.play();
     mStartMsg.setString("Press SPACE to start");
     setState(State::WelcomeScreen);
     mWindow.setView(mDefaultView);
     mTitleShader.setParameter("uMaxT", 1.f);
-    mWelcomeLevel = 1;
+    mWelcomeLevel = 0;
     mWallClock.restart();
     mWindow.setMouseCursorVisible(true);
   }
@@ -456,9 +463,6 @@ namespace Breakout {
         else if (event.key.code == mKeyMapping[Action::BackAction]) {
           mWindow.close();
         }
-        else if (event.key.code == mKeyMapping[Action::ContinueAction]) {
-          gotoNextLevel();
-        }
       }
     }
     mWindow.clear(sf::Color(31, 31, 47));
@@ -472,6 +476,11 @@ namespace Breakout {
     states.shader = &mTitleShader;
     mTitleShader.setParameter("uT", t);
     mWindow.draw(mTitleSprite, states);
+
+    if (mWelcomeLevel == 0) {
+      addBody(new ParticleSystem(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f), 122U));
+      mWelcomeLevel = 1;
+    }
 
     if (t > 0.5f) {
       drawStartMessage();
