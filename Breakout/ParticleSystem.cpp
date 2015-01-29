@@ -43,9 +43,6 @@ namespace Breakout {
     mShader.setParameter("uMaxAge", sMaxAge.asSeconds());
 #endif
 
-#ifndef NDEBUG
-    std::cout << "ParticleSystem(" << pos.x << ", " << pos.y << ", " << count << ")" << std::endl;
-#endif
     b2World *world = mGame->world();
     const int N = mParticles.size();
     for (int i = 0; i < N; ++i) {
@@ -86,8 +83,8 @@ namespace Breakout {
       fd.density = 0.f;
       fd.restitution = .1f;
       fd.friction = 1.f;
-      fd.filter.categoryBits = Body::BodyMask::ParticleMask;
-      fd.filter.maskBits = 0xffff & ~Body::BodyMask::ParticleMask & ~Body::BodyMask::BallMask & ~Body::BodyMask::PadMask;
+      fd.filter.categoryBits = Body::ParticleMask;
+      fd.filter.maskBits = 0xffffU ^ Body::ParticleMask ^ Body::BallMask ^ Body::RacketMask;
       fd.shape = &circleShape;
       p.body->CreateFixture(&fd);
     }

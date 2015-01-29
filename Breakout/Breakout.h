@@ -84,15 +84,16 @@ namespace Breakout {
 
 
   public:
-    static const int32 MaxContactPoints = 512;
-    static const int DefaultWindowWidth = 40*16;
-    static const int DefaultWindowHeight = 25*16;
-    static const int ColorDepth = 32;
-    static const int DefaultLives = 3;
+    static const float32 Scale;
+    static const float32 InvScale;
+    static const int DefaultWindowWidth;
+    static const int DefaultWindowHeight;
+    static const int ColorDepth;
+    static const int DefaultLives;
+    static const int DefaultPenalty;
     static const int NewLiveAfterSoManyPointsDefault;
     static const int NewLiveAfterSoManyPoints[];
-    static const float Scale;
-    static const float InvScale;
+    static const int32 MaxContactPoints = 512;
 
 
     Game(void);
@@ -124,6 +125,20 @@ namespace Breakout {
     {
       return mGround;
     }
+
+    inline void setMouseModeEnabled(bool enabled)
+    {
+#ifndef NDEBUG
+      std::cout << "setMouseModeEnabled(" << enabled << ")" << std::endl;
+#endif
+      mMouseModeEnabled = enabled;
+      mWindow.setVerticalSyncEnabled(!enabled);
+    }
+    inline bool mouseModeEnabled(void) const
+    {
+      return mMouseModeEnabled;
+    }
+
 
   public: // slots
     void onBodyKilled(Body *body);
@@ -168,6 +183,8 @@ namespace Breakout {
     sf::Sound mBallOutSound;
     sf::SoundBuffer mBlockHitBuffer;
     sf::Sound mBlockHitSound;
+    sf::SoundBuffer mPenaltyBuffer;
+    sf::Sound mPenaltySound;
     sf::SoundBuffer mRacketHitBuffer;
     sf::Sound mRacketHitSound;
     sf::SoundBuffer mRacketHitBlockBuffer;
@@ -222,6 +239,7 @@ namespace Breakout {
     int mScore;
     int mLives;
     bool mPaused;
+    bool mMouseModeEnabled;
     BodyList mBodies;
     int mBlockCount;
     int mWelcomeLevel;

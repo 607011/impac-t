@@ -57,7 +57,7 @@ namespace Breakout {
     fd.friction = 0.7f;
     fd.restitution = 1.f;
     fd.userData = this;
-    fd.filter.categoryBits = Body::BodyMask::BallMask;
+    fd.filter.categoryBits = Body::BallMask;
     mBody->CreateFixture(&fd);
   }
 

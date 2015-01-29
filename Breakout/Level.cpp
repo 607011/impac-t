@@ -156,6 +156,23 @@ namespace Breakout {
       } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
       mBackgroundSprite.setColor(sf::Color(255, 255, 255, sf::Uint8(mBackgroundImageOpacity * 0xff)));
 
+      mBoundary = Boundary();
+      try {
+        const boost::property_tree::ptree &object = pt.get_child("map.objectgroup.object");
+        int x = object.get<int>("<xmlattr>.x");
+        int y = object.get<int>("<xmlattr>.y");
+        int w = object.get<int>("<xmlattr>.width");
+        int h = object.get<int>("<xmlattr>.height");
+        mBoundary.left = x;
+        mBoundary.top = y;
+        mBoundary.right = x + w;
+        mBoundary.bottom = y + h;
+        mBoundary.valid = true;
+#ifndef NDEBUG
+        std::cout << "[" << mBoundary.left << "," << mBoundary.top << "," << mBoundary.right << "," << mBoundary.bottom << "]" << std::endl;
+#endif
+      } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
+
       mTextures.clear();
       const boost::property_tree::ptree &tileset = pt.get_child("map.tileset");
       mFirstGID = tileset.get<uint32_t>("<xmlattr>.firstgid");

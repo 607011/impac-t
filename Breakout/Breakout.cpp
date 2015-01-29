@@ -23,8 +23,14 @@
 
 namespace Breakout {
 
-  const float Game::Scale = 16.f;
-  const float Game::InvScale = 1.f / Game::Scale;
+  const float32 Game::Scale = 16.f;
+  const float32 Game::InvScale = 1.f / Game::Scale;
+  const int Game::DefaultWindowWidth = 40 * int(Game::Scale);
+  const int Game::DefaultWindowHeight = 25 * int(Game::Scale);
+  const int Game::ColorDepth = 32;
+  const int Game::DefaultLives = 3;
+  const int Game::DefaultPenalty = 100;
+  const float32 DefaultGravity = 9.81f;
   const int Game::NewLiveAfterSoManyPoints[] = { 2500, 10000, 25000, 50000, -1 };
   const int Game::NewLiveAfterSoManyPointsDefault = 100000;
 
@@ -41,6 +47,7 @@ namespace Breakout {
     , mState(State::Initialization)
     , mKeyMapping(Action::LastAction)
     , mBlockCount(0)
+    , mMouseModeEnabled(false)
   {
     bool ok;
     glewInit();
@@ -51,11 +58,6 @@ namespace Breakout {
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
     mWindow.setActive();
-#ifdef ENABLE_MOUSEMODE
-    mWindow.setVerticalSyncEnabled(true);
-#else
-    mWindow.setVerticalSyncEnabled(false);
-#endif
     resize();
 
     sf::Image icon;
@@ -64,7 +66,7 @@ namespace Breakout {
 
     ok = mFixedFont.loadFromFile(gFontsDir + "/04b_03.ttf");
     if (!ok)
-      sf::err() << gFontsDir + "/04b_03.ttf failed to load." << std::endl;
+      std::cerr << gFontsDir + "/04b_03.ttf failed to load." << std::endl;
 
     ok = mStartupBuffer.loadFromFile(gSoundFXDir + "/startup.ogg");
     if (!ok)
@@ -96,10 +98,17 @@ namespace Breakout {
 
     ok = mBlockHitBuffer.loadFromFile(gSoundFXDir + "/block-hit.ogg");
     if (!ok)
-      sf::err() << gSoundFXDir + "/block-hit.ogg failed to load." << std::endl;
+      std::cerr << gSoundFXDir + "/block-hit.ogg failed to load." << std::endl;
     mBlockHitSound.setBuffer(mBlockHitBuffer);
     mBlockHitSound.setVolume(100);
     mBlockHitSound.setLoop(false);
+
+    ok = mPenaltyBuffer.loadFromFile(gSoundFXDir + "/penalty.ogg");
+    if (!ok)
+      std::cerr << gSoundFXDir + "/penalty.ogg failed to load." << std::endl;
+    mPenaltySound.setBuffer(mPenaltyBuffer);
+    mPenaltySound.setVolume(100);
+    mPenaltySound.setLoop(false);
 
     ok = mRacketHitBuffer.loadFromFile(gSoundFXDir + "/pad-hit.ogg");
     if (!ok)
@@ -174,9 +183,6 @@ namespace Breakout {
       + " - "
       + "OpenGL " + std::to_string(mGLVersionMajor) + "." + std::to_string(mGLVersionMinor) + ", "
       + "GLSL " + std::string(reinterpret_cast<const char*>(mGLShadingLanguageVersion))
-#ifdef ENABLE_MOUSEMODE
-      + " [MOUSE MODE ENABLED]"
-#endif
       );
     mProgramInfoMsg.setFont(mFixedFont);
     mProgramInfoMsg.setColor(sf::Color::White);
@@ -242,7 +248,7 @@ namespace Breakout {
     pause();
     clearWorld();
 
-    safeRenew(mWorld, new b2World(b2Vec2(0.f, 9.81f)));
+    safeRenew(mWorld, new b2World(b2Vec2(0.f, DefaultGravity)));
     mWorld->SetContactListener(this);
     mWorld->SetAllowSleeping(false);
     mWorld->SetWarmStarting(true);
@@ -364,6 +370,18 @@ namespace Breakout {
       case sf::Event::GainedFocus:
         resume();
         break;
+      case sf::Event::MouseButtonPressed:
+        if (mState == State::Playing) {
+          if (mBall == nullptr)
+            newBall();
+        }
+        else if (mState == State::LevelCompleted) {
+          gotoNextLevel();
+        }
+        else if (mState == State::GameOver) {
+          restart();
+        }
+        break;
       case sf::Event::KeyPressed:
         if (event.key.code == mKeyMapping[Action::BackAction]) {
           mWindow.close();
@@ -380,11 +398,6 @@ namespace Breakout {
             restart();
           }
         }
-#ifndef NDEBUG
-        else if (event.key.code == mKeyMapping[Action::Restart]) {
-          gotoLevelCompleted();
-        }
-#endif
         break;
       }
     }
@@ -394,33 +407,47 @@ namespace Breakout {
   void Game::handlePlayerInteraction(float elapsedSeconds)
   {
     if (mRacket != nullptr) {
-#ifdef ENABLE_MOUSEMODE
-      // mRacket->body()->SetLinearVelocity(b2Vec2_zero);
-      mMousePos = sf::Mouse::getPosition(mWindow);
-      if (mMousePos.x < 0 || mMousePos.x > int(mWindow.getSize().x) || mMousePos.y < 0 || mMousePos.y > int(mWindow.getSize().y)) {
-        mMousePos = sf::Vector2i(int(Game::Scale * mRacket->position().x), int(Game::Scale * mRacket->position().y));
+      if (mMouseModeEnabled) {
+        mMousePos = sf::Mouse::getPosition(mWindow);
+        if (mMousePos.x < 0 || mMousePos.x > int(mWindow.getSize().x) || mMousePos.y < 0 || mMousePos.y > int(mWindow.getSize().y)) {
+          mMousePos = sf::Vector2i(int(Game::Scale * mRacket->position().x), int(Game::Scale * mRacket->position().y));
+          mLastMousePos = mMousePos;
+          sf::Mouse::setPosition(mMousePos, mWindow);
+        }
+        const sf::Vector2i &d = mMousePos - mLastMousePos;
+        const b2Vec2 &v = Game::InvScale / elapsedSeconds * b2Vec2(float32(d.x), float32(d.y));
+        mRacket->body()->SetLinearVelocity(v);
         mLastMousePos = mMousePos;
-        sf::Mouse::setPosition(mMousePos, mWindow);
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+          mRacket->kickLeft();
+        }
+        else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+          mRacket->kickRight();
+        }
+        else {
+          mRacket->stopKick();
+        }
       }
-      const sf::Vector2i &d = mMousePos - mLastMousePos;
-      const b2Vec2 &v = Game::InvScale / elapsedSeconds * b2Vec2(float32(d.x), float32(d.y));
-      if (v.x != 0 || v.y != 0)
-        std::cout << v.x << "," << v.y << " @ " << elapsedSeconds << std::endl;
-      mRacket->body()->SetLinearVelocity(v);
-      // mRacket->body()->ApplyLinearImpulse(16.f * v, mRacket->body()->GetWorldCenter(), true);
-      mLastMousePos = mMousePos;
-#else
-      mRacket->stopMotion();
-      mRacket->stopKick();
-      if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::KickLeft]))
-        mRacket->kickLeft();
-      if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::KickRight]))
-        mRacket->kickRight();
-      if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::MoveLeft]))
-        mRacket->moveLeft();
-      if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::MoveRight]))
-        mRacket->moveRight();
-#endif
+      else {
+        if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::KickLeft])) {
+          mRacket->kickLeft();
+        }
+        else if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::KickRight])) {
+          mRacket->kickRight();
+        }
+        else {
+          mRacket->stopKick();
+        }
+        if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::MoveLeft])) {
+          mRacket->moveLeft();
+        }
+        else if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::MoveRight])) {
+          mRacket->moveRight();
+        }
+        else {
+          mRacket->stopMotion();
+        }
+      }
     }
   }
 
@@ -450,6 +477,7 @@ namespace Breakout {
       }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          setMouseModeEnabled(true);
           gotoNextLevel();
         }
       }
@@ -458,10 +486,8 @@ namespace Breakout {
           mWindow.close();
         }
         else if (event.key.code == mKeyMapping[Action::ContinueAction]) {
+          setMouseModeEnabled(false);
           gotoNextLevel();
-        }
-        else if (event.key.code == mKeyMapping[Action::BackAction]) {
-          mWindow.close();
         }
       }
     }
@@ -746,11 +772,17 @@ namespace Breakout {
         }
         else if (a->type() == Body::BodyType::Racket || b->type() == Body::BodyType::Racket) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
-          if (std::find(killedBodies.cbegin(), killedBodies.cend(), block) == killedBodies.cend()) {
-            showScore(block->getScore(), block->position(), 2);
-            block->kill();
-            mRacketHitBlockSound.play();
-            killedBodies.push_back(block);
+          if (block->body()->GetGravityScale() > 0.f) {
+            if (std::find(killedBodies.cbegin(), killedBodies.cend(), block) == killedBodies.cend()) {
+              showScore(block->getScore(), block->position(), 2);
+              block->kill();
+              mRacketHitBlockSound.play();
+              killedBodies.push_back(block);
+            }
+          }
+          else {
+            showScore(-block->getScore(), block->position());
+            mPenaltySound.play();
           }
         }
       }
@@ -802,10 +834,10 @@ namespace Breakout {
 
   void Game::buildLevel(void)
   {
-    // create boundaries
+    // create hard boundaries
     { 
-      float32 W = float32(mLevel.width());
-      float32 H = float32(mLevel.height());
+      const float32 W = float32(mLevel.width());
+      const float32 H = float32(mLevel.height());
 
       b2BodyDef bd;
       b2Body *boundaries = mWorld->CreateBody(&bd);
@@ -870,15 +902,17 @@ namespace Breakout {
   void Game::addToScore(int points)
   {
     int newScore = mScore + points;
-    int threshold = NewLiveAfterSoManyPoints[mExtraLifeIndex];
-    if (threshold > 0 && newScore > threshold) {
-      ++mExtraLifeIndex;
-      extraBall();
+    if (points > 0) {
+      int threshold = NewLiveAfterSoManyPoints[mExtraLifeIndex];
+      if (threshold > 0 && newScore > threshold) {
+        ++mExtraLifeIndex;
+        extraBall();
+      }
+      else if ((mScore % NewLiveAfterSoManyPointsDefault) > (newScore % NewLiveAfterSoManyPointsDefault)) {
+        extraBall();
+      }
     }
-    else if ((mScore % NewLiveAfterSoManyPointsDefault) > (newScore % NewLiveAfterSoManyPointsDefault)) {
-      extraBall();
-    }
-    mScore += points;
+    mScore = b2Max(newScore, 0);
   }
 
 

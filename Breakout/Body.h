@@ -61,12 +61,14 @@ namespace Breakout {
       Foreground = +100000
     } ZIndex;
 
-    typedef enum _Mask {
-      DefaultMask = 0x0001,
-      BallMask = 0x0002,
-      PadMask = 0x0004,
-      ParticleMask = 0x0008
-    } BodyMask;
+    static const int16 DefaultCollisionGroup = 1;
+    static const uint16 BlockMask = 1 << 0;
+    static const uint16 BallMask = 1 << 1;
+    static const uint16 RacketMask = 1 << 2;
+    static const uint16 ParticleMask = 1 << 3;
+    static const uint16 GroundMask = 1 << 4;
+    static const uint16 BoundaryMask = 1 << 5;
+    static const uint16 ThresholdMask = 1 << 6;
 
     Body(BodyType, Game *game);
     virtual ~Body();
@@ -155,8 +157,6 @@ namespace Breakout {
     sf::Clock mSpawned; // milliseconds
     sf::Time mMaxAge;
     Game *mGame;
-
-    friend class Game;
 
     std::string mName;
 

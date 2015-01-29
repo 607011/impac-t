@@ -30,6 +30,28 @@
 
 namespace Breakout {
 
+  struct Boundary {
+    Boundary(void)
+      : left(0)
+      , top(0)
+      , right(0)
+      , bottom(0)
+      , valid(false)
+    { /* ... */ }
+    Boundary(int top, int right, int bottom, int left)
+      : top(0)
+      , right(0)
+      , bottom(0)
+      , left(0)
+      , valid(false)
+    { /* ... */ }
+    int top;
+    int right;
+    int bottom;
+    int left;
+    bool valid;
+  };
+
   class Level {
   public:
     Level(void);
@@ -83,6 +105,10 @@ namespace Breakout {
     {
       return mTileHeight;
     }
+    inline const Boundary &boundary(void) const
+    {
+      return mBoundary;
+    }
 
   private:
     bool load(void);
@@ -98,6 +124,7 @@ namespace Breakout {
     int mTileWidth;
     int mTileHeight;
     uint32_t mFirstGID;
+    Boundary mBoundary;
 
     std::map<int, int> mScores;
     std::map<int, std::string> mTextureNames;

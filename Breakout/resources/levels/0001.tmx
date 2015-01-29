@@ -64,5 +64,7 @@
    eJzt0EsKwCAQA1B/9f5H7j5gnHGwCs3btKWSBFMSmcvw3KnAdyNnH8M7wjzss+rkH+u3nmP5jPW+PDz3OVIX8z1YDutfyYuI5u7aFe35ape399QuhDtu2YVu3SUiIvIHL9c3AIg=
   </data>
  </layer>
- <objectgroup name="Boundaries" visible="0"/>
+ <objectgroup name="Boundaries">
+  <object x="0" y="270" width="640" height="134"/>
+ </objectgroup>
 </map>

@@ -28,7 +28,9 @@ namespace Breakout {
     setZIndex(Body::ZIndex::Foreground + 0);
     mName = std::string("Pad");
     mTexture = mGame->level()->texture(mName);
-    const sf::Vector2f &origin = .5f * sf::Vector2f(float(mTexture.getSize().x), float(mTexture.getSize().y));
+    const float W = float(mTexture.getSize().x);
+    const float H = float(mTexture.getSize().y);
+    const sf::Vector2f &origin = .5f * sf::Vector2f(W, H);
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(origin);
     mCenter = Game::InvScale * b2Vec2(origin.x, origin.y);
@@ -40,15 +42,9 @@ namespace Breakout {
       bd.gravityScale = 0.f;
       bd.allowSleep = true;
       bd.awake = true;
-#ifdef ENABLE_MOUSEMODE
       bd.bullet = true;
-      bd.fixedRotation = true;
-      mBody = mGame->world()->CreateBody(&bd);
-#else
-      bd.bullet = false;
       bd.fixedRotation = false;
       mTeetingBody = mGame->world()->CreateBody(&bd);
-#endif
 
       b2PolygonShape polygon;
       b2Vec2 vertices[8];
@@ -67,10 +63,6 @@ namespace Breakout {
       fd.density = 10.f;
       fd.friction = .7f;
       fd.userData = this;
-#ifdef ENABLE_MOUSEMODE
-      fd.restitution = .009f;
-      mBody->CreateFixture(&fd);
-#else
       fd.restitution = .99f;
       mTeetingBody->CreateFixture(&fd);
       // hinge
@@ -95,29 +87,24 @@ namespace Breakout {
         jd.upperAngle = deg2rad(+17.5f);
         mJoint = reinterpret_cast<b2RevoluteJoint*>(mGame->world()->CreateJoint(&jd));
       }
-#endif
     }
 
-
-#ifndef ENABLE_MOUSEMODE
-    // x-axis constraint
-    {
+    if (!mGame->mouseModeEnabled()) {
+      // x-axis constraint
       b2BodyDef bd;
       bd.position.Set(0.f, float32(mGame->level()->height()));
       b2Body *xAxis = mGame->world()->CreateBody(&bd);
-
       b2PrismaticJointDef pjd;
       pjd.bodyA = xAxis;
       pjd.bodyB = mBody;
       pjd.collideConnected = false;
       pjd.localAxisA.Set(1.f, 0.f);
       pjd.localAnchorA.SetZero();
-      pjd.localAnchorB.Set(W * sx * 0.5f, H * sy * 0.5f);
+      pjd.localAnchorB.Set(W * Game::InvScale * 0.5f, H * Game::InvScale * 0.5f);
       pjd.lowerTranslation = 0.f;
       pjd.upperTranslation = W;
       mGame->world()->CreateJoint(&pjd);
     }
-#endif
   }
 
 
@@ -125,25 +112,16 @@ namespace Breakout {
   {
     Body::setPosition(x, y);
     const b2Transform &tx = mBody->GetTransform();
-#ifdef ENABLE_MOUSEMODE
-    mBody->SetTransform(tx.p - mCenter, tx.q.GetAngle());
-#else
     mTeetingBody->SetTransform(tx.p - mCenter, tx.q.GetAngle());
-#endif
   }
 
 
   void Racket::applyLinearVelocity(const b2Vec2 &v)
   {
-#ifdef ENABLE_MOUSEMODE
-    mBody->SetLinearVelocity(v);
-#else
     mTeetingBody->SetLinearVelocity(v);
-#endif
   }
 
 
-#ifndef ENABLE_MOUSEMODE
   void Racket::moveLeft(void)
   {
     applyLinearVelocity(b2Vec2(-25.f, 0.f));
@@ -176,21 +154,18 @@ namespace Breakout {
 
   void Racket::stopKick(void)
   {
-    mJoint->SetMotorSpeed(0.f);
+    if (mGame->mouseModeEnabled())
+      mJoint->SetMotorSpeed(mTeetingBody->GetAngle() > 0.f ? -1.f : 1.f);
+    else
+      mJoint->SetMotorSpeed(0.f);
   }
-#endif
 
 
   void Racket::onUpdate(float elapsedSeconds)
   {
     UNUSED(elapsedSeconds);
-#ifdef ENABLE_MOUSEMODE
-    mSprite.setPosition(mGame->tileWidth() * mBody->GetPosition().x, mGame->tileHeight() * mBody->GetPosition().y);
-    mSprite.setRotation(rad2deg(mBody->GetAngle()));
-#else
     mSprite.setPosition(mGame->tileWidth() * mTeetingBody->GetPosition().x, mGame->tileHeight() * mTeetingBody->GetPosition().y);
     mSprite.setRotation(rad2deg(mTeetingBody->GetAngle()));
-#endif
   }
 
 
@@ -202,11 +177,7 @@ namespace Breakout {
 
   const b2Vec2 &Racket::position(void) const
   {
-#ifdef ENABLE_MOUSEMODE
-    return mBody->GetPosition();
-#else
     return mTeetingBody->GetPosition();
-#endif
   }
 
 }
