@@ -1,4 +1,4 @@
-!define VERSION "0.9.1"
+!define VERSION "0.9.2"
 !define APP "Breakout"
 !define PUBLISHER "c't"
 !define SFMLPATH "D:\Developer\SFML-2.1"

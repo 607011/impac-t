@@ -17,6 +17,6 @@
 
 */
 
-#define BREAKOUT_VERSION "0.9.1"
+#define BREAKOUT_VERSION "0.9.2"
 
 #define ENABLE_MOUSEMODE
