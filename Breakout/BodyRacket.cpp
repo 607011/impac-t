@@ -66,11 +66,12 @@ namespace Breakout {
       fd.shape = &polygon;
       fd.density = 10.f;
       fd.friction = .7f;
-      fd.restitution = .99f;
       fd.userData = this;
 #ifdef ENABLE_MOUSEMODE
+      fd.restitution = .009f;
       mBody->CreateFixture(&fd);
 #else
+      fd.restitution = .99f;
       mTeetingBody->CreateFixture(&fd);
       // hinge
       {

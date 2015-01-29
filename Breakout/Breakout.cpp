@@ -387,6 +387,7 @@ namespace Breakout {
   {
     if (mRacket != nullptr) {
 #ifdef ENABLE_MOUSEMODE
+      // mRacket->body()->SetLinearVelocity(b2Vec2_zero);
       mMousePos = sf::Mouse::getPosition(mWindow);
       if (mMousePos.x < 0 || mMousePos.x > int(mWindow.getSize().x) || mMousePos.y < 0 || mMousePos.y > int(mWindow.getSize().y)) {
         mMousePos = sf::Vector2i(int(Game::Scale * mRacket->position().x), int(Game::Scale * mRacket->position().y));
@@ -398,6 +399,7 @@ namespace Breakout {
       if (v.x != 0 || v.y != 0)
         std::cout << v.x << "," << v.y << " @ " << elapsedSeconds << std::endl;
       mRacket->body()->SetLinearVelocity(v);
+      // mRacket->body()->ApplyLinearImpulse(16.f * v, mRacket->body()->GetWorldCenter(), true);
       mLastMousePos = mMousePos;
 #else
       mRacket->stopMotion();
