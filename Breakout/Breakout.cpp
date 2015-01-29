@@ -702,6 +702,7 @@ namespace Breakout {
 
   void Game::evaluateCollisions(void)
   {
+    std::list<Body*> killedBodies;
     for (int i = 0; i < mContactPointCount; ++i) {
       ContactPoint &cp = mPoints[i];
       b2Body *bodyA = cp.fixtureA->GetBody();
@@ -713,32 +714,43 @@ namespace Breakout {
       if (a->type() == Body::BodyType::Block || b->type() == Body::BodyType::Block) {
         if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
-          Ball *ball = reinterpret_cast<Ball*>(a->type() == Body::BodyType::Ball ? a : b);
-          bool destroyed = block->hit(cp.normalImpulse);
-          if (destroyed) {
-            showScore(block->getScore(), block->position());
-            block->kill();
-          }
-          else {
-            mBlockHitSound.play();
+          if (std::find(killedBodies.cbegin(), killedBodies.cend(), block) == killedBodies.cend()) {
+            bool destroyed = block->hit(cp.normalImpulse);
+            if (destroyed) {
+              block->kill();
+              showScore(block->getScore(), block->position());
+              killedBodies.push_back(block);
+            }
+            else {
+              mBlockHitSound.play();
+            }
           }
         }
         else if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
-          block->kill();
+          if (std::find(killedBodies.cbegin(), killedBodies.cend(), block) == killedBodies.cend()) {
+            block->kill();
+            killedBodies.push_back(block);
+          }
         }
         else if (a->type() == Body::BodyType::Racket || b->type() == Body::BodyType::Racket) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
-          showScore(block->getScore(), block->position(), 2);
-          block->kill();
-          mRacketHitBlockSound.play();
+          if (std::find(killedBodies.cbegin(), killedBodies.cend(), block) == killedBodies.cend()) {
+            showScore(block->getScore(), block->position(), 2);
+            block->kill();
+            mRacketHitBlockSound.play();
+            killedBodies.push_back(block);
+          }
         }
       }
       else if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
         if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
           Ball *ball = reinterpret_cast<Ball*>(a->type() == Body::BodyType::Ball ? a : b);
-          ball->lethalHit();
-          ball->kill();
+          if (std::find(killedBodies.cbegin(), killedBodies.cend(), ball) == killedBodies.cend()) {
+            ball->lethalHit();
+            ball->kill();
+            killedBodies.push_back(ball);
+          }
         }
         else if (a->type() == Body::BodyType::Racket || b->type() == Body::BodyType::Racket) {
           if (cp.normalImpulse > 20)
