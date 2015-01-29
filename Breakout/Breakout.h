@@ -27,7 +27,7 @@
 #include <SFML/OpenGL.hpp>
 
 #include "BodyBall.h"
-#include "BodyPad.h"
+#include "BodyRacket.h"
 #include "BodyGround.h"
 
 
@@ -168,10 +168,10 @@ namespace Breakout {
     sf::Sound mBallOutSound;
     sf::SoundBuffer mBlockHitBuffer;
     sf::Sound mBlockHitSound;
-    sf::SoundBuffer mPadHitBuffer;
-    sf::Sound mPadHitSound;
-    sf::SoundBuffer mPadHitBlockBuffer;
-    sf::Sound mPadHitBlockSound;
+    sf::SoundBuffer mRacketHitBuffer;
+    sf::Sound mRacketHitSound;
+    sf::SoundBuffer mRacketHitBlockBuffer;
+    sf::Sound mRacketHitBlockSound;
     sf::SoundBuffer mExplosionBuffer;
     sf::Sound mExplosionSound;
     sf::SoundBuffer mNewLifeBuffer; 
@@ -212,7 +212,7 @@ namespace Breakout {
 
     // level data
     Ball *mBall;
-    Pad *mPad;
+    Racket *mRacket;
     Level mLevel;
 
     // game logic

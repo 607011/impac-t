@@ -49,7 +49,7 @@ namespace Breakout {
       BlockRed,
       BlockBlue,
       Ball,
-      Pad,
+      Racket,
       Ground,
       Particle,
       Text

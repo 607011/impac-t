@@ -36,7 +36,7 @@ namespace Breakout {
   {
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
-    bd.position.Set(x, y);
+    bd.position.Set(x - 0.5f * Game::InvScale * mText.getGlobalBounds().width , y - 0.5f * Game::InvScale * mText.getGlobalBounds().height);
     bd.gravityScale = -2.f;
     bd.fixedRotation = true;
     mBody = mGame->world()->CreateBody(&bd);

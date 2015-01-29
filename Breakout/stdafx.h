@@ -74,7 +74,7 @@
 #include "BodyText.h"
 #include "BodyBlock.h"
 #include "BodyBall.h"
-#include "BodyPad.h"
+#include "BodyRacket.h"
 #include "BodyGround.h"
 #include "ParticleSystem.h"
 #include "ExplosionParticleSystem.h"

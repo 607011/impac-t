@@ -97,19 +97,19 @@ namespace Breakout {
     mBlockHitSound.setVolume(100);
     mBlockHitSound.setLoop(false);
 
-    ok = mPadHitBuffer.loadFromFile(gSoundFXDir + "/pad-hit.ogg");
+    ok = mRacketHitBuffer.loadFromFile(gSoundFXDir + "/pad-hit.ogg");
     if (!ok)
       std::cerr << gSoundFXDir + "/pad-hit.ogg failed to load." << std::endl;
-    mPadHitSound.setBuffer(mPadHitBuffer);
-    mPadHitSound.setVolume(100);
-    mPadHitSound.setLoop(false);
+    mRacketHitSound.setBuffer(mRacketHitBuffer);
+    mRacketHitSound.setVolume(100);
+    mRacketHitSound.setLoop(false);
 
-    ok = mPadHitBlockBuffer.loadFromFile(gSoundFXDir + "/pad-hit-block.ogg");
+    ok = mRacketHitBlockBuffer.loadFromFile(gSoundFXDir + "/pad-hit-block.ogg");
     if (!ok)
       std::cerr << gSoundFXDir + "/pad-hit-block.ogg failed to load." << std::endl;
-    mPadHitBlockSound.setBuffer(mPadHitBlockBuffer);
-    mPadHitBlockSound.setVolume(100);
-    mPadHitBlockSound.setLoop(false);
+    mRacketHitBlockSound.setBuffer(mRacketHitBlockBuffer);
+    mRacketHitBlockSound.setVolume(100);
+    mRacketHitBlockSound.setLoop(false);
 
     ok = mExplosionBuffer.loadFromFile(gSoundFXDir + "/explosion.ogg");
     if (!ok)
@@ -385,11 +385,11 @@ namespace Breakout {
 
   void Game::handlePlayerInteraction(float elapsedSeconds)
   {
-    if (mPad != nullptr) {
+    if (mRacket != nullptr) {
 #ifdef ENABLE_MOUSEMODE
       mMousePos = sf::Mouse::getPosition(mWindow);
       if (mMousePos.x < 0 || mMousePos.x > int(mWindow.getSize().x) || mMousePos.y < 0 || mMousePos.y > int(mWindow.getSize().y)) {
-        mMousePos = sf::Vector2i(int(Game::Scale * mPad->position().x), int(Game::Scale * mPad->position().y));
+        mMousePos = sf::Vector2i(int(Game::Scale * mRacket->position().x), int(Game::Scale * mRacket->position().y));
         mLastMousePos = mMousePos;
         sf::Mouse::setPosition(mMousePos, mWindow);
       }
@@ -397,19 +397,19 @@ namespace Breakout {
       const b2Vec2 &v = Game::InvScale / elapsedSeconds * b2Vec2(float32(d.x), float32(d.y));
       if (v.x != 0 || v.y != 0)
         std::cout << v.x << "," << v.y << " @ " << elapsedSeconds << std::endl;
-      mPad->body()->SetLinearVelocity(v);
+      mRacket->body()->SetLinearVelocity(v);
       mLastMousePos = mMousePos;
 #else
-      mPad->stopMotion();
-      mPad->stopKick();
+      mRacket->stopMotion();
+      mRacket->stopKick();
       if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::KickLeft]))
-        mPad->kickLeft();
+        mRacket->kickLeft();
       if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::KickRight]))
-        mPad->kickRight();
+        mRacket->kickRight();
       if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::MoveLeft]))
-        mPad->moveLeft();
+        mRacket->moveLeft();
       if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::MoveRight]))
-        mPad->moveRight();
+        mRacket->moveRight();
 #endif
     }
   }
@@ -427,6 +427,7 @@ namespace Breakout {
     mTitleShader.setParameter("uMaxT", 1.f);
     mWelcomeLevel = 1;
     mWallClock.restart();
+    mWindow.setMouseCursorVisible(true);
   }
 
 
@@ -510,7 +511,7 @@ namespace Breakout {
     mLevelCompleteSound.play();
     mStartMsg.setString("Press SPACE to continue");
     mBlamClock.restart();
-    mPad->body()->SetLinearVelocity(b2Vec2_zero);
+    mRacket->body()->SetLinearVelocity(b2Vec2_zero);
     setState(State::LevelCompleted);
   }
 
@@ -604,6 +605,7 @@ namespace Breakout {
   {
     stopAllMusic();
     clearWorld();
+    mWindow.setMouseCursorVisible(false);
     if (mLevel.gotoNext()) {
       buildLevel();
       // mBackgroundMusic.play();
@@ -611,7 +613,7 @@ namespace Breakout {
       mClock.restart();
     }
     else {
-      std::cout << "You won!" << std::endl;
+      gotoPlayerWon();
     }
   }
 
@@ -635,15 +637,15 @@ namespace Breakout {
           }
         }
 
-        if (mPad != nullptr) { // check if pad has been kicked out of the screen
-          const float padX = mPad->position().x;
-          const float padY = mPad->position().y;
+        if (mRacket != nullptr) { // check if pad has been kicked out of the screen
+          const float padX = mRacket->position().x;
+          const float padY = mRacket->position().y;
           if (padY > mLevel.height())
-            mPad->setPosition(padX, mLevel.height() - 0.5f);
+            mRacket->setPosition(padX, mLevel.height() - 0.5f);
           if (padX < 0.f)
-            mPad->setPosition(1., padY);
+            mRacket->setPosition(1., padY);
           else if (padX > mLevel.width())
-            mPad->setPosition(mLevel.width() - 1.f, padY);
+            mRacket->setPosition(mLevel.width() - 1.f, padY);
         }
       }
     }
@@ -725,11 +727,11 @@ namespace Breakout {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
           block->kill();
         }
-        else if (a->type() == Body::BodyType::Pad || b->type() == Body::BodyType::Pad) {
+        else if (a->type() == Body::BodyType::Racket || b->type() == Body::BodyType::Racket) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
           showScore(block->getScore(), block->position(), 2);
           block->kill();
-          mPadHitBlockSound.play();
+          mRacketHitBlockSound.play();
         }
       }
       else if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
@@ -738,9 +740,9 @@ namespace Breakout {
           ball->lethalHit();
           ball->kill();
         }
-        else if (a->type() == Body::BodyType::Pad || b->type() == Body::BodyType::Pad) {
+        else if (a->type() == Body::BodyType::Racket || b->type() == Body::BodyType::Racket) {
           if (cp.normalImpulse > 20)
-            mPadHitSound.play();
+            mRacketHitSound.play();
         }
       }
     }
@@ -802,12 +804,12 @@ namespace Breakout {
       addBody(mGround);
     }
 
-    // create pad
-    mPad = new Pad(this);
-    mPad->setPosition(0.5f * mLevel.width(), mLevel.height() - 0.5f);
-    addBody(mPad);
+    // create racket
+    mRacket = new Racket(this);
+    mRacket->setPosition(0.5f * mLevel.width(), mLevel.height() - 0.5f);
+    addBody(mRacket);
 
-    mMousePos = sf::Vector2i(int(Game::Scale * mPad->position().x), int(Game::Scale * mPad->position().y));
+    mMousePos = sf::Vector2i(int(Game::Scale * mRacket->position().x), int(Game::Scale * mRacket->position().y));
     mLastMousePos = mMousePos;
     sf::Mouse::setPosition(mMousePos, mWindow);
 
@@ -837,7 +839,7 @@ namespace Breakout {
     std::string text = ((factor > 1) ? (std::to_string(factor) + "*") : "") + std::to_string(score);
     TextBody *scoreText = new TextBody(this, text, 24U);
     scoreText->setFont(mFixedFont);
-    scoreText->setPosition(atPos.x - 0.5f, atPos.y - 0.5f);
+    scoreText->setPosition(atPos.x, atPos.y);
     addBody(scoreText);
   }
 
@@ -868,7 +870,7 @@ namespace Breakout {
   {
     mNewBallSound.play();
     safeRenew(mBall, new Ball(this));
-    const b2Vec2 &padPos = mPad->position();
+    const b2Vec2 &padPos = mRacket->position();
     mBall->setPosition(padPos.x, padPos.y - 3.5f);
     addBody(mBall);
   }

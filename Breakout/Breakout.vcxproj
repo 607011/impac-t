@@ -92,7 +92,7 @@
     <ClCompile Include="BodyBall.cpp" />
     <ClCompile Include="BodyBlock.cpp" />
     <ClCompile Include="BodyGround.cpp" />
-    <ClCompile Include="BodyPad.cpp" />
+    <ClCompile Include="BodyRacket.cpp" />
     <ClCompile Include="BodyText.cpp" />
     <ClCompile Include="Breakout.cpp" />
     <ClCompile Include="globals.cpp" />
@@ -111,7 +111,7 @@
     <ClInclude Include="BodyBall.h" />
     <ClInclude Include="BodyBlock.h" />
     <ClInclude Include="BodyGround.h" />
-    <ClInclude Include="BodyPad.h" />
+    <ClInclude Include="BodyRacket.h" />
     <ClInclude Include="BodyText.h" />
     <ClInclude Include="Breakout.h" />
     <ClInclude Include="Destructible.h" />
