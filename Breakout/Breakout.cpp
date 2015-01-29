@@ -603,7 +603,7 @@ namespace Breakout {
 
     mTotalScoreMsg.setString("Your score: " + std::to_string(mScore));
     mTotalScoreMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mTotalScoreMsg.getLocalBounds().width,
-      mDefaultView.getCenter().y + 0.5f * mDefaultView.getSize().y - mTotalScoreMsg.getLocalBounds().height - 8.f);
+      mDefaultView.getCenter().y - mTotalScoreMsg.getLocalBounds().height - 8.f);
     mWindow.draw(mTotalScoreMsg);
 
     drawStartMessage();
@@ -628,6 +628,11 @@ namespace Breakout {
     mGameOverMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mGameOverMsg);
     
+    mTotalScoreMsg.setString("Your score: " + std::to_string(mScore));
+    mTotalScoreMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mTotalScoreMsg.getLocalBounds().width,
+      mDefaultView.getCenter().y - mTotalScoreMsg.getLocalBounds().height - 8.f);
+    mWindow.draw(mTotalScoreMsg);
+
     drawStartMessage();
   }
 

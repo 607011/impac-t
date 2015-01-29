@@ -164,7 +164,7 @@ namespace Breakout {
   void Racket::onUpdate(float elapsedSeconds)
   {
     UNUSED(elapsedSeconds);
-    mSprite.setPosition(mGame->tileWidth() * mTeetingBody->GetPosition().x, mGame->tileHeight() * mTeetingBody->GetPosition().y);
+    mSprite.setPosition(Game::Scale * mTeetingBody->GetPosition().x, Game::Scale * mTeetingBody->GetPosition().y);
     mSprite.setRotation(rad2deg(mTeetingBody->GetAngle()));
   }
 

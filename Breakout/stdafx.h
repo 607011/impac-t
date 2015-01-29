@@ -64,7 +64,6 @@
 
 #include <zlib.h>
 
-#include "main.h"
 #include "util.h"
 #include "globals.h"
 #include "Easings.h"

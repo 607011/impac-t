@@ -59,7 +59,7 @@ namespace Breakout {
   {
     sf::Uint8 alpha = sf::Uint8(Easing<float>::quadEaseInOut(age().asSeconds(), 0, 255, mMaxAge.asSeconds()));
     mText.setColor(sf::Color(255, 255, 255, alpha));
-    mText.setPosition(mGame->tileWidth() * mBody->GetPosition().x, mGame->tileHeight() * mBody->GetPosition().y);
+    mText.setPosition(Game::Scale * mBody->GetPosition().x, Game::Scale * mBody->GetPosition().y);
     if (overAge())
       this->kill();
   }

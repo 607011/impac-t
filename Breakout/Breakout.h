@@ -20,6 +20,9 @@
 #ifndef __GAME_H_
 #define __GAME_H_
 
+#define BREAKOUT_VERSION "0.9.5"
+// #define PARTICLES_WITH_SPRITES
+
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -29,11 +32,6 @@
 #include "BodyBall.h"
 #include "BodyRacket.h"
 #include "BodyGround.h"
-
-
-
-// #define PARTICLES_WITH_SPRITES
-
 
 namespace Breakout {
   
@@ -100,16 +98,6 @@ namespace Breakout {
     ~Game();
     void enterLoop(void);
     void addBody(Body *body);
-
-    inline int tileWidth(void) const
-    {
-      return mLevel.tileWidth();
-    }
-
-    inline int tileHeight(void) const
-    {
-      return mLevel.tileHeight();
-    }
 
     inline b2World *world(void)
     {

@@ -51,12 +51,9 @@ namespace Breakout {
     bd.userData = this;
     mBody = game->world()->CreateBody(&bd);
 
-    const float sx = 1.f / game->tileWidth();
-    const float sy = 1.f / game->tileHeight();
-
 #if 0
     b2PolygonShape polygon;
-    polygon.SetAsBox(0.5f * W * sx, 0.5f * H * sy);
+    polygon.SetAsBox(0.5f * W * Game::InvScale, 0.5f * H * Game::InvScale);
 
     b2FixtureDef fdBox;
     fdBox.shape = &polygon;
@@ -67,7 +64,7 @@ namespace Breakout {
     mBody->CreateFixture(&fdBox);
 #else
     b2PolygonShape polygon;
-    polygon.SetAsBox(0.5f * (W - 8) * sx, 0.5f * H * sy);
+    polygon.SetAsBox(0.5f * (W - 8) * Game::InvScale, 0.5f * H * Game::InvScale);
 
     b2FixtureDef fdBox;
     fdBox.shape = &polygon;
@@ -78,8 +75,8 @@ namespace Breakout {
     mBody->CreateFixture(&fdBox);
 
     b2CircleShape circleL;
-    circleL.m_p.Set(-8.f * sx, 0.f);
-    circleL.m_radius = 8.f * sx;
+    circleL.m_p.Set(-8.f * Game::InvScale, 0.f);
+    circleL.m_radius = 8.f * Game::InvScale;
 
     b2FixtureDef fdCircleL;
     fdCircleL.shape = &circleL;
@@ -90,8 +87,8 @@ namespace Breakout {
     mBody->CreateFixture(&fdCircleL);
 
     b2CircleShape circleR;
-    circleR.m_p.Set(+8.f * sx, 0.f);
-    circleR.m_radius = 8.f * sx;
+    circleR.m_p.Set(+8.f * Game::InvScale, 0.f);
+    circleR.m_radius = 8.f * Game::InvScale;
 
     b2FixtureDef fdCircleR;
     fdCircleR.shape = &circleR;
@@ -108,7 +105,7 @@ namespace Breakout {
   {
     UNUSED(elapsedSeconds);
     const b2Transform &tx = mBody->GetTransform();
-    mSprite.setPosition(mGame->tileWidth() * tx.p.x, mGame->tileHeight() * tx.p.y);
+    mSprite.setPosition(Game::Scale * tx.p.x, Game::Scale * tx.p.y);
     mSprite.setRotation(rad2deg(tx.q.GetAngle()));
   }
 

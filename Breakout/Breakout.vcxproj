@@ -119,7 +119,6 @@
     <ClInclude Include="Easings.h" />
     <ClInclude Include="globals.h" />
     <ClInclude Include="Level.h" />
-    <ClInclude Include="main.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="util.h" />

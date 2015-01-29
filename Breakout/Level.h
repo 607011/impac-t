@@ -133,25 +133,20 @@ namespace Breakout {
     {
       return mBackgroundSprite;
     }
+    /// level number
     inline int level(void) const
     {
       return mLevelNum;
     }
+    /// number of tiles in horizontal direction
     inline int width(void) const
     {
       return mNumTilesX;
     }
+    /// number of tiles in vertical direction
     inline int height(void) const
     {
       return mNumTilesY;
-    }
-    inline int tileWidth(void) const
-    {
-      return mTileWidth;
-    }
-    inline int tileHeight(void) const
-    {
-      return mTileHeight;
     }
     inline const Boundary &boundary(void) const
     {

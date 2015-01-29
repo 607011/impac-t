@@ -49,7 +49,7 @@ namespace Breakout {
 
     b2CircleShape circle;
     circle.m_p.SetZero();
-    circle.m_radius = W / game->tileWidth() * 0.5f;
+    circle.m_radius = 0.5f * W * Game::InvScale;
 
     b2FixtureDef fd;
     fd.shape = &circle;
@@ -65,7 +65,7 @@ namespace Breakout {
   void Ball::onUpdate(float elapsedSeconds)
   {
     UNUSED(elapsedSeconds);
-    mSprite.setPosition(mGame->tileWidth() * mBody->GetPosition().x, mGame->tileHeight() * mBody->GetPosition().y);
+    mSprite.setPosition(Game::Scale * mBody->GetPosition().x, Game::Scale * mBody->GetPosition().y);
     mSprite.setRotation(rad2deg(mBody->GetAngle()));
   }
 
