@@ -41,7 +41,6 @@ namespace Breakout {
     , mGround(nullptr)
     , mContactPointCount(0)
     , mScore(0)
-    , mTotalScore(0)
     , mLives(3)
     , mPaused(false)
     , mState(State::Initialization)
@@ -257,7 +256,7 @@ namespace Breakout {
 
     mExtraLifeIndex = 0;
     mLives = DefaultLives;
-    mTotalScore = 0;
+    mScore = 0;
     mLevel.set(0);
 
     mContactPointCount = 0;
@@ -545,6 +544,7 @@ namespace Breakout {
 
   void Game::gotoLevelCompleted(void)
   {
+    mLevelTimer.pause();
     mLevelCompleteSound.play();
     mStartMsg.setString("Press SPACE to continue");
     mBlamClock.restart();
@@ -648,6 +648,7 @@ namespace Breakout {
       // mBackgroundMusic.play();
       setState(State::Playing);
       mClock.restart();
+      mLevelTimer.resume();
     }
     else {
       gotoPlayerWon();
@@ -702,7 +703,8 @@ namespace Breakout {
     mLevelMsg.setPosition(4, 4);
     mWindow.draw(mLevelMsg);
 
-    mScoreMsg.setString(std::to_string(mScore));
+    int penalty = mLevelTimer.accumulatedSeconds();
+    mScoreMsg.setString(std::to_string(b2Max(0, mScore - penalty)));
     mScoreMsg.setPosition(mDefaultView.getCenter().x + mDefaultView.getSize().x / 2 - mScoreMsg.getLocalBounds().width - 4, 4);
     mWindow.draw(mScoreMsg);
 
@@ -936,12 +938,14 @@ namespace Breakout {
   void Game::pause(void)
   {
     mPaused = true;
+    mLevelTimer.pause();
   }
 
 
   void Game::resume(void)
   {
     mPaused = false;
+    mLevelTimer.resume();
   }
 
 
@@ -965,9 +969,6 @@ namespace Breakout {
     }
     else if (killedBody->type() == Body::BodyType::Block) {
       --mBlockCount;
-#ifndef NDEBUG
-      std::cout << "mBlockCount = " << mBlockCount << std::endl;
-#endif
       mExplosionSound.play();
       ParticleSystem *ps = new ParticleSystem(this, killedBody->position());
       addBody(ps);

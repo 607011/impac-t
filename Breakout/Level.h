@@ -30,6 +30,54 @@
 
 namespace Breakout {
 
+  class LevelTimer {
+  public:
+    LevelTimer(void)
+    {
+      restart();
+      mActive = false;
+    }
+    inline void restart(void)
+    {
+      mClock.restart();
+      mTime = sf::Time::Zero;
+      mActive = true;
+    }
+    inline void pause(void)
+    {
+#ifndef NDEBUG
+      std::cout << "LevelTimer is paused." << std::endl;
+#endif
+      mTime += mClock.restart();
+      mActive = false;
+    }
+    inline void resume(void)
+    {
+#ifndef NDEBUG
+      std::cout << "LevelTimer is active." << std::endl;
+#endif
+      mActive = true;
+      mClock.restart();
+    }
+    inline const sf::Time &total(void) const
+    {
+      return mTime;
+    }
+    inline int accumulatedSeconds(void) const
+    {
+      const sf::Time &accumulatedTime = mActive ? mClock.getElapsedTime() + mTime : mTime;
+      return accumulatedTime.asMilliseconds() / 1000;
+    }
+    inline bool isActive(void) const
+    {
+      return mActive;
+    }
+  private:
+    sf::Clock mClock;
+    sf::Time mTime;
+    bool mActive;
+  };
+
   struct Boundary {
     Boundary(void)
       : left(0)

@@ -36,7 +36,7 @@
 
 
 namespace Breakout {
-
+  
   class Game;
 
   struct ContactPoint {
@@ -227,15 +227,9 @@ namespace Breakout {
     }
     virtual void PostSolve(b2Contact *contact, const b2ContactImpulse *impulse);
 
-    // level data
-    Ball *mBall;
-    Racket *mRacket;
-    Level mLevel;
-
     // game logic
     std::vector<sf::Keyboard::Key> mKeyMapping;
     State mState;
-    int mTotalScore;
     int mScore;
     int mLives;
     bool mPaused;
@@ -246,6 +240,10 @@ namespace Breakout {
     int mExtraLifeIndex;
     sf::Vector2i mMousePos;
     sf::Vector2i mLastMousePos;
+    Ball *mBall;
+    Racket *mRacket;
+    Level mLevel;
+    LevelTimer mLevelTimer;
 
     void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);
