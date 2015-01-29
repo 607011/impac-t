@@ -17,4 +17,4 @@
 
 */
 
-#define BREAKOUT_VERSION "0.9.3"
+#define BREAKOUT_VERSION "0.9.4"
