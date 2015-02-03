@@ -1,0 +1,15 @@
+*.obj
+*.sdf
+*.opensdf
+*.suo
+deploy/*.exe
+Impact/Debug
+Impact/Release
+glfw/Debug
+glfw/Release
+glew/Debug
+glew/Release
+Debug/*
+Release/*
+ipch/*
+*.vcxproj.user

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="25" tilewidth="16" tileheight="16" backgroundcolor="#000000">
+ <tileset firstgid="1" name="Default" tilewidth="64" tileheight="16">
+  <tile id="0">
+   <properties>
+    <property name="Name" value="BlueBlock"/>
+    <property name="Points" value="10"/>
+   </properties>
+   <image width="32" height="16" source="../images/blue-block.png"/>
+  </tile>
+  <tile id="1">
+   <properties>
+    <property name="Name" value="GreenBlock"/>
+    <property name="Points" value="20"/>
+   </properties>
+   <image width="32" height="16" source="../images/green-block.png"/>
+  </tile>
+  <tile id="2">
+   <properties>
+    <property name="Name" value="LightBlock"/>
+    <property name="Points" value="30"/>
+   </properties>
+   <image width="32" height="16" source="../images/light-block.png"/>
+  </tile>
+  <tile id="3">
+   <properties>
+    <property name="Name" value="RedBlock"/>
+    <property name="Points" value="50"/>
+   </properties>
+   <image width="32" height="16" source="../images/red-block.png"/>
+  </tile>
+  <tile id="4">
+   <properties>
+    <property name="Name" value="YellowBlock"/>
+    <property name="Points" value="5"/>
+   </properties>
+   <image width="32" height="16" source="../images/yellow-block.png"/>
+  </tile>
+  <tile id="5">
+   <properties>
+    <property name="Name" value="DarkBlock"/>
+    <property name="Points" value="100"/>
+   </properties>
+   <image width="32" height="16" source="../images/dark-block.png"/>
+  </tile>
+  <tile id="6">
+   <properties>
+    <property name="Name" value="Ball"/>
+   </properties>
+   <image width="16" height="16" source="../images/ball.png"/>
+  </tile>
+  <tile id="7">
+   <properties>
+    <property name="Name" value="Pad"/>
+   </properties>
+   <image width="64" height="16" source="../images/pad.png"/>
+  </tile>
+ </tileset>
+ <imagelayer name="Background" y="-1" opacity="0.6">
+  <image source="../backgrounds/abstract09.jpg" trans="aaaa00"/>
+ </imagelayer>
+ <layer name="Tile Layer" width="40" height="25">
+  <data encoding="base64" compression="zlib">
+   eJztjjkOwCAQA5GQ8v8nU9EkK9jDhhSeEi2eae1LN97YRJ0nG7OuE41VB7MRtc1oRG8i9ypbD2l3t7Hyvm9Yjbu2SGPGU/nj8SJ92VskHu+tNo//dtvE6vhLmxBCCCHiDKQnAH8=
+  </data>
+ </layer>
+ <objectgroup name="Boundaries" visible="0"/>
+</map>
