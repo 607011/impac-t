@@ -62,9 +62,9 @@
    <properties>
     <property name="Fixed" value="1"/>
     <property name="Name" value="Wall"/>
-    <property name="Restitution" value="0.0"/>
+    <property name="Restitution" value="1.0"/>
    </properties>
-   <image width="32" height="16" source="../images/wall.png"/>
+   <image width="32" height="16" source="../images/brick.png"/>
   </tile>
  </tileset>
  <imagelayer name="Background" y="-1" opacity="0.5">
@@ -76,7 +76,7 @@
    <property name="Gravity" value="9.81"/>
   </properties>
   <data encoding="base64" compression="zlib">
-   eJzt0FEOgCAMA1AUNeH+F+a/iWVjgCT2/SCRtMtSEmk74JzphPtF3t6Gb4R52Gf1kH+s3/qO5TPWfXl49vkmd+Z7sBzW35MXEc2dNVe0Z9Vc3t6v5kI4x6i5CpxRu+xLRETkjypkLgCa
+   eJzt1UsOgCAQA1D8Jt7/wu6bWKcMgy76Nkgk04YNrZm9W2CttMJ+J2ePwDfCeZgXdZJ/LD96js1novelUO7zydY5X8HmsPyeeRnZuVW9sjmzeqm5X/VC2KO31yWuqhH3VdXNzMz+r/qdGpE3+51S8m5GxwGx
   </data>
  </layer>
  <objectgroup name="Boundaries" visible="0"/>
