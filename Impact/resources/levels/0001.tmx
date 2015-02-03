@@ -67,13 +67,16 @@
    <image width="32" height="16" source="../images/brick.png"/>
   </tile>
  </tileset>
- <imagelayer name="Background" y="-1" opacity="0.5">
-  <image source="../backgrounds/abstract-background-27.jpg" trans="aaaa00"/>
+ <imagelayer name="Background" opacity="0.87">
+  <image source="../backgrounds/abstract10.jpg" trans="aaaa00"/>
  </imagelayer>
  <layer name="Tile Layer" width="40" height="25">
   <properties>
-   <property name="ExplosionParticlesCollideWithBall" value="1"/>
-   <property name="Gravity" value="9.81"/>
+   <property name="ExplosionParticlesCollideWithBall" value="0"/>
+   <property name="Gravity" value="19.81"/>
+   <property name="KillingSpreeBonus" value="1000"/>
+   <property name="KillingSpreeInterval" value="2500"/>
+   <property name="KillingsPerKillingSpree" value="5"/>
   </properties>
   <data encoding="base64" compression="zlib">
    eJzt1UsOgCAQA1D8Jt7/wu6bWKcMgy76Nkgk04YNrZm9W2CttMJ+J2ePwDfCeZgXdZJ/LD96js1novelUO7zydY5X8HmsPyeeRnZuVW9sjmzeqm5X/VC2KO31yWuqhH3VdXNzMz+r/qdGpE3+51S8m5GxwGx
