@@ -161,6 +161,7 @@ namespace Impact {
     sf::Text mGameOverMsg;
     sf::Text mPlayerWonMsg;
     sf::Text mScoreMsg;
+    sf::Text mYourScoreMsg;
     sf::Text mTotalScoreMsg;
     sf::Text mTotalScorePointsMsg;
     sf::Text mStatMsg;

@@ -30,11 +30,11 @@ namespace Impact {
     mName = std::string("Ball");
     mTexture = mGame->level()->texture(mName);
 
-    const float W = float(mTexture.getSize().x);
-    const float H = float(mTexture.getSize().y);
+    const int W = mTexture.getSize().x;
+    const int H = mTexture.getSize().y;
 
     mSprite.setTexture(mTexture);
-    mSprite.setOrigin(0.5f * W, 0.5f * H);
+    mSprite.setOrigin(.5f * W, .5f * H);
 
     b2BodyDef bd;
     bd.type = b2_dynamicBody;

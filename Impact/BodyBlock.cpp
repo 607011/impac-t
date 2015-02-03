@@ -34,18 +34,18 @@ namespace Impact {
     mTexture = mGame->level()->tile(index).texture;
     mName = std::string("Block");
 
-    const float W = float(mTexture.getSize().x);
-    const float H = float(mTexture.getSize().y);
+    const int W = mTexture.getSize().x;
+    const int H = mTexture.getSize().y;
 
     mSprite.setTexture(mTexture);
-    mSprite.setOrigin(0.5f * W, 0.5f * H);
+    mSprite.setOrigin(.5f * W, .5f * H);
 
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
-    bd.angle = 0.f;
-    bd.linearDamping = 0.5f;
-    bd.angularDamping = 0.5f;
-    bd.gravityScale = 0.f;
+    bd.angle = .0f;
+    bd.linearDamping = .5f;
+    bd.angularDamping = .5f;
+    bd.gravityScale = .0f;
     bd.allowSleep = true;
     bd.awake = false;
     bd.fixedRotation = false;
@@ -56,13 +56,13 @@ namespace Impact {
 
 #ifdef BANGOUT_BLOCKS_ARE_ROUNDED_RECTANGLES
     b2PolygonShape polygon;
-    polygon.SetAsBox(0.5f * (W - 8) * Game::InvScale, 0.5f * H * Game::InvScale);
+    polygon.SetAsBox(.5f * (W - H) * Game::InvScale, .5f * H * Game::InvScale);
 
     b2FixtureDef fdBox;
     fdBox.shape = &polygon;
     fdBox.density = 800.f;
     fdBox.friction = mGame->world()->GetGravity().y;
-    fdBox.restitution = 0.04f;
+    fdBox.restitution = .04f;
     fdBox.userData = this;
     mBody->CreateFixture(&fdBox);
 
@@ -91,13 +91,13 @@ namespace Impact {
     mBody->CreateFixture(&fdCircleR);
 #else
     b2PolygonShape polygon;
-    polygon.SetAsBox(0.5f * W * Game::InvScale, 0.5f * H * Game::InvScale);
+    polygon.SetAsBox(.5f * W * Game::InvScale, .5f * H * Game::InvScale);
 
     b2FixtureDef fdBox;
     fdBox.shape = &polygon;
     fdBox.density = 800.f;
     fdBox.friction = mGame->world()->GetGravity().y;
-    fdBox.restitution = 0.04f;
+    fdBox.restitution = .04f;
     fdBox.userData = this;
     mBody->CreateFixture(&fdBox);
 #endif
@@ -124,7 +124,7 @@ namespace Impact {
     bool destroyed = Body::hit(int(impulse));
     if (!destroyed) {
       mBody->SetGravityScale(mGravityScale);
-      mSprite.setColor(sf::Color(255, 255, 255, 192));
+      mSprite.setColor(sf::Color(255, 255, 255, 0xbf));
     }
     return destroyed;
   }

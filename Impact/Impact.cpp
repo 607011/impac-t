@@ -167,6 +167,11 @@ namespace Impact {
     mPlayerWonMsg.setCharacterSize(64U);
     mPlayerWonMsg.setColor(sf::Color(255, 255, 255));
 
+    mYourScoreMsg.setString("Your score");
+    mYourScoreMsg.setFont(mFixedFont);
+    mYourScoreMsg.setCharacterSize(32U);
+    mYourScoreMsg.setColor(sf::Color(255, 255, 255));
+
     mStartMsg.setFont(mFixedFont);
     mStartMsg.setCharacterSize(16U);
     mStartMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mStartMsg.getLocalBounds().width, 1.4f * mDefaultView.getCenter().y);
@@ -609,6 +614,9 @@ namespace Impact {
     mPlayerWonMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mPlayerWonMsg);
 
+    mYourScoreMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mYourScoreMsg.getLocalBounds().width, mDefaultView.getCenter().y);
+    mWindow.draw(mYourScoreMsg);
+
     mTotalScoreMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mTotalScoreMsg.getLocalBounds().width, mDefaultView.getCenter().y - mTotalScoreMsg.getLocalBounds().height - 32);
     mWindow.draw(mTotalScoreMsg);
 
@@ -639,6 +647,9 @@ namespace Impact {
 
     mGameOverMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mGameOverMsg);
+
+    mYourScoreMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mYourScoreMsg.getLocalBounds().width, mDefaultView.getCenter().y);
+    mWindow.draw(mYourScoreMsg);
 
     mTotalScorePointsMsg.setString(std::to_string(mTotalScore));
     mTotalScorePointsMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mTotalScorePointsMsg.getLocalBounds().width, mDefaultView.getCenter().y - mTotalScorePointsMsg.getLocalBounds().height + 64);
