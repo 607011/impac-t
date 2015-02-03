@@ -49,7 +49,7 @@ namespace Impact {
 
     b2CircleShape circle;
     circle.m_p.SetZero();
-    circle.m_radius = 0.5f * W * Game::InvScale;
+    circle.m_radius = .5f * W * Game::InvScale;
 
     b2FixtureDef fd;
     fd.shape = &circle;
