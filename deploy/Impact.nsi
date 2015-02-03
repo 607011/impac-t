@@ -1,4 +1,4 @@
-!define VERSION "1.0.0-BETA"
+!define VERSION "1.0.0-BETA1"
 !define APP "Impact"
 !define PUBLISHER "c't"
 !define SFMLPATH "D:\Developer\SFML-2.1"
@@ -20,6 +20,12 @@ Page license
 Page directory
 
 Page instfiles
+
+
+Section "vcredist"
+  File vcredist_x86.exe
+  ExecWait '"vcredist_x86.exe" /norestart /passive'
+SectionEnd
 
 
 Section "${APP}"
@@ -64,7 +70,7 @@ Section "${APP}"
   File /a /r "..\${APP}\resources\shaders\"
 
   SetOutPath $INSTDIR\resources\soundfx
-  File /a /r "..\${APP}\resources\soundfx\"
+  File /a /r "..\${APP}\resources\soundfx\*.ogg"
 
   SetOutPath $INSTDIR
 
