@@ -166,9 +166,6 @@ namespace Impact {
     sf::Text mStartMsg;
     sf::Text mProgramInfoMsg;
     sf::Text mLevelMsg;
-#if 0
-    sf::Text mHelpMsg;
-#endif
     sf::SoundBuffer mStartupBuffer;
     sf::Sound mStartupSound;
     sf::SoundBuffer mNewBallBuffer;

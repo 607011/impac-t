@@ -230,19 +230,6 @@ namespace Impact {
 
     mTitleShader.loadFromFile(gShadersDir + "/title.frag", sf::Shader::Fragment);
 
-#if 0
-    mHelpMsg.setFont(mFixedFont);
-    mHelpMsg.setColor(sf::Color::White);
-    mHelpMsg.setCharacterSize(8U);
-    mHelpMsg.setString(
-      "STEUERUNG\n"
-      "< > nach links/rechts bewegen\n"
-      "Y X links/rechts wippen\n"
-      "SPACE neuer Ball"
-      );
-    mHelpMsg.setPosition(mDefaultView.getCenter().x + mDefaultView.getSize().x / 2 - mHelpMsg.getLocalBounds().width - 8.f, 8.f);
-#endif
-
     mKeyMapping[Action::MoveLeft] = sf::Keyboard::Left;
     mKeyMapping[Action::MoveRight] = sf::Keyboard::Right;
     mKeyMapping[Action::SpecialAction] = sf::Keyboard::Space;
