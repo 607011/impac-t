@@ -30,11 +30,6 @@ namespace Impact {
   {
   public:
     Ground(Game *game, float width);
-#ifndef NDEBUG
-    ~Ground() {
-      std::cout << "~dtor of " << typeid(this).name() << std::endl;
-    }
-#endif
 
     // Body implementation
     virtual void onUpdate(float) { /* ... */ }

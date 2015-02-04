@@ -96,9 +96,6 @@ namespace Impact {
 
   ParticleSystem::~ParticleSystem()
   {
-#ifndef NDEBUG
-    std::cout << "~dtor of " << typeid(this).name() << std::endl;
-#endif
     b2World *world = mGame->world();
     for (std::vector<SimpleParticle>::const_iterator p = mParticles.cbegin(); p != mParticles.cend(); ++p) {
       if (!p->dead)

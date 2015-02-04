@@ -116,12 +116,10 @@ namespace Impact {
 
     inline void setMouseModeEnabled(bool enabled)
     {
-#ifndef NDEBUG
-      std::cout << "setMouseModeEnabled(" << enabled << ")" << std::endl;
-#endif
       mMouseModeEnabled = enabled;
       mWindow.setVerticalSyncEnabled(!enabled);
     }
+
     inline bool mouseModeEnabled(void) const
     {
       return mMouseModeEnabled;

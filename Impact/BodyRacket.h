@@ -31,11 +31,6 @@ namespace Impact {
   {
   public:
     Racket(Game *game);
-#ifndef NDEBUG
-    ~Racket() {
-      std::cout << "~dtor of " << typeid(this).name() << std::endl;
-    }
-#endif
 
     void moveLeft(void);
     void moveRight(void);

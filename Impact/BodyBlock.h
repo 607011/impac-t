@@ -31,11 +31,6 @@ namespace Impact {
   {
   public:
     Block(int index, Game *game);
-#ifndef NDEBUG
-    ~Block() {
-      std::cout << "~dtor of " << typeid(this).name() << std::endl;
-    }
-#endif
 
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);

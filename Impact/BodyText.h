@@ -37,11 +37,6 @@ namespace Impact {
   {
   public:
     TextBody(Game *game, const std::string &text, unsigned int size = 22U, const sf::Time &maxAge = sf::milliseconds(500));
-#ifndef NDEBUG
-    ~TextBody() {
-      std::cout << "~dtor of " << typeid(this).name() << std::endl;
-    }
-#endif
 
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);

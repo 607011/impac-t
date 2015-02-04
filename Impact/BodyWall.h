@@ -33,11 +33,6 @@ namespace Impact {
   {
   public:
     Wall(int index, Game *game);
-#ifndef NDEBUG
-    ~Wall() {
-      std::cout << "~dtor of " << typeid(this).name() << std::endl;
-    }
-#endif
 
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);

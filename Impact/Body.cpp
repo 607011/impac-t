@@ -139,9 +139,6 @@ namespace Impact {
   
   void Body::remove(void)
   {
-#ifndef NDEBUG
-    std::cout << "Body::remove() " << mName << std::endl;
-#endif
     if (mBody) {
       b2World *world = mBody->GetWorld();
       world->DestroyBody(mBody);

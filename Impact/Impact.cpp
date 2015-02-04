@@ -326,9 +326,6 @@ namespace Impact {
   void Game::setState(State state)
   {
     mState = state;
-#ifndef NDEBUG
-    std::cout << "Game::setState(" << mState << ")\n";
-#endif
   }
 
 
@@ -1079,9 +1076,6 @@ namespace Impact {
     mKillingSpreeSound.play();
     showScore(bonusPoints + mLevel.killingSpreeBonus(), mRacket->position());
     resetKillingSpree();
-#ifndef NDEBUG
-    std::cout << "killingSpree(): " << bonusPoints << "+" << mLevel.killingSpreeBonus() << std::endl;
-#endif
   }
 
 
@@ -1099,7 +1093,6 @@ namespace Impact {
     const int i = (mLastKillingsIndex - mLastKillings.size()) % int(mLastKillings.size());
     const sf::Time &dt = mLastKillings.at(mLastKillingsIndex) - mLastKillings.at(i);
     mLastKillingsIndex = (mLastKillingsIndex + 1) % mLastKillings.size();
-    std::cout << mLevel.killingSpreeInterval().asMilliseconds() <<  "/ " << mLastKillings.size() << std::endl;
     if (dt < mLevel.killingSpreeInterval())
       killingSpree((mLevel.killingSpreeInterval() - dt).asMilliseconds());
   }
