@@ -60,7 +60,6 @@ namespace Impact {
       , restitution(.9f)
       , density(800.f)
       , gravityScale(2.f)
-
     { /* ... */ }
     int score;
     std::string textureName;

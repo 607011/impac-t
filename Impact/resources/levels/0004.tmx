@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="25" tilewidth="16" tileheight="16" backgroundcolor="#000000">
- <tileset firstgid="1" name="Default" tilewidth="64" tileheight="64">
+ <tileset firstgid="1" name="Default" tilewidth="64" tileheight="16">
   <tile id="0">
    <properties>
     <property name="Name" value="BlueBlock"/>
@@ -55,19 +55,13 @@
    </properties>
    <image width="64" height="16" source="../images/pad.png"/>
   </tile>
-  <tile id="8">
-   <properties>
-    <property name="Points" value="500"/>
-   </properties>
-   <image width="64" height="64" source="../images/big-block.png"/>
-  </tile>
  </tileset>
  <imagelayer name="Background" y="-1" opacity="0.9">
   <image source="../backgrounds/abstract-background-20.jpg" trans="aaaa00"/>
  </imagelayer>
  <layer name="Tile Layer" width="40" height="25">
   <data encoding="base64" compression="zlib">
-   eJztlUsKgDAMRNvixvtf2I2CDJNflYI4b1Nsk8yrLmztGeNcN1gHqV3JPf9y6vCMdSvAvLtLN/ZZ39uw+czNc7TmROzOmTUPs5kfq/Pmeh6ZfisTnbKOUc5MPcuK/Ky+Sm7mHhk3bz9yZB7Z92vNrvh5c5DKd6+6RedZx6fM+gnxNyr/JiGEEN/nALUJAKI=
+   eJztkUsOgCAQQ4F4/zO70YRM2vmAYWH6NgQc2qe2tsd41susA8yeZO5/nbrZ27kT2L7ZpZNzdO9rUD5y8xxZzg4sz3YjPzQX5Wbx7jM3tmeOUc/KPOqK/Ni9Sm/mPTJu3nnkiDyy35dlV/y8HEvlv1fdoudZx11W/YQQQggh/swNmBIAhw==
   </data>
  </layer>
  <objectgroup name="Boundaries" visible="0"/>

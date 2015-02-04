@@ -36,7 +36,6 @@ Section "vcredist"
 SectionEnd
 
 
-
 Section "${APP}"
   SetOutPath "$INSTDIR"
   CreateDirectory "$INSTDIR\resources"

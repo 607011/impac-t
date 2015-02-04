@@ -126,5 +126,6 @@
     <None Include="resources\shaders\postfx.frag">
       <Filter>Fragment Shaders</Filter>
     </None>
+    <None Include="..\..\Impac%27t\README.md" />
   </ItemGroup>
 </Project>
