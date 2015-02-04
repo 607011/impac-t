@@ -45,7 +45,7 @@ namespace Impact {
   class ParticleSystem : public Body
   {
   public:
-    ParticleSystem(Game *game, const b2Vec2 &pos, int count = 50U);
+    ParticleSystem(Game *game, const b2Vec2 &pos, bool ballCollisionEnabled = false, int count = 50U);
     virtual ~ParticleSystem();
 
     // Body implementation

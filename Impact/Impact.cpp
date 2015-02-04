@@ -200,7 +200,7 @@ namespace Impact {
       + " - "
       + "Copyright (c) 2015 Oliver Lau <ola@ct.de>"
       + "\n"
-      + "Built with: SFML " + std::to_string(SFML_VERSION_MAJOR) + "." + std::to_string(SFML_VERSION_MINOR) + ", "
+      + tr("Built with") + ": SFML " + std::to_string(SFML_VERSION_MAJOR) + "." + std::to_string(SFML_VERSION_MINOR) + ", "
       + "Box2D " + std::to_string(b2_version.major) + "." + std::to_string(b2_version.minor) + "." + std::to_string(b2_version.revision) + ", "
       + "glew " + std::to_string(GLEW_VERSION) + "." + std::to_string(GLEW_VERSION_MAJOR) + "." + std::to_string(GLEW_VERSION_MINOR)
       + " - "
@@ -511,7 +511,7 @@ namespace Impact {
     mWindow.draw(mTitleSprite, states);
 
     if (mWelcomeLevel == 0) {
-      addBody(new ParticleSystem(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f), 122U));
+      addBody(new ParticleSystem(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f), mLevel.explosionParticlesCollideWithBall(), 122U));
       mWelcomeLevel = 1;
     }
 
@@ -520,7 +520,7 @@ namespace Impact {
       if (mWelcomeLevel == 1) {
         mExplosionSound.play();
         mWelcomeLevel = 2;
-        addBody(new ParticleSystem(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y), 100U));
+        addBody(new ParticleSystem(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y), mLevel.explosionParticlesCollideWithBall(), 100U));
       }
     }
     if (t > 0.6f) {
@@ -528,25 +528,15 @@ namespace Impact {
       if (mWelcomeLevel == 2) {
         mExplosionSound.play();
         mWelcomeLevel = 3;
-        addBody(new ParticleSystem(this, Game::InvScale * b2Vec2(mLogoSprite.getPosition().x, mLogoSprite.getPosition().y), 100U));
+        addBody(new ParticleSystem(this, Game::InvScale * b2Vec2(mLogoSprite.getPosition().x, mLogoSprite.getPosition().y), mLevel.explosionParticlesCollideWithBall(), 100U));
       }
     }
-#if 0
-    if (t > 0.7f) {
-      mWindow.draw(mHelpMsg);
-      if (mWelcomeLevel == 3) {
-        mExplosionSound.play();
-        mWelcomeLevel = 4;
-        addBody(new ParticleSystem(this, Game::InvScale * b2Vec2(mHelpMsg.getPosition().x, mHelpMsg.getPosition().y), 100U));
-      }
-    }
-#endif
     if (t > 0.7f) {
       mWindow.draw(mProgramInfoMsg);
       if (mWelcomeLevel == 4) {
         mExplosionSound.play();
         mWelcomeLevel = 5;
-        addBody(new ParticleSystem(this, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y), 100U));
+        addBody(new ParticleSystem(this, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y), mLevel.explosionParticlesCollideWithBall(), 100U));
       }
     }
   }
@@ -556,7 +546,7 @@ namespace Impact {
   {
     mLevelTimer.pause();
     mLevelCompleteSound.play();
-    mStartMsg.setString("Click to continue");
+    mStartMsg.setString(tr("Click to continue"));
     mBlamClock.restart();
     mRacket->body()->SetLinearVelocity(b2Vec2_zero);
     setState(State::LevelCompleted);
@@ -581,7 +571,7 @@ namespace Impact {
 
   void Game::gotoPlayerWon(void)
   {
-    mStartMsg.setString("Click to start over");
+    mStartMsg.setString(tr("Click to start over"));
     setState(State::PlayerWon);
     mTotalScore = mScore - mLevelTimer.accumulatedSeconds();
   }
@@ -614,7 +604,7 @@ namespace Impact {
 
   void Game::gotoGameOver(void)
   {
-    mStartMsg.setString("Click to continue");
+    mStartMsg.setString(tr("Click to continue"));
     setState(State::GameOver);
     mTotalScore = mScore - mLevelTimer.accumulatedSeconds();
   }

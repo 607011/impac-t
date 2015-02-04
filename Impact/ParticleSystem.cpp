@@ -26,13 +26,13 @@ namespace Impact {
   const sf::Time ParticleSystem::sMaxAge = sf::milliseconds(1000);
   const sf::Color ParticleSystem::sColor = sf::Color::White;
 
-  ParticleSystem::ParticleSystem(Game *game, const b2Vec2 &pos, int count)
+  ParticleSystem::ParticleSystem(Game *game, const b2Vec2 &pos, bool ballCollisionEnabled, int count)
     : Body(Body::BodyType::Particle, game)
     , mParticles(count)
 #ifndef PARTICLES_WITH_SPRITES
     , mVertices(sf::Quads, 4 * count)
 #endif
-    , mBallCollisionEnabled(true)
+    , mBallCollisionEnabled(ballCollisionEnabled)
   {
     setZIndex(Body::ZIndex::Foreground + 0);
     mName = std::string("ParticleSystem");
@@ -107,6 +107,15 @@ namespace Impact {
   void ParticleSystem::setBallCollisionEnabled(bool ballCollisionEnabled)
   {
     mBallCollisionEnabled = ballCollisionEnabled;
+    for (std::vector<SimpleParticle>::iterator p = mParticles.begin(); p != mParticles.end(); ++p) {
+      b2Fixture *fixture = p->body->GetFixtureList();
+      b2Filter filter = fixture->GetFilterData();
+      if (mBallCollisionEnabled)
+        filter.maskBits &= ~Body::BallMask;
+      else
+        filter.maskBits |= Body::BallMask;
+      fixture->SetFilterData(filter);
+    }
   }
 
 
