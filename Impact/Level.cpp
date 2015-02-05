@@ -121,20 +121,21 @@ namespace Impact {
       for (pi = layerProperties.begin(); pi != layerProperties.end(); ++pi) {
         boost::property_tree::ptree property = pi->second;
         if (pi->first == "property") {
-          const std::string &propName = property.get<std::string>("<xmlattr>.name"); 
+          std::string propName = property.get<std::string>("<xmlattr>.name");
+          boost::algorithm::to_lower(propName);
           if (propName == "Gravity") {
             mGravity = property.get<float32>("<xmlattr>.value");
           }
-          else if (propName == "ExplosionParticlesCollideWithBall") {
+          else if (propName == "explosionparticlescollidewithball") {
             mExplosionParticlesCollideWithBall = property.get<int>("<xmlattr>.value") > 0;
           }
-          else if (propName == "KillingSpreeBonus") {
+          else if (propName == "killingspreebonus") {
             mKillingSpreeBonus = property.get<int>("<xmlattr>.value");
           }
-          else if (propName == "KillingSpreeInterval") {
+          else if (propName == "killingspreeinterval") {
             mKillingSpreeInterval = sf::milliseconds(property.get<int>("<xmlattr>.value"));
           }
-          else if (propName == "KillingsPerKillingSpree") {
+          else if (propName == "killingsperkillingspree") {
             mKillingsPerKillingSpree = property.get<int>("<xmlattr>.value");
           }
         }
@@ -224,23 +225,24 @@ namespace Impact {
             boost::property_tree::ptree property = pi->second;
             if (pi->first == "property") {
               try {
-                const std::string &propName = property.get<std::string>("<xmlattr>.name"); 
-                if (propName == "Name") {
+                std::string propName = property.get<std::string>("<xmlattr>.name");
+                boost::algorithm::to_lower(propName);
+                if (propName == "name") {
                   mTiles[id].textureName = property.get<std::string>("<xmlattr>.value");
                 }
-                else if (propName == "Points") {
+                else if (propName == "points") {
                   mTiles[id].score = property.get<int>("<xmlattr>.value");
                 }
-                else if (propName == "Fixed") {
+                else if (propName == "fixed") {
                   mTiles[id].fixed = property.get<int>("<xmlattr>.value") > 0;
                 }
-                else if (propName == "Restitution") {
+                else if (propName == "restitution") {
                   mTiles[id].restitution = property.get<float32>("<xmlattr>.value");
                 }
-                else if (propName == "Density") {
+                else if (propName == "density") {
                   mTiles[id].density = property.get<float32>("<xmlattr>.value");
                 }
-                else if (propName == "GravityScale") {
+                else if (propName == "gravityscale") {
                   mTiles[id].gravityScale = property.get<float32>("<xmlattr>.value");
                 }
               } catch (boost::property_tree::ptree_bad_path &e) { UNUSED(e); }
