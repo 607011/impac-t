@@ -29,7 +29,7 @@ namespace Impact {
   class Ground : public Body
   {
   public:
-    Ground(Game *game, float width);
+    Ground(Game *game, float32 width);
 
     // Body implementation
     virtual void onUpdate(float) { /* ... */ }

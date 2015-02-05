@@ -79,7 +79,7 @@ namespace Impact {
 
 
   public:
-    static const float32 Scale;
+    static const int Scale;
     static const float32 InvScale;
     static const int DefaultWindowWidth;
     static const int DefaultWindowHeight;
@@ -229,10 +229,12 @@ namespace Impact {
     int mExtraLifeIndex;
     sf::Vector2i mMousePos;
     sf::Vector2i mLastMousePos;
+    bool mBallHasBeenLost;
     Ball *mBall;
     Racket *mRacket;
     Level mLevel;
     LevelTimer mLevelTimer;
+    b2Vec2 mNewBallPosition;
     std::vector<sf::Time> mLastKillings;
     int mLastKillingsIndex;
 

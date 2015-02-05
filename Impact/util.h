@@ -29,7 +29,8 @@
 
 namespace Impact {
 
-  static const float _PI = 3.14159265358979f;
+  static const float _PI =  3.14159265359f;
+  static const float _2PI = 6.28318530718f;
   static const float _DEG2RAD = _PI / 180.f;
   static const float _RAD2DEG = 180.f / _PI;
 

@@ -73,8 +73,12 @@ namespace Impact {
   }
 
 
-  static inline int digit2Int(char c) {
-    return int(c - '0');
+  static inline int hexDigit2Int(char c) {
+    if (c < 'A')
+      return int(c - '0');
+    else if (c < 'a')
+      return int(c - 'A');
+    return int(c - 'a');
   }
 
 
@@ -87,7 +91,7 @@ namespace Impact {
 
     std::ostringstream buf;
 #ifndef NDEBUG
-    // mLevelNum = 4;
+    // mLevelNum = 8;
 #endif
     buf << gLevelsDir << "/" << std::setw(4) << std::setfill('0') << mLevelNum << ".tmx";
     const std::string &filename = buf.str();
@@ -116,6 +120,7 @@ namespace Impact {
       mKillingsPerKillingSpree = Game::DefaultKillingsPerKillingSpree;
       mKillingSpreeBonus = Game::DefaultKillingSpreeBonus;
       mKillingSpreeInterval = Game::DefaultKillingSpreeInterval;
+      mExplosionParticlesCollideWithBall = false;
       const boost::property_tree::ptree &layerProperties = pt.get_child("map.layer.properties");
       boost::property_tree::ptree::const_iterator pi;
       for (pi = layerProperties.begin(); pi != layerProperties.end(); ++pi) {
@@ -128,15 +133,27 @@ namespace Impact {
           }
           else if (propName == "explosionparticlescollidewithball") {
             mExplosionParticlesCollideWithBall = property.get<int>("<xmlattr>.value") > 0;
+#ifndef NDEBUG
+            std::cout << "mExplosionParticlesCollideWithBall = " << mExplosionParticlesCollideWithBall << std::endl;
+#endif
           }
           else if (propName == "killingspreebonus") {
             mKillingSpreeBonus = property.get<int>("<xmlattr>.value");
+#ifndef NDEBUG
+            std::cout << "mKillingSpreeBonus = " << mKillingSpreeBonus << std::endl;
+#endif
           }
           else if (propName == "killingspreeinterval") {
             mKillingSpreeInterval = sf::milliseconds(property.get<int>("<xmlattr>.value"));
+#ifndef NDEBUG
+            std::cout << "mKillingSpreeInterval = " << mKillingSpreeInterval.asMilliseconds() << std::endl;
+#endif
           }
           else if (propName == "killingsperkillingspree") {
             mKillingsPerKillingSpree = property.get<int>("<xmlattr>.value");
+#ifndef NDEBUG
+            std::cout << "mKillingsPerKillingSpree = " << mKillingsPerKillingSpree << std::endl;
+#endif
           }
         }
       }
@@ -149,12 +166,12 @@ namespace Impact {
       mNumTilesX = pt.get<int>("map.<xmlattr>.width");
       mNumTilesY = pt.get<int>("map.<xmlattr>.height");
       try {
-        std::string bgColor = pt.get<std::string>("map.<xmlattr>.backgroundcolor");
+        const std::string &bgColor = pt.get<std::string>("map.<xmlattr>.backgroundcolor");
         int r = 0, g = 0, b = 0;
         if (bgColor.size() == 7 && bgColor[0] == '#') {
-          r = digit2Int(bgColor[1]) << 8 | digit2Int(bgColor[2]);
-          g = digit2Int(bgColor[3]) << 8 | digit2Int(bgColor[4]);
-          b = digit2Int(bgColor[5]) << 8 | digit2Int(bgColor[6]);
+          r = hexDigit2Int(bgColor[1]) << 8 | hexDigit2Int(bgColor[2]);
+          g = hexDigit2Int(bgColor[3]) << 8 | hexDigit2Int(bgColor[4]);
+          b = hexDigit2Int(bgColor[5]) << 8 | hexDigit2Int(bgColor[6]);
         }
       } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
 
@@ -245,7 +262,7 @@ namespace Impact {
                 else if (propName == "gravityscale") {
                   mTiles[id].gravityScale = property.get<float32>("<xmlattr>.value");
                 }
-              } catch (boost::property_tree::ptree_bad_path &e) { UNUSED(e); }
+              } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
             }
           }
         }

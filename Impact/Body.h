@@ -89,10 +89,9 @@ namespace Impact {
     virtual void setAngularDamping(float32);
     virtual void setFixedRotation(bool);
 
-    virtual void setPosition(float x, float y);
-    virtual void setPosition(int x, int y);
     virtual void setPosition(const b2Vec2 &);
-    virtual void setPosition(const sf::Vector2u &);
+    virtual void setPosition(float32 x, float32 y);
+    virtual void setPosition(int x, int y);
     virtual inline const b2Vec2 &position(void) const
     {
       return mBody->GetPosition();
@@ -148,7 +147,7 @@ namespace Impact {
     }
 
     virtual void setBody(b2Body *);
-    inline b2Body *body(void)
+    virtual b2Body *body(void)
     {
       return mBody;
     }

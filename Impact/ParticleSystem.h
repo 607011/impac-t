@@ -53,17 +53,16 @@ namespace Impact {
     virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
     virtual BodyType type(void) const { return Body::BodyType::Particle; }
 
-    void setBallCollisionEnabled(bool);
+    void setBallCollisionEnabled(bool ballCollisionEnabled = false);
 
   protected:
-    static const float sHalfSize;
     static const sf::Time sMaxAge;
     static const sf::Color sColor;
     std::vector<SimpleParticle> mParticles;
 #ifndef PARTICLES_WITH_SPRITES
+    static const float sHalfSize;
     sf::VertexArray mVertices;
 #endif
-    bool mBallCollisionEnabled;
 
   };
 

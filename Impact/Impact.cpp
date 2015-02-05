@@ -23,7 +23,7 @@
 
 namespace Impact {
 
-  const float32 Game::Scale = 16.f;
+  const int Game::Scale = 16;
   const float32 Game::InvScale = 1.f / Game::Scale;
   const int Game::DefaultWindowWidth = 40 * int(Game::Scale);
   const int Game::DefaultWindowHeight = 25 * int(Game::Scale);
@@ -39,6 +39,7 @@ namespace Impact {
   Game::Game(void)
     : mWindow(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Impac't", sf::Style::Titlebar | sf::Style::Close)
     , mWorld(nullptr)
+    , mBallHasBeenLost(false)
     , mBall(nullptr)
     , mGround(nullptr)
     , mContactPointCount(0)
@@ -117,16 +118,16 @@ namespace Impact {
     mPenaltySound.setVolume(100);
     mPenaltySound.setLoop(false);
 
-    ok = mRacketHitBuffer.loadFromFile(gSoundFXDir + "/pad-hit.ogg");
+    ok = mRacketHitBuffer.loadFromFile(gSoundFXDir + "/racket-hit.ogg");
     if (!ok)
-      std::cerr << gSoundFXDir + "/pad-hit.ogg failed to load." << std::endl;
+      std::cerr << gSoundFXDir + "/racket-hit.ogg failed to load." << std::endl;
     mRacketHitSound.setBuffer(mRacketHitBuffer);
     mRacketHitSound.setVolume(100);
     mRacketHitSound.setLoop(false);
 
-    ok = mRacketHitBlockBuffer.loadFromFile(gSoundFXDir + "/pad-hit-block.ogg");
+    ok = mRacketHitBlockBuffer.loadFromFile(gSoundFXDir + "/racket-hit-block.ogg");
     if (!ok)
-      std::cerr << gSoundFXDir + "/pad-hit-block.ogg failed to load." << std::endl;
+      std::cerr << gSoundFXDir + "/racket-hit-block.ogg failed to load." << std::endl;
     mRacketHitBlockSound.setBuffer(mRacketHitBlockBuffer);
     mRacketHitBlockSound.setVolume(100);
     mRacketHitBlockSound.setLoop(false);
@@ -273,6 +274,7 @@ namespace Impact {
     mExtraLifeIndex = 0;
     mLives = DefaultLives;
     mScore = 0;
+    mBallHasBeenLost = false;
     mLevel.set(0);
 
     mContactPointCount = 0;
@@ -511,7 +513,7 @@ namespace Impact {
     mWindow.draw(mTitleSprite, states);
 
     if (mWelcomeLevel == 0) {
-      addBody(new ParticleSystem(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f), mLevel.explosionParticlesCollideWithBall(), 122U));
+      addBody(new ParticleSystem(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f), false, 122U));
       mWelcomeLevel = 1;
     }
 
@@ -520,7 +522,7 @@ namespace Impact {
       if (mWelcomeLevel == 1) {
         mExplosionSound.play();
         mWelcomeLevel = 2;
-        addBody(new ParticleSystem(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y), mLevel.explosionParticlesCollideWithBall(), 100U));
+        addBody(new ParticleSystem(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y), false, 100U));
       }
     }
     if (t > 0.6f) {
@@ -528,7 +530,7 @@ namespace Impact {
       if (mWelcomeLevel == 2) {
         mExplosionSound.play();
         mWelcomeLevel = 3;
-        addBody(new ParticleSystem(this, Game::InvScale * b2Vec2(mLogoSprite.getPosition().x, mLogoSprite.getPosition().y), mLevel.explosionParticlesCollideWithBall(), 100U));
+        addBody(new ParticleSystem(this, Game::InvScale * b2Vec2(mLogoSprite.getPosition().x, mLogoSprite.getPosition().y), false, 100U));
       }
     }
     if (t > 0.7f) {
@@ -536,7 +538,7 @@ namespace Impact {
       if (mWelcomeLevel == 4) {
         mExplosionSound.play();
         mWelcomeLevel = 5;
-        addBody(new ParticleSystem(this, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y), mLevel.explosionParticlesCollideWithBall(), 100U));
+        addBody(new ParticleSystem(this, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y), false, 100U));
       }
     }
   }
@@ -643,11 +645,11 @@ namespace Impact {
   {
     stopAllMusic();
     clearWorld();
+    mBallHasBeenLost = false;
     mWindow.setMouseCursorVisible(false);
     mPostFX.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
     if (mLevel.gotoNext()) {
       buildLevel();
-      // mBackgroundMusic.play();
       setState(State::Playing);
       mClock.restart();
       mLevelTimer.resume();
@@ -678,14 +680,14 @@ namespace Impact {
         }
 
         if (mRacket != nullptr) { // check if pad has been kicked out of the screen
-          const float padX = mRacket->position().x;
-          const float padY = mRacket->position().y;
-          if (padY > mLevel.height())
-            mRacket->setPosition(padX, mLevel.height() - 0.5f);
-          if (padX < 0.f)
-            mRacket->setPosition(1., padY);
-          else if (padX > mLevel.width())
-            mRacket->setPosition(mLevel.width() - 1.f, padY);
+          const float racketX = mRacket->position().x;
+          const float racketY = mRacket->position().y;
+          if (racketY > mLevel.height())
+            mRacket->setPosition(racketX, mLevel.height() - 0.5f);
+          if (racketX < 0.f)
+            mRacket->setPosition(1., racketY);
+          else if (racketX > mLevel.width())
+            mRacket->setPosition(mLevel.width() - 1.f, racketY);
         }
       }
     }
@@ -894,63 +896,43 @@ namespace Impact {
   void Game::buildLevel(void)
   {
     mLastKillings = std::vector<sf::Time>(mLevel.killingsPerKillingSpree(), sf::milliseconds(INT_MIN));
-    // create hard boundaries
-    { 
-      const float32 W = float32(mLevel.width());
-      const float32 H = float32(mLevel.height());
 
-      b2BodyDef bd;
-      b2Body *boundaries = mWorld->CreateBody(&bd);
-
-      { // top boundary
-        b2EdgeShape shape;
-        shape.Set(b2Vec2(0, 0), b2Vec2(W, 0));
-        b2FixtureDef fd;
-        fd.restitution = 0.9f;
-        fd.density = 0.f;
-        fd.shape = &shape;
-        boundaries->CreateFixture(&fd);
-      }
-
-      { // right boundary
-        b2EdgeShape shape;
-        shape.Set(b2Vec2(W, 0), b2Vec2(W, H));
-        b2FixtureDef fd;
-        fd.restitution = 0.9f;
-        fd.density = 0.f;
-        fd.shape = &shape;
-        boundaries->CreateFixture(&fd);
-        boundaries->CreateFixture(&shape, 0.f);
-      }
-
-      { // left boundary
-        b2EdgeShape shape;
-        shape.Set(b2Vec2(0, 0), b2Vec2(0, H));
-        b2FixtureDef fd;
-        fd.restitution = 0.9f;
-        fd.density = 0.f;
-        fd.shape = &shape;
-        boundaries->CreateFixture(&fd);
-        boundaries->CreateFixture(&shape, 0.f);
-      }
-
-      mGround = new Ground(this, W);
-      mGround->setPosition(0, mLevel.height());
-      addBody(mGround);
-    }
-
-    // create racket
-    mRacket = new Racket(this);
-    mRacket->setPosition(0.5f * mLevel.width(), mLevel.height() - 0.5f);
-    addBody(mRacket);
-
-    mMousePos = sf::Vector2i(int(Game::Scale * mRacket->position().x), int(Game::Scale * mRacket->position().y));
-    mLastMousePos = mMousePos;
-    sf::Mouse::setPosition(mMousePos, mWindow);
-
-    // create blocks
-    mBlockCount = 0;
     mWorld->SetGravity(b2Vec2(0.f, mLevel.gravity()));
+
+    const float32 W = mLevel.size().x;
+    const float32 H = mLevel.size().y;
+
+    // create level boundaries
+    b2BodyDef bd;
+    b2Body *boundaries = mWorld->CreateBody(&bd);
+    b2EdgeShape rightShape;
+    rightShape.Set(b2Vec2(W, 0), b2Vec2(W, H));
+    b2FixtureDef fdRight;
+    fdRight.restitution = 0.9f;
+    fdRight.density = 0.f;
+    fdRight.shape = &rightShape;
+    boundaries->CreateFixture(&fdRight);
+    b2EdgeShape leftShape;
+    leftShape.Set(b2Vec2(0, 0), b2Vec2(0, H));
+    b2FixtureDef fdLeft;
+    fdLeft.restitution = 0.9f;
+    fdLeft.density = 0.f;
+    fdLeft.shape = &leftShape;
+    boundaries->CreateFixture(&fdLeft);
+    b2EdgeShape topShape;
+    topShape.Set(b2Vec2(0, 0), b2Vec2(W, 0));
+    b2FixtureDef fdTop;
+    fdTop.restitution = 0.9f;
+    fdTop.density = 0.f;
+    fdTop.shape = &topShape;
+    boundaries->CreateFixture(&fdTop);
+
+    mGround = new Ground(this, W);
+    mGround->setPosition(0, mLevel.height());
+    addBody(mGround);
+
+    // create level elements
+    mBlockCount = 0;
     for (int y = 0; y < mLevel.height(); ++y) {
       const uint32_t *mapRow = mLevel.mapDataScanLine(y);
       for (int x = 0; x < mLevel.width(); ++x) {
@@ -959,7 +941,16 @@ namespace Impact {
           continue;
         const Tile &tile = mLevel.tile(tileId);
         if (tileId >= mLevel.firstGID()) {
-          if (tile.fixed) {
+          if (tile.textureName == "Ball") {
+            mNewBallPosition.Set(float32(x), float32(y));
+            newBall();
+          }
+          else if (tile.textureName == "Racket") {
+            mRacket = new Racket(this);
+            mRacket->setPosition(float32(x), float32(y));
+            addBody(mRacket);
+          }
+          else if (tile.textureName == "Wall" || tile.fixed) {
             Wall *wall = new Wall(tileId, this);
             wall->setPosition(x, y);
             wall->setRestitution(tile.restitution);
@@ -979,7 +970,11 @@ namespace Impact {
       }
     }
 
-    newBall();
+    // place mouse cursor on racket position
+    const b2Vec2 &racketPos = Game::Scale * mRacket->position();
+    mMousePos = sf::Vector2i(int(racketPos.x), int(racketPos.y));
+    mLastMousePos = mMousePos;
+    sf::Mouse::setPosition(mMousePos, mWindow);
   }
 
 
@@ -1022,8 +1017,13 @@ namespace Impact {
   {
     mNewBallSound.play();
     safeRenew(mBall, new Ball(this));
-    const b2Vec2 &padPos = mRacket->position();
-    mBall->setPosition(padPos.x, padPos.y - 3.5f);
+    if (mBallHasBeenLost) {
+      const b2Vec2 &padPos = mRacket->position();
+      mBall->setPosition(padPos.x, padPos.y - 3.5f);
+    }
+    else {
+      mBall->setPosition(mNewBallPosition);
+    }
     addBody(mBall);
   }
 
@@ -1079,7 +1079,7 @@ namespace Impact {
   {
     if (killedBody->type() == Body::BodyType::Block) {
       mExplosionSound.play();
-      addBody(new ParticleSystem(this, killedBody->position()));
+      addBody(new ParticleSystem(this, killedBody->position(), mLevel.explosionParticlesCollideWithBall()));
       checkForKillingSpree();
       if (--mBlockCount == 0)
         gotoLevelCompleted();
@@ -1087,6 +1087,7 @@ namespace Impact {
     else if (killedBody->type() == Body::BodyType::Ball) {
       if (mState == State::Playing) {
         mBallOutSound.play();
+        mBallHasBeenLost = true;
         if (killedBody->energy() == 0) {
           if (mLives-- == 0) {
             gotoGameOver();

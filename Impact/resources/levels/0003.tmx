@@ -51,7 +51,7 @@
   </tile>
   <tile id="7">
    <properties>
-    <property name="Name" value="Pad"/>
+    <property name="Name" value="Racket"/>
    </properties>
    <image width="64" height="16" source="../images/pad.png"/>
   </tile>

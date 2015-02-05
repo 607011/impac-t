@@ -45,6 +45,7 @@ namespace Impact {
     virtual void setPosition(float x, float y);
     virtual const b2Vec2 &position(void) const;
     virtual void applyLinearVelocity(const b2Vec2 &);
+    //virtual b2Body *body(void);
 
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);

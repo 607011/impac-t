@@ -1,4 +1,4 @@
-!define VERSION "1.0.0-BETA2"
+!define VERSION "1.0.0-BETA3"
 !define APP "Impact"
 !define PUBLISHER "c't"
 !define SFMLPATH "D:\Developer\SFML-2.1"

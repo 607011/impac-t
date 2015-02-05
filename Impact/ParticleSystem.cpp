@@ -22,7 +22,10 @@
 
 namespace Impact {
 
-  const float ParticleSystem::sHalfSize = 2.f * Game::InvScale;
+#ifndef PARTICLES_WITH_SPRITES
+  const float ParticleSystem::sHalfSize = 2.f;
+#endif
+
   const sf::Time ParticleSystem::sMaxAge = sf::milliseconds(1000);
   const sf::Color ParticleSystem::sColor = sf::Color::White;
 
@@ -32,7 +35,6 @@ namespace Impact {
 #ifndef PARTICLES_WITH_SPRITES
     , mVertices(sf::Quads, 4 * count)
 #endif
-    , mBallCollisionEnabled(ballCollisionEnabled)
   {
     setZIndex(Body::ZIndex::Foreground + 0);
     mName = std::string("ParticleSystem");
@@ -50,14 +52,14 @@ namespace Impact {
       SimpleParticle &p = mParticles[i];
       p.dead = false;
       p.lifeTime = sf::milliseconds(500 + std::rand() % 500);
-      b2Rot angle(2.f * _PI * std::rand() / RAND_MAX);
+      b2Rot angle(_2PI * std::rand() / RAND_MAX);
       float speed = float(Game::Scale * (2 + 5 * float(std::rand()) / RAND_MAX));
       const b2Vec2 &v = speed * b2Vec2(angle.c, angle.s);
 #ifdef PARTICLES_WITH_SPRITES
       p.sprite.setTexture(mTexture);
       mTexture.setRepeated(false);
       mTexture.setSmooth(false);
-      p.sprite.setOrigin(0.5f * mTexture.getSize().x, 0.5f * mTexture.getSize().y);
+      p.sprite.setOrigin(.5f * mTexture.getSize().x, .5f * mTexture.getSize().y);
 #else
       const int j = 4 * i;
       mVertices[j+0].color = sColor;
@@ -86,7 +88,7 @@ namespace Impact {
       fd.friction = 1.f;
       fd.filter.categoryBits = Body::ParticleMask;
       fd.filter.maskBits = 0xffffU ^ Body::ParticleMask ^ Body::RacketMask;
-      if (mBallCollisionEnabled)
+      if (!ballCollisionEnabled)
         fd.filter.maskBits ^= Body::BallMask;
       fd.shape = &circleShape;
       p.body->CreateFixture(&fd);
@@ -106,14 +108,13 @@ namespace Impact {
 
   void ParticleSystem::setBallCollisionEnabled(bool ballCollisionEnabled)
   {
-    mBallCollisionEnabled = ballCollisionEnabled;
     for (std::vector<SimpleParticle>::iterator p = mParticles.begin(); p != mParticles.end(); ++p) {
       b2Fixture *fixture = p->body->GetFixtureList();
       b2Filter filter = fixture->GetFilterData();
-      if (mBallCollisionEnabled)
-        filter.maskBits &= ~Body::BallMask;
-      else
+      if (ballCollisionEnabled)
         filter.maskBits |= Body::BallMask;
+      else
+        filter.maskBits &= ~Body::BallMask;
       fixture->SetFilterData(filter);
     }
   }
@@ -121,13 +122,11 @@ namespace Impact {
 
   void ParticleSystem::onUpdate(float)
   {
-    const float sx = Game::Scale;
-    const float sy = Game::Scale;
 #ifndef PARTICLES_WITH_SPRITES
-    static const sf::Vector2f topLeft(-sHalfSize * sx, -sHalfSize * sy);
-    static const sf::Vector2f topRight(sHalfSize * sx, -sHalfSize * sy);
-    static const sf::Vector2f bottomRight(sHalfSize * sx, sHalfSize * sy);
-    static const sf::Vector2f bottomLeft(-sHalfSize * sx, sHalfSize * sy);
+    static const sf::Vector2f topLeft(-sHalfSize, -sHalfSize);
+    static const sf::Vector2f topRight(sHalfSize, -sHalfSize);
+    static const sf::Vector2f bottomRight(sHalfSize, sHalfSize);
+    static const sf::Vector2f bottomLeft(-sHalfSize, sHalfSize);
 #endif
     bool allDead = true;
     const int N = mParticles.size();
@@ -141,11 +140,11 @@ namespace Impact {
       else {
         const b2Vec2 &pos = p.body->GetPosition();
 #ifdef PARTICLES_WITH_SPRITES
-        p.sprite.setPosition(pos.x * sx, pos.y * sy);
+        p.sprite.setPosition(pos.x * Game::Scale, pos.y * Game::Scale);
 #else
         const float lifetime = p.lifeTime.asSeconds();
         const sf::Uint8 alpha = 0xffU - sf::Uint8(Easing<float>::quadEaseIn(b2Clamp(age().asSeconds(), 0.f, lifetime), 0.0f, 255.0f, lifetime));
-        sf::Vector2f offset(pos.x * sx, pos.y * sy);
+        sf::Vector2f offset(pos.x * Game::Scale, pos.y * Game::Scale);
         const int j = 4 * i;
         mVertices[j+0].position = offset + topLeft;
         mVertices[j+1].position = offset + topRight;
@@ -155,7 +154,6 @@ namespace Impact {
         mVertices[j+1].color.a = alpha;
         mVertices[j+2].color.a = alpha;
         mVertices[j+3].color.a = alpha;
-
 #endif
       }
       allDead &= p.dead;

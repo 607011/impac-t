@@ -117,6 +117,9 @@ namespace Impact {
     {
       return mNumTilesY;
     }
+    inline b2Vec2 size(void) const {
+      return b2Vec2(float32(mNumTilesX), float32(mNumTilesY));
+    }
     inline const Boundary &boundary(void) const
     {
       return mBoundary;
@@ -141,7 +144,6 @@ namespace Impact {
     {
       return mKillingSpreeInterval;
     }
-
 
   private:
     bool load(void);

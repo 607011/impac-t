@@ -3,36 +3,30 @@
  <tileset firstgid="1" name="Default" tilewidth="64" tileheight="16">
   <tile id="0">
    <properties>
-    <property name="Fixed" value="0"/>
-    <property name="Name" value="BlueBlock"/>
     <property name="Points" value="10"/>
    </properties>
    <image width="32" height="16" source="../images/blue-block.png"/>
   </tile>
   <tile id="1">
    <properties>
-    <property name="Name" value="GreenBlock"/>
     <property name="Points" value="20"/>
    </properties>
    <image width="32" height="16" source="../images/green-block.png"/>
   </tile>
   <tile id="2">
    <properties>
-    <property name="Name" value="LightBlock"/>
     <property name="Points" value="30"/>
    </properties>
    <image width="32" height="16" source="../images/light-block.png"/>
   </tile>
   <tile id="3">
    <properties>
-    <property name="Name" value="RedBlock"/>
     <property name="Points" value="50"/>
    </properties>
    <image width="32" height="16" source="../images/red-block.png"/>
   </tile>
   <tile id="4">
    <properties>
-    <property name="Name" value="YellowBlock"/>
     <property name="Points" value="5"/>
     <property name="Restitution" value="0.1"/>
    </properties>
@@ -40,7 +34,6 @@
   </tile>
   <tile id="5">
    <properties>
-    <property name="Name" value="DarkBlock"/>
     <property name="Points" value="100"/>
    </properties>
    <image width="32" height="16" source="../images/dark-block.png"/>
@@ -54,7 +47,7 @@
   </tile>
   <tile id="7">
    <properties>
-    <property name="Name" value="Pad"/>
+    <property name="Name" value="Racket"/>
     <property name="Restitution" value="1.0"/>
    </properties>
    <image width="64" height="16" source="../images/pad.png"/>
@@ -74,13 +67,13 @@
  <layer name="Tile Layer" width="40" height="25">
   <properties>
    <property name="ExplosionParticlesCollideWithBall" value="0"/>
-   <property name="Gravity" value="19.81"/>
+   <property name="Gravity" value="9.81"/>
    <property name="KillingSpreeBonus" value="1000"/>
    <property name="KillingSpreeInterval" value="2500"/>
    <property name="KillingsPerKillingSpree" value="5"/>
   </properties>
   <data encoding="base64" compression="zlib">
-   eJzt1UsOgCAQA1D8Jt7/wu6bWKcMgy76Nkgk04YNrZm9W2CttMJ+J2ePwDfCeZgXdZJ/LD96js1novelUO7zydY5X8HmsPyeeRnZuVW9sjmzeqm5X/VC2KO31yWuqhH3VdXNzMz+r/qdGpE3+51S8m5GxwGx
+   eJztlTsOgDAMQ8u3cP8LM7FYsupA2oCUt6AAtR90aCnJWyaY98aM799snfNbOarXU0+Wv8A8w7yKXriOeWIerkMfdh+/j/VaZ5aveqn/y+s59qmeaq8Vlsf61X30Rt13dV0v1L7RXmp/tBfi4XMarxF82e2P1GiBJEkSA15nwNGxd/Q5Zem7ABGKAgc=
   </data>
  </layer>
  <objectgroup name="Boundaries" visible="0"/>

@@ -23,8 +23,6 @@
 namespace Impact {
 
 
-#define BANGOUT_BLOCKS_ARE_ROUNDED_RECTANGLES
-
   Block::Block(int index, Game *game)
     : Body(Body::BodyType::Block, game)
     , mGravityScale(2.f)
@@ -54,9 +52,11 @@ namespace Impact {
     bd.userData = this;
     mBody = game->world()->CreateBody(&bd);
 
-#ifdef BANGOUT_BLOCKS_ARE_ROUNDED_RECTANGLES
     b2PolygonShape polygon;
-    polygon.SetAsBox(.5f * (W - H) * Game::InvScale, .5f * H * Game::InvScale);
+    const float32 hs = .5f * Game::InvScale;
+    const float32 hh = hs * H;
+    const float32 xoff = hs * (W - H);
+    polygon.SetAsBox(xoff, hh);
 
     b2FixtureDef fdBox;
     fdBox.shape = &polygon;
@@ -67,8 +67,8 @@ namespace Impact {
     mBody->CreateFixture(&fdBox);
 
     b2CircleShape circleL;
-    circleL.m_p.Set(-8.f * Game::InvScale, 0.f);
-    circleL.m_radius = 8.f * Game::InvScale;
+    circleL.m_p.Set(-xoff, 0.f);
+    circleL.m_radius = hh;
 
     b2FixtureDef fdCircleL;
     fdCircleL.shape = &circleL;
@@ -79,8 +79,8 @@ namespace Impact {
     mBody->CreateFixture(&fdCircleL);
 
     b2CircleShape circleR;
-    circleR.m_p.Set(+8.f * Game::InvScale, 0.f);
-    circleR.m_radius = 8.f * Game::InvScale;
+    circleR.m_p.Set(xoff, 0.f);
+    circleR.m_radius = hh;
 
     b2FixtureDef fdCircleR;
     fdCircleR.shape = &circleR;
@@ -89,18 +89,6 @@ namespace Impact {
     fdCircleR.restitution = 0.04f;
     fdCircleR.userData = this;
     mBody->CreateFixture(&fdCircleR);
-#else
-    b2PolygonShape polygon;
-    polygon.SetAsBox(.5f * W * Game::InvScale, .5f * H * Game::InvScale);
-
-    b2FixtureDef fdBox;
-    fdBox.shape = &polygon;
-    fdBox.density = 800.f;
-    fdBox.friction = mGame->world()->GetGravity().y;
-    fdBox.restitution = .04f;
-    fdBox.userData = this;
-    mBody->CreateFixture(&fdBox);
-#endif
   }
 
 

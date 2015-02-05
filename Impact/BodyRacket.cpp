@@ -26,10 +26,12 @@ namespace Impact {
     : Body(Body::BodyType::Racket, game)
   {
     setZIndex(Body::ZIndex::Foreground + 0);
-    mName = std::string("Pad");
+    mName = std::string("Racket");
     mTexture = mGame->level()->texture(mName);
+
     const float W = float(mTexture.getSize().x);
     const float H = float(mTexture.getSize().y);
+
     const sf::Vector2f &origin = .5f * sf::Vector2f(W, H);
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(origin);
@@ -65,28 +67,26 @@ namespace Impact {
       fd.userData = this;
       fd.restitution = 1.f;
       mTeetingBody->CreateFixture(&fd);
-      // hinge
-      {
-        b2BodyDef bd;
-        bd.position.Set(0.f, 1.5f);
-        bd.type = b2_dynamicBody;
-        bd.gravityScale = 0.f;
-        bd.allowSleep = true;
-        bd.awake = true;
-        bd.userData = this;
-        bd.fixedRotation = true;
-        mBody = mGame->world()->CreateBody(&bd);
 
-        b2RevoluteJointDef jd;
-        jd.Initialize(mBody, mTeetingBody, b2Vec2_zero);
-        jd.enableMotor = true;
-        jd.maxMotorTorque = 20000.0f;
-        jd.enableLimit = true;
-        jd.motorSpeed = 0.f;
-        jd.lowerAngle = deg2rad(-17.5f);
-        jd.upperAngle = deg2rad(+17.5f);
-        mJoint = reinterpret_cast<b2RevoluteJoint*>(mGame->world()->CreateJoint(&jd));
-      }
+      b2BodyDef bdHinge;
+      bdHinge.position.Set(0.f, 1.5f);
+      bdHinge.type = b2_dynamicBody;
+      bdHinge.gravityScale = 0.f;
+      bdHinge.allowSleep = true;
+      bdHinge.awake = true;
+      bdHinge.userData = this;
+      bdHinge.fixedRotation = true;
+      mBody = mGame->world()->CreateBody(&bdHinge);
+
+      b2RevoluteJointDef jd;
+      jd.Initialize(mBody, mTeetingBody, b2Vec2_zero);
+      jd.enableMotor = true;
+      jd.maxMotorTorque = 20000.0f;
+      jd.enableLimit = true;
+      jd.motorSpeed = 0.f;
+      jd.lowerAngle = deg2rad(-17.5f);
+      jd.upperAngle = deg2rad(+17.5f);
+      mJoint = reinterpret_cast<b2RevoluteJoint*>(mGame->world()->CreateJoint(&jd));
     }
 
     if (!mGame->mouseModeEnabled()) {
@@ -163,13 +163,13 @@ namespace Impact {
 
   void Racket::kickLeft(void)
   {
-    mJoint->SetMotorSpeed(-500.f);
+    mJoint->SetMotorSpeed(-600.f);
   }
 
 
   void Racket::kickRight(void)
   {
-    mJoint->SetMotorSpeed(+500.f);
+    mJoint->SetMotorSpeed(+600.f);
   }
 
 

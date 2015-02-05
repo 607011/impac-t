@@ -22,7 +22,7 @@
 
 namespace Impact {
 
-  Ground::Ground(Game *game, float width)
+  Ground::Ground(Game *game, float32 width)
     : Body(Body::BodyType::Ground, game)
   {
     setZIndex(Body::ZIndex::Foreground + 0);
