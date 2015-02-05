@@ -3,42 +3,36 @@
  <tileset firstgid="1" name="Default" tilewidth="64" tileheight="16">
   <tile id="0">
    <properties>
-    <property name="Name" value="BlueBlock"/>
     <property name="Points" value="10"/>
    </properties>
    <image width="32" height="16" source="../images/blue-block.png"/>
   </tile>
   <tile id="1">
    <properties>
-    <property name="Name" value="GreenBlock"/>
     <property name="Points" value="20"/>
    </properties>
    <image width="32" height="16" source="../images/green-block.png"/>
   </tile>
   <tile id="2">
    <properties>
-    <property name="Name" value="LightBlock"/>
     <property name="Points" value="30"/>
    </properties>
    <image width="32" height="16" source="../images/light-block.png"/>
   </tile>
   <tile id="3">
    <properties>
-    <property name="Name" value="RedBlock"/>
     <property name="Points" value="50"/>
    </properties>
    <image width="32" height="16" source="../images/red-block.png"/>
   </tile>
   <tile id="4">
    <properties>
-    <property name="Name" value="YellowBlock"/>
     <property name="Points" value="5"/>
    </properties>
    <image width="32" height="16" source="../images/yellow-block.png"/>
   </tile>
   <tile id="5">
    <properties>
-    <property name="Name" value="DarkBlock"/>
     <property name="Points" value="100"/>
    </properties>
    <image width="32" height="16" source="../images/dark-block.png"/>
@@ -61,7 +55,7 @@
  </imagelayer>
  <layer name="Tile Layer" width="40" height="25">
   <data encoding="base64" compression="zlib">
-   eJztlcEOgCAMQ0GE//9kD7pLE+yK42Cyd+kBtj4TE2q5qeWdRs69sD3VmSv7xwYv7znrG5BRXur9/uQhps2tejFPQ/XCZPtVcM9XvygvBP1OSPSYne/yivaL8tz9/0V5GVF+rEf1MrCvkWR+3l71O6y/k1Tfxdm7sTpvoJd3Tu2Jur97T5IkSZL8mQtqJAEV
+   eJztlUEOgCAMBEEE/f+LPWgvG3FbLCFG5rIHaHdMTIjhJIZnEjnXwvZEZbbsLx28tOesr0B6eVnv5ysXY8pcqxfzFKxemGy/Fdzz1s/LC0G/FRI9aue9vLz9vDx7/39eXoKXH+uxegnYl0gyP22v9TukP5O0vou1d6N1XkAv7Zy1x+t+7z2TyR3baIGPso8WmEx+yAGmtAEk
   </data>
  </layer>
  <objectgroup name="Boundaries"/>
