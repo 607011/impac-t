@@ -42,6 +42,9 @@ namespace Impact {
     , mBallHasBeenLost(false)
     , mBall(nullptr)
     , mGround(nullptr)
+#ifdef BALL_TRACES
+    , mBallTrace(nullptr)
+#endif
     , mContactPointCount(0)
     , mScore(0)
     , mLives(3)
@@ -473,6 +476,7 @@ namespace Impact {
     mWelcomeLevel = 0;
     mWallClock.restart();
     mWindow.setMouseCursorVisible(true);
+    mWindow.setVerticalSyncEnabled(false);
   }
 
 
@@ -873,6 +877,11 @@ namespace Impact {
     }
     mBodies = remainingBodies;
 
+#ifdef BALL_TRACES
+    if (mBall && mBallTrace)
+      mBallTrace->addMarker(mBall->position(), mBall->body()->GetTransform().q.GetAngle());
+#endif
+
     mContactPointCount = 0;
     mWorld->Step(elapsedSeconds, VelocityIterations, PositionIterations);
   }
@@ -927,9 +936,12 @@ namespace Impact {
     fdTop.shape = &topShape;
     boundaries->CreateFixture(&fdTop);
 
-    mGround = new Ground(this, W);
+    safeRenew(mGround, new Ground(this, W));
     mGround->setPosition(0, mLevel.height());
     addBody(mGround);
+
+    //safeRenew(mBallTrace, new BallTrace(this));
+    //addBody(mBallTrace);
 
     // create level elements
     mBlockCount = 0;
@@ -971,10 +983,12 @@ namespace Impact {
     }
 
     // place mouse cursor on racket position
-    const b2Vec2 &racketPos = Game::Scale * mRacket->position();
+    const b2Vec2 &racketPos = float32(Game::Scale) * mRacket->position();
     mMousePos = sf::Vector2i(int(racketPos.x), int(racketPos.y));
     mLastMousePos = mMousePos;
     sf::Mouse::setPosition(mMousePos, mWindow);
+
+
   }
 
 

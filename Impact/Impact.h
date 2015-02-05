@@ -20,7 +20,7 @@
 #ifndef __GAME_H_
 #define __GAME_H_
 
-#define IMPACT_VERSION "1.0.0-BETA"
+#define IMPACT_VERSION "1.0.0-BETA4"
 #define PARTICLES_WITH_SPRITES
 
 #include <SFML/Audio.hpp>
@@ -32,6 +32,10 @@
 #include "BodyBall.h"
 #include "BodyRacket.h"
 #include "BodyGround.h"
+
+#ifdef BALL_TRACES
+#include "BodyBallTrace.h"
+#endif
 
 namespace Impact {
   
@@ -237,6 +241,9 @@ namespace Impact {
     b2Vec2 mNewBallPosition;
     std::vector<sf::Time> mLastKillings;
     int mLastKillingsIndex;
+#ifdef BALL_TRACES
+    BallTrace *mBallTrace;
+#endif
 
     void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);
