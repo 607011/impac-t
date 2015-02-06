@@ -265,6 +265,7 @@ namespace Impact {
 
   void Game::restart(void)
   {
+
     pause();
     clearWorld();
 
@@ -318,6 +319,9 @@ namespace Impact {
 
   void Game::setState(State state)
   {
+#ifndef NDEBUG
+    std::cout  << "Game::setState(" << int(state) << ")" << std::endl;
+#endif
     mState = state;
   }
 
@@ -544,7 +548,7 @@ namespace Impact {
   {
     const sf::Time &elapsed = mClock.restart();
 
-    update(elapsed.asSeconds());
+    update(elapsed);
 
     mPostFX.setParameter("uColorMix", sf::Color(255, 255, 255, 0x7f));
     drawPlayground();
@@ -568,7 +572,7 @@ namespace Impact {
   {
     const sf::Time &elapsed = mClock.restart();
 
-    update(elapsed.asSeconds());
+    update(elapsed);
 
     drawPlayground();
 
@@ -601,7 +605,7 @@ namespace Impact {
   {
     const sf::Time &elapsed = mClock.restart();
 
-    update(elapsed.asSeconds());
+    update(elapsed);
 
     mPostFX.setParameter("uColorMix", sf::Color(255, 255, 255, 0x7f));
     drawPlayground();
@@ -628,6 +632,9 @@ namespace Impact {
 
   void Game::gotoNextLevel(void)
   {
+#ifndef NDEBUG
+    std::cout << "Game::gotoNextLevel()" << std::endl;
+#endif
     stopAllMusic();
     clearWorld();
     mBallHasBeenLost = false;
@@ -635,9 +642,9 @@ namespace Impact {
     mPostFX.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
     if (mLevel.gotoNext()) {
       buildLevel();
-      setState(State::Playing);
       mClock.restart();
       mLevelTimer.resume();
+      setState(State::Playing);
     }
     else {
       gotoPlayerWon();
@@ -650,7 +657,7 @@ namespace Impact {
     const sf::Time &elapsed = mClock.restart();
     if (!mPaused) {
       handlePlayerInteraction(elapsed.asSeconds());
-      update(elapsed.asSeconds());
+      update(elapsed);
       if (mState == State::Playing) {
         if (mBall != nullptr) { // check if ball has been kicked out of the screen
           const float ballX = mBall->position().x;
@@ -678,14 +685,6 @@ namespace Impact {
     }
     drawPlayground();
   }
-
-
-  auto quadEaseIn = [](float t, float b, float c, float d) {
-    float dt = t / d;
-    dt = dt < 0.5f ? dt * 2 : 1 - 2 * (dt - 0.5f);
-    float v = c * ((t = dt - 1) * t * t + 1) + b;
-    return v;
-  };
 
 
   void Game::drawPlayground(void)
@@ -726,6 +725,12 @@ namespace Impact {
     sf::Sprite sprite(mRenderTexture.getTexture());
     sf::RenderStates states;
     if (mFadeEffectsActive > 0) {
+      auto quadEaseIn = [](float t, float b, float c, float d) {
+        float dt = t / d;
+        dt = dt < 0.5f ? dt * 2 : 1 - 2 * (dt - 0.5f);
+        float v = c * ((t = dt - 1) * t * t + 1) + b;
+        return v;
+      };
       sf::Uint8 c = 0;
       if (mFadeEffectTimer.getElapsedTime() < mFadeEffectDuration) {
         c = sf::Uint8(quadEaseIn(mFadeEffectTimer.getElapsedTime().asSeconds(), 0.f, 255.f, mFadeEffectDuration.asSeconds()));
@@ -771,6 +776,9 @@ namespace Impact {
 
   void Game::evaluateCollisions(void)
   {
+#ifndef NDEBUG
+    std::cout  << "Game::evaluateCollisions()" << std::endl;
+#endif
     std::list<Body*> killedBodies;
     for (int i = 0; i < mContactPointCount; ++i) {
       ContactPoint &cp = mPoints[i];
@@ -838,8 +846,10 @@ namespace Impact {
   }
 
 
-  inline void Game::update(float elapsedSeconds)
+  inline void Game::update(const sf::Time &elapsed)
   {
+    float elapsedSeconds = 1e-6f * elapsed.asMicroseconds();
+    
     if (mState == State::Playing)
       evaluateCollisions();
 

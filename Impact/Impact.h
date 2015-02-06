@@ -114,7 +114,7 @@ namespace Impact {
       return &mLevel;
     }
 
-    inline Ground *ground(void) const
+    inline const Ground *ground(void) const
     {
       return mGround;
     }
@@ -250,7 +250,7 @@ namespace Impact {
     void resume(void);
     void buildLevel(void);
     void handlePlayerInteraction(float elapsedSeconds);
-    void update(float elapsedSeconds);
+    void update(const sf::Time &elapsed);
     void evaluateCollisions(void);
     void handleEvents(void);
     void startFadeEffect(bool darken = false, const sf::Time &duration = DefaultFadeEffectDuration);
