@@ -29,14 +29,25 @@ namespace Impact {
   {
     setZIndex(Body::ZIndex::Intermediate + 0);
     setEnergy(100);
-    mTexture = mGame->level()->tile(index).texture;
     mName = std::string("Block");
 
-    const int W = mTexture.getSize().x;
-    const int H = mTexture.getSize().y;
+    const sf::Texture &texture = mGame->level()->tile(index).texture;
+    sf::Image img;
+    img.create(texture.getSize().x + 2 * TextureBorderWidth, texture.getSize().y + 2 * TextureBorderWidth, sf::Color(255, 255, 255, 0));
+    img.copy(texture.copyToImage(), TextureBorderWidth, TextureBorderWidth, sf::IntRect(0, 0, 0, 0), true);
+    mTexture.loadFromImage(img);
+
+    mShader.loadFromFile(gShadersDir + "/fallingblock.frag", sf::Shader::Fragment);
+    mShader.setParameter("uAge", .0f);
+    mShader.setParameter("uBlur", .0f);
+    mShader.setParameter("uWeight", 0.17f);
+    mShader.setParameter("uColor", sf::Color(255, 255, 255, 255));
 
     mSprite.setTexture(mTexture);
-    mSprite.setOrigin(.5f * W, .5f * H);
+    mSprite.setOrigin(.5f * mTexture.getSize().x, .5f * mTexture.getSize().y);
+
+    const int W = texture.getSize().x;
+    const int H = texture.getSize().y;
 
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
@@ -98,11 +109,13 @@ namespace Impact {
     const b2Transform &tx = mBody->GetTransform();
     mSprite.setPosition(Game::Scale * tx.p.x, Game::Scale * tx.p.y);
     mSprite.setRotation(rad2deg(tx.q.GetAngle()));
+    mShader.setParameter("uAge", age().asSeconds());
   }
 
 
   void Block::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
   {
+    states.shader = &mShader;
     target.draw(mSprite, states);
   }
 
@@ -112,7 +125,8 @@ namespace Impact {
     bool destroyed = Body::hit(int(impulse));
     if (!destroyed) {
       mBody->SetGravityScale(mGravityScale);
-      mSprite.setColor(sf::Color(255, 255, 255, 0xbf));
+      mShader.setParameter("uColor", sf::Color(sf::Color(255, 255, 255, 0xbf)));
+      mShader.setParameter("uBlur", 0.02f);
     }
     return destroyed;
   }

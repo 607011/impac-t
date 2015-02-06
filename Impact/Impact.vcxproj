@@ -130,6 +130,7 @@
     <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Impac%27t\Impact\resources\shaders\fallingblock.frag" />
     <None Include="..\..\Impac%27t\README.md" />
     <None Include="resources\shaders\particlesystem.frag" />
     <None Include="resources\shaders\postfx.frag" />

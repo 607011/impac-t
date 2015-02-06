@@ -41,6 +41,9 @@ namespace Impact {
 
     void setGravityScale(float32);
 
+  protected:
+    static const int TextureBorderWidth = 8;
+
   private:
     float32 mGravityScale;
   };
