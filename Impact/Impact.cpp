@@ -52,7 +52,6 @@ namespace Impact {
     , mState(State::Initialization)
     , mKeyMapping(Action::LastAction)
     , mBlockCount(0)
-    , mMouseModeEnabled(false)
     , mFadeEffectsActive(0)
     , mFadeEffectsDarken(false)
     , mFadeEffectDuration(DefaultFadeEffectDuration)
@@ -67,6 +66,7 @@ namespace Impact {
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
     mWindow.setActive();
+    mWindow.setVerticalSyncEnabled(false);
     resize();
 
     mRenderTexture.create(Game::DefaultWindowWidth, Game::DefaultWindowHeight, false);
@@ -396,6 +396,12 @@ namespace Impact {
         if (event.key.code == mKeyMapping[Action::BackAction]) {
           mWindow.close();
         }
+        else if (event.key.code == mKeyMapping[Action::PauseAction]) {
+          if (mPaused)
+            resume();
+          else
+            pause();
+        }
         else if (event.key.code == mKeyMapping[Action::NewBall] || event.key.code == sf::Keyboard::Space) {
           if (mState == State::Playing) {
             if (mBall == nullptr)
@@ -419,46 +425,24 @@ namespace Impact {
   void Game::handlePlayerInteraction(float elapsedSeconds)
   {
     if (mRacket != nullptr) {
-      if (mMouseModeEnabled) {
-        mMousePos = sf::Mouse::getPosition(mWindow);
-        if (mMousePos.x < 0 || mMousePos.x > int(mWindow.getSize().x) || mMousePos.y < 0 || mMousePos.y > int(mWindow.getSize().y)) {
-          mMousePos = sf::Vector2i(int(Game::Scale * mRacket->position().x), int(Game::Scale * mRacket->position().y));
-          mLastMousePos = mMousePos;
-          sf::Mouse::setPosition(mMousePos, mWindow);
-        }
-        const sf::Vector2i &d = mMousePos - mLastMousePos;
-        const b2Vec2 &v = Game::InvScale / elapsedSeconds * b2Vec2(float32(d.x), float32(d.y));
-        mRacket->applyLinearVelocity(v);
+      mMousePos = sf::Mouse::getPosition(mWindow);
+      if (mMousePos.x < 0 || mMousePos.x > int(mWindow.getSize().x) || mMousePos.y < 0 || mMousePos.y > int(mWindow.getSize().y)) {
+        mMousePos = sf::Vector2i(int(Game::Scale * mRacket->position().x), int(Game::Scale * mRacket->position().y));
         mLastMousePos = mMousePos;
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-          mRacket->kickLeft();
-        }
-        else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
-          mRacket->kickRight();
-        }
-        else {
-          mRacket->stopKick();
-        }
+        sf::Mouse::setPosition(mMousePos, mWindow);
+      }
+      const sf::Vector2i &d = mMousePos - mLastMousePos;
+      const b2Vec2 &v = Game::InvScale / elapsedSeconds * b2Vec2(float32(d.x), float32(d.y));
+      mRacket->applyLinearVelocity(v);
+      mLastMousePos = mMousePos;
+      if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+        mRacket->kickLeft();
+      }
+      else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+        mRacket->kickRight();
       }
       else {
-        if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::KickLeft])) {
-          mRacket->kickLeft();
-        }
-        else if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::KickRight])) {
-          mRacket->kickRight();
-        }
-        else {
-          mRacket->stopKick();
-        }
-        if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::MoveLeft])) {
-          mRacket->moveLeft();
-        }
-        else if (sf::Keyboard::isKeyPressed(mKeyMapping[Action::MoveRight])) {
-          mRacket->moveRight();
-        }
-        else {
-          mRacket->stopMotion();
-        }
+        mRacket->stopKick();
       }
     }
   }
@@ -476,7 +460,6 @@ namespace Impact {
     mWelcomeLevel = 0;
     mWallClock.restart();
     mWindow.setMouseCursorVisible(true);
-    mWindow.setVerticalSyncEnabled(false);
   }
 
 
@@ -490,24 +473,21 @@ namespace Impact {
       }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
-          setMouseModeEnabled(true);
           gotoNextLevel();
+          return;
         }
       }
       else if (event.type == sf::Event::KeyPressed) {
         if (event.key.code == mKeyMapping[Action::BackAction]) {
           mWindow.close();
-        }
-        else if (event.key.code == mKeyMapping[Action::ContinueAction]) {
-          setMouseModeEnabled(false);
-          gotoNextLevel();
+          return;
         }
       }
     }
     mWindow.clear(sf::Color(31, 31, 47));
     mWindow.draw(mBackgroundSprite);
 
-    update(elapsed.asSeconds());
+    update(elapsed);
     drawWorld(mDefaultView);
 
     const float t = mWallClock.getElapsedTime().asSeconds();
@@ -962,8 +942,7 @@ namespace Impact {
           }
           else if (tile.textureName == "Racket") {
             mRacket = new Racket(this, pos);
-            if (!mMouseModeEnabled)
-              mRacket->setXAxisConstraint(mLevel.height() - .5f);
+            // mRacket->setXAxisConstraint(mLevel.height() - .5f);
             addBody(mRacket);
           }
           else if (tile.textureName == "Wall" || tile.fixed) {

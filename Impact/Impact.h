@@ -118,18 +118,6 @@ namespace Impact {
       return mGround;
     }
 
-    inline void setMouseModeEnabled(bool enabled)
-    {
-      mMouseModeEnabled = enabled;
-      mWindow.setVerticalSyncEnabled(enabled);
-    }
-
-    inline bool mouseModeEnabled(void) const
-    {
-      return mMouseModeEnabled;
-    }
-
-
   public: // slots
     void onBodyKilled(Body *body);
 
@@ -226,7 +214,6 @@ namespace Impact {
     int mTotalScore;
     int mLives;
     bool mPaused;
-    bool mMouseModeEnabled;
     BodyList mBodies;
     int mBlockCount;
     int mWelcomeLevel;

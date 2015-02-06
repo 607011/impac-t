@@ -130,7 +130,7 @@ namespace Impact {
 
   void Racket::applyLinearVelocity(const b2Vec2 &v)
   {
-    mTeetingBody->SetLinearVelocity(v);
+    mBody->SetLinearVelocity(v);
   }
 
 
@@ -199,10 +199,7 @@ namespace Impact {
 
   void Racket::stopKick(void)
   {
-    if (mGame->mouseModeEnabled())
-      mJoint->SetMotorSpeed(mTeetingBody->GetAngle() > 0.f ? -1.f : 1.f);
-    else
-      mJoint->SetMotorSpeed(0.f);
+    mJoint->SetMotorSpeed(mTeetingBody->GetAngle() > 0.f ? -1.f : 1.f);
   }
 
 
