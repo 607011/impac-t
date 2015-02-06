@@ -62,9 +62,6 @@
     <ClCompile Include="Impact.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Impac%27t\Impact\BodyBallTrace.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -116,9 +113,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Impact.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Impac%27t\Impact\BodyBallTrace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

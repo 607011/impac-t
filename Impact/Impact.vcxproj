@@ -64,6 +64,8 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);sfml-main-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-graphics-d.lib;sfml-audio-d.lib;zdll.lib;OpenGL32.Lib;glew32.lib;winmm.lib;Box2D.lib</AdditionalDependencies>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapExports>true</MapExports>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -89,7 +91,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Impac%27t\Impact\BodyBallTrace.cpp" />
     <ClCompile Include="Body.cpp" />
     <ClCompile Include="BodyBall.cpp" />
     <ClCompile Include="BodyBlock.cpp" />
@@ -110,7 +111,6 @@
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Impac%27t\Impact\BodyBallTrace.h" />
     <ClInclude Include="Body.h" />
     <ClInclude Include="BodyBall.h" />
     <ClInclude Include="BodyBlock.h" />

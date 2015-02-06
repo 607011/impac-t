@@ -93,7 +93,7 @@ namespace Impact {
     static const int NewLiveAfterSoManyPointsDefault;
     static const int NewLiveAfterSoManyPoints[];
     static const int32 MaxContactPoints = 512;
-    static const sf::Time DefaultGlareEffectDuration;
+    static const sf::Time DefaultFadeEffectDuration;
     static const int DefaultKillingsPerKillingSpree = 5;
     static const int DefaultKillingSpreeBonus = 1000;
     static const sf::Time DefaultKillingSpreeInterval;
@@ -121,7 +121,7 @@ namespace Impact {
     inline void setMouseModeEnabled(bool enabled)
     {
       mMouseModeEnabled = enabled;
-      mWindow.setVerticalSyncEnabled(!enabled);
+      mWindow.setVerticalSyncEnabled(enabled);
     }
 
     inline bool mouseModeEnabled(void) const
@@ -155,10 +155,10 @@ namespace Impact {
     sf::Clock mWallClock;
     sf::Clock mScoreClock;
     sf::Clock mBlamClock;
-    sf::Clock mGlareEffectTimer;
-    int mGlareEffectsActive;
-    bool mGlareEffectsDarken;
-    sf::Time mGlareEffectDuration;
+    sf::Clock mFadeEffectTimer;
+    int mFadeEffectsActive;
+    bool mFadeEffectsDarken;
+    sf::Time mFadeEffectDuration;
     sf::Text mLevelCompletedMsg;
     sf::Text mGameOverMsg;
     sf::Text mPlayerWonMsg;
@@ -265,7 +265,7 @@ namespace Impact {
     void update(float elapsedSeconds);
     void evaluateCollisions(void);
     void handleEvents(void);
-    void startGlareEffect(bool darken = false, const sf::Time &duration = DefaultGlareEffectDuration);
+    void startFadeEffect(bool darken = false, const sf::Time &duration = DefaultFadeEffectDuration);
     void setKillingsPerKillingSpree(int);
     void killingSpree(int bonusPoints);
     void resetKillingSpree(void);

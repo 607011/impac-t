@@ -25,7 +25,7 @@
 #include <cstdint>
 
 #define UNUSED(x) (void)(x)
-#define tr(x) (x)
+#define tr(x) std::string(x)
 
 namespace Impact {
 

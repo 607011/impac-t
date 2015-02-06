@@ -34,7 +34,7 @@ namespace Impact {
   const int Game::NewLiveAfterSoManyPoints[] = { 10000, 25000, 50000, 100000, -1 };
   const int Game::NewLiveAfterSoManyPointsDefault = 100000;
   const sf::Time Game::DefaultKillingSpreeInterval = sf::milliseconds(2500);
-  const sf::Time Game::DefaultGlareEffectDuration = sf::milliseconds(150);
+  const sf::Time Game::DefaultFadeEffectDuration = sf::milliseconds(150);
 
   Game::Game(void)
     : mWindow(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Impac't", sf::Style::Titlebar | sf::Style::Close)
@@ -53,9 +53,9 @@ namespace Impact {
     , mKeyMapping(Action::LastAction)
     , mBlockCount(0)
     , mMouseModeEnabled(false)
-    , mGlareEffectsActive(0)
-    , mGlareEffectsDarken(false)
-    , mGlareEffectDuration(DefaultGlareEffectDuration)
+    , mFadeEffectsActive(0)
+    , mFadeEffectsDarken(false)
+    , mFadeEffectDuration(DefaultFadeEffectDuration)
     , mLastKillingsIndex(0)
   {
     bool ok;
@@ -401,7 +401,7 @@ namespace Impact {
             if (mBall == nullptr)
               newBall();
             else
-              startGlareEffect();
+              startFadeEffect();
           }
           else if (mState == State::LevelCompleted) {
             gotoNextLevel();
@@ -428,7 +428,7 @@ namespace Impact {
         }
         const sf::Vector2i &d = mMousePos - mLastMousePos;
         const b2Vec2 &v = Game::InvScale / elapsedSeconds * b2Vec2(float32(d.x), float32(d.y));
-        mRacket->body()->SetLinearVelocity(v);
+        mRacket->applyLinearVelocity(v);
         mLastMousePos = mMousePos;
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
           mRacket->kickLeft();
@@ -554,7 +554,7 @@ namespace Impact {
     mLevelCompleteSound.play();
     mStartMsg.setString(tr("Click to continue"));
     mBlamClock.restart();
-    mRacket->body()->SetLinearVelocity(b2Vec2_zero);
+    mRacket->applyLinearVelocity(b2Vec2_zero);
     setState(State::LevelCompleted);
   }
 
@@ -723,7 +723,7 @@ namespace Impact {
       }
     }
 
-    mLevelMsg.setString("Level " + std::to_string(mLevel.num()));
+    mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
     mLevelMsg.setPosition(4, 4);
     mRenderTexture.draw(mLevelMsg);
 
@@ -744,21 +744,21 @@ namespace Impact {
 
     sf::Sprite sprite(mRenderTexture.getTexture());
     sf::RenderStates states;
-    if (mGlareEffectsActive > 0) {
+    if (mFadeEffectsActive > 0) {
       sf::Uint8 c = 0;
-      if (mGlareEffectTimer.getElapsedTime() < mGlareEffectDuration) {
-        c = sf::Uint8(quadEaseIn(mGlareEffectTimer.getElapsedTime().asSeconds(), 0.f, 255.f, mGlareEffectDuration.asSeconds()));
+      if (mFadeEffectTimer.getElapsedTime() < mFadeEffectDuration) {
+        c = sf::Uint8(quadEaseIn(mFadeEffectTimer.getElapsedTime().asSeconds(), 0.f, 255.f, mFadeEffectDuration.asSeconds()));
       }
       else {
-        mGlareEffectsActive = 0;
+        mFadeEffectsActive = 0;
       }
-      if (mGlareEffectsDarken)
+      if (mFadeEffectsDarken)
         mPostFX.setParameter("uColorSub", sf::Color(c, c, c, 0));
       else
         mPostFX.setParameter("uColorAdd", sf::Color(c, c, c, 0));
     }
     else {
-      if (mGlareEffectsDarken)
+      if (mFadeEffectsDarken)
         mPostFX.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
       else
         mPostFX.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
@@ -834,7 +834,7 @@ namespace Impact {
           else {
             showScore(-block->getScore(), block->position());
             mPenaltySound.play();
-            startGlareEffect();
+            startFadeEffect();
           }
         }
       }
@@ -845,7 +845,7 @@ namespace Impact {
             ball->lethalHit();
             ball->kill();
             killedBodies.push_back(ball);
-            startGlareEffect(true, sf::milliseconds(350));
+            startFadeEffect(true, sf::milliseconds(350));
           }
         }
         else if (a->type() == Body::BodyType::Racket || b->type() == Body::BodyType::Racket) {
@@ -891,14 +891,14 @@ namespace Impact {
   {    if (mContactPointCount < MaxContactPoints) {      ContactPoint &cp = mPoints[mContactPointCount];      cp.fixtureA = contact->GetFixtureA();      cp.fixtureB = contact->GetFixtureB();      Body *bodyA = reinterpret_cast<Body*>(cp.fixtureA->GetUserData());      Body *bodyB = reinterpret_cast<Body*>(cp.fixtureB->GetUserData());      if (bodyA != nullptr && bodyB != nullptr) {        cp.position = contact->GetManifold()->points[0].localPoint;        cp.normal = b2Vec2_zero;        cp.normalImpulse = impulse->normalImpulses[0];        cp.tangentImpulse = impulse->tangentImpulses[0];        cp.separation = 0.f;        ++mContactPointCount;      }    }  }
 
 
-  void Game::startGlareEffect(bool darken, const sf::Time &duration)
+  void Game::startFadeEffect(bool darken, const sf::Time &duration)
   {
-    mGlareEffectsDarken = darken;
-    mGlareEffectDuration = duration;
-    if (mGlareEffectsActive == 0) {
-      mGlareEffectTimer.restart();
+    mFadeEffectsDarken = darken;
+    mFadeEffectDuration = duration;
+    if (mFadeEffectsActive == 0) {
+      mFadeEffectTimer.restart();
     }
-    ++mGlareEffectsActive;
+    ++mFadeEffectsActive;
   }
 
 
@@ -936,41 +936,45 @@ namespace Impact {
     fdTop.shape = &topShape;
     boundaries->CreateFixture(&fdTop);
 
-    safeRenew(mGround, new Ground(this, W));
+    mGround = new Ground(this, W);
     mGround->setPosition(0, mLevel.height());
     addBody(mGround);
 
-    //safeRenew(mBallTrace, new BallTrace(this));
-    //addBody(mBallTrace);
+#ifdef BALL_TRACE
+    safeRenew(mBallTrace, new BallTrace(this));
+    addBody(mBallTrace);
+#endif
 
     // create level elements
     mBlockCount = 0;
     for (int y = 0; y < mLevel.height(); ++y) {
       const uint32_t *mapRow = mLevel.mapDataScanLine(y);
       for (int x = 0; x < mLevel.width(); ++x) {
+        const b2Vec2 &pos = b2Vec2(float32(x), float32(y));
         const uint32_t tileId = mapRow[x];
         if (tileId == 0)
           continue;
         const Tile &tile = mLevel.tile(tileId);
         if (tileId >= mLevel.firstGID()) {
           if (tile.textureName == "Ball") {
-            mNewBallPosition.Set(float32(x), float32(y));
+            mNewBallPosition.Set(pos.x, pos.y);
             newBall();
           }
           else if (tile.textureName == "Racket") {
-            mRacket = new Racket(this);
-            mRacket->setPosition(float32(x), float32(y));
+            mRacket = new Racket(this, pos);
+            if (!mMouseModeEnabled)
+              mRacket->setXAxisConstraint(mLevel.height() - .5f);
             addBody(mRacket);
           }
           else if (tile.textureName == "Wall" || tile.fixed) {
             Wall *wall = new Wall(tileId, this);
-            wall->setPosition(x, y);
+            wall->setPosition(pos);
             wall->setRestitution(tile.restitution);
             addBody(wall);
           }
           else {
             Block *block = new Block(tileId, this);
-            block->setPosition(x, y);
+            block->setPosition(pos);
             block->setScore(tile.score);
             block->setGravityScale(tile.gravityScale);
             block->setDensity(tile.density);
@@ -987,8 +991,6 @@ namespace Impact {
     mMousePos = sf::Vector2i(int(racketPos.x), int(racketPos.y));
     mLastMousePos = mMousePos;
     sf::Mouse::setPosition(mMousePos, mWindow);
-
-
   }
 
 

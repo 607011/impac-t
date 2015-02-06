@@ -40,6 +40,7 @@ namespace Impact {
     virtual BodyType type(void) const { return Body::BodyType::Wall; }
 
     virtual void setPosition(int x, int y);
+    virtual void setPosition(const b2Vec2 &pos);
   };
 
 }

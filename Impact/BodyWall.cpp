@@ -53,12 +53,17 @@ namespace Impact {
 
   void Wall::setPosition(int x, int y)
   {
-    Body::setPosition(x, y);
+    setPosition(b2Vec2(float32(x), float32(y)));
+  }
+
+
+  void Wall::setPosition(const b2Vec2 &pos)
+  {
+    Body::setPosition(pos);
     const b2Transform &tx = mBody->GetTransform();
     mSprite.setPosition(Game::Scale * tx.p.x, Game::Scale * tx.p.y);
     mSprite.setRotation(rad2deg(tx.q.GetAngle()));
   }
-
 
 
   void Wall::onUpdate(float elapsedSeconds)

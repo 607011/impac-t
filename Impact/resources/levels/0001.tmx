@@ -62,7 +62,7 @@
   </tile>
  </tileset>
  <imagelayer name="Background" opacity="0.87">
-  <image source="../backgrounds/abstract10.jpg" trans="aaaa00"/>
+  <image source="../backgrounds/abstract08.jpg" trans="aaaa00"/>
  </imagelayer>
  <layer name="Tile Layer" width="40" height="25">
   <properties>
@@ -73,7 +73,7 @@
    <property name="KillingsPerKillingSpree" value="5"/>
   </properties>
   <data encoding="base64" compression="zlib">
-   eJztlTsOgDAMQ8u3cP8LM7FYsupA2oCUt6AAtR90aCnJWyaY98aM799snfNbOarXU0+Wv8A8w7yKXriOeWIerkMfdh+/j/VaZ5aveqn/y+s59qmeaq8Vlsf61X30Rt13dV0v1L7RXmp/tBfi4XMarxF82e2P1GiBJEkSA15nwNGxd/Q5Zem7ABGKAgc=
+   eJztjksKACAIBftR3f/ErdoI8gwJC97sxEEnpfcpn/jojtzf9l/pQH433tnUy77Ws8libsCX+1Nf/tNAnrcD+dp/a7/1j9c/7SGEEEII8TCiAz5lRgcEsQA0cwB2
   </data>
  </layer>
  <objectgroup name="Boundaries" visible="0"/>

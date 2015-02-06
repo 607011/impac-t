@@ -22,15 +22,15 @@
 
 namespace Impact {
 
-  Racket::Racket(Game *game)
+  Racket::Racket(Game *game, const b2Vec2 &pos)
     : Body(Body::BodyType::Racket, game)
   {
     setZIndex(Body::ZIndex::Foreground + 0);
     mName = std::string("Racket");
     mTexture = mGame->level()->texture(mName);
 
-    const float W = float(mTexture.getSize().x);
-    const float H = float(mTexture.getSize().y);
+    const float32 W = float32(mTexture.getSize().x);
+    const float32 H = float32(mTexture.getSize().y);
 
     const sf::Vector2f &origin = .5f * sf::Vector2f(W, H);
     mSprite.setTexture(mTexture);
@@ -89,22 +89,7 @@ namespace Impact {
       mJoint = reinterpret_cast<b2RevoluteJoint*>(mGame->world()->CreateJoint(&jd));
     }
 
-    if (!mGame->mouseModeEnabled()) {
-      // x-axis constraint
-      b2BodyDef bd;
-      bd.position.Set(0.f, float32(mGame->level()->height()));
-      b2Body *xAxis = mGame->world()->CreateBody(&bd);
-      b2PrismaticJointDef pjd;
-      pjd.bodyA = xAxis;
-      pjd.bodyB = mBody;
-      pjd.collideConnected = false;
-      pjd.localAxisA.Set(1.f, 0.f);
-      pjd.localAnchorA.SetZero();
-      pjd.localAnchorB.Set(W * Game::InvScale * 0.5f, H * Game::InvScale * 0.5f);
-      pjd.lowerTranslation = 0.f;
-      pjd.upperTranslation = W;
-      mGame->world()->CreateJoint(&pjd);
-    }
+    setPosition(pos);
   }
 
 
@@ -129,9 +114,15 @@ namespace Impact {
   }
 
 
-  void Racket::setPosition(float x, float y)
+  void Racket::setPosition(float32 x, float32 y)
   {
-    Body::setPosition(x, y);
+    setPosition(b2Vec2(x, y));
+  }
+
+
+  void Racket::setPosition(const b2Vec2 &pos)
+  {
+    Body::setPosition(pos);
     const b2Transform &tx = mBody->GetTransform();
     mTeetingBody->SetTransform(tx.p - mCenter, tx.q.GetAngle());
   }
@@ -140,6 +131,39 @@ namespace Impact {
   void Racket::applyLinearVelocity(const b2Vec2 &v)
   {
     mTeetingBody->SetLinearVelocity(v);
+  }
+
+
+  void Racket::setXAxisConstraint(float32 y)
+  {
+    const float32 W = float32(mTexture.getSize().x);
+    const float32 H = float32(mTexture.getSize().y);
+    b2BodyDef bd;
+    bd.position.Set(0.f, y);
+    b2Body *xAxis = mGame->world()->CreateBody(&bd);
+    b2PrismaticJointDef pjd;
+    pjd.bodyA = xAxis;
+    pjd.bodyB = mBody;
+    pjd.collideConnected = false;
+    pjd.localAxisA.Set(1.f, 0.f);
+    pjd.localAnchorA.SetZero();
+    const float32 s = .5f * Game::InvScale * 0.5f;
+    pjd.localAnchorB.Set(s * W, s * H);
+    pjd.lowerTranslation = 0.f;
+    pjd.upperTranslation = W;
+    mGame->world()->CreateJoint(&pjd);
+  }
+
+
+  const b2Vec2 &Racket::position(void) const
+  {
+    return mTeetingBody->GetPosition();
+  }
+
+
+  b2Body *Racket::body(void)
+  {
+    return mBody;
   }
 
 
@@ -195,10 +219,5 @@ namespace Impact {
     target.draw(mSprite, states);
   }
 
-
-  const b2Vec2 &Racket::position(void) const
-  {
-    return mTeetingBody->GetPosition();
-  }
 
 }

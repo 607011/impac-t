@@ -91,7 +91,7 @@ namespace Impact {
 
     std::ostringstream buf;
 #ifndef NDEBUG
-    // mLevelNum = 8;
+    // mLevelNum = 2;
 #endif
     buf << gLevelsDir << "/" << std::setw(4) << std::setfill('0') << mLevelNum << ".tmx";
     const std::string &filename = buf.str();
