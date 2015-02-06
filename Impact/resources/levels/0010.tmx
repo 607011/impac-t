@@ -2,10 +2,10 @@
 <map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="25" tilewidth="16" tileheight="16" backgroundcolor="#000000">
  <properties>
   <property name="ExplosionParticlesCollideWithBall" value="0"/>
-  <property name="Gravity" value="9.81"/>
-  <property name="KillingSpreeBonus" value="1000"/>
-  <property name="KillingSpreeInterval" value="2500"/>
-  <property name="KillingsPerKillingSpree" value="5"/>
+  <property name="Gravity" value="-12.5"/>
+  <property name="KillingSpreeBonus" value="2000"/>
+  <property name="KillingSpreeInterval" value="2000"/>
+  <property name="KillingsPerKillingSpree" value="6"/>
  </properties>
  <tileset firstgid="1" name="Default" tilewidth="64" tileheight="16">
   <tile id="0">
@@ -73,7 +73,7 @@
  </imagelayer>
  <layer name="Tile Layer" width="40" height="25">
   <data encoding="base64" compression="zlib">
-   eJztjrsKwDAMA9MHbf//iztlMRg5JMYZ7jbjQ1Jr+3Mu9N/EfJVj/9n+LjuU/wRzOley7+3pHOa+hW//o77t81De7A7le/3R/dGeWX90DwAAAADU8FUPKOAHi9MAdg==
+   eJzt1LEKwCAMhGGHlvb9n7hTloPQmGoulPs3F/mIkjGU+kcXG6CUatXJBjgdcO7iRBfGcr65sCrnrAuLOu/Je7+6sFXzXO3Css7dLizqrHZhnpPtwszZzWWZq8uet7x5sZ3Rd6x2Zv9X1vkAw9IAjg==
   </data>
  </layer>
  <objectgroup name="Boundaries" visible="0"/>

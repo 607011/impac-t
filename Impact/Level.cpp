@@ -91,7 +91,7 @@ namespace Impact {
 
     std::ostringstream buf;
 #ifndef NDEBUG
-    // mLevelNum = 2;
+    // mLevelNum = 10;
 #endif
     buf << gLevelsDir << "/" << std::setw(4) << std::setfill('0') << mLevelNum << ".tmx";
     const std::string &filename = buf.str();
@@ -121,15 +121,18 @@ namespace Impact {
       mKillingSpreeBonus = Game::DefaultKillingSpreeBonus;
       mKillingSpreeInterval = Game::DefaultKillingSpreeInterval;
       mExplosionParticlesCollideWithBall = false;
-      const boost::property_tree::ptree &layerProperties = pt.get_child("map.layer.properties");
+      const boost::property_tree::ptree &layerProperties = pt.get_child("map.properties");
       boost::property_tree::ptree::const_iterator pi;
       for (pi = layerProperties.begin(); pi != layerProperties.end(); ++pi) {
         boost::property_tree::ptree property = pi->second;
         if (pi->first == "property") {
           std::string propName = property.get<std::string>("<xmlattr>.name");
           boost::algorithm::to_lower(propName);
-          if (propName == "Gravity") {
+          if (propName == "gravity") {
             mGravity = property.get<float32>("<xmlattr>.value");
+#ifndef NDEBUG
+            std::cout << "mGravity = " << mGravity << std::endl;
+#endif
           }
           else if (propName == "explosionparticlescollidewithball") {
             mExplosionParticlesCollideWithBall = property.get<int>("<xmlattr>.value") > 0;
