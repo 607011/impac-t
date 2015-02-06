@@ -885,9 +885,14 @@ namespace Impact {
 
   void Game::buildLevel(void)
   {
+#ifndef NDEBUG
+    std::cout << "Game::buildLevel()" << std::endl;
+#endif
+
     mLastKillings = std::vector<sf::Time>(mLevel.killingsPerKillingSpree(), sf::milliseconds(INT_MIN));
 
-    mWorld->SetGravity(b2Vec2(0.f, mLevel.gravity()));
+    const float32 g = mLevel.gravity();
+    mWorld->SetGravity(b2Vec2(0.f, g));
 
     const float32 W = mLevel.size().x;
     const float32 H = mLevel.size().y;
@@ -910,7 +915,7 @@ namespace Impact {
     fdLeft.shape = &leftShape;
     boundaries->CreateFixture(&fdLeft);
     b2EdgeShape topShape;
-    topShape.Set(b2Vec2(0, 0), b2Vec2(W, 0));
+    topShape.Set(b2Vec2(0, g > 0.f ? 0.f : float32(mLevel.height())), b2Vec2(W, g > 0.f ? 0.f : float32(mLevel.height())));
     b2FixtureDef fdTop;
     fdTop.restitution = 0.9f;
     fdTop.density = 0.f;
@@ -918,7 +923,7 @@ namespace Impact {
     boundaries->CreateFixture(&fdTop);
 
     mGround = new Ground(this, W);
-    mGround->setPosition(0, mLevel.height());
+    mGround->setPosition(0, g < 0.f ? 0 : mLevel.height());
     addBody(mGround);
 
 #ifdef BALL_TRACE
