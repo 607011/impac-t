@@ -53,7 +53,7 @@ namespace Impact {
 
     b2FixtureDef fd;
     fd.shape = &circle;
-    fd.density = 11.f;
+    fd.density = 2.f;
     fd.friction = 0.7f;
     fd.restitution = 0.1f;
     fd.userData = this;
