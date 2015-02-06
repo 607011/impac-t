@@ -234,6 +234,7 @@ namespace Impact {
 
     mTitleShader.loadFromFile(gShadersDir + "/title.frag", sf::Shader::Fragment);
 
+    mKeyMapping[Action::PauseAction] = sf::Keyboard::Pause;
     mKeyMapping[Action::MoveLeft] = sf::Keyboard::Left;
     mKeyMapping[Action::MoveRight] = sf::Keyboard::Right;
     mKeyMapping[Action::SpecialAction] = sf::Keyboard::Space;
