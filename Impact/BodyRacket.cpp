@@ -62,7 +62,7 @@ namespace Impact {
 
       b2FixtureDef fd;
       fd.shape = &polygon;
-      fd.density = 10.f;
+      fd.density = 1.1f;
       fd.friction = .7f;
       fd.userData = this;
       fd.restitution = 1.f;
@@ -187,13 +187,13 @@ namespace Impact {
 
   void Racket::kickLeft(void)
   {
-    mJoint->SetMotorSpeed(-600.f);
+    mJoint->SetMotorSpeed(-10.f);
   }
 
 
   void Racket::kickRight(void)
   {
-    mJoint->SetMotorSpeed(+600.f);
+    mJoint->SetMotorSpeed(+10.f);
   }
 
 
