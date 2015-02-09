@@ -287,6 +287,7 @@ namespace Impact {
     mPostFX.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
     mPostFX.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
     mPostFX.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
+
     gotoWelcomeScreen();
 
     resetKillingSpree();

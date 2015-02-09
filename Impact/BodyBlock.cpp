@@ -45,6 +45,7 @@ namespace Impact {
     mShader.setParameter("uBlur", .0f);
     mShader.setParameter("uWeight", 0.17f);
     mShader.setParameter("uColor", sf::Color(255, 255, 255, 255));
+    mShader.setParameter("uResolution", float(texture.getSize().x), float(texture.getSize().y));
 
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(.5f * mTexture.getSize().x, .5f * mTexture.getSize().y);
@@ -55,7 +56,7 @@ namespace Impact {
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
     bd.angle = .0f;
-    bd.linearDamping = DefaultDensity;
+    bd.linearDamping = 5.f;
     bd.angularDamping = .5f;
     bd.gravityScale = .0f;
     bd.allowSleep = true;
@@ -130,7 +131,7 @@ namespace Impact {
       mBody->SetLinearDamping(0.f);
       mBody->SetGravityScale(mGravityScale);
       mShader.setParameter("uColor", sf::Color(sf::Color(255, 255, 255, 0xbf)));
-      mShader.setParameter("uBlur", 0.02f);
+      mShader.setParameter("uBlur", .78f);
     }
     return destroyed;
   }

@@ -22,6 +22,7 @@ uniform vec4 uColorMix;
 uniform vec4 uColorAdd;
 uniform vec4 uColorSub;
 
+
 void main()
 {
 	vec2 pos = gl_TexCoord[0].xy;
