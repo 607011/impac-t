@@ -20,7 +20,7 @@
 #ifndef __GAME_H_
 #define __GAME_H_
 
-#define IMPACT_VERSION "1.0.0-BETA5"
+#define IMPACT_VERSION "1.0.0-BETA6"
 #define PARTICLES_WITH_SPRITES
 
 #include <SFML/Audio.hpp>
