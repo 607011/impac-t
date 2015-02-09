@@ -57,6 +57,7 @@ namespace Impact {
     Tile(void)
       : score(0)
       , fixed(false)
+      , friction(.5f)
       , restitution(.9f)
       , density(800.f)
       , gravityScale(2.f)
@@ -65,6 +66,7 @@ namespace Impact {
     std::string textureName;
     sf::Texture texture;
     bool fixed;
+    float32 friction;
     float32 restitution;
     float32 density;
     float32 gravityScale;

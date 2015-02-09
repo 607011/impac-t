@@ -22,6 +22,10 @@
 
 namespace Impact {
 
+  const float32 Ball::DefaultDensity = 2.f;
+  const float32 Ball::DefaultFriction = .71f;
+  const float32 Ball::DefaultRestitution = .3f;
+
   Ball::Ball(Game *game)
     : Body(Body::BodyType::Ball, game)
   {
@@ -39,10 +43,9 @@ namespace Impact {
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
     bd.angle = 0.f;
-    bd.linearDamping = 0.5f;
-    bd.angularDamping = 0.21f;
+    bd.linearDamping = .5f;
+    bd.angularDamping = .21f;
     bd.gravityScale = 1.f;
-    bd.linearVelocity = b2Vec2(0.f, -1.f);
     bd.bullet = true;
     bd.userData = this;
     mBody = game->world()->CreateBody(&bd);
@@ -53,9 +56,9 @@ namespace Impact {
 
     b2FixtureDef fd;
     fd.shape = &circle;
-    fd.density = 2.f;
-    fd.friction = 0.7f;
-    fd.restitution = 0.1f;
+    fd.density = DefaultDensity;
+    fd.friction = DefaultFriction;
+    fd.restitution = DefaultRestitution;
     fd.userData = this;
     fd.filter.categoryBits = Body::BallMask;
     mBody->CreateFixture(&fd);

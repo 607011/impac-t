@@ -22,13 +22,16 @@
 
 namespace Impact {
 
+  const float32 Block::DefaultDensity = 19.32f;
+  const float32 Block::DefaultFriction = .2f;
+  const float32 Block::DefaultRestitution = 0.04f;
 
   Block::Block(int index, Game *game)
     : Body(Body::BodyType::Block, game)
     , mGravityScale(2.f)
   {
     setZIndex(Body::ZIndex::Intermediate + 0);
-    setEnergy(100);
+    setEnergy(50);
     mName = std::string("Block");
 
     const sf::Texture &texture = mGame->level()->tile(index).texture;
@@ -52,7 +55,7 @@ namespace Impact {
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
     bd.angle = .0f;
-    bd.linearDamping = .5f;
+    bd.linearDamping = DefaultDensity;
     bd.angularDamping = .5f;
     bd.gravityScale = .0f;
     bd.allowSleep = true;
@@ -71,9 +74,9 @@ namespace Impact {
 
     b2FixtureDef fdBox;
     fdBox.shape = &polygon;
-    fdBox.density = 800.f;
-    fdBox.friction = mGame->world()->GetGravity().y;
-    fdBox.restitution = .04f;
+    fdBox.density = DefaultDensity;
+    fdBox.friction = DefaultFriction;
+    fdBox.restitution = DefaultRestitution;
     fdBox.userData = this;
     mBody->CreateFixture(&fdBox);
 
@@ -83,9 +86,9 @@ namespace Impact {
 
     b2FixtureDef fdCircleL;
     fdCircleL.shape = &circleL;
-    fdCircleL.density = 800.f;
-    fdCircleL.friction = mGame->world()->GetGravity().y;
-    fdCircleL.restitution = 0.04f;
+    fdCircleL.density = DefaultDensity;
+    fdCircleL.friction = DefaultFriction;
+    fdCircleL.restitution = DefaultRestitution;
     fdCircleL.userData = this;
     mBody->CreateFixture(&fdCircleL);
 
@@ -95,9 +98,9 @@ namespace Impact {
 
     b2FixtureDef fdCircleR;
     fdCircleR.shape = &circleR;
-    fdCircleR.density = 800.f;
-    fdCircleR.friction = mGame->world()->GetGravity().y;
-    fdCircleR.restitution = 0.04f;
+    fdCircleR.density = DefaultDensity;
+    fdCircleR.friction = DefaultFriction;
+    fdCircleR.restitution = DefaultRestitution;
     fdCircleR.userData = this;
     mBody->CreateFixture(&fdCircleR);
   }
@@ -124,6 +127,7 @@ namespace Impact {
   {
     bool destroyed = Body::hit(int(impulse));
     if (!destroyed) {
+      mBody->SetLinearDamping(0.f);
       mBody->SetGravityScale(mGravityScale);
       mShader.setParameter("uColor", sf::Color(sf::Color(255, 255, 255, 0xbf)));
       mShader.setParameter("uBlur", 0.02f);

@@ -256,6 +256,9 @@ namespace Impact {
                 else if (propName == "fixed") {
                   mTiles[id].fixed = property.get<int>("<xmlattr>.value") > 0;
                 }
+                else if (propName == "friction") {
+                  mTiles[id].friction = property.get<float32>("<xmlattr>.value");
+                }
                 else if (propName == "restitution") {
                   mTiles[id].restitution = property.get<float32>("<xmlattr>.value");
                 }

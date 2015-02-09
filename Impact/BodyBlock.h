@@ -43,6 +43,9 @@ namespace Impact {
 
   protected:
     static const int TextureBorderWidth = 8;
+    static const float32 DefaultDensity;
+    static const float32 DefaultFriction;
+    static const float32 DefaultRestitution;
 
   private:
     float32 mGravityScale;

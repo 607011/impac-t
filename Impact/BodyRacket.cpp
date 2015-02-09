@@ -22,6 +22,11 @@
 
 namespace Impact {
 
+  
+  const float32 Racket::DefaultDensity = 5.f;
+  const float32 Racket::DefaultFriction = .71f;
+  const float32 Racket::DefaultRestitution = .1f;
+
   Racket::Racket(Game *game, const b2Vec2 &pos)
     : Body(Body::BodyType::Racket, game)
   {
@@ -62,10 +67,10 @@ namespace Impact {
 
       b2FixtureDef fd;
       fd.shape = &polygon;
-      fd.density = 1.1f;
-      fd.friction = .7f;
+      fd.density = DefaultDensity;
+      fd.friction = DefaultFriction;
+      fd.restitution = DefaultRestitution;
       fd.userData = this;
-      fd.restitution = 1.f;
       mTeetingBody->CreateFixture(&fd);
 
       b2BodyDef bdHinge;
@@ -131,6 +136,7 @@ namespace Impact {
   void Racket::applyLinearVelocity(const b2Vec2 &v)
   {
     mBody->SetLinearVelocity(v);
+    // mBody->ApplyLinearImpulse(0.5f * v, mBody->GetPosition(), true);
   }
 
 
@@ -163,7 +169,7 @@ namespace Impact {
 
   b2Body *Racket::body(void)
   {
-    return mBody;
+    return mTeetingBody;
   }
 
 
@@ -187,13 +193,13 @@ namespace Impact {
 
   void Racket::kickLeft(void)
   {
-    mJoint->SetMotorSpeed(-10.f);
+    mJoint->SetMotorSpeed(-1700.f);
   }
 
 
   void Racket::kickRight(void)
   {
-    mJoint->SetMotorSpeed(+10.f);
+    mJoint->SetMotorSpeed(+1700.f);
   }
 
 

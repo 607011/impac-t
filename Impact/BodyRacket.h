@@ -55,6 +55,10 @@ namespace Impact {
     virtual BodyType type(void) const { return Body::BodyType::Racket; }
 
   private:
+    static const float32 DefaultDensity;
+    static const float32 DefaultFriction;
+    static const float32 DefaultRestitution;
+
     b2Vec2 mCenter;
 
     b2RevoluteJoint* mJoint;

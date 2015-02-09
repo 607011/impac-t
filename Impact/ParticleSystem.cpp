@@ -26,6 +26,11 @@ namespace Impact {
   const float ParticleSystem::sHalfSize = 2.f;
 #endif
 
+  
+  const float32 ParticleSystem::DefaultDensity = 1.f;
+  const float32 ParticleSystem::DefaultFriction = 0.f;
+  const float32 ParticleSystem::DefaultRestitution = 0.8f;
+
   const sf::Time ParticleSystem::sMaxAge = sf::milliseconds(1000);
   const sf::Color ParticleSystem::sColor = sf::Color::White;
 
@@ -52,7 +57,7 @@ namespace Impact {
       SimpleParticle &p = mParticles[i];
       p.dead = false;
       p.lifeTime = sf::milliseconds(500 + std::rand() % 500);
-      b2Rot angle(_2PI * std::rand() / RAND_MAX);
+      b2Rot angle(2 * b2_pi * std::rand() / RAND_MAX);
       float speed = float(Game::Scale * (2 + 5 * float(std::rand()) / RAND_MAX));
       const b2Vec2 &v = speed * b2Vec2(angle.c, angle.s);
 #ifdef PARTICLES_WITH_SPRITES
@@ -75,7 +80,7 @@ namespace Impact {
       bd.bullet = false;
       bd.userData = this;
       bd.gravityScale = 5.f;
-      bd.linearDamping = 1.f;
+      bd.linearDamping = .2f;
       bd.linearVelocity = v;
       p.body = world->CreateBody(&bd);
 
@@ -83,9 +88,9 @@ namespace Impact {
       circleShape.m_radius = 1e-4f * Game::InvScale;
 
       b2FixtureDef fd;
-      fd.density = 0.f;
-      fd.restitution = .1f;
-      fd.friction = 1.f;
+      fd.density = DefaultDensity;
+      fd.restitution = DefaultRestitution;
+      fd.friction = DefaultFriction;
       fd.filter.categoryBits = Body::ParticleMask;
       fd.filter.maskBits = 0xffffU ^ Body::ParticleMask ^ Body::RacketMask;
       if (!ballCollisionEnabled)

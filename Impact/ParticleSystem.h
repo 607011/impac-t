@@ -56,14 +56,20 @@ namespace Impact {
     void setBallCollisionEnabled(bool ballCollisionEnabled = false);
 
   protected:
+    static const float32 DefaultDensity;
+    static const float32 DefaultFriction;
+    static const float32 DefaultRestitution;
+
     static const sf::Time sMaxAge;
     static const sf::Color sColor;
+
     std::vector<SimpleParticle> mParticles;
 #ifndef PARTICLES_WITH_SPRITES
     static const float sHalfSize;
     sf::VertexArray mVertices;
 #endif
 
+    
   };
 
 }
