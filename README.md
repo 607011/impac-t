@@ -12,7 +12,6 @@ A Breakout/Bolo clone, augmented with a physics engine
    - speed up/slow down ball
    - increase weight of ball
    - increase inertia of racket
-   - 
 
 
-Copyright (c) 2015 Oliver Lau <ola@ct.de>, Heise Zeitschriften Verlag
+Copyright (c) 2015 Oliver Lau <<ola@ct.de>>, Heise Zeitschriften Verlag
