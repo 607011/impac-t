@@ -126,9 +126,9 @@
     <None Include="resources\shaders\postfx.frag">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="..\..\Impac%27t\README.md" />
     <None Include="..\..\Impac%27t\Impact\resources\shaders\fallingblock.frag">
       <Filter>Fragment Shaders</Filter>
     </None>
+    <None Include="..\README.md" />
   </ItemGroup>
 </Project>
