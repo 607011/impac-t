@@ -31,8 +31,10 @@
 #include <boost/signals2.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
-#include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
 #pragma warning(pop)
 
 #include <limits>
@@ -41,7 +43,6 @@
 #include <utility>
 #include <vector>
 #include <map>
-#include <random>
 #include <string>
 #include <fstream>
 #include <iostream>

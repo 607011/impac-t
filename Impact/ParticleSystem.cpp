@@ -51,15 +51,16 @@ namespace Impact {
     mShader.setParameter("uMaxAge", sMaxAge.asSeconds());
 #endif
 
+    boost::random::uniform_int_distribution<sf::Int32> randomLifetime(500, 1000);
+    boost::random::uniform_real_distribution<float32> randomAngle(0.f, 2 * b2_pi);
+    boost::random::uniform_real_distribution<float32> randomSpeed(2.f * Game::Scale, 5.f * Game::Scale);
+
     b2World *world = mGame->world();
     const int N = mParticles.size();
     for (int i = 0; i < N; ++i) {
       SimpleParticle &p = mParticles[i];
       p.dead = false;
-      p.lifeTime = sf::milliseconds(500 + std::rand() % 500);
-      b2Rot angle(2 * b2_pi * std::rand() / RAND_MAX);
-      float speed = float(Game::Scale * (2 + 5 * float(std::rand()) / RAND_MAX));
-      const b2Vec2 &v = speed * b2Vec2(angle.c, angle.s);
+      p.lifeTime = sf::milliseconds(randomLifetime(gRNG));
 #ifdef PARTICLES_WITH_SPRITES
       p.sprite.setTexture(mTexture);
       mTexture.setRepeated(false);
@@ -81,11 +82,12 @@ namespace Impact {
       bd.userData = this;
       bd.gravityScale = 5.f;
       bd.linearDamping = .2f;
-      bd.linearVelocity = v;
+      const b2Rot angle(randomAngle(gRNG));
+      bd.linearVelocity = randomSpeed(gRNG) * b2Vec2(angle.c, angle.s);
       p.body = world->CreateBody(&bd);
 
       b2CircleShape circleShape;
-      circleShape.m_radius = 1e-4f * Game::InvScale;
+      circleShape.m_radius = 1e-6f * Game::InvScale;
 
       b2FixtureDef fd;
       fd.density = DefaultDensity;
@@ -143,9 +145,10 @@ namespace Impact {
         mGame->world()->DestroyBody(p.body);
       }
       else {
-        const b2Vec2 &pos = p.body->GetPosition();
+        const b2Transform &tx = p.body->GetTransform();
 #ifdef PARTICLES_WITH_SPRITES
-        p.sprite.setPosition(pos.x * Game::Scale, pos.y * Game::Scale);
+        p.sprite.setPosition(float(Game::Scale) * sf::Vector2f(tx.p.x, tx.p.y));
+        p.sprite.setRotation(rad2deg(tx.q.GetAngle()));
 #else
         const float lifetime = p.lifeTime.asSeconds();
         const sf::Uint8 alpha = 0xffU - sf::Uint8(Easing<float>::quadEaseIn(b2Clamp(age().asSeconds(), 0.f, lifetime), 0.0f, 255.0f, lifetime));

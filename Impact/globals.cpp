@@ -30,4 +30,6 @@ namespace Impact {
   const std::string gFontsDir = gResourcesDir + "/fonts";
   const std::string gShadersDir = gResourcesDir + "/shaders";
 
+  boost::random::mt19937 gRNG;
+
 }

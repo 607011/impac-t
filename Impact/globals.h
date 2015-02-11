@@ -21,6 +21,8 @@
 #ifndef __GLOBALS_H_
 #define __GLOBALS_H_
 
+#include <boost/random/mersenne_twister.hpp>
+
 namespace Impact {
 
   extern const std::string gResourcesDir;
@@ -31,6 +33,8 @@ namespace Impact {
   extern const std::string gSoundFXDir;
   extern const std::string gBackgroundsDir;
   extern const std::string gShadersDir;
+
+  extern boost::random::mt19937 gRNG;
 
 }
 
