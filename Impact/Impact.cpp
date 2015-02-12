@@ -513,7 +513,7 @@ namespace Impact {
     mWindow.draw(mTitleSprite, states);
 
     if (mWelcomeLevel == 0) {
-      addBody(new ParticleSystem(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f), false, 122U));
+      addBody(new ParticleSystem(ParticleSystemDef(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f), false, 122)));
       mWelcomeLevel = 1;
     }
 
@@ -522,7 +522,7 @@ namespace Impact {
       if (mWelcomeLevel == 1) {
         mExplosionSound.play();
         mWelcomeLevel = 2;
-        addBody(new ParticleSystem(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y), false, 100U));
+        addBody(new ParticleSystem(ParticleSystemDef(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y), false, 100U)));
       }
     }
     if (t > 0.6f) {
@@ -530,7 +530,7 @@ namespace Impact {
       if (mWelcomeLevel == 2) {
         mExplosionSound.play();
         mWelcomeLevel = 3;
-        addBody(new ParticleSystem(this, Game::InvScale * b2Vec2(mLogoSprite.getPosition().x, mLogoSprite.getPosition().y), false, 100U));
+        addBody(new ParticleSystem(ParticleSystemDef(this, Game::InvScale * b2Vec2(mLogoSprite.getPosition().x, mLogoSprite.getPosition().y), false, 100U)));
       }
     }
     if (t > 0.7f) {
@@ -538,7 +538,7 @@ namespace Impact {
       if (mWelcomeLevel == 4) {
         mExplosionSound.play();
         mWelcomeLevel = 5;
-        addBody(new ParticleSystem(this, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y), false, 100U));
+        addBody(new ParticleSystem(ParticleSystemDef(this, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y), false, 100U)));
       }
     }
   }
@@ -1110,7 +1110,7 @@ namespace Impact {
   {
     if (killedBody->type() == Body::BodyType::Block) {
       mExplosionSound.play();
-      addBody(new ParticleSystem(this, killedBody->position(), mLevel.explosionParticlesCollideWithBall()));
+      addBody(new ParticleSystem(ParticleSystemDef(this, killedBody->position(), mLevel.explosionParticlesCollideWithBall())));
       {
         // check for killing spree
         mLastKillings[mLastKillingsIndex] = mWallClock.getElapsedTime();

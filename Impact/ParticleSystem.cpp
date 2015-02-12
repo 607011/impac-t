@@ -22,11 +22,6 @@
 
 namespace Impact {
 
-#ifndef PARTICLES_WITH_SPRITES
-  const float ParticleSystem::sHalfSize = 2.f;
-#endif
-
-  
   const float32 ParticleSystem::DefaultDensity = 1.f;
   const float32 ParticleSystem::DefaultFriction = 0.f;
   const float32 ParticleSystem::DefaultRestitution = 0.8f;
@@ -34,12 +29,9 @@ namespace Impact {
   const sf::Time ParticleSystem::sMaxAge = sf::milliseconds(1000);
   const sf::Color ParticleSystem::sColor = sf::Color::White;
 
-  ParticleSystem::ParticleSystem(Game *game, const b2Vec2 &pos, bool ballCollisionEnabled, int count)
-    : Body(Body::BodyType::Particle, game)
-    , mParticles(count)
-#ifndef PARTICLES_WITH_SPRITES
-    , mVertices(sf::Quads, 4 * count)
-#endif
+  ParticleSystem::ParticleSystem(const ParticleSystemDef &def)
+    : Body(Body::BodyType::Particle, def.game)
+    , mParticles(def.count)
   {
     setZIndex(Body::ZIndex::Foreground + 0);
     mName = std::string("ParticleSystem");
@@ -66,14 +58,14 @@ namespace Impact {
 
       b2BodyDef bd;
       bd.type = b2_dynamicBody;
-      bd.position.Set(pos.x, pos.y);
+      bd.position = def.pos;
       bd.fixedRotation = true;
       bd.bullet = false;
       bd.userData = this;
       bd.gravityScale = 5.f;
       bd.linearDamping = .2f;
-      const b2Rot angle(randomAngle(gRNG));
-      bd.linearVelocity = randomSpeed(gRNG) * b2Vec2(angle.c, angle.s);
+      float angle = randomAngle(gRNG);
+      bd.linearVelocity = randomSpeed(gRNG) * b2Vec2(std::cos(angle), std::sin(angle));
       p.body = world->CreateBody(&bd);
 
       b2CircleShape circleShape;
@@ -85,7 +77,7 @@ namespace Impact {
       fd.friction = DefaultFriction;
       fd.filter.categoryBits = Body::ParticleMask;
       fd.filter.maskBits = 0xffffU ^ Body::ParticleMask ^ Body::RacketMask;
-      if (!ballCollisionEnabled)
+      if (!def.ballCollisionEnabled)
         fd.filter.maskBits ^= Body::BallMask;
       fd.shape = &circleShape;
       p.body->CreateFixture(&fd);
@@ -99,20 +91,6 @@ namespace Impact {
     for (std::vector<SimpleParticle>::const_iterator p = mParticles.cbegin(); p != mParticles.cend(); ++p) {
       if (!p->dead)
         world->DestroyBody(p->body);
-    }
-  }
-
-
-  void ParticleSystem::setBallCollisionEnabled(bool ballCollisionEnabled)
-  {
-    for (std::vector<SimpleParticle>::iterator p = mParticles.begin(); p != mParticles.end(); ++p) {
-      b2Fixture *fixture = p->body->GetFixtureList();
-      b2Filter filter = fixture->GetFilterData();
-      if (ballCollisionEnabled)
-        filter.maskBits |= Body::BallMask;
-      else
-        filter.maskBits &= ~Body::BallMask;
-      fixture->SetFilterData(filter);
     }
   }
 

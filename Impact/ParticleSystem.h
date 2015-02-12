@@ -40,18 +40,30 @@ namespace Impact {
   };
 
 
+  struct ParticleSystemDef
+  {
+    ParticleSystemDef(Game *game, const b2Vec2 &pos, bool ballCollisionEnabled = false, int count = 50)
+      : game(game)
+      , pos(pos)
+      , ballCollisionEnabled(ballCollisionEnabled)
+      , count(count)
+    {}
+    Game *game;
+    b2Vec2 pos;
+    bool ballCollisionEnabled;
+    int count;
+  };
+
   class ParticleSystem : public Body
   {
   public:
-    ParticleSystem(Game *game, const b2Vec2 &pos, bool ballCollisionEnabled = false, int count = 50U);
+    ParticleSystem(const ParticleSystemDef &);
     virtual ~ParticleSystem();
 
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);
     virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
     virtual BodyType type(void) const { return Body::BodyType::Particle; }
-
-    void setBallCollisionEnabled(bool ballCollisionEnabled = false);
 
   protected:
     static const float32 DefaultDensity;
