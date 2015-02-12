@@ -30,18 +30,18 @@ namespace Impact {
     mTexture = mGame->level()->tile(index).texture;
     mName = std::string("Wall");
 
-    const float W = float(mTexture.getSize().x);
-    const float H = float(mTexture.getSize().y);
+    const float halfW = .5f * mTexture.getSize().x;
+    const float halfH = .5f * mTexture.getSize().y;
 
     mSprite.setTexture(mTexture);
-    mSprite.setOrigin(0.5f * W, 0.5f * H);
+    mSprite.setOrigin(halfW, halfH);
 
     b2BodyDef bd;
     bd.type = b2_staticBody;
     mBody = game->world()->CreateBody(&bd);
 
     b2PolygonShape polygon;
-    polygon.SetAsBox(0.5f * W * Game::InvScale, 0.5f * H * Game::InvScale);
+    polygon.SetAsBox(halfW * Game::InvScale, halfH * Game::InvScale);
 
     b2FixtureDef fd;
     fd.density = 0.f;
@@ -60,9 +60,8 @@ namespace Impact {
   void Wall::setPosition(const b2Vec2 &pos)
   {
     Body::setPosition(pos);
-    const b2Transform &tx = mBody->GetTransform();
-    mSprite.setPosition(Game::Scale * tx.p.x, Game::Scale * tx.p.y);
-    mSprite.setRotation(rad2deg(tx.q.GetAngle()));
+    const b2Vec2 &p = mBody->GetPosition();
+    mSprite.setPosition(Game::Scale * p.x, Game::Scale * p.y);
   }
 
 
