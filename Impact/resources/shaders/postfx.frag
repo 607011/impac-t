@@ -22,10 +22,9 @@ uniform vec4 uColorMix;
 uniform vec4 uColorAdd;
 uniform vec4 uColorSub;
 
-
 void main()
 {
-	vec2 pos = gl_TexCoord[0].xy;
-	pos.y = 1 - pos.y;
-	gl_FragColor = uColorAdd - uColorSub + (texture2D(uTexture, pos) * uColorMix);
+  vec2 pos = gl_TexCoord[0].xy;
+  pos.y = 1.0 - pos.y;
+  gl_FragColor = (texture2D(uTexture, pos) + uColorAdd - uColorSub) * uColorMix;
 }
