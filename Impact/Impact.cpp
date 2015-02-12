@@ -561,7 +561,6 @@ namespace Impact {
 
     update(elapsed);
 
-    mPostFXShader.setParameter("uColorMix", sf::Color(255, 255, 255, 0x7f));
     mBlurPlayground = true;
     drawPlayground();
 
@@ -621,7 +620,7 @@ namespace Impact {
     update(elapsed);
 
     mBlurPlayground = true;
-    mPostFXShader.setParameter("uColorMix", sf::Color(255, 255, 255, 0x7f));
+    mPostFXShader.setParameter("uColorMix", sf::Color(255, 255, 255, 220));
     drawPlayground();
 
     mGameOverMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
@@ -709,7 +708,7 @@ namespace Impact {
 
     clearWindow();
 
-    // mRenderTexture.clear(mLevel.backgroundColor());
+    mRenderTexture0.clear(mLevel.backgroundColor());
     mRenderTexture0.draw(mLevel.backgroundSprite());
     mRenderTexture0.setView(mDefaultView);
 
@@ -724,28 +723,29 @@ namespace Impact {
     sf::Sprite sprite0;
 
     if (mBlurPlayground) {
+      mRenderTexture1.setView(mDefaultView);
       sf::RenderStates states1;
       sf::Sprite sprite1;
-      mRenderTexture1.setView(mDefaultView);
+      states0.shader = &mHBlurShader;
+      states1.shader = &mVBlurShader;
       for (int i = 1; i < 4; ++i) {
         sprite1.setTexture(mRenderTexture0.getTexture());
         mVBlurShader.setParameter("uBlur", 4.f * i);
-        states1.shader = &mVBlurShader;
         mRenderTexture1.draw(sprite1, states1);
         sprite0.setTexture(mRenderTexture1.getTexture());
         mHBlurShader.setParameter("uBlur", 4.f * i);
-        states0.shader = &mHBlurShader;
         mRenderTexture0.draw(sprite0, states0);
       }
     }
 
     sprite0.setTexture(mRenderTexture0.getTexture());
     if (mFadeEffectsActive > 0) {
-      sf::Uint8 c = 0;
+      sf::Uint8 c;
       if (mFadeEffectTimer.getElapsedTime() < mFadeEffectDuration) {
         c = sf::Uint8(Easing<float>::quadEaseInForthAndBack(mFadeEffectTimer.getElapsedTime().asSeconds(), 0.f, 255.f, mFadeEffectDuration.asSeconds()));
       }
       else {
+        c = 0;
         mFadeEffectsActive = 0;
       }
       if (mFadeEffectsDarken)
@@ -754,10 +754,8 @@ namespace Impact {
         mPostFXShader.setParameter("uColorAdd", sf::Color(c, c, c, 0));
     }
     else {
-      if (mFadeEffectsDarken)
-        mPostFXShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
-      else
-        mPostFXShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
+      mPostFXShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
+      mPostFXShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
     }
     states0.shader = &mPostFXShader;
     mWindow.draw(sprite0, states0);
