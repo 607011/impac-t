@@ -135,7 +135,7 @@ namespace Impact {
     sf::Shader mPostFXShader;
     sf::Shader mHBlurShader;
     sf::Shader mVBlurShader;
-    bool mBlur;
+    bool mBlurPlayground;
     sf::Font mFixedFont;
     sf::Texture mBackgroundTexture;
     sf::Sprite mBackgroundSprite;

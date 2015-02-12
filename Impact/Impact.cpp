@@ -55,7 +55,7 @@ namespace Impact {
     , mFadeEffectsActive(0)
     , mFadeEffectsDarken(false)
     , mFadeEffectDuration(DefaultFadeEffectDuration)
-    , mBlur(false)
+    , mBlurPlayground(false)
     , mLastKillingsIndex(0)
   {
     bool ok;
@@ -562,7 +562,7 @@ namespace Impact {
     update(elapsed);
 
     mPostFXShader.setParameter("uColorMix", sf::Color(255, 255, 255, 0x7f));
-    mBlur = true;
+    mBlurPlayground = true;
     drawPlayground();
 
     mLevelCompletedMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mLevelCompletedMsg.getLocalBounds().width, 20.f);
@@ -586,7 +586,7 @@ namespace Impact {
 
     update(elapsed);
 
-    mBlur = true;
+    mBlurPlayground = true;
     drawPlayground();
 
     mPlayerWonMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
@@ -620,7 +620,7 @@ namespace Impact {
 
     update(elapsed);
 
-    mBlur = true;
+    mBlurPlayground = true;
     mPostFXShader.setParameter("uColorMix", sf::Color(255, 255, 255, 0x7f));
     drawPlayground();
 
@@ -659,7 +659,7 @@ namespace Impact {
       mClock.restart();
       mLevelTimer.resume();
       setState(State::Playing);
-      mBlur = false;
+      mBlurPlayground = false;
     }
     else {
       gotoPlayerWon();
@@ -723,7 +723,7 @@ namespace Impact {
     sf::RenderStates states0;
     sf::Sprite sprite0;
 
-    if (mBlur) {
+    if (mBlurPlayground) {
       sf::RenderStates states1;
       sf::Sprite sprite1;
       mRenderTexture1.setView(mDefaultView);
