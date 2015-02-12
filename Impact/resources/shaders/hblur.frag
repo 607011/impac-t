@@ -22,16 +22,16 @@ uniform float uBlur;
 uniform vec2 uResolution;
 
 void main(void) {
-  vec4 sum = vec4(0.0);
   vec2 pos = gl_TexCoord[0].xy;
-  sum += texture2D(uTexture, vec2(pos.x - 1.00 / uResolution.x * uBlur, pos.y)) * 0.0162162162;
-  sum += texture2D(uTexture, vec2(pos.x - 0.75 / uResolution.x * uBlur, pos.y)) * 0.0540540541;
-  sum += texture2D(uTexture, vec2(pos.x - 0.50 / uResolution.x * uBlur, pos.y)) * 0.1216216216;
-  sum += texture2D(uTexture, vec2(pos.x - 0.25 / uResolution.x * uBlur, pos.y)) * 0.1945945946;
-  sum += texture2D(uTexture, vec2(pos.x + 0.00 / uResolution.x * uBlur, pos.y)) * 0.2270270270;
-  sum += texture2D(uTexture, vec2(pos.x + 0.25 / uResolution.x * uBlur, pos.y)) * 0.1945945946;
-  sum += texture2D(uTexture, vec2(pos.x + 0.50 / uResolution.x * uBlur, pos.y)) * 0.1216216216;
-  sum += texture2D(uTexture, vec2(pos.x + 0.75 / uResolution.x * uBlur, pos.y)) * 0.0540540541;
-  sum += texture2D(uTexture, vec2(pos.x + 1.00 / uResolution.x * uBlur, pos.y)) * 0.0162162162;
+  float sx = uBlur / uResolution.x;
+  vec4 sum =  texture2D(uTexture, vec2(pos.x - 1.00 * sx, pos.y)) * 0.0162162162;
+       sum += texture2D(uTexture, vec2(pos.x - 0.75 * sx, pos.y)) * 0.0540540541;
+       sum += texture2D(uTexture, vec2(pos.x - 0.50 * sx, pos.y)) * 0.1216216216;
+       sum += texture2D(uTexture, vec2(pos.x - 0.25 * sx, pos.y)) * 0.1945945946;
+       sum += texture2D(uTexture, vec2(pos.x, pos.y)) * 0.227027027;
+       sum += texture2D(uTexture, vec2(pos.x + 0.25 * sx, pos.y)) * 0.1945945946;
+       sum += texture2D(uTexture, vec2(pos.x + 0.50 * sx, pos.y)) * 0.1216216216;
+       sum += texture2D(uTexture, vec2(pos.x + 0.75 * sx, pos.y)) * 0.0540540541;
+       sum += texture2D(uTexture, vec2(pos.x + 1.00 * sx, pos.y)) * 0.0162162162;
   gl_FragColor = sum;
 }
