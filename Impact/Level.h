@@ -168,7 +168,7 @@ namespace Impact {
     int mKillingSpreeBonus;
     sf::Time mKillingSpreeInterval;
 
-    std::map<int, Tile> mTiles;
+    std::vector<Tile> mTiles;
     sf::Texture load(const std::string &filename);
   };
 

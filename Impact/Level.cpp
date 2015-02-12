@@ -227,9 +227,9 @@ namespace Impact {
         mBoundary.valid = true;
       } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
 
-      mTiles.clear();
       const boost::property_tree::ptree &tileset = pt.get_child("map.tileset");
       mFirstGID = tileset.get<uint32_t>("<xmlattr>.firstgid");
+      mTiles.resize(tileset.count("tile") + mFirstGID);
       boost::property_tree::ptree::const_iterator ti;
       for (ti = tileset.begin(); ti != tileset.end(); ++ti) {
         boost::property_tree::ptree tile = ti->second;
@@ -268,6 +268,12 @@ namespace Impact {
                 else if (propName == "gravityscale") {
                   mTiles[id].gravityScale = property.get<float32>("<xmlattr>.value");
                 }
+                else if (propName == "minimumkillimpulse") {
+                  mTiles[id].minimumKillImpulse = property.get<int>("<xmlattr>.value");
+                }
+                else if (propName == "smooth") {
+                  mTiles[id].smooth = property.get<int>("<xmlattr>.value") > 0;
+                }
               } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
             }
           }
@@ -291,13 +297,10 @@ namespace Impact {
 
   int Level::bodyIndexByTextureName(const std::string &name) const
   {
-    int result = -1;
-    std::map<int, Tile>::const_iterator i;
-    for (i = mTiles.cbegin(); i != mTiles.cend(); ++i) {
-      if (i->second.textureName == name)
-        return i->first;
-    }
-    return result;
+    for (int i = 0; i < int(mTiles.size()); ++i)
+      if (mTiles.at(i).textureName == name)
+        return i;
+    return -1;
   }
 
 
