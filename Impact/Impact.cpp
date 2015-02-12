@@ -549,7 +549,8 @@ namespace Impact {
     mLevelTimer.pause();
     mLevelCompleteSound.play();
     mStartMsg.setString(tr("Click to continue"));
-    mBlamClock.restart();
+    mBlurClock.restart();
+    mBlurPlayground = true;
     mRacket->applyLinearVelocity(b2Vec2_zero);
     setState(State::LevelCompleted);
   }
@@ -561,7 +562,6 @@ namespace Impact {
 
     update(elapsed);
 
-    mBlurPlayground = true;
     drawPlayground();
 
     mLevelCompletedMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mLevelCompletedMsg.getLocalBounds().width, 20.f);
@@ -575,6 +575,8 @@ namespace Impact {
   {
     mStartMsg.setString(tr("Click to start over"));
     setState(State::PlayerWon);
+    mBlurClock.restart();
+    mBlurPlayground = true;
     mTotalScore = mScore - mLevelTimer.accumulatedSeconds();
   }
 
@@ -585,7 +587,6 @@ namespace Impact {
 
     update(elapsed);
 
-    mBlurPlayground = true;
     drawPlayground();
 
     mPlayerWonMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
@@ -609,6 +610,9 @@ namespace Impact {
   {
     mStartMsg.setString(tr("Click to continue"));
     setState(State::GameOver);
+    mBlurClock.restart();
+    mBlurPlayground = true;
+    mPostFXShader.setParameter("uColorMix", sf::Color(255, 255, 255, 220));
     mTotalScore = b2Max(0, mScore - mLevelTimer.accumulatedSeconds());
   }
 
@@ -619,8 +623,6 @@ namespace Impact {
 
     update(elapsed);
 
-    mBlurPlayground = true;
-    mPostFXShader.setParameter("uColorMix", sf::Color(255, 255, 255, 220));
     drawPlayground();
 
     mGameOverMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
@@ -728,12 +730,13 @@ namespace Impact {
       sf::Sprite sprite1;
       states0.shader = &mHBlurShader;
       states1.shader = &mVBlurShader;
+      const float blur = b2Min(4.f, 1.f + mBlurClock.getElapsedTime().asSeconds());
       for (int i = 1; i < 4; ++i) {
         sprite1.setTexture(mRenderTexture0.getTexture());
-        mVBlurShader.setParameter("uBlur", 4.f * i);
+        mVBlurShader.setParameter("uBlur", blur * i);
         mRenderTexture1.draw(sprite1, states1);
         sprite0.setTexture(mRenderTexture1.getTexture());
-        mHBlurShader.setParameter("uBlur", 4.f * i);
+        mHBlurShader.setParameter("uBlur", blur * i);
         mRenderTexture0.draw(sprite0, states0);
       }
     }

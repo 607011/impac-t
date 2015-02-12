@@ -147,7 +147,7 @@ namespace Impact {
     sf::Clock mClock;
     sf::Clock mWallClock;
     sf::Clock mScoreClock;
-    sf::Clock mBlamClock;
+    sf::Clock mBlurClock;
     sf::Clock mFadeEffectTimer;
     int mFadeEffectsActive;
     bool mFadeEffectsDarken;
