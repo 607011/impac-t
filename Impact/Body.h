@@ -27,6 +27,7 @@
 #include <Box2D/Box2D.h>
 
 #include "Destructible.h"
+#include "TileParam.h"
 
 #include <cstdint>
 #include <vector>
@@ -154,6 +155,9 @@ namespace Impact {
       return mBody;
     }
 
+    void setTileParam(const TileParam &);
+    const TileParam &tileParam(void) const { return mTileParam; }
+
   protected:
     Body::killed_signal_t signalKilled;
 
@@ -171,6 +175,8 @@ namespace Impact {
 
     virtual void onUpdate(float elapsedSeconds) = 0;
     virtual void onDraw(sf::RenderTarget& target, sf::RenderStates states) const = 0;
+
+    TileParam mTileParam;
 
   private:
     bool mAlive;

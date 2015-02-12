@@ -691,15 +691,17 @@ namespace Impact {
           const float racketX = mRacket->position().x;
           const float racketY = mRacket->position().y;
           if (racketY > mLevel.height())
-            mRacket->setPosition(racketX, mLevel.height() - 0.5f);
+            mRacket->setPosition(racketX, mLevel.height() - .5f);
           if (racketX < 0.f)
-            mRacket->setPosition(1., racketY);
+            mRacket->setPosition(1.f, racketY);
           else if (racketX > mLevel.width())
             mRacket->setPosition(mLevel.width() - 1.f, racketY);
         }
       }
     }
-    // mPostFX.setParameter("uAngle", mWallClock.getElapsedTime().asSeconds());
+    if (mScaleGravityClock.getElapsedTime() > mScaleGravityDuration) {
+      mWorld->SetGravity(b2Vec2(0.f, mLevel.gravity()));
+    }
     drawPlayground();
   }
 
@@ -979,40 +981,43 @@ namespace Impact {
         const uint32_t tileId = mapRow[x];
         if (tileId == 0)
           continue;
-        const Tile &tile = mLevel.tile(tileId);
+        const TileParam &tileParam = mLevel.tileParam(tileId);
         if (tileId >= mLevel.firstGID()) {
-          if (tile.textureName == "Ball") {
+          if (tileParam.textureName == "Ball") {
             newBall(pos);
-            mBall->setSmooth(tile.smooth);
-            mBall->setDensity(tile.density);
-            mBall->setRestitution(tile.restitution);
-            mBall->setFriction(tile.friction);
+            mBall->setSmooth(tileParam.smooth);
+            mBall->setDensity(tileParam.density);
+            mBall->setRestitution(tileParam.restitution);
+            mBall->setFriction(tileParam.friction);
+            mBall->setTileParam(tileParam);
           }
-          else if (tile.textureName == "Racket") {
+          else if (tileParam.textureName == "Racket") {
             mRacket = new Racket(this, pos);
-            mRacket->setSmooth(tile.smooth);
+            mRacket->setSmooth(tileParam.smooth);
             // mRacket->setXAxisConstraint(mLevel.height() - .5f);
             addBody(mRacket);
           }
-          else if (tile.textureName == "Wall" || tile.fixed) {
+          else if (tileParam.textureName == "Wall" || tileParam.fixed) {
             Wall *wall = new Wall(tileId, this);
             wall->setPosition(pos);
-            wall->setRestitution(tile.restitution);
-            wall->setFriction(tile.friction);
-            wall->setSmooth(tile.smooth);
+            wall->setRestitution(tileParam.restitution);
+            wall->setFriction(tileParam.friction);
+            wall->setSmooth(tileParam.smooth);
+            wall->setTileParam(tileParam);
             addBody(wall);
           }
           else {
             Block *block = new Block(tileId, this);
             block->setPosition(pos);
-            block->setScore(tile.score);
-            block->setGravityScale(tile.gravityScale);
-            block->setDensity(tile.density);
-            block->setRestitution(tile.restitution);
-            block->setFriction(tile.friction);
-            block->setSmooth(tile.smooth);
-            block->setEnergy(tile.minimumKillImpulse);
-            block->setMinimumHitImpulse(tile.minimumHitImpulse);
+            block->setScore(tileParam.score);
+            block->setGravityScale(tileParam.gravityScale);
+            block->setDensity(tileParam.density);
+            block->setRestitution(tileParam.restitution);
+            block->setFriction(tileParam.friction);
+            block->setSmooth(tileParam.smooth);
+            block->setEnergy(tileParam.minimumKillImpulse);
+            block->setMinimumHitImpulse(tileParam.minimumHitImpulse);
+            block->setTileParam(tileParam);
             addBody(block);
             ++mBlockCount;
           }
@@ -1122,6 +1127,15 @@ namespace Impact {
           showScore((mLevel.killingSpreeInterval() - dt).asMilliseconds() + mLevel.killingSpreeBonus(), killedBody->position() + b2Vec2(0.f, 1.35f));
           resetKillingSpree();
         }
+      }
+      const TileParam &tileParam = killedBody->tileParam();
+      if (tileParam.scaleGravityDuration.asMilliseconds() > 0) {
+        mWorld->SetGravity(tileParam.scaleGravityBy * mWorld->GetGravity());
+        mScaleGravityClock.restart();
+        mScaleGravityDuration = tileParam.scaleGravityDuration;
+#ifndef NDEBUG
+        std::cout << "Scaling gravity by " << tileParam.scaleGravityBy << " for " << mScaleGravityDuration.asMilliseconds() << "ms." << std::endl;
+#endif
       }
       if (--mBlockCount == 0)
         gotoLevelCompleted();

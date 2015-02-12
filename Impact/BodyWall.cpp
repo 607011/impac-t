@@ -27,7 +27,7 @@ namespace Impact {
     : Body(Body::BodyType::Wall, game)
   {
     setZIndex(Body::ZIndex::Intermediate + 0);
-    mTexture = mGame->level()->tile(index).texture;
+    mTexture = mGame->level()->tileParam(index).texture;
     mName = std::string("Wall");
 
     const float halfW = .5f * mTexture.getSize().x;

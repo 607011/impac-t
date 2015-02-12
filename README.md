@@ -9,9 +9,9 @@ A Breakout/Bolo clone, augmented with a physics engine
  - nicer visual effect for killing spree bonus
  - special blocks that
    - increase/decrease gravity
-   - speed up/slow down ball
    - increase weight of ball
    - increase inertia of racket
+   - speed up/slow down ball
 
 
 Copyright (c) 2015 Oliver Lau <<ola@ct.de>>, Heise Zeitschriften Verlag

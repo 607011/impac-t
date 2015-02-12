@@ -20,8 +20,7 @@
 #ifndef __GAME_H_
 #define __GAME_H_
 
-#define IMPACT_VERSION "1.0.0-BETA6"
-#define PARTICLES_WITH_SPRITES
+#define IMPACT_VERSION "1.0.0-BETA7"
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
@@ -149,6 +148,8 @@ namespace Impact {
     sf::Clock mScoreClock;
     sf::Clock mBlurClock;
     sf::Clock mFadeEffectTimer;
+    sf::Clock mScaleGravityClock;
+    sf::Time mScaleGravityDuration;
     int mFadeEffectsActive;
     bool mFadeEffectsDarken;
     sf::Time mFadeEffectDuration;

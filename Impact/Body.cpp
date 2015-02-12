@@ -172,4 +172,11 @@ namespace Impact {
     remove();
     mBody = body;
   }
+
+
+  void Body::setTileParam(const TileParam &param)
+  {
+    mTileParam = param;
+  }
+
 }

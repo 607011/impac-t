@@ -111,6 +111,7 @@
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Impac%27t\Impact\TileParam.h" />
     <ClInclude Include="Body.h" />
     <ClInclude Include="BodyBall.h" />
     <ClInclude Include="BodyBlock.h" />

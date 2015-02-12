@@ -34,7 +34,7 @@ namespace Impact {
     setZIndex(Body::ZIndex::Intermediate + 0);
     mName = std::string("Block");
 
-    const sf::Texture &texture = mGame->level()->tile(index).texture;
+    const sf::Texture &texture = mGame->level()->tileParam(index).texture;
     sf::Image img;
     img.create(texture.getSize().x + 2 * TextureBorderWidth, texture.getSize().y + 2 * TextureBorderWidth, sf::Color(255, 255, 255, 0));
     img.copy(texture.copyToImage(), TextureBorderWidth, TextureBorderWidth, sf::IntRect(0, 0, 0, 0), true);
@@ -147,5 +147,6 @@ namespace Impact {
   {
     mGravityScale = gravityScale;
   }
+
 
 }

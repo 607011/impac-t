@@ -23,6 +23,8 @@
   <tile id="2">
    <properties>
     <property name="Points" value="30"/>
+    <property name="ScaleGravityBy" value="3.0"/>
+    <property name="ScaleGravitySeconds" value="7.5"/>
    </properties>
    <image width="32" height="16" source="../images/light-block.png"/>
   </tile>

@@ -25,7 +25,7 @@
 #include <string>
 #include "Body.h"
 #include "globals.h"
-
+#include "TileParam.h"
 
 namespace Impact {
 
@@ -51,31 +51,6 @@ namespace Impact {
     bool valid;
   };
 
-  struct Tile {
-    Tile(void)
-      : score(0)
-      , fixed(false)
-      , friction(.5f)
-      , restitution(.9f)
-      , density(800.f)
-      , gravityScale(2.f)
-      , smooth(true)
-      , minimumHitImpulse(0)
-      , minimumKillImpulse(50)
-    { /* ... */ }
-    int score;
-    std::string textureName;
-    sf::Texture texture;
-    bool fixed;
-    float32 friction;
-    float32 restitution;
-    float32 density;
-    float32 gravityScale;
-    bool smooth;
-    int minimumHitImpulse;
-    int minimumKillImpulse;
-  };
-
   class Level {
   public:
     Level(void);
@@ -91,7 +66,7 @@ namespace Impact {
     int bodyIndexByTextureName(const std::string &name) const;
     uint32_t mapData(int x, int y) const;
     uint32_t *const mapDataScanLine(int y) const;
-    const Tile &tile(int index) const;
+    const TileParam &tileParam(int index) const;
     inline int num(void) const
     {
       return mLevelNum;
@@ -172,7 +147,7 @@ namespace Impact {
     int mKillingSpreeBonus;
     sf::Time mKillingSpreeInterval;
 
-    std::vector<Tile> mTiles;
+    std::vector<TileParam> mTiles;
     sf::Texture load(const std::string &filename);
   };
 

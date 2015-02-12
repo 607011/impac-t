@@ -34,7 +34,7 @@ namespace Impact {
     , mTileWidth(0)
     , mTileHeight(0)
     , mLevelNum(0)
-    , mGravity(9.81f)
+    , mGravity(DefaultGravity)
     , mExplosionParticlesCollideWithBall(false)
     , mKillingsPerKillingSpree(Game::DefaultKillingsPerKillingSpree)
     , mKillingSpreeBonus(Game::DefaultKillingSpreeBonus)
@@ -91,7 +91,7 @@ namespace Impact {
 
     std::ostringstream buf;
 #ifndef NDEBUG
-    // mLevelNum = 10;
+    // mLevelNum = 6;
 #endif
     buf << gLevelsDir << "/" << std::setw(4) << std::setfill('0') << mLevelNum << ".tmx";
     const std::string &filename = buf.str();
@@ -235,6 +235,7 @@ namespace Impact {
         boost::property_tree::ptree tile = ti->second;
         if (ti->first == "tile") {
           const int id = mFirstGID + tile.get<int>("<xmlattr>.id");
+          mTiles.resize(id + 1);
           const std::string &filename = gLevelsDir + "/" + tile.get<std::string>("image.<xmlattr>.source");
           ok = mTiles[id].texture.loadFromFile(filename);
           if (!ok)
@@ -268,6 +269,12 @@ namespace Impact {
                 else if (propName == "gravityscale") {
                   mTiles[id].gravityScale = property.get<float32>("<xmlattr>.value");
                 }
+                else if (propName == "scalegravityby") {
+                  mTiles[id].scaleGravityBy = property.get<float32>("<xmlattr>.value");
+                }
+                else if (propName == "scalegravityseconds") {
+                  mTiles[id].scaleGravityDuration = sf::seconds(property.get<float32>("<xmlattr>.value"));
+                }
                 else if (propName == "minimumhitimpulse") {
                   mTiles[id].minimumHitImpulse = property.get<int>("<xmlattr>.value");
                 }
@@ -300,8 +307,9 @@ namespace Impact {
 
   int Level::bodyIndexByTextureName(const std::string &name) const
   {
-    for (int i = 0; i < int(mTiles.size()); ++i)
-      if (mTiles.at(i).textureName == name)
+    const int N = mTiles.size();
+    for (int i = 0; i < N; ++i)
+      if (name == mTiles.at(i).textureName)
         return i;
     return -1;
   }
@@ -316,7 +324,7 @@ namespace Impact {
   }
 
 
-  uint32_t *const Level::mapDataScanLine(int y) const
+  inline uint32_t *const Level::mapDataScanLine(int y) const
   {
     return mMapData + y * mNumTilesX;
   }
@@ -328,7 +336,7 @@ namespace Impact {
   }
 
 
-  const Tile &Level::tile(int index) const
+  const TileParam &Level::tileParam(int index) const
   {
     return mTiles.at(index);
   }
