@@ -44,12 +44,10 @@ namespace Impact {
     setZIndex(Body::ZIndex::Foreground + 0);
     mName = std::string("ParticleSystem");
     setLifetime(sMaxAge);
-#ifdef PARTICLES_WITH_SPRITES
     mTexture.loadFromFile("resources/images/particle.png");
     mShader.loadFromFile("resources/shaders/particlesystem.frag", sf::Shader::Fragment);
     mShader.setParameter("uTexture", sf::Shader::CurrentTexture);
     mShader.setParameter("uMaxAge", sMaxAge.asSeconds());
-#endif
 
     boost::random::uniform_int_distribution<sf::Int32> randomLifetime(500, 1000);
     boost::random::uniform_real_distribution<float32> randomAngle(0.f, 2 * b2_pi);
@@ -61,18 +59,10 @@ namespace Impact {
       SimpleParticle &p = mParticles[i];
       p.dead = false;
       p.lifeTime = sf::milliseconds(randomLifetime(gRNG));
-#ifdef PARTICLES_WITH_SPRITES
       p.sprite.setTexture(mTexture);
       mTexture.setRepeated(false);
       mTexture.setSmooth(false);
       p.sprite.setOrigin(.5f * mTexture.getSize().x, .5f * mTexture.getSize().y);
-#else
-      const int j = 4 * i;
-      mVertices[j+0].color = sColor;
-      mVertices[j+1].color = sColor;
-      mVertices[j+2].color = sColor;
-      mVertices[j+3].color = sColor;
-#endif
 
       b2BodyDef bd;
       bd.type = b2_dynamicBody;
@@ -129,12 +119,6 @@ namespace Impact {
 
   void ParticleSystem::onUpdate(float)
   {
-#ifndef PARTICLES_WITH_SPRITES
-    static const sf::Vector2f topLeft(-sHalfSize, -sHalfSize);
-    static const sf::Vector2f topRight(sHalfSize, -sHalfSize);
-    static const sf::Vector2f bottomRight(sHalfSize, sHalfSize);
-    static const sf::Vector2f bottomLeft(-sHalfSize, sHalfSize);
-#endif
     bool allDead = true;
     const int N = mParticles.size();
 #pragma omp parallel for reduction(&:allDead)
@@ -146,29 +130,12 @@ namespace Impact {
       }
       else {
         const b2Transform &tx = p.body->GetTransform();
-#ifdef PARTICLES_WITH_SPRITES
         p.sprite.setPosition(float(Game::Scale) * sf::Vector2f(tx.p.x, tx.p.y));
         p.sprite.setRotation(rad2deg(tx.q.GetAngle()));
-#else
-        const float lifetime = p.lifeTime.asSeconds();
-        const sf::Uint8 alpha = 0xffU - sf::Uint8(Easing<float>::quadEaseIn(b2Clamp(age().asSeconds(), 0.f, lifetime), 0.0f, 255.0f, lifetime));
-        sf::Vector2f offset(pos.x * Game::Scale, pos.y * Game::Scale);
-        const int j = 4 * i;
-        mVertices[j+0].position = offset + topLeft;
-        mVertices[j+1].position = offset + topRight;
-        mVertices[j+2].position = offset + bottomRight;
-        mVertices[j+3].position = offset + bottomLeft;
-        mVertices[j+0].color.a = alpha;
-        mVertices[j+1].color.a = alpha;
-        mVertices[j+2].color.a = alpha;
-        mVertices[j+3].color.a = alpha;
-#endif
       }
       allDead &= p.dead;
     }
-#ifdef PARTICLES_WITH_SPRITES
     mShader.setParameter("uAge", age().asSeconds());
-#endif
     if (allDead || overAge())
       this->kill();
   }
@@ -176,15 +143,10 @@ namespace Impact {
 
   void ParticleSystem::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
   {
-#ifdef PARTICLES_WITH_SPRITES
     states.shader = &mShader;
     for (std::vector<SimpleParticle>::const_iterator p = mParticles.cbegin(); p != mParticles.cend(); ++p)
       if (!p->dead)
         target.draw(p->sprite, states);
-#else
-    states.texture = nullptr;
-    target.draw(mVertices, states);
-#endif
   }
 
 }

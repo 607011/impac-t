@@ -36,9 +36,7 @@ namespace Impact {
     b2Body *body;
     sf::Time lifeTime;
     bool dead;
-#ifdef PARTICLES_WITH_SPRITES
     sf::Sprite sprite;
-#endif
   };
 
 
@@ -64,11 +62,6 @@ namespace Impact {
     static const sf::Color sColor;
 
     std::vector<SimpleParticle> mParticles;
-#ifndef PARTICLES_WITH_SPRITES
-    static const float sHalfSize;
-    sf::VertexArray mVertices;
-#endif
-
     
   };
 
