@@ -19,13 +19,18 @@ namespace Impact {
   template <typename T>
   class Easing {
   public:
+    static T quadEaseInForthAndBack(T t, T b, T c, T d) {
+      float dt = t / d;
+      dt = dt < .5f ? dt * 2 : 1 - 2 * (dt - .5f);
+      return c * ((t = dt - 1) * t * t + 1) + b;
+    }
     static T quadEaseIn(T t, T b, T c, T d)
     {
-      return c*(t/=d)*t + b;
+      return c * ( t /= d) * t + b;
     }
     static T quadEaseOut(T t, T b, T c, T d)
     {
-      return -c *(t/=d)*(t-2) + b;
+      return -c * (t /= d) * (t - 2) + b;
     }
     static T quadEaseInOut(T t, T b, T c, T d)
     {

@@ -726,15 +726,9 @@ namespace Impact {
     sf::Sprite sprite(mRenderTexture.getTexture());
     sf::RenderStates states;
     if (mFadeEffectsActive > 0) {
-      auto quadEaseIn = [](float t, float b, float c, float d) {
-        float dt = t / d;
-        dt = dt < 0.5f ? dt * 2 : 1 - 2 * (dt - 0.5f);
-        float v = c * ((t = dt - 1) * t * t + 1) + b;
-        return v;
-      };
       sf::Uint8 c = 0;
       if (mFadeEffectTimer.getElapsedTime() < mFadeEffectDuration) {
-        c = sf::Uint8(quadEaseIn(mFadeEffectTimer.getElapsedTime().asSeconds(), 0.f, 255.f, mFadeEffectDuration.asSeconds()));
+        c = sf::Uint8(Easing<float>::quadEaseInForthAndBack(mFadeEffectTimer.getElapsedTime().asSeconds(), 0.f, 255.f, mFadeEffectDuration.asSeconds()));
       }
       else {
         mFadeEffectsActive = 0;
