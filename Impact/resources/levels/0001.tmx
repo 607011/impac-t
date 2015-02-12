@@ -47,19 +47,12 @@
   </tile>
   <tile id="6">
    <properties>
-    <property name="Name" value="Ball"/>
-    <property name="Restitution" value="0.1"/>
-   </properties>
-   <image width="16" height="16" source="../images/ball.png"/>
-  </tile>
-  <tile id="7">
-   <properties>
     <property name="Name" value="Racket"/>
     <property name="Restitution" value="1.0"/>
    </properties>
    <image width="64" height="16" source="../images/pad.png"/>
   </tile>
-  <tile id="8">
+  <tile id="7">
    <properties>
     <property name="Fixed" value="1"/>
     <property name="Name" value="Wall"/>
@@ -67,13 +60,20 @@
    </properties>
    <image width="32" height="16" source="../images/brick.png"/>
   </tile>
+  <tile id="8">
+   <properties>
+    <property name="Name" value="Ball"/>
+    <property name="Smooth" value="1"/>
+   </properties>
+   <image width="16" height="16" source="../images/1/ball.png"/>
+  </tile>
  </tileset>
  <imagelayer name="Background" opacity="0.87">
   <image source="../backgrounds/abstract08.jpg" trans="aaaa00"/>
  </imagelayer>
  <layer name="Tile Layer" width="40" height="25">
   <data encoding="base64" compression="zlib">
-   eJztjrsKwDAMA9MHbf//iztlMRg5JMYZ7jbjQ1Jr+3Mu9N/EfJVj/9n+LjuU/wRzOley7+3pHOa+hW//o77t81De7A7le/3R/dGeWX90DwAAAADU8FUPKOAHi9MAdg==
+   eJztjrsKwDAMA9MHLf3/H+6UxWDkkBhnuNuMD0mt7c+50P8S81WO/Wf7u+xQ/hPM6VzJvrenc5j7Fr79j/q2z0N5szuU7/VH90d7Zv3RPQAAAABQw1s9oIAfqD8Adw==
   </data>
  </layer>
  <objectgroup name="Boundaries" visible="0"/>

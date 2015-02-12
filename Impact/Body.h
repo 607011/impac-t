@@ -134,6 +134,8 @@ namespace Impact {
       return mVisible;
     }
 
+    void setSmooth(bool);
+
     virtual void setZIndex(int);
     inline virtual int zIndex(void) const
     {

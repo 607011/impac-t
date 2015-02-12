@@ -31,7 +31,6 @@ namespace Impact {
     , mGravityScale(2.f)
   {
     setZIndex(Body::ZIndex::Intermediate + 0);
-    setEnergy(50);
     mName = std::string("Block");
 
     const sf::Texture &texture = mGame->level()->tile(index).texture;

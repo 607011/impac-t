@@ -32,8 +32,6 @@ namespace Impact {
       : mEnergy(energy)
       , mScore(0)
     { /* ... */ }
-    virtual ~Destructible()
-    { /* ... */ }
     virtual int getScore(void) const
     {
       return mScore;

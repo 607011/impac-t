@@ -68,6 +68,12 @@ namespace Impact {
   }
 
 
+  void Body::setSmooth(bool smooth)
+  {
+    mTexture.setSmooth(smooth);
+  }
+
+
   void Body::setRestitution(float32 restitution)
   {
     for (b2Fixture* f = mBody->GetFixtureList(); f != nullptr; f = f->GetNext())

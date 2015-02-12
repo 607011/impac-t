@@ -17,16 +17,14 @@
 
 */
 
-
 #ifndef __LEVEL_H_
 #define __LEVEL_H_
 
+#include <SFML/System.hpp>
+#include <vector>
+#include <string>
 #include "Body.h"
 #include "globals.h"
-#include <SFML/System.hpp>
-
-#include <map>
-#include <string>
 
 
 namespace Impact {
@@ -61,6 +59,8 @@ namespace Impact {
       , restitution(.9f)
       , density(800.f)
       , gravityScale(2.f)
+      , smooth(true)
+      , minimumKillImpulse(50)
     { /* ... */ }
     int score;
     std::string textureName;
@@ -70,6 +70,8 @@ namespace Impact {
     float32 restitution;
     float32 density;
     float32 gravityScale;
+    bool smooth;
+    int minimumKillImpulse;
   };
 
   class Level {

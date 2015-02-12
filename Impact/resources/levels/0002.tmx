@@ -40,6 +40,7 @@
   <tile id="6">
    <properties>
     <property name="Name" value="Ball"/>
+    <property name="Smooth" value="0"/>
    </properties>
    <image width="16" height="16" source="../images/ball.png"/>
   </tile>

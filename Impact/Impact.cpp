@@ -297,7 +297,6 @@ namespace Impact {
     mPostFXShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
     mPostFXShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
     mPostFXShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
-    // mPostFX.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
 
     gotoWelcomeScreen();
 
@@ -984,9 +983,14 @@ namespace Impact {
           if (tile.textureName == "Ball") {
             mNewBallPosition.Set(pos.x, pos.y);
             newBall();
+            mBall->setSmooth(tile.smooth);
+            mBall->setDensity(tile.density);
+            mBall->setRestitution(tile.restitution);
+            mBall->setFriction(tile.friction);
           }
           else if (tile.textureName == "Racket") {
             mRacket = new Racket(this, pos);
+            mRacket->setSmooth(tile.smooth);
             // mRacket->setXAxisConstraint(mLevel.height() - .5f);
             addBody(mRacket);
           }
@@ -994,6 +998,8 @@ namespace Impact {
             Wall *wall = new Wall(tileId, this);
             wall->setPosition(pos);
             wall->setRestitution(tile.restitution);
+            wall->setFriction(tile.friction);
+            wall->setSmooth(tile.smooth);
             addBody(wall);
           }
           else {
@@ -1003,6 +1009,9 @@ namespace Impact {
             block->setGravityScale(tile.gravityScale);
             block->setDensity(tile.density);
             block->setRestitution(tile.restitution);
+            block->setFriction(tile.friction);
+            block->setSmooth(tile.smooth);
+            block->setEnergy(tile.minimumKillImpulse);
             addBody(block);
             ++mBlockCount;
           }
