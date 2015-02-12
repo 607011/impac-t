@@ -130,5 +130,11 @@
       <Filter>Fragment Shaders</Filter>
     </None>
     <None Include="..\README.md" />
+    <None Include="..\..\Impac%27t\Impact\resources\shaders\hblur.frag">
+      <Filter>Fragment Shaders</Filter>
+    </None>
+    <None Include="..\..\Impac%27t\Impact\resources\shaders\vblur.frag">
+      <Filter>Fragment Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

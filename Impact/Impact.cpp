@@ -55,6 +55,7 @@ namespace Impact {
     , mFadeEffectsActive(0)
     , mFadeEffectsDarken(false)
     , mFadeEffectDuration(DefaultFadeEffectDuration)
+    , mBlur(false)
     , mLastKillingsIndex(0)
   {
     bool ok;
@@ -69,7 +70,8 @@ namespace Impact {
     mWindow.setVerticalSyncEnabled(false); // DO NOT CHANGE UNLESS YOU'D LIKE TO RISK TUNNELING OR OTHER ADVERSARY EFFECTS!!!
     resize();
 
-    mRenderTexture.create(Game::DefaultWindowWidth, Game::DefaultWindowHeight, false);
+    mRenderTexture0.create(Game::DefaultWindowWidth, Game::DefaultWindowHeight, false);
+    mRenderTexture1.create(Game::DefaultWindowWidth, Game::DefaultWindowHeight, false);
 
     sf::Image icon;
     icon.loadFromFile(gImagesDir + "/app-icon.png");
@@ -230,7 +232,15 @@ namespace Impact {
     mTitleSprite.setTexture(mTitleTexture);
     mTitleSprite.setPosition(0.f, 0.f);
 
-    mPostFX.loadFromFile(gShadersDir + "/postfx.frag", sf::Shader::Fragment);
+    mPostFXShader.loadFromFile(gShadersDir + "/postfx.frag", sf::Shader::Fragment);
+
+    mVBlurShader.loadFromFile(gShadersDir + "/vblur.frag", sf::Shader::Fragment);
+    mVBlurShader.setParameter("uBlur", 4.f);
+    mVBlurShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
+
+    mHBlurShader.loadFromFile(gShadersDir + "/hblur.frag", sf::Shader::Fragment);
+    mHBlurShader.setParameter("uBlur", 4.f);
+    mHBlurShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
 
     mTitleShader.loadFromFile(gShadersDir + "/title.frag", sf::Shader::Fragment);
 
@@ -284,9 +294,10 @@ namespace Impact {
 
     mContactPointCount = 0;
 
-    mPostFX.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
-    mPostFX.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
-    mPostFX.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
+    mPostFXShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
+    mPostFXShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
+    mPostFXShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
+    // mPostFX.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
 
     gotoWelcomeScreen();
 
@@ -551,7 +562,8 @@ namespace Impact {
 
     update(elapsed);
 
-    mPostFX.setParameter("uColorMix", sf::Color(255, 255, 255, 0x7f));
+    mPostFXShader.setParameter("uColorMix", sf::Color(255, 255, 255, 0x7f));
+    mBlur = true;
     drawPlayground();
 
     mLevelCompletedMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mLevelCompletedMsg.getLocalBounds().width, 20.f);
@@ -575,6 +587,7 @@ namespace Impact {
 
     update(elapsed);
 
+    mBlur = true;
     drawPlayground();
 
     mPlayerWonMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
@@ -608,7 +621,8 @@ namespace Impact {
 
     update(elapsed);
 
-    mPostFX.setParameter("uColorMix", sf::Color(255, 255, 255, 0x7f));
+    mBlur = true;
+    mPostFXShader.setParameter("uColorMix", sf::Color(255, 255, 255, 0x7f));
     drawPlayground();
 
     mGameOverMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
@@ -640,12 +654,13 @@ namespace Impact {
     clearWorld();
     mBallHasBeenLost = false;
     mWindow.setMouseCursorVisible(false);
-    mPostFX.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
+    mPostFXShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
     if (mLevel.gotoNext()) {
       buildLevel();
       mClock.restart();
       mLevelTimer.resume();
       setState(State::Playing);
+      mBlur = false;
     }
     else {
       gotoPlayerWon();
@@ -684,6 +699,7 @@ namespace Impact {
         }
       }
     }
+    // mPostFX.setParameter("uAngle", mWallClock.getElapsedTime().asSeconds());
     drawPlayground();
   }
 
@@ -694,37 +710,37 @@ namespace Impact {
 
     clearWindow();
 
-    mRenderTexture.clear(mLevel.backgroundColor());
-    mRenderTexture.draw(mLevel.backgroundSprite());
-    mRenderTexture.setView(mDefaultView);
+    // mRenderTexture.clear(mLevel.backgroundColor());
+    mRenderTexture0.draw(mLevel.backgroundSprite());
+    mRenderTexture0.setView(mDefaultView);
+
     for (BodyList::const_iterator b = mBodies.cbegin(); b != mBodies.cend(); ++b) {
       const Body *body = *b;
       if (body->isAlive()) {
-        mRenderTexture.draw(*body);
+        mRenderTexture0.draw(*body);
       }
     }
 
-    mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
-    mLevelMsg.setPosition(4, 4);
-    mRenderTexture.draw(mLevelMsg);
+    sf::RenderStates states0;
+    sf::Sprite sprite0;
 
-    if (mState == State::Playing) {
-      int penalty = mLevelTimer.accumulatedSeconds();
-      mScoreMsg.setString(std::to_string(b2Max(0, mScore - penalty)));
-      mScoreMsg.setPosition(mDefaultView.getCenter().x + mDefaultView.getSize().x / 2 - mScoreMsg.getLocalBounds().width - 4, 4);
-      mRenderTexture.draw(mScoreMsg);
-      for (int life = 0; life < mLives; ++life) {
-        const sf::Texture &ballTexture = mLevel.texture(std::string("Ball"));
-        sf::Sprite lifeSprite(ballTexture);
-        lifeSprite.setOrigin(0.f, 0.f);
-        lifeSprite.setColor(sf::Color(255, 255, 255, 0xa0));
-        lifeSprite.setPosition(4 + (ballTexture.getSize().x * 1.5f) * life, mDefaultView.getCenter().y - 0.5f * mDefaultView.getSize().y + 26);
-        mRenderTexture.draw(lifeSprite);
+    if (mBlur) {
+      sf::RenderStates states1;
+      sf::Sprite sprite1;
+      mRenderTexture1.setView(mDefaultView);
+      for (int i = 1; i < 4; ++i) {
+        sprite1.setTexture(mRenderTexture0.getTexture());
+        mVBlurShader.setParameter("uBlur", 4.f * i);
+        states1.shader = &mVBlurShader;
+        mRenderTexture1.draw(sprite1, states1);
+        sprite0.setTexture(mRenderTexture1.getTexture());
+        mHBlurShader.setParameter("uBlur", 4.f * i);
+        states0.shader = &mHBlurShader;
+        mRenderTexture0.draw(sprite0, states0);
       }
     }
 
-    sf::Sprite sprite(mRenderTexture.getTexture());
-    sf::RenderStates states;
+    sprite0.setTexture(mRenderTexture0.getTexture());
     if (mFadeEffectsActive > 0) {
       sf::Uint8 c = 0;
       if (mFadeEffectTimer.getElapsedTime() < mFadeEffectDuration) {
@@ -734,18 +750,39 @@ namespace Impact {
         mFadeEffectsActive = 0;
       }
       if (mFadeEffectsDarken)
-        mPostFX.setParameter("uColorSub", sf::Color(c, c, c, 0));
+        mPostFXShader.setParameter("uColorSub", sf::Color(c, c, c, 0));
       else
-        mPostFX.setParameter("uColorAdd", sf::Color(c, c, c, 0));
+        mPostFXShader.setParameter("uColorAdd", sf::Color(c, c, c, 0));
     }
     else {
       if (mFadeEffectsDarken)
-        mPostFX.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
+        mPostFXShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
       else
-        mPostFX.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
+        mPostFXShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
     }
-    states.shader = &mPostFX;
-    mWindow.draw(sprite, states);
+    states0.shader = &mPostFXShader;
+    mWindow.draw(sprite0, states0);
+
+    mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
+    mLevelMsg.setPosition(4, 4);
+
+    mWindow.draw(mLevelMsg);
+    if (mState == State::Playing) {
+      int penalty = mLevelTimer.accumulatedSeconds();
+      mScoreMsg.setString(std::to_string(b2Max(0, mScore - penalty)));
+      mScoreMsg.setPosition(mDefaultView.getCenter().x + mDefaultView.getSize().x / 2 - mScoreMsg.getLocalBounds().width - 4, 4);
+      mWindow.draw(mScoreMsg);
+      for (int life = 0; life < mLives; ++life) {
+        const sf::Texture &ballTexture = mLevel.texture(std::string("Ball"));
+        sf::Sprite lifeSprite(ballTexture);
+        lifeSprite.setOrigin(0.f, 0.f);
+        lifeSprite.setColor(sf::Color(255, 255, 255, 0xa0));
+        lifeSprite.setPosition(4 + (ballTexture.getSize().x * 1.5f) * life, mDefaultView.getCenter().y - 0.5f * mDefaultView.getSize().y + 26);
+        mWindow.draw(lifeSprite);
+      }
+    }
+
+
   }
 
 
@@ -771,9 +808,6 @@ namespace Impact {
 
   void Game::evaluateCollisions(void)
   {
-#ifndef NDEBUG
-    std::cout  << "Game::evaluateCollisions()" << std::endl;
-#endif
     std::list<Body*> killedBodies;
     for (int i = 0; i < mContactPointCount; ++i) {
       ContactPoint &cp = mPoints[i];
@@ -1054,14 +1088,6 @@ namespace Impact {
   }
 
 
-  void Game::killingSpree(int bonusPoints)
-  {
-    mKillingSpreeSound.play();
-    showScore(bonusPoints + mLevel.killingSpreeBonus(), mRacket->position());
-    resetKillingSpree();
-  }
-
-
   void Game::resetKillingSpree(void)
   {
     for (std::vector<sf::Time>::iterator t = mLastKillings.begin(); t != mLastKillings.end(); ++t)
@@ -1070,23 +1096,23 @@ namespace Impact {
   }
 
 
-  inline void Game::checkForKillingSpree(void)
-  {
-    mLastKillings[mLastKillingsIndex] = mWallClock.getElapsedTime();
-    const int i = (mLastKillingsIndex - mLastKillings.size()) % int(mLastKillings.size());
-    const sf::Time &dt = mLastKillings.at(mLastKillingsIndex) - mLastKillings.at(i);
-    mLastKillingsIndex = (mLastKillingsIndex + 1) % mLastKillings.size();
-    if (dt < mLevel.killingSpreeInterval())
-      killingSpree((mLevel.killingSpreeInterval() - dt).asMilliseconds());
-  }
-
-
   void Game::onBodyKilled(Body *killedBody)
   {
     if (killedBody->type() == Body::BodyType::Block) {
       mExplosionSound.play();
       addBody(new ParticleSystem(this, killedBody->position(), mLevel.explosionParticlesCollideWithBall()));
-      checkForKillingSpree();
+      {
+        // check for killing spree
+        mLastKillings[mLastKillingsIndex] = mWallClock.getElapsedTime();
+        int i = (mLastKillingsIndex - mLastKillings.size()) % int(mLastKillings.size());
+        const sf::Time &dt = mLastKillings.at(mLastKillingsIndex) - mLastKillings.at(i);
+        mLastKillingsIndex = (mLastKillingsIndex + 1) % mLastKillings.size();
+        if (dt < mLevel.killingSpreeInterval()) {
+          mKillingSpreeSound.play();
+          showScore((mLevel.killingSpreeInterval() - dt).asMilliseconds() + mLevel.killingSpreeBonus(), killedBody->position() + b2Vec2(0.f, 1.35f));
+          resetKillingSpree();
+        }
+      }
       if (--mBlockCount == 0)
         gotoLevelCompleted();
     }

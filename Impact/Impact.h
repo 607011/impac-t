@@ -130,8 +130,12 @@ namespace Impact {
     // SFML
     sf::RenderWindow mWindow;
     sf::View mDefaultView;
-    sf::RenderTexture mRenderTexture;
-    sf::Shader mPostFX;
+    sf::RenderTexture mRenderTexture0;
+    sf::RenderTexture mRenderTexture1;
+    sf::Shader mPostFXShader;
+    sf::Shader mHBlurShader;
+    sf::Shader mVBlurShader;
+    bool mBlur;
     sf::Font mFixedFont;
     sf::Texture mBackgroundTexture;
     sf::Sprite mBackgroundSprite;
@@ -255,9 +259,7 @@ namespace Impact {
     void handleEvents(void);
     void startFadeEffect(bool darken = false, const sf::Time &duration = DefaultFadeEffectDuration);
     void setKillingsPerKillingSpree(int);
-    void killingSpree(int bonusPoints);
     void resetKillingSpree(void);
-    void checkForKillingSpree(void);
 
     void gotoWelcomeScreen(void);
     void onWelcomeScreen(void);
