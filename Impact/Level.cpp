@@ -268,6 +268,9 @@ namespace Impact {
                 else if (propName == "gravityscale") {
                   mTiles[id].gravityScale = property.get<float32>("<xmlattr>.value");
                 }
+                else if (propName == "minimumhitimpulse") {
+                  mTiles[id].minimumHitImpulse = property.get<int>("<xmlattr>.value");
+                }
                 else if (propName == "minimumkillimpulse") {
                   mTiles[id].minimumKillImpulse = property.get<int>("<xmlattr>.value");
                 }

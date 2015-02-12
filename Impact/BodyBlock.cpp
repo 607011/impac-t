@@ -29,6 +29,7 @@ namespace Impact {
   Block::Block(int index, Game *game)
     : Body(Body::BodyType::Block, game)
     , mGravityScale(2.f)
+    , mMinimumHitImpulse(0)
   {
     setZIndex(Body::ZIndex::Intermediate + 0);
     mName = std::string("Block");
@@ -124,14 +125,21 @@ namespace Impact {
 
   bool Block::hit(float impulse)
   {
-    bool destroyed = Body::hit(int(impulse));
-    if (!destroyed) {
+    const int v = int(impulse);
+    bool destroyed = Body::hit(v);
+    if (!destroyed && v > mMinimumHitImpulse) {
       mBody->SetLinearDamping(0.f);
       mBody->SetGravityScale(mGravityScale);
       mShader.setParameter("uColor", sf::Color(sf::Color(255, 255, 255, 0xbf)));
       mShader.setParameter("uBlur", 1.28f);
     }
     return destroyed;
+  }
+
+
+  void Block::setMinimumHitImpulse(int v)
+  {
+    mMinimumHitImpulse = v;
   }
 
 

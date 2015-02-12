@@ -40,6 +40,7 @@ namespace Impact {
     virtual bool hit(float impulse);
 
     void setGravityScale(float32);
+    void setMinimumHitImpulse(int);
 
   protected:
     static const int TextureBorderWidth = 8;
@@ -49,6 +50,7 @@ namespace Impact {
 
   private:
     float32 mGravityScale;
+    int mMinimumHitImpulse;
   };
 
 }

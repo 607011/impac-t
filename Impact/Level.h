@@ -60,6 +60,7 @@ namespace Impact {
       , density(800.f)
       , gravityScale(2.f)
       , smooth(true)
+      , minimumHitImpulse(0)
       , minimumKillImpulse(50)
     { /* ... */ }
     int score;
@@ -71,6 +72,7 @@ namespace Impact {
     float32 density;
     float32 gravityScale;
     bool smooth;
+    int minimumHitImpulse;
     int minimumKillImpulse;
   };
 

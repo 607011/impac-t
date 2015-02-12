@@ -1012,6 +1012,7 @@ namespace Impact {
             block->setFriction(tile.friction);
             block->setSmooth(tile.smooth);
             block->setEnergy(tile.minimumKillImpulse);
+            block->setMinimumHitImpulse(tile.minimumHitImpulse);
             addBody(block);
             ++mBlockCount;
           }
