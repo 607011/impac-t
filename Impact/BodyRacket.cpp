@@ -34,13 +34,12 @@ namespace Impact {
     mName = std::string("Racket");
     mTexture = mGame->level()->texture(mName);
 
-    const float32 W = float32(mTexture.getSize().x);
-    const float32 H = float32(mTexture.getSize().y);
+    const float32 halfW = .5f * mTexture.getSize().x;
+    const float32 halfH = .5f * mTexture.getSize().y;
 
-    const sf::Vector2f &origin = .5f * sf::Vector2f(W, H);
+    const sf::Vector2f origin(halfW, halfH);
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(origin);
-    mCenter = Game::InvScale * b2Vec2(origin.x, origin.y);
 
     // racket
     {
@@ -129,7 +128,7 @@ namespace Impact {
   {
     Body::setPosition(pos);
     const b2Transform &tx = mBody->GetTransform();
-    mTeetingBody->SetTransform(tx.p - mCenter, tx.q.GetAngle());
+    mTeetingBody->SetTransform(tx.p, tx.q.GetAngle());
   }
 
 

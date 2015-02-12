@@ -59,8 +59,6 @@ namespace Impact {
     static const float32 DefaultFriction;
     static const float32 DefaultRestitution;
 
-    b2Vec2 mCenter;
-
     b2RevoluteJoint* mJoint;
     b2Body *mTeetingBody;
   };
