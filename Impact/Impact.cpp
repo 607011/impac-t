@@ -981,8 +981,7 @@ namespace Impact {
         const Tile &tile = mLevel.tile(tileId);
         if (tileId >= mLevel.firstGID()) {
           if (tile.textureName == "Ball") {
-            mNewBallPosition.Set(pos.x, pos.y);
-            newBall();
+            newBall(pos);
             mBall->setSmooth(tile.smooth);
             mBall->setDensity(tile.density);
             mBall->setRestitution(tile.restitution);
@@ -1063,7 +1062,7 @@ namespace Impact {
   }
 
 
-  void Game::newBall(void)
+  void Game::newBall(const b2Vec2 &pos)
   {
     mNewBallSound.play();
     safeRenew(mBall, new Ball(this));
@@ -1072,7 +1071,7 @@ namespace Impact {
       mBall->setPosition(padPos.x, padPos.y - 3.5f);
     }
     else {
-      mBall->setPosition(mNewBallPosition);
+      mBall->setPosition(pos);
     }
     addBody(mBall);
   }

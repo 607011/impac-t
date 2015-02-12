@@ -230,7 +230,6 @@ namespace Impact {
     Racket *mRacket;
     Level mLevel;
     LevelTimer mLevelTimer;
-    b2Vec2 mNewBallPosition;
     std::vector<sf::Time> mLastKillings;
     int mLastKillingsIndex;
 #ifdef BALL_TRACES
@@ -239,7 +238,7 @@ namespace Impact {
 
     void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);
-    void newBall(void);
+    void newBall(const b2Vec2 &pos = b2Vec2_zero);
     void extraBall(void);
     void setState(State state);
     void clearWorld(void);
