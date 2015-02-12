@@ -610,7 +610,7 @@ namespace Impact {
   {
     mStartMsg.setString(tr("Click to continue"));
     setState(State::GameOver);
-    mTotalScore = mScore - mLevelTimer.accumulatedSeconds();
+    mTotalScore = b2Max(0, mScore - mLevelTimer.accumulatedSeconds());
   }
 
 
