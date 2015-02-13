@@ -36,18 +36,18 @@ namespace Impact {
 
     const sf::Texture &texture = mGame->level()->tileParam(index).texture;
     sf::Image img;
-    img.create(texture.getSize().x + 2 * TextureBorderWidth, texture.getSize().y + 2 * TextureBorderWidth, sf::Color(255, 255, 255, 0));
-    img.copy(texture.copyToImage(), TextureBorderWidth, TextureBorderWidth, sf::IntRect(0, 0, 0, 0), true);
+    img.create(texture.getSize().x + 2 * TextureMargin, texture.getSize().y + 2 * TextureMargin, sf::Color(0, 0, 0, 0));
+    img.copy(texture.copyToImage(), TextureMargin, TextureMargin, sf::IntRect(0, 0, 0, 0), true);
     mTexture.loadFromImage(img);
-
-    mShader.loadFromFile(gShadersDir + "/fallingblock.frag", sf::Shader::Fragment);
-    mShader.setParameter("uAge", .0f);
-    mShader.setParameter("uBlur", .0f);
-    mShader.setParameter("uColor", sf::Color(255, 255, 255, 255));
-    mShader.setParameter("uResolution", float(texture.getSize().x), float(texture.getSize().y));
 
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(.5f * mTexture.getSize().x, .5f * mTexture.getSize().y);
+
+    mShader.loadFromFile(gShadersDir + "/fallingblock.frag", sf::Shader::Fragment);
+    mShader.setParameter("uAge", 0.f);
+    mShader.setParameter("uBlur", 0.f);
+    mShader.setParameter("uColor", sf::Color(255, 255, 255, 255));
+    mShader.setParameter("uResolution", float(mTexture.getSize().x), float(mTexture.getSize().y));
 
     const int W = texture.getSize().x;
     const int H = texture.getSize().y;
@@ -129,10 +129,16 @@ namespace Impact {
     if (!destroyed && v > mMinimumHitImpulse) {
       mBody->SetLinearDamping(0.f);
       mBody->SetGravityScale(mGravityScale);
-      mShader.setParameter("uColor", sf::Color(sf::Color(255, 255, 255, 0xbf)));
+      mShader.setParameter("uColor", sf::Color(sf::Color(255, 255, 255, 230)));
       mShader.setParameter("uBlur", 1.28f);
     }
     return destroyed;
+  }
+
+
+  void Block::setPosition(const b2Vec2 &p)
+  {
+    mBody->SetTransform(p + .5f * Game::InvScale * b2Vec2(float32(mTexture.getSize().x - 2 * TextureMargin), float32(mTexture.getSize().y - 2 * TextureMargin)), mBody->GetAngle());
   }
 
 
@@ -146,6 +152,5 @@ namespace Impact {
   {
     mGravityScale = gravityScale;
   }
-
 
 }

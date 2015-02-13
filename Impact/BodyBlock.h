@@ -38,6 +38,7 @@ namespace Impact {
     virtual BodyType type(void) const { return Body::BodyType::Block; }
 
     virtual bool hit(float impulse);
+    virtual void setPosition(const b2Vec2 &);
 
     void setGravityScale(float32);
     void setMinimumHitImpulse(int);
@@ -48,7 +49,7 @@ namespace Impact {
     static const float32 DefaultRestitution;
 
   protected:
-    static const int TextureBorderWidth = 8;
+    static const int TextureMargin = 8;
 
 
   private:
