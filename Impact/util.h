@@ -86,9 +86,9 @@ namespace Impact {
       assert(mEmpty == false);
       return mValue;
     }
-    bool empty(void) const
+    bool isValid(void) const
     {
-      return mEmpty;
+      return !mEmpty;
     }
     T operator=(T value)
     {

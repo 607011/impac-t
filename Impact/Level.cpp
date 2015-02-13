@@ -129,7 +129,7 @@ namespace Impact {
 
     std::ostringstream buf;
 #ifndef NDEBUG
-    // mLevelNum = 6;
+    // mLevelNum = 10;
 #endif
     buf << gLevelsDir << "/" << std::setw(4) << std::setfill('0') << mLevelNum << ".tmx";
     const std::string &filename = buf.str();
@@ -332,17 +332,17 @@ namespace Impact {
               } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
             }
           }
-          if (tileParam.fixed.empty())
+          if (!tileParam.fixed.isValid())
             tileParam.fixed = tileParam.textureName == Wall::Name;
-          if (tileParam.density.empty()) {
+          if (!tileParam.density.isValid()) {
             if (tileParam.textureName == Ball::Name)
               tileParam.density = Ball::DefaultDensity;
-            else if (tileParam.textureName == Wall::Name)
+            else if (tileParam.textureName == Wall::Name || tileParam.fixed.get())
               tileParam.density = Wall::DefaultDensity;
             else
               tileParam.density = Block::DefaultDensity;
           }
-          if (tileParam.friction.empty()) {
+          if (!tileParam.friction.isValid()) {
             if (tileParam.textureName == Ball::Name)
               tileParam.friction = Ball::DefaultFriction;
             else if (tileParam.textureName == Wall::Name)
@@ -350,10 +350,10 @@ namespace Impact {
             else
               tileParam.friction = Block::DefaultFriction;
           }
-          if (tileParam.restitution.empty()) {
+          if (!tileParam.restitution.isValid()) {
             if (tileParam.textureName == Ball::Name)
               tileParam.restitution = Ball::DefaultRestitution;
-            else if (tileParam.textureName == Wall::Name)
+            else if (tileParam.textureName == Wall::Name || tileParam.fixed.get())
               tileParam.restitution = Wall::DefaultRestitution;
             else
               tileParam.restitution = Block::DefaultRestitution;
