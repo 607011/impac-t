@@ -23,6 +23,7 @@
 
 #include <string>
 #include <cstdint>
+#include <cassert>
 
 #define UNUSED(x) (void)(x)
 #define tr(x) std::string(x)
