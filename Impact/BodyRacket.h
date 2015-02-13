@@ -62,7 +62,7 @@ namespace Impact {
     static const float32 DefaultRestitution;
 
   private:
-    b2RevoluteJoint* mJoint;
+    b2RevoluteJoint *mJoint;
     b2Body *mTeetingBody;
   };
 

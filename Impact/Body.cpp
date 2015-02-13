@@ -131,7 +131,7 @@ namespace Impact {
     mBody->SetTransform(p + .5f * Game::InvScale * b2Vec2(float32(mTexture.getSize().x), float32(mTexture.getSize().y)), mBody->GetAngle());
   }
 
-  
+
   void Body::setLifetime(const sf::Time &lifetime)
   {
     mMaxAge = lifetime;
