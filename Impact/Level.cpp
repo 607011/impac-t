@@ -19,6 +19,44 @@
 
 
 #include "stdafx.h"
+#include <boost/algorithm/string/predicate.hpp>
+
+struct BoolTranslator
+{
+  typedef std::string internal_type;
+  typedef bool external_type;
+
+  // Converts a string to bool
+  boost::optional<external_type> get_value(const internal_type& str)
+  {
+    if (!str.empty()) {
+      if (boost::algorithm::iequals(str, "true") || boost::algorithm::iequals(str, "yes") || boost::algorithm::iequals(str, "enabled") || str == "1")
+        return boost::optional<external_type>(true);
+      else
+        return boost::optional<external_type>(false);
+    }
+    else
+      return boost::optional<external_type>(boost::none);
+  }
+
+  // Converts a bool to string
+  boost::optional<internal_type> put_value(const external_type& b)
+  {
+    return boost::optional<internal_type>(b ? "true" : "false");
+  }
+};
+
+// Specialize translator_between so that it uses our custom translator for
+// bool value types. Specialization must be in boost::property_tree namespace.
+namespace boost {
+  namespace property_tree {
+    template<typename Ch, typename Traits, typename Alloc> 
+    struct translator_between<std::basic_string< Ch, Traits, Alloc >, bool>
+    {
+      typedef BoolTranslator type;
+    };
+  }
+}
 
 
 namespace Impact {
@@ -256,7 +294,7 @@ namespace Impact {
                   tileParam.score = property.get<int>("<xmlattr>.value");
                 }
                 else if (propName == "fixed") {
-                  tileParam.fixed = property.get<int>("<xmlattr>.value") > 0;
+                  tileParam.fixed = property.get<bool>("<xmlattr>.value");
                 }
                 else if (propName == "friction") {
                   tileParam.friction = property.get<float32>("<xmlattr>.value");
@@ -289,7 +327,7 @@ namespace Impact {
                   tileParam.minimumKillImpulse = property.get<int>("<xmlattr>.value");
                 }
                 else if (propName == "smooth") {
-                  tileParam.smooth = property.get<int>("<xmlattr>.value") > 0;
+                  tileParam.smooth = property.get<bool>("<xmlattr>.value");
                 }
               } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
             }
