@@ -42,11 +42,13 @@ namespace Impact {
     void setGravityScale(float32);
     void setMinimumHitImpulse(int);
 
-  protected:
-    static const int TextureBorderWidth = 8;
     static const float32 DefaultDensity;
     static const float32 DefaultFriction;
     static const float32 DefaultRestitution;
+
+  protected:
+    static const int TextureBorderWidth = 8;
+
 
   private:
     float32 mGravityScale;

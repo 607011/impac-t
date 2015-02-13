@@ -236,8 +236,15 @@ namespace Impact {
         if (ti->first == "tile") {
           const int id = mFirstGID + tile.get<int>("<xmlattr>.id");
           mTiles.resize(id + 1);
+          TileParam tileParam;
+          tileParam.smooth = true;
+          tileParam.gravityScale = 1.f;
+          tileParam.scaleBallDensityBy = 1.f;
+          tileParam.scaleGravityBy = 1.f;
+          tileParam.minimumHitImpulse = 5;
+          tileParam.minimumKillImpulse = 50;
           const std::string &filename = gLevelsDir + "/" + tile.get<std::string>("image.<xmlattr>.source");
-          ok = mTiles[id].texture.loadFromFile(filename);
+          ok = tileParam.texture.loadFromFile(filename);
           if (!ok)
             return false;
           const boost::property_tree::ptree &tileProperties = tile.get_child("properties");
@@ -249,50 +256,77 @@ namespace Impact {
                 std::string propName = property.get<std::string>("<xmlattr>.name");
                 boost::algorithm::to_lower(propName);
                 if (propName == "name") {
-                  mTiles[id].textureName = property.get<std::string>("<xmlattr>.value");
+                  tileParam.textureName = property.get<std::string>("<xmlattr>.value");
                 }
                 else if (propName == "points") {
-                  mTiles[id].score = property.get<int>("<xmlattr>.value");
+                  tileParam.score = property.get<int>("<xmlattr>.value");
                 }
                 else if (propName == "fixed") {
-                  mTiles[id].fixed = property.get<int>("<xmlattr>.value") > 0;
+                  tileParam.fixed = property.get<int>("<xmlattr>.value") > 0;
                 }
                 else if (propName == "friction") {
-                  mTiles[id].friction = property.get<float32>("<xmlattr>.value");
+                  tileParam.friction = property.get<float32>("<xmlattr>.value");
                 }
                 else if (propName == "restitution") {
-                  mTiles[id].restitution = property.get<float32>("<xmlattr>.value");
+                  tileParam.restitution = property.get<float32>("<xmlattr>.value");
                 }
                 else if (propName == "density") {
-                  mTiles[id].density = property.get<float32>("<xmlattr>.value");
+                  tileParam.density = property.get<float32>("<xmlattr>.value");
                 }
                 else if (propName == "gravityscale") {
-                  mTiles[id].gravityScale = property.get<float32>("<xmlattr>.value");
+                  tileParam.gravityScale = property.get<float32>("<xmlattr>.value");
                 }
                 else if (propName == "scalegravityby") {
-                  mTiles[id].scaleGravityBy = property.get<float32>("<xmlattr>.value");
+                  tileParam.scaleGravityBy = property.get<float32>("<xmlattr>.value");
                 }
                 else if (propName == "scalegravityseconds") {
-                  mTiles[id].scaleGravityDuration = sf::seconds(property.get<float32>("<xmlattr>.value"));
+                  tileParam.scaleGravityDuration = sf::seconds(property.get<float32>("<xmlattr>.value"));
                 }
                 else if (propName == "scaleballdensityby") {
-                  mTiles[id].scaleBallDensityBy = property.get<float32>("<xmlattr>.value");
+                  tileParam.scaleBallDensityBy = property.get<float32>("<xmlattr>.value");
                 }
                 else if (propName == "scaleballdensityseconds") {
-                  mTiles[id].scaleBallDensityDuration = sf::seconds(property.get<float32>("<xmlattr>.value"));
+                  tileParam.scaleBallDensityDuration = sf::seconds(property.get<float32>("<xmlattr>.value"));
                 }
                 else if (propName == "minimumhitimpulse") {
-                  mTiles[id].minimumHitImpulse = property.get<int>("<xmlattr>.value");
+                  tileParam.minimumHitImpulse = property.get<int>("<xmlattr>.value");
                 }
                 else if (propName == "minimumkillimpulse") {
-                  mTiles[id].minimumKillImpulse = property.get<int>("<xmlattr>.value");
+                  tileParam.minimumKillImpulse = property.get<int>("<xmlattr>.value");
                 }
                 else if (propName == "smooth") {
-                  mTiles[id].smooth = property.get<int>("<xmlattr>.value") > 0;
+                  tileParam.smooth = property.get<int>("<xmlattr>.value") > 0;
                 }
               } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
             }
           }
+          if (tileParam.fixed.empty())
+            tileParam.fixed = tileParam.textureName == Wall::Name;
+          if (tileParam.density.empty()) {
+            if (tileParam.textureName == Ball::Name)
+              tileParam.density = Ball::DefaultDensity;
+            else if (tileParam.textureName == Wall::Name)
+              tileParam.density = Wall::DefaultDensity;
+            else
+              tileParam.density = Block::DefaultDensity;
+          }
+          if (tileParam.friction.empty()) {
+            if (tileParam.textureName == Ball::Name)
+              tileParam.friction = Ball::DefaultFriction;
+            else if (tileParam.textureName == Wall::Name)
+              tileParam.friction = Wall::DefaultFriction;
+            else
+              tileParam.friction = Block::DefaultFriction;
+          }
+          if (tileParam.restitution.empty()) {
+            if (tileParam.textureName == Ball::Name)
+              tileParam.restitution = Ball::DefaultRestitution;
+            else if (tileParam.textureName == Wall::Name)
+              tileParam.restitution = Wall::DefaultRestitution;
+            else
+              tileParam.restitution = Block::DefaultRestitution;
+          }
+          mTiles[id] = tileParam;
         }
       }
     }

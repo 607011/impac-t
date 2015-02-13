@@ -22,6 +22,7 @@
 
 namespace Impact {
 
+  const std::string Ball::Name = "Ball";
   const float32 Ball::DefaultDensity = 2.f;
   const float32 Ball::DefaultFriction = .71f;
   const float32 Ball::DefaultRestitution = .3f;
@@ -31,7 +32,7 @@ namespace Impact {
   {
     setZIndex(Body::ZIndex::Foreground + 0);
     setEnergy(1);
-    mName = std::string("Ball");
+    mName = Name;
     mTexture = mGame->level()->texture(mName);
 
     const float32 halfW = .5f * mTexture.getSize().x;

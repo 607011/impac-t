@@ -22,7 +22,7 @@
 
 namespace Impact {
 
-  
+  const std::string Racket::Name = "Racket";
   const float32 Racket::DefaultDensity = 5.f;
   const float32 Racket::DefaultFriction = .71f;
   const float32 Racket::DefaultRestitution = .1f;
@@ -31,7 +31,7 @@ namespace Impact {
     : Body(Body::BodyType::Racket, game)
   {
     setZIndex(Body::ZIndex::Foreground + 0);
-    mName = std::string("Racket");
+    mName = Name;
     mTexture = mGame->level()->texture(mName);
 
     const float32 halfW = .5f * mTexture.getSize().x;

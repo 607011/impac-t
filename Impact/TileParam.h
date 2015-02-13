@@ -25,21 +25,14 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 
+#include "util.h"
+
+
 namespace Impact {
 
   struct TileParam {
     TileParam(void)
       : score(0)
-      , fixed(false)
-      , friction(.5f)
-      , restitution(.9f)
-      , density(800.f)
-      , gravityScale(2.f)
-      , smooth(true)
-      , minimumHitImpulse(0)
-      , minimumKillImpulse(50)
-      , scaleGravityBy(1.f)
-      , scaleBallDensityBy(1.f)
     { /* ... */ }
     TileParam(const TileParam &other)
       : score(other.score)
@@ -59,18 +52,18 @@ namespace Impact {
     int score;
     std::string textureName;
     sf::Texture texture;
-    bool fixed;
-    float32 friction;
-    float32 restitution;
-    float32 density;
-    float32 gravityScale;
-    bool smooth;
-    int minimumHitImpulse;
-    int minimumKillImpulse;
+    DynamicValue<bool> fixed;
+    DynamicValue<float32> friction;
+    DynamicValue<float32> restitution;
+    DynamicValue<float32> density;
+    DynamicValue<float32> gravityScale;
+    DynamicValue<bool> smooth;
+    DynamicValue<int> minimumHitImpulse;
+    DynamicValue<int> minimumKillImpulse;
     sf::Time scaleGravityDuration;
-    float scaleGravityBy;
+    DynamicValue<float32> scaleGravityBy;
     sf::Time scaleBallDensityDuration;
-    float scaleBallDensityBy;
+    DynamicValue<float32> scaleBallDensityBy;
   };
 
 

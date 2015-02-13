@@ -26,6 +26,7 @@
 #include "Destructive.h"
 
 #include <iostream>
+#include <string>
 
 namespace Impact {
 
@@ -41,6 +42,11 @@ namespace Impact {
 
     virtual void setPosition(int x, int y);
     virtual void setPosition(const b2Vec2 &pos);
+
+    static const std::string Name;
+    static const float32 DefaultDensity;
+    static const float32 DefaultFriction;
+    static const float32 DefaultRestitution;
   };
 
 }

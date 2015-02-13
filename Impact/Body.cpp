@@ -90,9 +90,11 @@ namespace Impact {
 
   void Body::setDensity(float32 density)
   {
-    for (b2Fixture* f = mBody->GetFixtureList(); f != nullptr; f = f->GetNext()) {
+#ifndef NDEBUG
+    std::cout << "Body::setDensity(" <<  density << ") for " << mName << "." << std::endl;
+#endif
+    for (b2Fixture* f = mBody->GetFixtureList(); f != nullptr; f = f->GetNext())
       f->SetDensity(density);
-    }
     mBody->ResetMassData();
   }
 

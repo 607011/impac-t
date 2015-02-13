@@ -24,6 +24,8 @@
 #include "Impact.h"
 #include "Destructive.h"
 
+#include <string>
+
 namespace Impact {
 
   class Ball : public Body
@@ -36,10 +38,10 @@ namespace Impact {
     virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
     virtual BodyType type(void) const { return Body::BodyType::Ball; }
 
-  private:
     static const float32 DefaultDensity;
     static const float32 DefaultFriction;
     static const float32 DefaultRestitution;
+    static const std::string Name;
 
   };
 

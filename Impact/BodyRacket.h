@@ -25,6 +25,8 @@
 #include "Body.h"
 #include "Impact.h"
 
+#include <string>
+
 namespace Impact {
 
   class Racket : public Body
@@ -54,11 +56,12 @@ namespace Impact {
     virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
     virtual BodyType type(void) const { return Body::BodyType::Racket; }
 
-  private:
+    static const std::string Name;
     static const float32 DefaultDensity;
     static const float32 DefaultFriction;
     static const float32 DefaultRestitution;
 
+  private:
     b2RevoluteJoint* mJoint;
     b2Body *mTeetingBody;
   };

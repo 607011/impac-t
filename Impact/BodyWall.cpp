@@ -22,13 +22,18 @@
 
 namespace Impact {
 
+  const std::string Wall::Name = "Wall";
+  const float32 Wall::DefaultDensity = 0.f;
+  const float32 Wall::DefaultFriction = .2f;
+  const float32 Wall::DefaultRestitution = 0.5f;
+
 
   Wall::Wall(int index, Game *game)
     : Body(Body::BodyType::Wall, game)
   {
     setZIndex(Body::ZIndex::Intermediate + 0);
     mTexture = mGame->level()->tileParam(index).texture;
-    mName = std::string("Wall");
+    mName = Name;
 
     const float halfW = .5f * mTexture.getSize().x;
     const float halfH = .5f * mTexture.getSize().y;
@@ -44,8 +49,9 @@ namespace Impact {
     polygon.SetAsBox(halfW * Game::InvScale, halfH * Game::InvScale);
 
     b2FixtureDef fd;
-    fd.density = 0.f;
-    fd.restitution = .5f;
+    fd.density = DefaultDensity;
+    fd.restitution = DefaultRestitution;
+    fd.friction = DefaultFriction;
     fd.shape = &polygon;
     mBody->CreateFixture(&fd);
   }

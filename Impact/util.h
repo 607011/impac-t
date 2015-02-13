@@ -69,6 +69,44 @@ namespace Impact {
     a = obj;
   }
 
+  template <typename T>
+  class DynamicValue {
+  public:
+    DynamicValue<T>(void)
+      : mEmpty(true)
+      , mValue(0)
+    { /* ... */ }
+    DynamicValue<T>(const DynamicValue<T> &other)
+      : mEmpty(other.mEmpty)
+      , mValue(other.mValue)
+    { /* ... */ }
+    T get(void) const
+    { 
+      assert(mEmpty == false);
+      return mValue;
+    }
+    bool empty(void) const
+    {
+      return mEmpty;
+    }
+    T operator=(T value)
+    {
+      mValue = value; 
+      mEmpty = false;
+      return mValue;
+    }
+    DynamicValue<T> &operator=(const  DynamicValue<T> &other)
+    {
+      mValue = other.mValue;
+      mEmpty = other.mEmpty;
+      return *this;
+    }
+  private:
+    bool mEmpty;
+    T mValue;
+  };
+
+
   extern bool base64_decode(std::string, uint8_t *&, unsigned long &);
 
 }
