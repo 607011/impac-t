@@ -25,8 +25,8 @@ namespace Impact {
 
   const int Game::Scale = 16;
   const float32 Game::InvScale = 1.f / Game::Scale;
-  const int Game::DefaultWindowWidth = 40 * int(Game::Scale);
-  const int Game::DefaultWindowHeight = 25 * int(Game::Scale);
+  const int Game::DefaultWindowWidth = 40 * Game::Scale;
+  const int Game::DefaultWindowHeight = 25 * Game::Scale;
   const int Game::ColorDepth = 32;
   const int Game::DefaultLives = 3;
   const int Game::DefaultPenalty = 100;
@@ -42,9 +42,6 @@ namespace Impact {
     , mBallHasBeenLost(false)
     , mBall(nullptr)
     , mGround(nullptr)
-#ifdef BALL_TRACES
-    , mBallTrace(nullptr)
-#endif
     , mContactPointCount(0)
     , mScore(0)
     , mLives(3)
@@ -919,11 +916,6 @@ namespace Impact {
       }
     }
     mBodies = remainingBodies;
-
-#ifdef BALL_TRACES
-    if (mBall && mBallTrace)
-      mBallTrace->addMarker(mBall->position(), mBall->body()->GetTransform().q.GetAngle());
-#endif
 
     mContactPointCount = 0;
     mWorld->Step(elapsedSeconds, VelocityIterations, PositionIterations);

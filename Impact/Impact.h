@@ -32,10 +32,6 @@
 #include "BodyRacket.h"
 #include "BodyGround.h"
 
-#ifdef BALL_TRACES
-#include "BodyBallTrace.h"
-#endif
-
 namespace Impact {
   
   class Game;
@@ -76,7 +72,6 @@ namespace Impact {
       Playing,
       LevelCompleted,
       Pausing,
-      OptionsScreen,
       PlayerWon,
       GameOver
     } State;
@@ -237,9 +232,6 @@ namespace Impact {
     LevelTimer mLevelTimer;
     std::vector<sf::Time> mLastKillings;
     int mLastKillingsIndex;
-#ifdef BALL_TRACES
-    BallTrace *mBallTrace;
-#endif
 
     void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);
