@@ -25,7 +25,6 @@ namespace Impact {
   TextBody::TextBody(Game *game, const std::string &text, unsigned int size, const sf::Time &maxAge)
     : Body(Body::BodyType::Text, game)
   {
-    setZIndex(Body::ZIndex::Foreground + 100);
     setLifetime(maxAge);
     setCharacterSize(size);
     mText.setString(sf::String(text));

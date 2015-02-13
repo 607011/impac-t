@@ -165,12 +165,6 @@ namespace Impact {
   }
 
 
-  void Body::setZIndex(int z)
-  {
-    mZIndex = z;
-  }
-
-
   void Body::setBody(b2Body *body)
   {
     remove();

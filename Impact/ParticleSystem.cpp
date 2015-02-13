@@ -33,7 +33,6 @@ namespace Impact {
     : Body(Body::BodyType::Particle, def.game)
     , mParticles(def.count)
   {
-    setZIndex(Body::ZIndex::Foreground + 0);
     mName = std::string("ParticleSystem");
     setLifetime(sMaxAge);
     mTexture.loadFromFile("resources/images/particle.png");

@@ -30,9 +30,8 @@ namespace Impact {
   Ball::Ball(Game *game)
     : Body(Body::BodyType::Ball, game)
   {
-    setZIndex(Body::ZIndex::Foreground + 0);
-    setEnergy(1);
     mName = Name;
+    setEnergy(1);
     mTexture = mGame->level()->texture(mName);
 
     const float32 halfW = .5f * mTexture.getSize().x;

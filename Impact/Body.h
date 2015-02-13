@@ -57,12 +57,6 @@ namespace Impact {
       Wall
     } BodyType;
 
-    typedef enum _ZIndex {
-      Background = -100000,
-      Intermediate = 0,
-      Foreground = +100000
-    } ZIndex;
-
     static const int16 DefaultCollisionGroup = 1;
     static const uint16 BlockMask = 1 << 0;
     static const uint16 BallMask = 1 << 1;
@@ -136,12 +130,6 @@ namespace Impact {
     }
 
     void setSmooth(bool);
-
-    virtual void setZIndex(int);
-    inline virtual int zIndex(void) const
-    {
-      return mZIndex;
-    }
 
     virtual void setGame(Game *);
     inline Game *game(void)

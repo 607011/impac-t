@@ -31,7 +31,6 @@ namespace Impact {
     , mGravityScale(2.f)
     , mMinimumHitImpulse(0)
   {
-    setZIndex(Body::ZIndex::Intermediate + 0);
     mName = std::string("Block");
 
     const sf::Texture &texture = mGame->level()->tileParam(index).texture;

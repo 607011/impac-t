@@ -25,7 +25,6 @@ namespace Impact {
   Ground::Ground(Game *game, float32 width)
     : Body(Body::BodyType::Ground, game)
   {
-    setZIndex(Body::ZIndex::Foreground + 0);
     mName = std::string("Ground");
 
     b2BodyDef bd;

@@ -30,7 +30,6 @@ namespace Impact {
   Racket::Racket(Game *game, const b2Vec2 &pos)
     : Body(Body::BodyType::Racket, game)
   {
-    setZIndex(Body::ZIndex::Foreground + 0);
     mName = Name;
     mTexture = mGame->level()->texture(mName);
 

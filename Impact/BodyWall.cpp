@@ -31,7 +31,6 @@ namespace Impact {
   Wall::Wall(int index, Game *game)
     : Body(Body::BodyType::Wall, game)
   {
-    setZIndex(Body::ZIndex::Intermediate + 0);
     mTexture = mGame->level()->tileParam(index).texture;
     mName = Name;
 
