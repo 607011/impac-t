@@ -143,7 +143,7 @@ namespace Impact {
       return mBody;
     }
 
-    void setTileParam(const TileParam &);
+    void setTileParam(const TileParam &tileParam);
     const TileParam &tileParam(void) const { return mTileParam; }
 
   protected:
@@ -162,7 +162,7 @@ namespace Impact {
     std::string mName;
 
     virtual void onUpdate(float elapsedSeconds) = 0;
-    virtual void onDraw(sf::RenderTarget& target, sf::RenderStates states) const = 0;
+    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const = 0;
 
     TileParam mTileParam;
 

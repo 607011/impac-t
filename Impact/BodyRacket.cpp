@@ -108,21 +108,21 @@ namespace Impact {
 
   void Racket::setRestitution(float32 restitution)
   {
-    for (b2Fixture* f = mTeetingBody->GetFixtureList(); f != nullptr; f = f->GetNext())
+    for (b2Fixture *f = mTeetingBody->GetFixtureList(); f != nullptr; f = f->GetNext())
       f->SetRestitution(restitution);
   }
 
 
   void Racket::setFriction(float32 friction)
   {
-    for (b2Fixture* f = mTeetingBody->GetFixtureList(); f != nullptr; f = f->GetNext())
+    for (b2Fixture *f = mTeetingBody->GetFixtureList(); f != nullptr; f = f->GetNext())
       f->SetFriction(friction);
   }
 
 
   void Racket::setDensity(float32 density)
   {
-    for (b2Fixture* f = mTeetingBody->GetFixtureList(); f != nullptr; f = f->GetNext())
+    for (b2Fixture *f = mTeetingBody->GetFixtureList(); f != nullptr; f = f->GetNext())
       f->SetDensity(density);
     mTeetingBody->ResetMassData();
   }
