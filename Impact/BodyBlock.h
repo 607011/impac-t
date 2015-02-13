@@ -42,6 +42,7 @@ namespace Impact {
     void setGravityScale(float32);
     void setMinimumHitImpulse(int);
 
+    static const std::string Name;
     static const float32 DefaultDensity;
     static const float32 DefaultFriction;
     static const float32 DefaultRestitution;

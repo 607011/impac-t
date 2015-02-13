@@ -36,6 +36,8 @@ namespace Impact {
     virtual void onDraw(sf::RenderTarget &, sf::RenderStates) const  { /* ... */ }
     virtual BodyType type(void) const { return Body::BodyType::Ground; }
 
+    static const std::string Name;
+
   };
 
 }

@@ -22,10 +22,12 @@
 
 namespace Impact {
 
+  const std::string Ground::Name = "Ground";
+
   Ground::Ground(Game *game, float32 width)
     : Body(Body::BodyType::Ground, game)
   {
-    mName = std::string("Ground");
+    mName = Name;
 
     b2BodyDef bd;
     bd.type = b2_staticBody;

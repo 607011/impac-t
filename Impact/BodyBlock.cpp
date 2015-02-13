@@ -22,6 +22,7 @@
 
 namespace Impact {
 
+  const std::string Block::Name = "Block";
   const float32 Block::DefaultDensity = 19.32f;
   const float32 Block::DefaultFriction = .71f;
   const float32 Block::DefaultRestitution = 0.04f;
@@ -31,7 +32,7 @@ namespace Impact {
     , mGravityScale(2.f)
     , mMinimumHitImpulse(0)
   {
-    mName = std::string("Block");
+    mName = Name;
 
     const sf::Texture &texture = mGame->level()->tileParam(index).texture;
     sf::Image img;
