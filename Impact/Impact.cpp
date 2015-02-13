@@ -787,7 +787,7 @@ namespace Impact {
 
     mWindow.draw(mLevelMsg);
     if (mState == State::Playing) {
-      int penalty = mLevelTimer.accumulatedSeconds();
+      int penalty = 5 * mLevelTimer.accumulatedMilliseconds() / 1000;
       mScoreMsg.setString(std::to_string(b2Max(0, mScore - penalty)));
       mScoreMsg.setPosition(mDefaultView.getCenter().x + mDefaultView.getSize().x / 2 - mScoreMsg.getLocalBounds().width - 4, 4);
       mWindow.draw(mScoreMsg);
