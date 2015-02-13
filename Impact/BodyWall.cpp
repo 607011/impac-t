@@ -31,8 +31,8 @@ namespace Impact {
   Wall::Wall(int index, Game *game)
     : Body(Body::BodyType::Wall, game)
   {
-    mTexture = mGame->level()->tileParam(index).texture;
     mName = Name;
+    mTexture = mGame->level()->tileParam(index).texture;
 
     const float halfW = .5f * mTexture.getSize().x;
     const float halfH = .5f * mTexture.getSize().y;
