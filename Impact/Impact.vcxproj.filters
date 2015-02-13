@@ -115,7 +115,7 @@
     <ClInclude Include="Impact.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Impac%27t\Impact\TileParam.h">
+    <ClInclude Include="TileParam.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

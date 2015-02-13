@@ -39,8 +39,9 @@ namespace Impact {
       , minimumHitImpulse(0)
       , minimumKillImpulse(50)
       , scaleGravityBy(1.f)
+      , scaleBallDensityBy(1.f)
     { /* ... */ }
-    TileParam(const TileParam& other)
+    TileParam(const TileParam &other)
       : score(other.score)
       , fixed(other.fixed)
       , friction(other.friction)
@@ -50,8 +51,10 @@ namespace Impact {
       , smooth(other.smooth)
       , minimumHitImpulse(other.minimumHitImpulse)
       , minimumKillImpulse(other.minimumKillImpulse)
-      , scaleGravityBy(other.scaleGravityBy)
       , scaleGravityDuration(other.scaleGravityDuration)
+      , scaleGravityBy(other.scaleGravityBy)
+      , scaleBallDensityDuration(other.scaleBallDensityDuration)
+      , scaleBallDensityBy(other.scaleBallDensityBy)
     { /* ... */ }
     int score;
     std::string textureName;
@@ -66,6 +69,8 @@ namespace Impact {
     int minimumKillImpulse;
     sf::Time scaleGravityDuration;
     float scaleGravityBy;
+    sf::Time scaleBallDensityDuration;
+    float scaleBallDensityBy;
   };
 
 

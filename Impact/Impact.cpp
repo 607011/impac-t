@@ -55,6 +55,8 @@ namespace Impact {
     , mFadeEffectsActive(0)
     , mFadeEffectsDarken(false)
     , mFadeEffectDuration(DefaultFadeEffectDuration)
+    , mScaleGravityEnabled(false)
+    , mScaleBallDensityEnabled(false)
     , mBlurPlayground(false)
     , mLastKillingsIndex(0)
   {
@@ -655,6 +657,8 @@ namespace Impact {
     mBallHasBeenLost = false;
     mWindow.setMouseCursorVisible(false);
     mPostFXShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
+    mScaleGravityEnabled = false;
+    mScaleBallDensityEnabled = false;
     if (mLevel.gotoNext()) {
       buildLevel();
       mClock.restart();
@@ -699,8 +703,21 @@ namespace Impact {
         }
       }
     }
-    if (mScaleGravityClock.getElapsedTime() > mScaleGravityDuration) {
-      mWorld->SetGravity(b2Vec2(0.f, mLevel.gravity()));
+    if (mScaleGravityEnabled && mScaleGravityClock.getElapsedTime() > mScaleGravityDuration) {
+        mWorld->SetGravity(b2Vec2(0.f, mLevel.gravity()));
+        mScaleGravityEnabled = false;
+#ifndef NDEBUG
+        std::cout << "Gravity back to normal." << std::endl;
+#endif
+    }
+    if (mScaleBallDensityEnabled && mScaleBallDensityClock.getElapsedTime() > mScaleBallDensityDuration) {
+      if (mBall && mBall->isAlive()) {
+        mBall->setDensity(mBall->tileParam().density);
+      }
+      mScaleBallDensityEnabled = false;
+#ifndef NDEBUG
+        std::cout << "Ball density back to normal." << std::endl;
+#endif
     }
     drawPlayground();
   }
@@ -1129,12 +1146,22 @@ namespace Impact {
         }
       }
       const TileParam &tileParam = killedBody->tileParam();
-      if (tileParam.scaleGravityDuration.asMilliseconds() > 0) {
+      if (tileParam.scaleGravityDuration > sf::Time::Zero) {
         mWorld->SetGravity(tileParam.scaleGravityBy * mWorld->GetGravity());
+        mScaleGravityEnabled = true;
         mScaleGravityClock.restart();
         mScaleGravityDuration = tileParam.scaleGravityDuration;
 #ifndef NDEBUG
         std::cout << "Scaling gravity by " << tileParam.scaleGravityBy << " for " << mScaleGravityDuration.asMilliseconds() << "ms." << std::endl;
+#endif
+      }
+      if (tileParam.scaleBallDensityDuration > sf::Time::Zero) {
+        mBall->setDensity(tileParam.scaleBallDensityBy * mBall->tileParam().density);
+        mScaleBallDensityEnabled = true;
+        mScaleBallDensityClock.restart();
+        mScaleBallDensityDuration = tileParam.scaleBallDensityDuration;
+#ifndef NDEBUG
+        std::cout << "Scaling ball density by " << tileParam.scaleBallDensityBy << " for " << mScaleBallDensityDuration.asMilliseconds() << "ms." << std::endl;
 #endif
       }
       if (--mBlockCount == 0)

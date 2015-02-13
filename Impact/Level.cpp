@@ -275,6 +275,12 @@ namespace Impact {
                 else if (propName == "scalegravityseconds") {
                   mTiles[id].scaleGravityDuration = sf::seconds(property.get<float32>("<xmlattr>.value"));
                 }
+                else if (propName == "scaleballdensityby") {
+                  mTiles[id].scaleBallDensityBy = property.get<float32>("<xmlattr>.value");
+                }
+                else if (propName == "scaleballdensityseconds") {
+                  mTiles[id].scaleBallDensityDuration = sf::seconds(property.get<float32>("<xmlattr>.value"));
+                }
                 else if (propName == "minimumhitimpulse") {
                   mTiles[id].minimumHitImpulse = property.get<int>("<xmlattr>.value");
                 }

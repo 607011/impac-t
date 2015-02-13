@@ -115,6 +115,7 @@ namespace Impact {
   {
     for (b2Fixture* f = mTeetingBody->GetFixtureList(); f != nullptr; f = f->GetNext())
       f->SetDensity(density);
+    mTeetingBody->ResetMassData();
   }
 
 

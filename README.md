@@ -8,7 +8,6 @@ A Breakout/Bolo clone, augmented with a physics engine
  - nicer visual effect when the racket hits a block
  - nicer visual effect for killing spree bonus
  - special blocks that
-   - increase/decrease gravity
    - increase weight of ball
    - increase inertia of racket
    - speed up/slow down ball

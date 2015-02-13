@@ -34,11 +34,11 @@ namespace Impact {
     mName = std::string("Ball");
     mTexture = mGame->level()->texture(mName);
 
-    const int W = mTexture.getSize().x;
-    const int H = mTexture.getSize().y;
+    const float32 halfW = .5f * mTexture.getSize().x;
+    const float32 halfH = .5f * mTexture.getSize().y;
 
     mSprite.setTexture(mTexture);
-    mSprite.setOrigin(.5f * W, .5f * H);
+    mSprite.setOrigin(halfW, halfH);
 
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
@@ -52,7 +52,7 @@ namespace Impact {
 
     b2CircleShape circle;
     circle.m_p.SetZero();
-    circle.m_radius = .5f * W * Game::InvScale;
+    circle.m_radius = halfH * Game::InvScale;
 
     b2FixtureDef fd;
     fd.shape = &circle;

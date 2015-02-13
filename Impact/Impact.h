@@ -150,6 +150,10 @@ namespace Impact {
     sf::Clock mFadeEffectTimer;
     sf::Clock mScaleGravityClock;
     sf::Time mScaleGravityDuration;
+    bool mScaleGravityEnabled;
+    sf::Clock mScaleBallDensityClock;
+    sf::Time mScaleBallDensityDuration;
+    bool mScaleBallDensityEnabled;
     int mFadeEffectsActive;
     bool mFadeEffectsDarken;
     sf::Time mFadeEffectDuration;

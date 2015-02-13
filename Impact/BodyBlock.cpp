@@ -109,9 +109,8 @@ namespace Impact {
   void Block::onUpdate(float elapsedSeconds)
   {
     UNUSED(elapsedSeconds);
-    const b2Transform &tx = mBody->GetTransform();
-    mSprite.setPosition(Game::Scale * tx.p.x, Game::Scale * tx.p.y);
-    mSprite.setRotation(rad2deg(tx.q.GetAngle()));
+    mSprite.setPosition(Game::Scale * mBody->GetPosition().x, Game::Scale * mBody->GetPosition().y);
+    mSprite.setRotation(rad2deg(mBody->GetAngle()));
     mShader.setParameter("uAge", age().asSeconds());
   }
 
