@@ -233,6 +233,7 @@ namespace Impact {
     mTitleSprite.setPosition(0.f, 0.f);
 
     mPostFXShader.loadFromFile(gShadersDir + "/postfx.frag", sf::Shader::Fragment);
+    mPostFXShader.setParameter("uDistort", 0.1f);
 
     mVBlurShader.loadFromFile(gShadersDir + "/vblur.frag", sf::Shader::Fragment);
     mVBlurShader.setParameter("uBlur", 4.f);
