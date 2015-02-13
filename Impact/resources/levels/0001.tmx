@@ -23,8 +23,6 @@
   <tile id="2">
    <properties>
     <property name="Points" value="30"/>
-    <property name="ScaleGravityBy" value="10.0"/>
-    <property name="ScaleGravitySeconds" value="30"/>
    </properties>
    <image width="32" height="16" source="../images/light-block.png"/>
   </tile>
@@ -44,8 +42,6 @@
   <tile id="5">
    <properties>
     <property name="Points" value="100"/>
-    <property name="ScaleBallDensityBy" value="50"/>
-    <property name="ScaleBallDensitySeconds" value="15"/>
    </properties>
    <image width="32" height="16" source="../images/dark-block.png"/>
   </tile>
