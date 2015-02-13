@@ -33,6 +33,12 @@ namespace Impact {
   struct TileParam {
     TileParam(void)
       : score(0)
+      , smooth(true)
+      , gravityScale(1.f)
+      , scaleBallDensityBy(1.f)
+      , scaleGravityBy(1.f)
+      , minimumHitImpulse(5)
+      , minimumKillImpulse(50)
     { /* ... */ }
     TileParam(const TileParam &other)
       : score(other.score)
@@ -56,14 +62,14 @@ namespace Impact {
     DynamicValue<float32> friction;
     DynamicValue<float32> restitution;
     DynamicValue<float32> density;
-    DynamicValue<float32> gravityScale;
-    DynamicValue<bool> smooth;
-    DynamicValue<int> minimumHitImpulse;
-    DynamicValue<int> minimumKillImpulse;
+    float32 gravityScale;
+    bool smooth;
+    int minimumHitImpulse;
+    int minimumKillImpulse;
     sf::Time scaleGravityDuration;
-    DynamicValue<float32> scaleGravityBy;
+    float32 scaleGravityBy;
     sf::Time scaleBallDensityDuration;
-    DynamicValue<float32> scaleBallDensityBy;
+    float32 scaleBallDensityBy;
   };
 
 

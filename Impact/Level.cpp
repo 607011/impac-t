@@ -237,12 +237,6 @@ namespace Impact {
           const int id = mFirstGID + tile.get<int>("<xmlattr>.id");
           mTiles.resize(id + 1);
           TileParam tileParam;
-          tileParam.smooth = true;
-          tileParam.gravityScale = 1.f;
-          tileParam.scaleBallDensityBy = 1.f;
-          tileParam.scaleGravityBy = 1.f;
-          tileParam.minimumHitImpulse = 5;
-          tileParam.minimumKillImpulse = 50;
           const std::string &filename = gLevelsDir + "/" + tile.get<std::string>("image.<xmlattr>.source");
           ok = tileParam.texture.loadFromFile(filename);
           if (!ok)
