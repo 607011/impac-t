@@ -20,7 +20,7 @@
 #ifndef __GAME_H_
 #define __GAME_H_
 
-#define IMPACT_VERSION "1.0.0-BETA8"
+#define IMPACT_VERSION "1.0.0-BETA9"
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
