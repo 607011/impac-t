@@ -32,65 +32,75 @@ namespace Impact {
   {
     mName = Name;
     mTexture = mGame->level()->texture(mName);
-
-    const float32 halfW = .5f * mTexture.getSize().x;
-    const float32 halfH = .5f * mTexture.getSize().y;
-
-    const sf::Vector2f origin(halfW, halfH);
     mSprite.setTexture(mTexture);
-    mSprite.setOrigin(origin);
+    mSprite.setOrigin(sf::Vector2f(.5f * mTexture.getSize().x, .5f * mTexture.getSize().y));
 
-    // racket
-    {
-      b2BodyDef bd;
-      bd.type = b2_dynamicBody;
-      bd.gravityScale = 0.f;
-      bd.allowSleep = true;
-      bd.awake = true;
-      bd.bullet = true;
-      bd.fixedRotation = false;
-      mTeetingBody = mGame->world()->CreateBody(&bd);
+    b2BodyDef bd;
+    bd.type = b2_dynamicBody;
+    bd.gravityScale = 0.f;
+    bd.allowSleep = true;
+    bd.awake = true;
+    bd.bullet = true;
+    bd.fixedRotation = false;
+    mTeetingBody = mGame->world()->CreateBody(&bd);
 
-      b2PolygonShape polygon;
-      b2Vec2 vertices[8];
-      vertices[0] = Game::InvScale * b2Vec2(-32, -6);
-      vertices[1] = Game::InvScale * b2Vec2(-32,  6);
-      vertices[2] = Game::InvScale * b2Vec2(-30,  8);
-      vertices[3] = Game::InvScale * b2Vec2( 30,  8);
-      vertices[4] = Game::InvScale * b2Vec2( 32,  6);
-      vertices[5] = Game::InvScale * b2Vec2( 32, -6);
-      vertices[6] = Game::InvScale * b2Vec2( 30, -8);
-      vertices[7] = Game::InvScale * b2Vec2(-32, -8);
-      polygon.Set(vertices, 8);
+    b2PolygonShape polygon;
+    const float32 hs = .5f * Game::InvScale;
+    const float32 hh = hs * mTexture.getSize().y;
+    const float32 xoff = hs * (mTexture.getSize().x - mTexture.getSize().y);
+    polygon.SetAsBox(xoff, hh);
 
-      b2FixtureDef fd;
-      fd.shape = &polygon;
-      fd.density = DefaultDensity;
-      fd.friction = DefaultFriction;
-      fd.restitution = DefaultRestitution;
-      fd.userData = this;
-      mTeetingBody->CreateFixture(&fd);
+    b2FixtureDef fdBox;
+    fdBox.shape = &polygon;
+    fdBox.density = DefaultDensity;
+    fdBox.friction = DefaultFriction;
+    fdBox.restitution = DefaultRestitution;
+    fdBox.userData = this;
+    mTeetingBody->CreateFixture(&fdBox);
 
-      b2BodyDef bdHinge;
-      bdHinge.position.Set(0.f, 1.5f);
-      bdHinge.type = b2_dynamicBody;
-      bdHinge.gravityScale = 0.f;
-      bdHinge.allowSleep = true;
-      bdHinge.awake = true;
-      bdHinge.userData = this;
-      bdHinge.fixedRotation = true;
-      mBody = mGame->world()->CreateBody(&bdHinge);
+    b2CircleShape circleL;
+    circleL.m_p.Set(-xoff, 0.f);
+    circleL.m_radius = hh;
 
-      b2RevoluteJointDef jd;
-      jd.Initialize(mBody, mTeetingBody, b2Vec2_zero);
-      jd.enableMotor = true;
-      jd.maxMotorTorque = 20000.0f;
-      jd.enableLimit = true;
-      jd.motorSpeed = 0.f;
-      jd.lowerAngle = deg2rad(-17.5f);
-      jd.upperAngle = deg2rad(+17.5f);
-      mJoint = reinterpret_cast<b2RevoluteJoint*>(mGame->world()->CreateJoint(&jd));
-    }
+    b2FixtureDef fdCircleL;
+    fdCircleL.shape = &circleL;
+    fdCircleL.density = DefaultDensity;
+    fdCircleL.friction = DefaultFriction;
+    fdCircleL.restitution = DefaultRestitution;
+    fdCircleL.userData = this;
+    mTeetingBody->CreateFixture(&fdCircleL);
+
+    b2CircleShape circleR;
+    circleR.m_p.Set(xoff, 0.f);
+    circleR.m_radius = hh;
+
+    b2FixtureDef fdCircleR;
+    fdCircleR.shape = &circleR;
+    fdCircleR.density = DefaultDensity;
+    fdCircleR.friction = DefaultFriction;
+    fdCircleR.restitution = DefaultRestitution;
+    fdCircleR.userData = this;
+    mTeetingBody->CreateFixture(&fdCircleR);
+
+    b2BodyDef bdHinge;
+    bdHinge.position.Set(0.f, 1.5f);
+    bdHinge.type = b2_dynamicBody;
+    bdHinge.gravityScale = 0.f;
+    bdHinge.allowSleep = true;
+    bdHinge.awake = true;
+    bdHinge.userData = this;
+    bdHinge.fixedRotation = true;
+    mBody = mGame->world()->CreateBody(&bdHinge);
+
+    b2RevoluteJointDef jd;
+    jd.Initialize(mBody, mTeetingBody, b2Vec2_zero);
+    jd.enableMotor = true;
+    jd.maxMotorTorque = 20000.0f;
+    jd.enableLimit = true;
+    jd.motorSpeed = 0.f;
+    jd.lowerAngle = deg2rad(-17.5f);
+    jd.upperAngle = deg2rad(+17.5f);
+    mJoint = reinterpret_cast<b2RevoluteJoint*>(mGame->world()->CreateJoint(&jd));
 
     setPosition(pos);
   }
