@@ -1086,7 +1086,7 @@ namespace Impact {
     safeRenew(mBall, new Ball(this));
     if (mBallHasBeenLost) {
       const b2Vec2 &padPos = mRacket->position();
-      mBall->setPosition(padPos.x, padPos.y - 3.5f);
+      mBall->setPosition(padPos.x, padPos.y - 1.2f * sign(mLevel.gravity()));
     }
     else {
       mBall->setPosition(pos);
