@@ -23,9 +23,9 @@
 namespace Impact {
 
   const std::string Block::Name = "Block";
-  const float32 Block::DefaultDensity = 19.32f;
+  const float32 Block::DefaultDensity = 20.f;
   const float32 Block::DefaultFriction = .71f;
-  const float32 Block::DefaultRestitution = 0.04f;
+  const float32 Block::DefaultRestitution = .04f;
 
   Block::Block(int index, Game *game)
     : Body(Body::BodyType::Block, game)
