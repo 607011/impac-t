@@ -162,7 +162,7 @@ namespace Impact {
     pjd.collideConnected = false;
     pjd.localAxisA.Set(1.f, 0.f);
     pjd.localAnchorA.SetZero();
-    const float32 s = .5f * Game::InvScale * 0.5f;
+    const float32 s = .5f * Game::InvScale;
     pjd.localAnchorB.Set(s * W, s * H);
     pjd.lowerTranslation = 0.f;
     pjd.upperTranslation = W;
