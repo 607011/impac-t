@@ -47,6 +47,7 @@
   </tile>
   <tile id="6">
    <properties>
+    <property name="Density" value="100"/>
     <property name="Name" value="Racket"/>
     <property name="Restitution" value="1.0"/>
    </properties>

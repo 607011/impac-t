@@ -5,6 +5,7 @@ A Breakout/Bolo clone, augmented with a physics engine
 
 ## TODO
 
+ - display gravity vector as a visual aid for the player
  - nicer visual effect when the racket hits a block
  - nicer visual effect for killing spree bonus
  - special blocks that
