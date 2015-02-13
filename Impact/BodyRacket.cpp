@@ -38,10 +38,7 @@ namespace Impact {
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
     bd.gravityScale = 0.f;
-    bd.allowSleep = true;
-    bd.awake = true;
     bd.bullet = true;
-    bd.fixedRotation = false;
     mTeetingBody = mGame->world()->CreateBody(&bd);
 
     b2PolygonShape polygon;
