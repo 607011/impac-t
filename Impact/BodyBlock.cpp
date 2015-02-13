@@ -23,7 +23,7 @@
 namespace Impact {
 
   const float32 Block::DefaultDensity = 19.32f;
-  const float32 Block::DefaultFriction = .2f;
+  const float32 Block::DefaultFriction = .71f;
   const float32 Block::DefaultRestitution = 0.04f;
 
   Block::Block(int index, Game *game)
