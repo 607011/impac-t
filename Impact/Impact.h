@@ -138,6 +138,9 @@ namespace Impact {
     sf::Sprite mTitleSprite;
     sf::Texture mLogoTexture;
     sf::Sprite mLogoSprite;
+    sf::RenderTexture mOverlayRenderTexture;
+    sf::Texture mOverlayTexture;
+    sf::Sprite mOverlaySprite;
     sf::Clock mClock;
     sf::Clock mWallClock;
     sf::Clock mScoreClock;

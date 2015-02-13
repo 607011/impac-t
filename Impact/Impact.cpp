@@ -69,8 +69,9 @@ namespace Impact {
     mWindow.setVerticalSyncEnabled(false); // DO NOT CHANGE UNLESS YOU'D LIKE TO RISK TUNNELING OR OTHER ADVERSARY EFFECTS!!!
     resize();
 
-    mRenderTexture0.create(Game::DefaultWindowWidth, Game::DefaultWindowHeight, false);
-    mRenderTexture1.create(Game::DefaultWindowWidth, Game::DefaultWindowHeight, false);
+    mRenderTexture0.create(Game::DefaultWindowWidth, Game::DefaultWindowHeight);
+    mRenderTexture1.create(Game::DefaultWindowWidth, Game::DefaultWindowHeight);
+    mOverlayRenderTexture.create(Game::DefaultWindowWidth, Game::DefaultWindowHeight);
 
     sf::Image icon;
     icon.loadFromFile(gImagesDir + "/app-icon.png");
@@ -801,8 +802,6 @@ namespace Impact {
         mWindow.draw(lifeSprite);
       }
     }
-
-
   }
 
 
