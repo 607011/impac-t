@@ -422,10 +422,14 @@ namespace Impact {
         }
         else if (event.key.code == mKeyMapping[Action::NewBall] || event.key.code == sf::Keyboard::Space) {
           if (mState == State::Playing) {
-            if (mBall == nullptr)
+            if (mBall) {
+              const b2Vec2 &padPos = mRacket->position();
+              mBall->setPosition(padPos.x, padPos.y - 3.5f);
+              showScore(-500, mBall->position());
+            }
+            else {
               newBall();
-            else
-              startFadeEffect();
+            }
           }
           else if (mState == State::LevelCompleted) {
             gotoNextLevel();
