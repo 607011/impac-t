@@ -9,6 +9,10 @@ A Breakout/Bolo clone, augmented with a physics engine
  - nicer visual effect when the racket hits a block
  - nicer visual effect for killing spree bonus
  - special blocks that
+   - blur the screen
+   - make blocks semi-transparent
+   - distort the screen
+   - cause a kind of asteroid shower (or other dangerous things that fall from the sky and can severely harm the racket)
    - increase inertia of racket
    - speed up/slow down ball (friction?)
 
