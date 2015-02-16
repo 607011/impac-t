@@ -139,5 +139,11 @@
     <None Include="..\..\Impac%27t\Impact\resources\shaders\vblur.frag">
       <Filter>Fragment Shaders</Filter>
     </None>
+    <None Include="..\..\Impac%27t\Impact\resources\shaders\softparticlesystem.frag">
+      <Filter>Fragment Shaders</Filter>
+    </None>
+    <None Include="..\..\Impac%27t\Impact\resources\shaders\rgbseparation.frag">
+      <Filter>Fragment Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -89,6 +89,7 @@ namespace Impact {
     static const int NewLiveAfterSoManyPoints[];
     static const int32 MaxContactPoints = 512;
     static const sf::Time DefaultFadeEffectDuration;
+    static const sf::Time DefaultEarthquakeDuration;
     static const int DefaultKillingsPerKillingSpree = 5;
     static const int DefaultKillingSpreeBonus = 1000;
     static const sf::Time DefaultKillingSpreeInterval;
@@ -145,6 +146,7 @@ namespace Impact {
     std::string mParticleShaderCode;
     sf::Texture mSoftParticleTexture;
     std::string mSoftParticleShaderCode;
+    sf::Shader mRGBSeparationShader;
     sf::Clock mClock;
     sf::Clock mWallClock;
     sf::Clock mScoreClock;
@@ -158,6 +160,9 @@ namespace Impact {
     bool mScaleBallDensityEnabled;
     int mFadeEffectsActive;
     bool mFadeEffectsDarken;
+    float32 mEarthquakeIntensity;
+    sf::Clock mEarthquakeClock;
+    sf::Time mEarthquakeDuration;
     sf::Time mFadeEffectDuration;
     sf::Text mLevelCompletedMsg;
     sf::Text mGameOverMsg;
@@ -260,6 +265,7 @@ namespace Impact {
     void update(const sf::Time &elapsed);
     void evaluateCollisions(void);
     void handleEvents(void);
+    void shakeEarth(const sf::Time &duration, float32 intensity);
     void startFadeEffect(bool darken = false, const sf::Time &duration = DefaultFadeEffectDuration);
     void setKillingsPerKillingSpree(int);
     void resetKillingSpree(void);

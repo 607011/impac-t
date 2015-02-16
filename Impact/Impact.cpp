@@ -35,6 +35,7 @@ namespace Impact {
   const int Game::NewLiveAfterSoManyPointsDefault = 100000;
   const sf::Time Game::DefaultKillingSpreeInterval = sf::milliseconds(2500);
   const sf::Time Game::DefaultFadeEffectDuration = sf::milliseconds(150);
+  const sf::Time Game::DefaultEarthquakeDuration = sf::milliseconds(10 * 1000);
 
   Game::Game(void)
     : mWindow(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Impac't", sf::Style::Titlebar | sf::Style::Close)
@@ -52,6 +53,8 @@ namespace Impact {
     , mFadeEffectsActive(0)
     , mFadeEffectsDarken(false)
     , mFadeEffectDuration(DefaultFadeEffectDuration)
+    , mEarthquakeIntensity(0.f)
+    , mEarthquakeDuration(sf::seconds(10))
     , mScaleGravityEnabled(false)
     , mScaleBallDensityEnabled(false)
     , mBlurPlayground(false)
@@ -158,16 +161,16 @@ namespace Impact {
     mKillingSpreeSound.setVolume(100);
     mKillingSpreeSound.setLoop(false);
 
-    mParticleTexture.loadFromFile("resources/images/particle.png");
-    mSoftParticleTexture.loadFromFile("resources/images/smooth-dot-12x12.png");
+    mParticleTexture.loadFromFile(gImagesDir + "/particle.png");
+    mSoftParticleTexture.loadFromFile(gImagesDir + "/smooth-dot-12x12.png");
     {
-      std::ifstream t("resources/shaders/particlesystem.frag");
+      std::ifstream t(gShadersDir + "/particlesystem.frag");
       std::stringstream buffer;
       buffer << t.rdbuf();
       mParticleShaderCode = buffer.str();
     }
     {
-      std::ifstream t("resources/shaders/softparticlesystem.frag");
+      std::ifstream t(gShadersDir + "/softparticlesystem.frag");
       std::stringstream buffer;
       buffer << t.rdbuf();
       mSoftParticleShaderCode = buffer.str();
@@ -259,6 +262,13 @@ namespace Impact {
     mHBlurShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
 
     mTitleShader.loadFromFile(gShadersDir + "/title.frag", sf::Shader::Fragment);
+
+    mRGBSeparationShader.loadFromFile(gShadersDir + "/rgbseparation.frag", sf::Shader::Fragment);
+    mRGBSeparationShader.setParameter("uT", 0.f);
+    mRGBSeparationShader.setParameter("uMaxT", 1.f);
+    mRGBSeparationShader.setParameter("uRShift", 0.f);
+    mRGBSeparationShader.setParameter("uGShift", 0.f);
+    mRGBSeparationShader.setParameter("uBShift", 0.f);
 
     mKeyMapping[Action::PauseAction] = sf::Keyboard::Pause;
     mKeyMapping[Action::MoveLeft] = sf::Keyboard::Left;
@@ -790,7 +800,26 @@ namespace Impact {
       }
     }
 
-    sprite0.setTexture(mRenderTexture0.getTexture());
+
+    if (mEarthquakeIntensity > 0.f && mEarthquakeClock.getElapsedTime() < mEarthquakeDuration) {
+      sf::RenderStates states1;
+      float32 maxIntensity = mEarthquakeIntensity * InvScale;
+      boost::random::uniform_real_distribution<float32> randomShift(-maxIntensity, maxIntensity);
+      states1.shader = &mRGBSeparationShader;
+      mRGBSeparationShader.setParameter("uT", mEarthquakeClock.getElapsedTime().asSeconds());
+      mRGBSeparationShader.setParameter("uRShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
+      mRGBSeparationShader.setParameter("uGShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
+      mRGBSeparationShader.setParameter("uBShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
+      sprite0.setTexture(mRenderTexture0.getTexture());
+      mRenderTexture1.draw(sprite0, states1);
+      sprite0.setTexture(mRenderTexture1.getTexture());
+    }
+    else {
+      sprite0.setTexture(mRenderTexture0.getTexture());
+      if (mEarthquakeClock.getElapsedTime() > mEarthquakeDuration)
+        mEarthquakeIntensity = 0.f;
+    }
+
     if (mFadeEffectsActive > 0) {
       sf::Uint8 c;
       if (mFadeEffectTimer.getElapsedTime() < mFadeEffectDuration) {
@@ -951,6 +980,16 @@ namespace Impact {
 
   void Game::PostSolve(b2Contact *contact, const b2ContactImpulse *impulse)
   {    if (mContactPointCount < MaxContactPoints) {      ContactPoint &cp = mPoints[mContactPointCount];      cp.fixtureA = contact->GetFixtureA();      cp.fixtureB = contact->GetFixtureB();      Body *bodyA = reinterpret_cast<Body*>(cp.fixtureA->GetUserData());      Body *bodyB = reinterpret_cast<Body*>(cp.fixtureB->GetUserData());      if (bodyA != nullptr && bodyB != nullptr) {        cp.position = contact->GetManifold()->points[0].localPoint;        cp.normal = b2Vec2_zero;        cp.normalImpulse = impulse->normalImpulses[0];        cp.tangentImpulse = impulse->tangentImpulses[0];        cp.separation = 0.f;        ++mContactPointCount;      }    }  }
+
+
+  void Game::shakeEarth(const sf::Time &duration, float32 intensity)
+  {
+    mRGBSeparationShader.setParameter("uT", 0.f);
+    mRGBSeparationShader.setParameter("uMaxT", duration.asSeconds());
+    mEarthquakeDuration = duration;
+    mEarthquakeIntensity = intensity;
+    mEarthquakeClock.restart();
+  }
 
 
   void Game::startFadeEffect(bool darken, const sf::Time &duration)
@@ -1172,23 +1211,20 @@ namespace Impact {
         }
       }
       const TileParam &tileParam = killedBody->tileParam();
+      if (tileParam.earthquakeDuration > sf::Time::Zero && tileParam.earthquakeIntensity > 0.f) {
+        shakeEarth(tileParam.earthquakeDuration, tileParam.earthquakeIntensity);
+      }
       if (tileParam.scaleGravityDuration > sf::Time::Zero) {
         mWorld->SetGravity(tileParam.scaleGravityBy * mWorld->GetGravity());
         mScaleGravityEnabled = true;
         mScaleGravityClock.restart();
         mScaleGravityDuration = tileParam.scaleGravityDuration;
-#ifndef NDEBUG
-        std::cout << "Scaling gravity by " << tileParam.scaleGravityBy << " for " << mScaleGravityDuration.asMilliseconds() << "ms." << std::endl;
-#endif
       }
       if (tileParam.scaleBallDensityDuration > sf::Time::Zero) {
         mBall->setDensity(tileParam.scaleBallDensityBy * mBall->tileParam().density.get());
         mScaleBallDensityEnabled = true;
         mScaleBallDensityClock.restart();
         mScaleBallDensityDuration = tileParam.scaleBallDensityDuration;
-#ifndef NDEBUG
-        std::cout << "Scaling ball density by " << tileParam.scaleBallDensityBy << " for " << mScaleBallDensityDuration.asMilliseconds() << "ms." << std::endl; 
-#endif
       }
       if (--mBlockCount == 0)
         gotoLevelCompleted();

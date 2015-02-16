@@ -34,8 +34,10 @@
   </tile>
   <tile id="4">
    <properties>
+    <property name="EarthquakeIntensity" value="3"/>
+    <property name="EarthquakeSeconds" value="20"/>
     <property name="Points" value="5"/>
-    <property name="Restitution" value="0.1"/>
+    <property name="Restitution" value="1"/>
    </properties>
    <image width="32" height="16" source="../images/yellow-block.png"/>
   </tile>
@@ -72,7 +74,7 @@
  </imagelayer>
  <layer name="Tile Layer" width="40" height="25">
   <data encoding="base64" compression="zlib">
-   eJztzssKgDAMRNH6QPH/f9hVN8EwCTVY4Z5dyJBMa/Nbf5JXd+y+Oj9LD5U/gne6rTjv9ekWM+8ib/fZvP3nUbnRHirv/Y/2j/4ZzWf7ZFyFtwEAAN50fl0Aj26FWwB3
+   eJztzjEOwCAMA0Booaj//zATS0TkRBDB4NsQluOU7vdsytfgftQj/6Pzt+xA+c/YM7zBeW3PkMW7gLz89+blPQ3Kre5Aee2+db/1zmreu8fjD+wmIiIi2qmdHkBTHc7fAHw=
   </data>
  </layer>
  <objectgroup name="Boundaries" visible="0"/>

@@ -329,6 +329,12 @@ namespace Impact {
                 else if (propName == "smooth") {
                   tileParam.smooth = property.get<bool>("<xmlattr>.value");
                 }
+                else if (propName == "earthquakeseconds") {
+                  tileParam.earthquakeDuration = sf::seconds(property.get<float32>("<xmlattr>.value"));
+                }
+                else if (propName == "earthquakeintensity") {
+                  tileParam.earthquakeIntensity = .1f * property.get<float32>("<xmlattr>.value") ;
+                }
               } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
             }
           }

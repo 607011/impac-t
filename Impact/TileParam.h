@@ -39,6 +39,7 @@ namespace Impact {
       , scaleGravityBy(1.f)
       , minimumHitImpulse(5)
       , minimumKillImpulse(50)
+      , earthquakeIntensity(.1f)
     { /* ... */ }
     TileParam(const TileParam &other)
       : score(other.score)
@@ -54,6 +55,8 @@ namespace Impact {
       , scaleGravityBy(other.scaleGravityBy)
       , scaleBallDensityDuration(other.scaleBallDensityDuration)
       , scaleBallDensityBy(other.scaleBallDensityBy)
+      , earthquakeDuration(other.earthquakeDuration)
+      , earthquakeIntensity(other.earthquakeIntensity)
     { /* ... */ }
     int score;
     std::string textureName;
@@ -70,6 +73,8 @@ namespace Impact {
     float32 scaleGravityBy;
     sf::Time scaleBallDensityDuration;
     float32 scaleBallDensityBy;
+    sf::Time earthquakeDuration;
+    float32 earthquakeIntensity;
   };
 
 
