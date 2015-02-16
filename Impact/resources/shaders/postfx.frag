@@ -124,5 +124,5 @@ void main()
 {
   vec2 pos = gl_TexCoord[0].xy;
   pos.y = 1.0 - pos.y;
-  gl_FragColor = (lensDistort(pos) + uColorAdd - uColorSub) * uColorMix;
+  gl_FragColor = (lensDistort(pos) + uColorAdd - uColorSub) * uColorMix * gl_Color;
 }
