@@ -24,15 +24,15 @@ uniform vec2 uBShift;
 uniform float uT;
 uniform float uMaxT;
 
-float easeOutExpo(float t, float b, float c, float d) {
-  return c * (-pow(2.0, -10.0 * t / d) + 1.0) + b;
+float easeOutExpo(float t, float d) {
+  return pow(2.0, -10.0 * t / d);
 }
 
 void main(void)
 {
   vec2 pos = gl_TexCoord[0].xy;
-  float intensity = 1.0 - easeOutExpo(uT / uMaxT, 0.0, 1.0, uMaxT - uT);
   pos.y = 1.0 - pos.y;
+  float intensity = easeOutExpo(uT / uMaxT, uMaxT - uT);
   vec3 rgb = vec3(
     texture2D(uTexture, uRShift * intensity + pos).r,
     texture2D(uTexture, uGShift * intensity + pos).g,

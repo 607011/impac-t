@@ -146,7 +146,7 @@ namespace Impact {
     std::string mParticleShaderCode;
     sf::Texture mSoftParticleTexture;
     std::string mSoftParticleShaderCode;
-    sf::Shader mRGBSeparationShader;
+    sf::Shader mEarthquakeShader;
     sf::Clock mClock;
     sf::Clock mWallClock;
     sf::Clock mScoreClock;
@@ -265,7 +265,7 @@ namespace Impact {
     void update(const sf::Time &elapsed);
     void evaluateCollisions(void);
     void handleEvents(void);
-    void shakeEarth(const sf::Time &duration, float32 intensity);
+    void shakeEarth(float32 intensity, const sf::Time &duration);
     void startFadeEffect(bool darken = false, const sf::Time &duration = DefaultFadeEffectDuration);
     void setKillingsPerKillingSpree(int);
     void resetKillingSpree(void);

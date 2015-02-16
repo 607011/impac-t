@@ -263,12 +263,12 @@ namespace Impact {
 
     mTitleShader.loadFromFile(gShadersDir + "/title.frag", sf::Shader::Fragment);
 
-    mRGBSeparationShader.loadFromFile(gShadersDir + "/rgbseparation.frag", sf::Shader::Fragment);
-    mRGBSeparationShader.setParameter("uT", 0.f);
-    mRGBSeparationShader.setParameter("uMaxT", 1.f);
-    mRGBSeparationShader.setParameter("uRShift", 0.f);
-    mRGBSeparationShader.setParameter("uGShift", 0.f);
-    mRGBSeparationShader.setParameter("uBShift", 0.f);
+    mEarthquakeShader.loadFromFile(gShadersDir + "/earthquake.frag", sf::Shader::Fragment);
+    mEarthquakeShader.setParameter("uT", 0.f);
+    mEarthquakeShader.setParameter("uMaxT", 1.f);
+    mEarthquakeShader.setParameter("uRShift", 0.f);
+    mEarthquakeShader.setParameter("uGShift", 0.f);
+    mEarthquakeShader.setParameter("uBShift", 0.f);
 
     mKeyMapping[Action::PauseAction] = sf::Keyboard::Pause;
     mKeyMapping[Action::MoveLeft] = sf::Keyboard::Left;
@@ -805,11 +805,11 @@ namespace Impact {
       sf::RenderStates states1;
       float32 maxIntensity = mEarthquakeIntensity * InvScale;
       boost::random::uniform_real_distribution<float32> randomShift(-maxIntensity, maxIntensity);
-      states1.shader = &mRGBSeparationShader;
-      mRGBSeparationShader.setParameter("uT", mEarthquakeClock.getElapsedTime().asSeconds());
-      mRGBSeparationShader.setParameter("uRShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
-      mRGBSeparationShader.setParameter("uGShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
-      mRGBSeparationShader.setParameter("uBShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
+      states1.shader = &mEarthquakeShader;
+      mEarthquakeShader.setParameter("uT", mEarthquakeClock.getElapsedTime().asSeconds());
+      mEarthquakeShader.setParameter("uRShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
+      mEarthquakeShader.setParameter("uGShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
+      mEarthquakeShader.setParameter("uBShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
       sprite0.setTexture(mRenderTexture0.getTexture());
       mRenderTexture1.draw(sprite0, states1);
       sprite0.setTexture(mRenderTexture1.getTexture());
@@ -982,13 +982,18 @@ namespace Impact {
   {    if (mContactPointCount < MaxContactPoints) {      ContactPoint &cp = mPoints[mContactPointCount];      cp.fixtureA = contact->GetFixtureA();      cp.fixtureB = contact->GetFixtureB();      Body *bodyA = reinterpret_cast<Body*>(cp.fixtureA->GetUserData());      Body *bodyB = reinterpret_cast<Body*>(cp.fixtureB->GetUserData());      if (bodyA != nullptr && bodyB != nullptr) {        cp.position = contact->GetManifold()->points[0].localPoint;        cp.normal = b2Vec2_zero;        cp.normalImpulse = impulse->normalImpulses[0];        cp.tangentImpulse = impulse->tangentImpulses[0];        cp.separation = 0.f;        ++mContactPointCount;      }    }  }
 
 
-  void Game::shakeEarth(const sf::Time &duration, float32 intensity)
+  void Game::shakeEarth(float32 intensity, const sf::Time &duration)
   {
-    mRGBSeparationShader.setParameter("uT", 0.f);
-    mRGBSeparationShader.setParameter("uMaxT", duration.asSeconds());
-    mEarthquakeDuration = duration;
-    mEarthquakeIntensity = intensity;
-    mEarthquakeClock.restart();
+    if (mEarthquakeIntensity > 0.f) {
+      mEarthquakeDuration += duration;
+      mEarthquakeIntensity += intensity;
+    }
+    else {
+      mEarthquakeDuration = duration;
+      mEarthquakeIntensity = intensity;
+      mEarthquakeClock.restart();
+    }
+    mEarthquakeShader.setParameter("uMaxT", mEarthquakeDuration.asSeconds());
   }
 
 
@@ -1212,7 +1217,7 @@ namespace Impact {
       }
       const TileParam &tileParam = killedBody->tileParam();
       if (tileParam.earthquakeDuration > sf::Time::Zero && tileParam.earthquakeIntensity > 0.f) {
-        shakeEarth(tileParam.earthquakeDuration, tileParam.earthquakeIntensity);
+        shakeEarth(tileParam.earthquakeIntensity, tileParam.earthquakeDuration);
       }
       if (tileParam.scaleGravityDuration > sf::Time::Zero) {
         mWorld->SetGravity(tileParam.scaleGravityBy * mWorld->GetGravity());

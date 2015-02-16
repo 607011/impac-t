@@ -142,7 +142,7 @@
     <None Include="..\..\Impac%27t\Impact\resources\shaders\softparticlesystem.frag">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="..\..\Impac%27t\Impact\resources\shaders\rgbseparation.frag">
+    <None Include="resources\shaders\earthquake.frag">
       <Filter>Fragment Shaders</Filter>
     </None>
   </ItemGroup>

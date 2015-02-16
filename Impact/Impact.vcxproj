@@ -134,7 +134,7 @@
   <ItemGroup>
     <None Include="..\..\Impac%27t\Impact\resources\shaders\fallingblock.frag" />
     <None Include="..\..\Impac%27t\Impact\resources\shaders\hblur.frag" />
-    <None Include="..\..\Impac%27t\Impact\resources\shaders\rgbseparation.frag" />
+    <None Include="resources\shaders\earthquake.frag" />
     <None Include="..\..\Impac%27t\Impact\resources\shaders\softparticlesystem.frag" />
     <None Include="..\..\Impac%27t\Impact\resources\shaders\vblur.frag" />
     <None Include="..\README.md" />
