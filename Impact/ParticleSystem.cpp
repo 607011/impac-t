@@ -22,27 +22,20 @@
 
 namespace Impact {
 
-  const float32 ParticleSystem::DefaultDensity = 1.f;
-  const float32 ParticleSystem::DefaultFriction = 0.f;
-  const float32 ParticleSystem::DefaultRestitution = 0.8f;
-
-  const sf::Time ParticleSystem::sMaxAge = sf::milliseconds(1000);
-  const sf::Color ParticleSystem::sColor = sf::Color::White;
-
   ParticleSystem::ParticleSystem(const ParticleSystemDef &def)
     : Body(Body::BodyType::Particle, def.game)
     , mParticles(def.count)
   {
     mName = std::string("ParticleSystem");
-    setLifetime(sMaxAge);
-    mTexture.loadFromFile("resources/images/particle.png");
-    mShader.loadFromFile("resources/shaders/particlesystem.frag", sf::Shader::Fragment);
+    setLifetime(def.maxLifetime);
+    mTexture = def.texture;
+    mShader.loadFromMemory(def.fragmentShaderCode, sf::Shader::Fragment);
     mShader.setParameter("uTexture", sf::Shader::CurrentTexture);
-    mShader.setParameter("uMaxAge", sMaxAge.asSeconds());
+    mShader.setParameter("uMaxAge", def.maxLifetime.asSeconds());
 
-    boost::random::uniform_int_distribution<sf::Int32> randomLifetime(500, 1000);
+    boost::random::uniform_int_distribution<sf::Int32> randomLifetime(def.minLifetime.asMilliseconds(), def.maxLifetime.asMilliseconds());
+    boost::random::uniform_real_distribution<float32> randomSpeed(def.minSpeed * Game::Scale, def.maxSpeed * Game::Scale);
     boost::random::uniform_real_distribution<float32> randomAngle(0.f, 2 * b2_pi);
-    boost::random::uniform_real_distribution<float32> randomSpeed(2.f * Game::Scale, 5.f * Game::Scale);
 
     b2World *world = mGame->world();
     const int N = mParticles.size();
@@ -61,19 +54,19 @@ namespace Impact {
       bd.fixedRotation = true;
       bd.bullet = false;
       bd.userData = this;
-      bd.gravityScale = 5.f;
-      bd.linearDamping = .2f;
+      bd.gravityScale = def.gravityScale;
+      bd.linearDamping = def.linearDamping;
       float angle = randomAngle(gRNG);
       bd.linearVelocity = randomSpeed(gRNG) * b2Vec2(std::cos(angle), std::sin(angle));
       p.body = world->CreateBody(&bd);
 
       b2CircleShape circleShape;
-      circleShape.m_radius = 1e-6f * Game::InvScale;
+      circleShape.m_radius = def.radius * Game::InvScale;
 
       b2FixtureDef fd;
-      fd.density = DefaultDensity;
-      fd.restitution = DefaultRestitution;
-      fd.friction = DefaultFriction;
+      fd.density = def.density;
+      fd.restitution = def.restitution;
+      fd.friction = def.friction;
       fd.filter.categoryBits = Body::ParticleMask;
       fd.filter.maskBits = 0xffffU ^ Body::ParticleMask ^ Body::RacketMask;
       if (!def.ballCollisionEnabled)

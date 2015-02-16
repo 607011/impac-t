@@ -47,12 +47,35 @@ namespace Impact {
       , pos(pos)
       , ballCollisionEnabled(ballCollisionEnabled)
       , count(count)
-    {}
+      , minLifetime(sf::milliseconds(500))
+      , maxLifetime(sf::milliseconds(1000))
+      , minSpeed(2.f)
+      , maxSpeed(5.f)
+      , gravityScale(5.f)
+      , linearDamping(.2f)
+      , radius(1e-6f)
+      , density(1.f)
+      , friction(0.f)
+      , restitution(.8f)
+    { /* ... */ }
     Game *game;
     b2Vec2 pos;
     bool ballCollisionEnabled;
     int count;
+    sf::Time minLifetime;
+    sf::Time maxLifetime;
+    float32 minSpeed;
+    float32 maxSpeed;
+    float32 gravityScale;
+    float32 linearDamping;
+    float32 radius;
+    float32 density;
+    float32 friction;
+    float32 restitution;
+    sf::Texture texture;
+    std::string fragmentShaderCode;
   };
+
 
   class ParticleSystem : public Body
   {
@@ -66,15 +89,7 @@ namespace Impact {
     virtual BodyType type(void) const { return Body::BodyType::Particle; }
 
   protected:
-    static const float32 DefaultDensity;
-    static const float32 DefaultFriction;
-    static const float32 DefaultRestitution;
-
-    static const sf::Time sMaxAge;
-    static const sf::Color sColor;
-
     std::vector<SimpleParticle> mParticles;
-    
   };
 
 }

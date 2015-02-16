@@ -141,6 +141,10 @@ namespace Impact {
     sf::RenderTexture mOverlayRenderTexture;
     sf::Texture mOverlayTexture;
     sf::Sprite mOverlaySprite;
+    sf::Texture mParticleTexture;
+    std::string mParticleShaderCode;
+    sf::Texture mSoftParticleTexture;
+    std::string mSoftParticleShaderCode;
     sf::Clock mClock;
     sf::Clock mWallClock;
     sf::Clock mScoreClock;

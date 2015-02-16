@@ -158,6 +158,21 @@ namespace Impact {
     mKillingSpreeSound.setVolume(100);
     mKillingSpreeSound.setLoop(false);
 
+    mParticleTexture.loadFromFile("resources/images/particle.png");
+    mSoftParticleTexture.loadFromFile("resources/images/smooth-dot-12x12.png");
+    {
+      std::ifstream t("resources/shaders/particlesystem.frag");
+      std::stringstream buffer;
+      buffer << t.rdbuf();
+      mParticleShaderCode = buffer.str();
+    }
+    {
+      std::ifstream t("resources/shaders/softparticlesystem.frag");
+      std::stringstream buffer;
+      buffer << t.rdbuf();
+      mSoftParticleShaderCode = buffer.str();
+    }
+
     mLevelCompletedMsg.setString("Level complete");
     mLevelCompletedMsg.setFont(mFixedFont);
     mLevelCompletedMsg.setCharacterSize(64U);
@@ -518,7 +533,10 @@ namespace Impact {
     mWindow.draw(mTitleSprite, states);
 
     if (mWelcomeLevel == 0) {
-      addBody(new ParticleSystem(ParticleSystemDef(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f), false, 122)));
+      ParticleSystemDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f), false, 122);
+      pd.texture = mParticleTexture;
+      pd.fragmentShaderCode = mParticleShaderCode;
+      addBody(new ParticleSystem(pd));
       mWelcomeLevel = 1;
     }
 
@@ -527,7 +545,10 @@ namespace Impact {
       if (mWelcomeLevel == 1) {
         mExplosionSound.play();
         mWelcomeLevel = 2;
-        addBody(new ParticleSystem(ParticleSystemDef(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y), false, 100U)));
+        ParticleSystemDef pd(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y), false, 100U);
+        pd.texture = mParticleTexture;
+        pd.fragmentShaderCode = mParticleShaderCode;
+        addBody(new ParticleSystem(pd));
       }
     }
     if (t > 0.6f) {
@@ -535,7 +556,10 @@ namespace Impact {
       if (mWelcomeLevel == 2) {
         mExplosionSound.play();
         mWelcomeLevel = 3;
-        addBody(new ParticleSystem(ParticleSystemDef(this, Game::InvScale * b2Vec2(mLogoSprite.getPosition().x, mLogoSprite.getPosition().y), false, 100U)));
+        ParticleSystemDef pd(this, Game::InvScale * b2Vec2(mLogoSprite.getPosition().x, mLogoSprite.getPosition().y), false, 100U);
+        pd.texture = mParticleTexture;
+        pd.fragmentShaderCode = mParticleShaderCode;
+        addBody(new ParticleSystem(pd));
       }
     }
     if (t > 0.7f) {
@@ -543,7 +567,10 @@ namespace Impact {
       if (mWelcomeLevel == 4) {
         mExplosionSound.play();
         mWelcomeLevel = 5;
-        addBody(new ParticleSystem(ParticleSystemDef(this, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y), false, 100U)));
+        ParticleSystemDef pd(this, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y), false, 100U);
+        pd.texture = mParticleTexture;
+        pd.fragmentShaderCode = mParticleShaderCode;
+        addBody(new ParticleSystem(pd));
       }
     }
   }
@@ -1128,7 +1155,10 @@ namespace Impact {
   {
     if (killedBody->type() == Body::BodyType::Block) {
       mExplosionSound.play();
-      addBody(new ParticleSystem(ParticleSystemDef(this, killedBody->position(), mLevel.explosionParticlesCollideWithBall())));
+      ParticleSystemDef pd(this, killedBody->position(), mLevel.explosionParticlesCollideWithBall());
+      pd.texture = mParticleTexture;
+      pd.fragmentShaderCode = mParticleShaderCode;
+      addBody(new ParticleSystem(pd));
       {
         // check for killing spree
         mLastKillings[mLastKillingsIndex] = mWallClock.getElapsedTime();
