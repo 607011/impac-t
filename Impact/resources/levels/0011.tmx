@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="25" tilewidth="16" tileheight="16" backgroundcolor="#000000">
+ <properties>
+  <property name="ExplosionParticlesCollideWithBall" value="0"/>
+  <property name="Gravity" value="9.81"/>
+  <property name="KillingSpreeBonus" value="1000"/>
+  <property name="KillingSpreeInterval" value="2500"/>
+  <property name="KillingsPerKillingSpree" value="5"/>
+ </properties>
  <tileset firstgid="1" name="Default" tilewidth="64" tileheight="16">
   <tile id="0">
    <properties>
@@ -28,37 +35,45 @@
   <tile id="4">
    <properties>
     <property name="Points" value="5"/>
+    <property name="Restitution" value="1"/>
    </properties>
    <image width="32" height="16" source="../images/yellow-block.png"/>
   </tile>
   <tile id="5">
    <properties>
-    <property name="EarthquakeIntensity" value="2"/>
-    <property name="EarthquakeSeconds" value="15"/>
     <property name="Points" value="100"/>
    </properties>
    <image width="32" height="16" source="../images/dark-block.png"/>
   </tile>
   <tile id="6">
    <properties>
-    <property name="Name" value="Ball"/>
-   </properties>
-   <image width="16" height="16" source="../images/ball.png"/>
-  </tile>
-  <tile id="7">
-   <properties>
+    <property name="Density" value="100"/>
     <property name="Name" value="Racket"/>
+    <property name="Restitution" value="1.0"/>
    </properties>
    <image width="64" height="16" source="../images/pad.png"/>
   </tile>
+  <tile id="7">
+   <properties>
+    <property name="Fixed" value="true"/>
+   </properties>
+   <image width="32" height="16" source="../images/brick.png"/>
+  </tile>
+  <tile id="8">
+   <properties>
+    <property name="Name" value="Ball"/>
+    <property name="Smooth" value="1"/>
+   </properties>
+   <image width="16" height="16" source="../images/1/ball.png"/>
+  </tile>
  </tileset>
- <imagelayer name="Background" y="-1" opacity="0.5">
-  <image source="../backgrounds/urban06.jpg" trans="aaaa00"/>
+ <imagelayer name="Background" opacity="0.87">
+  <image source="../backgrounds/abstract08.jpg" trans="aaaa00"/>
  </imagelayer>
  <layer name="Tile Layer" width="40" height="25">
   <data encoding="base64" compression="zlib">
-   eJztlUEOgCAMBEEE/f+LPWgvG3FbLCFG5rIHaHdMTIjhJIZnEjnXwvZEZbbsLx28tOesr0B6eVnv5ysXY8pcqxfzFKxemGy/Fdzz1s/LC0G/FRI9aue9vLz9vDx7/39eXoKXH+uxegnYl0gyP22v9TukP5O0vou1d6N1XkAv7Zy1x+t+7z2TyR3baIGPso8WmEx+yAGmtAEk
+   eJztk0EOgCAMBFFUwv8/7IlLdVKMEHrYubGd0A0JKcVnh/wM5lNO89l+lB6ef3Xe08iTferT2Mz5cHw7/+rbfYTn/e3h+bSfcvpftGeU3/ueQohx1NUFhBBCPCirC4hXbupGAJU=
   </data>
  </layer>
- <objectgroup name="Boundaries"/>
+ <objectgroup name="Boundaries" visible="0"/>
 </map>

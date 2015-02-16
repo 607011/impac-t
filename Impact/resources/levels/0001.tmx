@@ -34,8 +34,6 @@
   </tile>
   <tile id="4">
    <properties>
-    <property name="EarthquakeIntensity" value="1"/>
-    <property name="EarthquakeSeconds" value="20"/>
     <property name="Points" value="5"/>
     <property name="Restitution" value="1"/>
    </properties>
@@ -74,7 +72,7 @@
  </imagelayer>
  <layer name="Tile Layer" width="40" height="25">
   <data encoding="base64" compression="zlib">
-   eJztk0EOgCAMBFFUwv8/7IlLdVKMEHrYubGd0A0JKcVnh/wM5lNO89l+lB6ef3Xe08iTferT2Mz5cHw7/+rbfYTn/e3h+bSfcvpftGeU3/ueQohx1NUFhBBCPCirC4hXbupGAJU=
+   eJztzjkKADAMxEDnJv//cPqtDV6CplGrCGRoZlXdrGqZVU2zqmFWtc0KAMhzqwcAfOlUDxR5KnIBiw==
   </data>
  </layer>
  <objectgroup name="Boundaries" visible="0"/>
