@@ -333,7 +333,7 @@ namespace Impact {
                   tileParam.earthquakeDuration = sf::seconds(property.get<float32>("<xmlattr>.value"));
                 }
                 else if (propName == "earthquakeintensity") {
-                  tileParam.earthquakeIntensity = .1f * property.get<float32>("<xmlattr>.value") ;
+                  tileParam.earthquakeIntensity = .05f * property.get<float32>("<xmlattr>.value") ;
                 }
               } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
             }
