@@ -42,11 +42,11 @@ namespace Impact {
 
   struct ParticleSystemDef
   {
-    ParticleSystemDef(Game *game, const b2Vec2 &pos, bool ballCollisionEnabled = false, int count = 50)
+    ParticleSystemDef(Game *game, const b2Vec2 &pos)
       : game(game)
       , pos(pos)
-      , ballCollisionEnabled(ballCollisionEnabled)
-      , count(count)
+      , ballCollisionEnabled(false)
+      , count(100)
       , minLifetime(sf::milliseconds(500))
       , maxLifetime(sf::milliseconds(1000))
       , minSpeed(2.f)

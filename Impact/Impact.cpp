@@ -54,7 +54,7 @@ namespace Impact {
     , mFadeEffectsDarken(false)
     , mFadeEffectDuration(DefaultFadeEffectDuration)
     , mEarthquakeIntensity(0.f)
-    , mEarthquakeDuration(sf::seconds(10))
+    , mEarthquakeDuration(DefaultEarthquakeDuration)
     , mScaleGravityEnabled(false)
     , mScaleBallDensityEnabled(false)
     , mBlurPlayground(false)
@@ -543,7 +543,9 @@ namespace Impact {
     mWindow.draw(mTitleSprite, states);
 
     if (mWelcomeLevel == 0) {
-      ParticleSystemDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f), false, 122);
+      ParticleSystemDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f));
+      pd.ballCollisionEnabled = false;
+      pd.count = 120;
       pd.texture = mParticleTexture;
       pd.fragmentShaderCode = mParticleShaderCode;
       addBody(new ParticleSystem(pd));
@@ -555,7 +557,7 @@ namespace Impact {
       if (mWelcomeLevel == 1) {
         mExplosionSound.play();
         mWelcomeLevel = 2;
-        ParticleSystemDef pd(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y), false, 100U);
+        ParticleSystemDef pd(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y));
         pd.texture = mParticleTexture;
         pd.fragmentShaderCode = mParticleShaderCode;
         addBody(new ParticleSystem(pd));
@@ -566,7 +568,7 @@ namespace Impact {
       if (mWelcomeLevel == 2) {
         mExplosionSound.play();
         mWelcomeLevel = 3;
-        ParticleSystemDef pd(this, Game::InvScale * b2Vec2(mLogoSprite.getPosition().x, mLogoSprite.getPosition().y), false, 100U);
+        ParticleSystemDef pd(this, Game::InvScale * b2Vec2(mLogoSprite.getPosition().x, mLogoSprite.getPosition().y));
         pd.texture = mParticleTexture;
         pd.fragmentShaderCode = mParticleShaderCode;
         addBody(new ParticleSystem(pd));
@@ -577,7 +579,7 @@ namespace Impact {
       if (mWelcomeLevel == 4) {
         mExplosionSound.play();
         mWelcomeLevel = 5;
-        ParticleSystemDef pd(this, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y), false, 100U);
+        ParticleSystemDef pd(this, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y));
         pd.texture = mParticleTexture;
         pd.fragmentShaderCode = mParticleShaderCode;
         addBody(new ParticleSystem(pd));
@@ -705,6 +707,9 @@ namespace Impact {
       mLevelTimer.resume();
       setState(State::Playing);
       mBlurPlayground = false;
+      mFadeEffectsActive = 0;
+      mEarthquakeIntensity = 0.f;
+      mEarthquakeDuration = DefaultEarthquakeDuration;
     }
     else {
       gotoPlayerWon();
@@ -903,9 +908,8 @@ namespace Impact {
               showScore(block->getScore(), block->position());
               killedBodies.push_back(block);
             }
-            else {
+            else if (cp.normalImpulse > 20)
               mBlockHitSound.play();
-            }
           }
         }
         else if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
@@ -1120,7 +1124,7 @@ namespace Impact {
   void Game::showScore(int score, const b2Vec2 &atPos, int factor)
   {
     addToScore(score * factor);
-    std::string text = ((factor > 1) ? (std::to_string(factor) + "*") : "") + std::to_string(score);
+    const std::string &text = (factor > 1 ? (std::to_string(factor) + "*") : "") + std::to_string(score);
     TextBody *scoreText = new TextBody(this, text, 24U);
     scoreText->setFont(mFixedFont);
     scoreText->setPosition(atPos.x, atPos.y);
@@ -1199,7 +1203,9 @@ namespace Impact {
   {
     if (killedBody->type() == Body::BodyType::Block) {
       mExplosionSound.play();
-      ParticleSystemDef pd(this, killedBody->position(), mLevel.explosionParticlesCollideWithBall());
+      ParticleSystemDef pd(this, killedBody->position());
+      pd.ballCollisionEnabled = mLevel.explosionParticlesCollideWithBall();
+      pd.count = 50;
       pd.texture = mParticleTexture;
       pd.fragmentShaderCode = mParticleShaderCode;
       addBody(new ParticleSystem(pd));
