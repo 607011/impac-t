@@ -15,6 +15,7 @@ A Breakout/Bolo clone, augmented with a physics engine
    - cause a kind of asteroid shower (or other dangerous things that fall from the sky and can severely harm the racket)
    - increase inertia of racket
    - speed up/slow down ball (friction?)
+ - place racket on level's default position in case it was caught in between wall segments or something like that
 
 
 Copyright (c) 2015 Oliver Lau <<ola@ct.de>>, Heise Zeitschriften Verlag
