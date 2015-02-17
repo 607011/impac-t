@@ -126,26 +126,26 @@
     <None Include="resources\shaders\title.frag">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="..\..\Impac%27t\Impact\resources\shaders\fallingblock.frag">
-      <Filter>Fragment Shaders</Filter>
-    </None>
     <None Include="..\README.md" />
-    <None Include="..\..\Impac%27t\Impact\resources\shaders\hblur.frag">
-      <Filter>Fragment Shaders</Filter>
-    </None>
-    <None Include="..\..\Impac%27t\Impact\resources\shaders\vblur.frag">
-      <Filter>Fragment Shaders</Filter>
-    </None>
-    <None Include="..\..\Impac%27t\Impact\resources\shaders\softparticlesystem.frag">
-      <Filter>Fragment Shaders</Filter>
-    </None>
     <None Include="resources\shaders\earthquake.frag">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="..\..\Impac%27t\Impact\resources\shaders\aberration.frag">
+    <None Include="resources\shaders\aberration.frag">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="..\..\Impac%27t\Impact\resources\shaders\mix.frag">
+    <None Include="resources\shaders\fallingblock.frag">
+      <Filter>Fragment Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\hblur.frag">
+      <Filter>Fragment Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\mix.frag">
+      <Filter>Fragment Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\softparticlesystem.frag">
+      <Filter>Fragment Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\vblur.frag">
       <Filter>Fragment Shaders</Filter>
     </None>
   </ItemGroup>

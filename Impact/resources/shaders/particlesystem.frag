@@ -1,4 +1,4 @@
-/*  
+/*
 
     Copyright (c) 2015 Oliver Lau <ola@ct.de>
 
@@ -23,6 +23,5 @@ uniform float uMaxAge;
 void main()
 {
   float v = 1.0 - (uAge / uMaxAge);
-  vec2 pos = gl_TexCoord[0].xy;
-  gl_FragColor = gl_Color * texture2D(uTexture, pos) * vec4(v, 1.0, 1.0 - v, v);
+  gl_FragColor = gl_Color * texture2D(uTexture, gl_TexCoord[0].xy) * vec4(v, 1.0, 1.0 - v, v);
 }

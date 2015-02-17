@@ -1,4 +1,4 @@
-/*  
+/*
 
     Copyright (c) 2015 Oliver Lau <ola@ct.de>
 
@@ -15,7 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-*/
+    */
 
 #ifndef __GAME_H_
 #define __GAME_H_
@@ -33,7 +33,7 @@
 #include "BodyGround.h"
 
 namespace Impact {
-  
+
   class Game;
 
   struct ContactPoint {
@@ -196,11 +196,11 @@ namespace Impact {
     sf::Sound mRacketHitBlockSound;
     sf::SoundBuffer mExplosionBuffer;
     sf::Sound mExplosionSound;
-    sf::SoundBuffer mNewLifeBuffer; 
+    sf::SoundBuffer mNewLifeBuffer;
     sf::Sound mNewLifeSound;
-    sf::SoundBuffer mLevelCompleteBuffer; 
+    sf::SoundBuffer mLevelCompleteBuffer;
     sf::Sound mLevelCompleteSound;
-    sf::SoundBuffer mKillingSpreeSoundBuffer; 
+    sf::SoundBuffer mKillingSpreeSoundBuffer;
     sf::Sound mKillingSpreeSound;
 
     std::vector<sf::Music*> mMusic;
@@ -259,21 +259,25 @@ namespace Impact {
     void clearWindow(void);
     void drawWorld(const sf::View &view);
     void drawStartMessage(void);
-    void drawPlayground(float elapsedSeconds);
+    void drawPlayground(const sf::Time &elapsed);
     void stopAllMusic(void);
     void restart(void);
     void resize(void);
     void pause(void);
     void resume(void);
     void buildLevel(void);
-    void handlePlayerInteraction(float elapsedSeconds);
+    void handlePlayerInteraction(const sf::Time &elapsed);
     void update(const sf::Time &elapsed);
     void evaluateCollisions(void);
     void handleEvents(void);
-    void shakeEarth(float32 intensity, const sf::Time &duration);
+    void startEarthquake(float32 intensity, const sf::Time &duration);
     void startFadeEffect(bool darken = false, const sf::Time &duration = DefaultFadeEffectDuration);
     void startAberrationEffect(float32 gravityScale, const sf::Time &duration = DefaultAberrationEffectDuration);
     void setKillingsPerKillingSpree(int);
+    void executeAberration(sf::RenderTexture &out, sf::RenderTexture &in);
+    void executeCopy(sf::RenderTexture &out, sf::RenderTexture &in);
+    void executeBlur(sf::RenderTexture &out, sf::RenderTexture &in);
+    void executeEarthquake(sf::RenderTexture &out, sf::RenderTexture &in);
     void resetKillingSpree(void);
 
     void gotoWelcomeScreen(void);

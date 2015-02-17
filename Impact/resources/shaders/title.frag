@@ -1,4 +1,4 @@
-/*  
+/*
 
     Copyright (c) 2015 Oliver Lau <ola@ct.de>
 
@@ -21,13 +21,30 @@ uniform sampler2D uTexture;
 uniform float uT;
 uniform float uMaxT;
 
-const float tOffset = 0.5;
+
+float bounceEaseOut(float t, float b, float c, float d)
+{
+  if ((t /= d) < (1.0 / 2.75)) {
+    return c*(7.5625*t*t) + b;
+  }
+  else if (t < (2.0 / 2.75)) {
+    float postFix = t -= (1.5 / 2.75);
+    return c*(7.5625*(postFix)*t + .75) + b;
+  }
+  else if (t < (2.5 / 2.75)) {
+    float postFix = t -= (2.25 / 2.75);
+    return c*(7.5625*(postFix)*t + .9375) + b;
+  }
+  else {
+    float postFix = t -= (2.625 / 2.75);
+    return c*(7.5625*(postFix)*t + .984375) + b;
+  }
+}
 
 void main()
 {
 	vec2 pos = gl_TexCoord[0].xy;
 	const vec2 center = vec2(0.5, 0.4);
-	float v = 1 / min((uT + tOffset) / uMaxT, 1.f);
-	float scale = pow(v, 5.5f);
-	gl_FragColor = texture2D(uTexture, scale * (pos - center) + center);
+  float scale = uT < uMaxT ? bounceEaseOut(uT, 0.1, 1.0, uMaxT) : 1.1;
+	gl_FragColor = texture2D(uTexture, (pos - center) / scale + center);
 }

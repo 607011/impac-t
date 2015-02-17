@@ -1,4 +1,4 @@
-/*  
+/*
 
     Copyright (c) 2015 Oliver Lau <ola@ct.de>
 
@@ -252,27 +252,33 @@ namespace Impact {
     mTitleSprite.setTexture(mTitleTexture);
     mTitleSprite.setPosition(0.f, 0.f);
 
-    mAberrationShader.loadFromFile(gShadersDir + "/aberration.frag", sf::Shader::Fragment);
-    mAberrationShader.setParameter("uDistort", 0.1f);
+    ok = mAberrationShader.loadFromFile(gShadersDir + "/aberration.frag", sf::Shader::Fragment);
+    if (!ok)
+      std::cerr << gShadersDir + "/aberration.frag" << " failed to load/compile." << std::endl;
 
     mMixShader.loadFromFile(gShadersDir + "/mix.frag", sf::Shader::Fragment);
+    if (!ok)
+      std::cerr << gShadersDir + "/mix.frag" << " failed to load/compile." << std::endl;
 
     mVBlurShader.loadFromFile(gShadersDir + "/vblur.frag", sf::Shader::Fragment);
+    if (!ok)
+      std::cerr << gShadersDir + "/vblur.frag" << " failed to load/compile." << std::endl;
     mVBlurShader.setParameter("uBlur", 4.f);
     mVBlurShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
 
     mHBlurShader.loadFromFile(gShadersDir + "/hblur.frag", sf::Shader::Fragment);
+    if (!ok)
+      std::cerr << gShadersDir + "/hblur.frag" << " failed to load/compile." << std::endl;
     mHBlurShader.setParameter("uBlur", 4.f);
     mHBlurShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
 
     mTitleShader.loadFromFile(gShadersDir + "/title.frag", sf::Shader::Fragment);
+    if (!ok)
+      std::cerr << gShadersDir + "/title.frag" << " failed to load/compile." << std::endl;
 
     mEarthquakeShader.loadFromFile(gShadersDir + "/earthquake.frag", sf::Shader::Fragment);
-    mEarthquakeShader.setParameter("uT", 0.f);
-    mEarthquakeShader.setParameter("uMaxT", 1.f);
-    mEarthquakeShader.setParameter("uRShift", 0.f);
-    mEarthquakeShader.setParameter("uGShift", 0.f);
-    mEarthquakeShader.setParameter("uBShift", 0.f);
+    if (!ok)
+      std::cerr << gShadersDir + "/earthquake.frag" << " failed to load/compile." << std::endl;
 
     mKeyMapping[Action::PauseAction] = sf::Keyboard::Pause;
     mKeyMapping[Action::MoveLeft] = sf::Keyboard::Left;
@@ -472,7 +478,7 @@ namespace Impact {
   }
 
 
-  void Game::handlePlayerInteraction(float elapsedSeconds)
+  inline void Game::handlePlayerInteraction(const sf::Time &elapsed)
   {
     if (mRacket != nullptr) {
       mMousePos = sf::Mouse::getPosition(mWindow);
@@ -482,7 +488,7 @@ namespace Impact {
         sf::Mouse::setPosition(mMousePos, mWindow);
       }
       const sf::Vector2i &d = mMousePos - mLastMousePos;
-      const b2Vec2 &v = Game::InvScale / elapsedSeconds * b2Vec2(float32(d.x), float32(d.y));
+      const b2Vec2 &v = Game::InvScale / elapsed.asSeconds() * b2Vec2(float32(d.x), float32(d.y));
       mRacket->applyLinearVelocity(v);
       mLastMousePos = mMousePos;
       if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
@@ -610,7 +616,7 @@ namespace Impact {
 
     update(elapsed);
 
-    drawPlayground(elapsed.asSeconds());
+    drawPlayground(elapsed);
 
     mLevelCompletedMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mLevelCompletedMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mLevelCompletedMsg);
@@ -635,7 +641,7 @@ namespace Impact {
 
     update(elapsed);
 
-    drawPlayground(elapsed.asSeconds());
+    drawPlayground(elapsed);
 
     mPlayerWonMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mPlayerWonMsg);
@@ -671,7 +677,7 @@ namespace Impact {
 
     update(elapsed);
 
-    drawPlayground(elapsed.asSeconds());
+    drawPlayground(elapsed);
 
     mGameOverMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mGameOverMsg);
@@ -708,14 +714,14 @@ namespace Impact {
     if (mLevel.gotoNext()) {
       buildLevel();
       mClock.restart();
-      mLevelTimer.resume();
-      setState(State::Playing);
       mBlurPlayground = false;
       mFadeEffectsActive = 0;
       mEarthquakeDuration = sf::Time::Zero;
       mEarthquakeIntensity = 0.f;
       mAberrationDuration = sf::Time::Zero;
       mAberrationIntensity = 0.f;
+      mLevelTimer.resume();
+      setState(State::Playing);
     }
     else {
       gotoPlayerWon();
@@ -727,7 +733,7 @@ namespace Impact {
   {
     const sf::Time &elapsed = mClock.restart();
     if (!mPaused) {
-      handlePlayerInteraction(elapsed.asSeconds());
+      handlePlayerInteraction(elapsed);
       update(elapsed);
       if (mState == State::Playing) {
         if (mBall != nullptr) { // check if ball has been kicked out of the screen
@@ -770,11 +776,89 @@ namespace Impact {
         std::cout << "Ball density back to normal." << std::endl;
 #endif
     }
-    drawPlayground(elapsed.asSeconds());
+    drawPlayground(elapsed);
   }
 
 
-  void Game::drawPlayground(float elapsedSeconds)
+  inline void Game::executeAberration(sf::RenderTexture &out, sf::RenderTexture &in)
+  {
+    sf::RenderStates states;
+	  sf::Sprite sprite(in.getTexture());
+    states.shader = &mAberrationShader;
+    mAberrationShader.setParameter("uT", mAberrationClock.getElapsedTime().asSeconds());
+    out.draw(sprite, states);
+  }
+
+
+  void Game::startAberrationEffect(float32 gravityScale, const sf::Time &duration)
+  {
+    mAberrationClock.restart();
+    mAberrationDuration += duration;
+    mAberrationIntensity += .02f * gravityScale;
+    mAberrationShader.setParameter("uMaxT", mAberrationDuration.asSeconds());
+    mAberrationShader.setParameter("uDistort", mAberrationIntensity);
+  }
+
+
+  inline void Game::executeBlur(sf::RenderTexture &out, sf::RenderTexture &in)
+  {
+    sf::RenderStates states0;
+	  sf::Sprite sprite0;
+	  sf::RenderStates states1;
+	  sf::Sprite sprite1;
+	  states0.shader = &mHBlurShader;
+	  states1.shader = &mVBlurShader;
+	  const float blur = b2Min(4.f, 1.f + mBlurClock.getElapsedTime().asSeconds());
+	  for (int i = 1; i < 4; ++i) {
+		  sprite1.setTexture(in.getTexture());
+		  mVBlurShader.setParameter("uBlur", blur * i);
+		  out.draw(sprite1, states1);
+		  sprite0.setTexture(out.getTexture());
+		  mHBlurShader.setParameter("uBlur", blur * i);
+		  in.draw(sprite0, states0);
+	  }
+    executeCopy(out, in);
+  }
+
+
+  inline void Game::executeEarthquake(sf::RenderTexture &out, sf::RenderTexture &in)
+  {
+    sf::Sprite sprite(in.getTexture());
+    sf::RenderStates states;
+    states.shader = &mEarthquakeShader;
+    const float32 maxIntensity = mEarthquakeIntensity * InvScale;
+	  boost::random::uniform_real_distribution<float32> randomShift(-maxIntensity, maxIntensity);
+	  mEarthquakeShader.setParameter("uT", mEarthquakeClock.getElapsedTime().asSeconds());
+	  mEarthquakeShader.setParameter("uRShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
+	  mEarthquakeShader.setParameter("uGShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
+	  mEarthquakeShader.setParameter("uBShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
+    out.draw(sprite, states);
+  }
+
+
+  void Game::startEarthquake(float32 intensity, const sf::Time &duration)
+  {
+    if (mEarthquakeIntensity > 0.f) {
+      mEarthquakeDuration += duration;
+      mEarthquakeIntensity += intensity;
+    }
+    else {
+      mEarthquakeDuration = duration;
+      mEarthquakeIntensity = intensity;
+      mEarthquakeClock.restart();
+    }
+    mEarthquakeShader.setParameter("uMaxT", mEarthquakeDuration.asSeconds());
+  }
+
+
+  inline void Game::executeCopy(sf::RenderTexture &out, sf::RenderTexture &in)
+  {
+	  sf::Sprite sprite(in.getTexture());
+	  out.draw(sprite);
+  }
+
+
+  void Game::drawPlayground(const sf::Time &elapsed)
   {
     handleEvents();
 
@@ -791,33 +875,15 @@ namespace Impact {
         mRenderTexture0.draw(*body);
     }
 
-    sf::RenderStates states0;
-    sf::Sprite sprite0;
-    sf::RenderStates states1;
-    sf::Sprite sprite1;
-
     if (mBlurPlayground) {
-      states0.shader = &mHBlurShader;
-      states1.shader = &mVBlurShader;
-      const float blur = b2Min(4.f, 1.f + mBlurClock.getElapsedTime().asSeconds());
-      for (int i = 1; i < 4; ++i) {
-        sprite1.setTexture(mRenderTexture0.getTexture());
-        mVBlurShader.setParameter("uBlur", blur * i);
-        mRenderTexture1.draw(sprite1, states1);
-        sprite0.setTexture(mRenderTexture1.getTexture());
-        mHBlurShader.setParameter("uBlur", blur * i);
-        mRenderTexture0.draw(sprite0, states0);
-      }
+      executeBlur(mRenderTexture1, mRenderTexture0);
+      executeCopy(mRenderTexture0, mRenderTexture1);
     }
-    else if (mAberrationDuration > sf::Time::Zero) {
+    
+    if (mAberrationDuration > sf::Time::Zero) {
       if (mAberrationClock.getElapsedTime() < mAberrationDuration) {
-        states1.shader = &mAberrationShader;
-        const float distort = mAberrationIntensity - Easing<float>::quadEaseInForthAndBack(mAberrationClock.getElapsedTime().asSeconds(), 0.0f, mAberrationIntensity, mAberrationDuration.asSeconds());
-        mAberrationShader.setParameter("uDistort", distort);
-        sprite0.setTexture(mRenderTexture0.getTexture());
-        mRenderTexture1.draw(sprite0, states1);
-        sprite1.setTexture(mRenderTexture1.getTexture());
-        mRenderTexture0.draw(sprite1);
+        executeAberration(mRenderTexture1, mRenderTexture0);
+        executeCopy(mRenderTexture0, mRenderTexture1);
       }
       else {
         mAberrationDuration = sf::Time::Zero;
@@ -826,19 +892,10 @@ namespace Impact {
     }
 
     if (mEarthquakeIntensity > 0.f && mEarthquakeClock.getElapsedTime() < mEarthquakeDuration) {
-      const float32 maxIntensity = mEarthquakeIntensity * InvScale;
-      boost::random::uniform_real_distribution<float32> randomShift(-maxIntensity, maxIntensity);
-      states1.shader = &mEarthquakeShader;
-      mEarthquakeShader.setParameter("uT", mEarthquakeClock.getElapsedTime().asSeconds());
-      mEarthquakeShader.setParameter("uRShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
-      mEarthquakeShader.setParameter("uGShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
-      mEarthquakeShader.setParameter("uBShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
-      sprite0.setTexture(mRenderTexture0.getTexture());
-      mRenderTexture1.draw(sprite0, states1);
-      sprite0.setTexture(mRenderTexture1.getTexture());
+      executeEarthquake(mRenderTexture1, mRenderTexture0);
+      executeCopy(mRenderTexture0, mRenderTexture1);
     }
     else {
-      sprite0.setTexture(mRenderTexture0.getTexture());
       if (mEarthquakeClock.getElapsedTime() > mEarthquakeDuration)
         mEarthquakeIntensity = 0.f;
     }
@@ -861,8 +918,10 @@ namespace Impact {
       mMixShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
       mMixShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
     }
-    states0.shader = &mMixShader;
-    mWindow.draw(sprite0, states0);
+    sf::Sprite sprite(mRenderTexture0.getTexture());
+    sf::RenderStates states;
+    states.shader = &mMixShader;
+    mWindow.draw(sprite, states);
 
     mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
     mLevelMsg.setPosition(4, 4);
@@ -870,7 +929,7 @@ namespace Impact {
     mWindow.draw(mLevelMsg);
     if (mState == State::Playing) {
       int penalty = 5 * mLevelTimer.accumulatedMilliseconds() / 1000;
-      mScoreMsg.setString(std::to_string(b2Max(0, mScore - penalty)) + " " + std::to_string(1e3*elapsedSeconds));
+      mScoreMsg.setString(std::to_string(b2Max(0, mScore - penalty)) + " " + std::to_string(int(std::ceil(1.f/elapsed.asSeconds()))));
       mScoreMsg.setPosition(mDefaultView.getCenter().x + mDefaultView.getSize().x / 2 - mScoreMsg.getLocalBounds().width - 4, 4);
       mWindow.draw(mScoreMsg);
       for (int life = 0; life < mLives; ++life) {
@@ -1001,21 +1060,22 @@ namespace Impact {
 
 
   void Game::PostSolve(b2Contact *contact, const b2ContactImpulse *impulse)
-  {    if (mContactPointCount < MaxContactPoints) {      ContactPoint &cp = mPoints[mContactPointCount];      cp.fixtureA = contact->GetFixtureA();      cp.fixtureB = contact->GetFixtureB();      Body *bodyA = reinterpret_cast<Body*>(cp.fixtureA->GetUserData());      Body *bodyB = reinterpret_cast<Body*>(cp.fixtureB->GetUserData());      if (bodyA != nullptr && bodyB != nullptr) {        cp.position = contact->GetManifold()->points[0].localPoint;        cp.normal = b2Vec2_zero;        cp.normalImpulse = impulse->normalImpulses[0];        cp.tangentImpulse = impulse->tangentImpulses[0];        cp.separation = 0.f;        ++mContactPointCount;      }    }  }
-
-
-  void Game::shakeEarth(float32 intensity, const sf::Time &duration)
   {
-    if (mEarthquakeIntensity > 0.f) {
-      mEarthquakeDuration += duration;
-      mEarthquakeIntensity += intensity;
+    if (mContactPointCount < MaxContactPoints) {
+      ContactPoint &cp = mPoints[mContactPointCount];
+      cp.fixtureA = contact->GetFixtureA();
+      cp.fixtureB = contact->GetFixtureB();
+      Body *bodyA = reinterpret_cast<Body*>(cp.fixtureA->GetUserData());
+      Body *bodyB = reinterpret_cast<Body*>(cp.fixtureB->GetUserData());
+      if (bodyA != nullptr && bodyB != nullptr) {
+        cp.position = contact->GetManifold()->points[0].localPoint;
+        cp.normal = b2Vec2_zero;
+        cp.normalImpulse = impulse->normalImpulses[0];
+        cp.tangentImpulse = impulse->tangentImpulses[0];
+        cp.separation = 0.f;
+        ++mContactPointCount;
+      }
     }
-    else {
-      mEarthquakeDuration = duration;
-      mEarthquakeIntensity = intensity;
-      mEarthquakeClock.restart();
-    }
-    mEarthquakeShader.setParameter("uMaxT", mEarthquakeDuration.asSeconds());
   }
 
 
@@ -1023,18 +1083,9 @@ namespace Impact {
   {
     mFadeEffectsDarken = darken;
     mFadeEffectDuration = duration;
-    if (mFadeEffectsActive == 0) {
+    if (mFadeEffectsActive == 0)
       mFadeEffectTimer.restart();
-    }
     ++mFadeEffectsActive;
-  }
-
-
-  void Game::startAberrationEffect(float32 gravityScale, const sf::Time &duration)
-  {
-    mAberrationClock.restart();
-    mAberrationDuration += duration;
-    mAberrationIntensity += .02f * gravityScale;
   }
 
 
@@ -1249,7 +1300,7 @@ namespace Impact {
       }
       const TileParam &tileParam = killedBody->tileParam();
       if (tileParam.earthquakeDuration > sf::Time::Zero && tileParam.earthquakeIntensity > 0.f) {
-        shakeEarth(tileParam.earthquakeIntensity, tileParam.earthquakeDuration);
+        startEarthquake(tileParam.earthquakeIntensity, tileParam.earthquakeDuration);
       }
       if (tileParam.scaleGravityDuration > sf::Time::Zero) {
         mWorld->SetGravity(tileParam.scaleGravityBy * mWorld->GetGravity());

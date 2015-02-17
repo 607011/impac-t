@@ -1,4 +1,4 @@
-/*  
+/*
 
     Copyright (c) 2015 Oliver Lau <ola@ct.de>
 
@@ -31,7 +31,6 @@ float easeOutExpo(float t, float d) {
 void main(void)
 {
   vec2 pos = gl_TexCoord[0].xy;
-  pos.y = 1.0 - pos.y;
   float intensity = easeOutExpo(uT / uMaxT, uMaxT - uT);
   vec3 rgb = vec3(
     texture2D(uTexture, uRShift * intensity + pos).r,

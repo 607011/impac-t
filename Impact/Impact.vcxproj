@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -20,13 +20,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -132,13 +132,13 @@
     <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Impac%27t\Impact\resources\shaders\aberration.frag" />
-    <None Include="..\..\Impac%27t\Impact\resources\shaders\fallingblock.frag" />
-    <None Include="..\..\Impac%27t\Impact\resources\shaders\hblur.frag" />
-    <None Include="..\..\Impac%27t\Impact\resources\shaders\mix.frag" />
+    <None Include="resources\shaders\aberration.frag" />
+    <None Include="resources\shaders\fallingblock.frag" />
+    <None Include="resources\shaders\hblur.frag" />
+    <None Include="resources\shaders\mix.frag" />
     <None Include="resources\shaders\earthquake.frag" />
-    <None Include="..\..\Impac%27t\Impact\resources\shaders\softparticlesystem.frag" />
-    <None Include="..\..\Impac%27t\Impact\resources\shaders\vblur.frag" />
+    <None Include="resources\shaders\softparticlesystem.frag" />
+    <None Include="resources\shaders\vblur.frag" />
     <None Include="..\README.md" />
     <None Include="resources\shaders\particlesystem.frag" />
     <None Include="resources\shaders\title.frag" />

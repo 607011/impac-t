@@ -41,6 +41,8 @@
   </tile>
   <tile id="5">
    <properties>
+    <property name="EarthquakeIntensity" value="5"/>
+    <property name="EarthquakeSeconds" value="10"/>
     <property name="Points" value="100"/>
    </properties>
    <image width="32" height="16" source="../images/dark-block.png"/>
@@ -80,7 +82,7 @@
  </imagelayer>
  <layer name="Tile Layer" width="40" height="25">
   <data encoding="base64" compression="zlib">
-   eJztzjkKACAAA0Fv0f8/2MYqYCckSqbZdkN4w2QPbKePKFaUxIqqWFERK8piRU2sZmZ2z2APmNmXOnuAZAFQkQGf
+   eJztzisOACAQA1H+BO5/YPwaDGGbzTwzoqYp4YUsVquI1epitZpYrSpWIJJ92ceXF4Cu5X0AQEjT+4CTAxIGAS8=
   </data>
  </layer>
  <objectgroup name="Boundaries" visible="0"/>

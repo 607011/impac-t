@@ -1,23 +1,25 @@
-/*  
+/*
 
-    Copyright (c) 2015 Oliver Lau <ola@ct.de>
+Copyright (c) 2015 Oliver Lau <ola@ct.de>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
 uniform sampler2D uTexture;
+uniform float uT;
+uniform float uMaxT;
 uniform float uDistort;
 
 
@@ -43,9 +45,9 @@ float remap(float t, float a, float b) {
 vec3 spectrum_offset(float t) {
   float lo = step(t, 0.5);
   float hi = 1.0 - lo;
-  float w = linterp(remap(t, 1.0/6.0, 5.0/6.0));
-  vec3 ret = vec3(lo,1.0,hi) * vec3(1.0-w, w, 1.0-w);
-  return pow(ret, vec3(1.0/2.2));
+  float w = linterp(remap(t, 1.0 / 6.0, 5.0 / 6.0));
+  vec3 ret = vec3(lo, 1.0, hi) * vec3(1.0 - w, w, 1.0 - w);
+  return pow(ret, vec3(1.0 / 2.2));
 }
 
 vec4 lensDistort(vec2 uv, float distort)
@@ -112,9 +114,18 @@ vec4 lensDistort(vec2 uv, float distort)
   return vec4(sumcol.rgb / sumw, 1.0);
 }
 
+
+float quadEaseInOut(float t, float b, float c, float d)
+{
+  if ((t /= 0.5 * d) < 1.0)
+    return ((0.5 * c)*(t*t)) + b;
+  return -c / 2.0 * (((t - 2.0)*(--t)) - 1) + b;
+}
+
+
 void main()
 {
   vec2 pos = gl_TexCoord[0].xy;
-  // pos.y = 1.0 - pos.y;
-  gl_FragColor = lensDistort(pos, uDistort) * gl_Color;
+  float intensity = 1.0 - quadEaseInOut(uT, 0.0, 1.0, uMaxT);
+  gl_FragColor = gl_Color * lensDistort(pos, uDistort * intensity);
 }
