@@ -89,6 +89,7 @@ namespace Impact {
     static const int NewLiveAfterSoManyPoints[];
     static const int32 MaxContactPoints = 512;
     static const sf::Time DefaultFadeEffectDuration;
+    static const sf::Time DefaultAberrationEffectDuration;
     static const sf::Time DefaultEarthquakeDuration;
     static const int DefaultKillingsPerKillingSpree = 5;
     static const int DefaultKillingSpreeBonus = 1000;
@@ -127,7 +128,10 @@ namespace Impact {
     sf::View mDefaultView;
     sf::RenderTexture mRenderTexture0;
     sf::RenderTexture mRenderTexture1;
-    sf::Shader mPostFXShader;
+    sf::Shader mMixShader;
+    int mFadeEffectsActive;
+    bool mFadeEffectsDarken;
+    sf::Time mFadeEffectDuration;
     sf::Shader mHBlurShader;
     sf::Shader mVBlurShader;
     bool mBlurPlayground;
@@ -147,6 +151,13 @@ namespace Impact {
     sf::Texture mSoftParticleTexture;
     std::string mSoftParticleShaderCode;
     sf::Shader mEarthquakeShader;
+    float32 mEarthquakeIntensity;
+    sf::Clock mEarthquakeClock;
+    sf::Time mEarthquakeDuration;
+    sf::Shader mAberrationShader;
+    sf::Clock mAberrationClock;
+    sf::Time mAberrationDuration;
+    float32 mAberrationIntensity;
     sf::Clock mClock;
     sf::Clock mWallClock;
     sf::Clock mScoreClock;
@@ -158,12 +169,6 @@ namespace Impact {
     sf::Clock mScaleBallDensityClock;
     sf::Time mScaleBallDensityDuration;
     bool mScaleBallDensityEnabled;
-    int mFadeEffectsActive;
-    bool mFadeEffectsDarken;
-    float32 mEarthquakeIntensity;
-    sf::Clock mEarthquakeClock;
-    sf::Time mEarthquakeDuration;
-    sf::Time mFadeEffectDuration;
     sf::Text mLevelCompletedMsg;
     sf::Text mGameOverMsg;
     sf::Text mPlayerWonMsg;
@@ -254,7 +259,7 @@ namespace Impact {
     void clearWindow(void);
     void drawWorld(const sf::View &view);
     void drawStartMessage(void);
-    void drawPlayground(void);
+    void drawPlayground(float elapsedSeconds);
     void stopAllMusic(void);
     void restart(void);
     void resize(void);
@@ -267,6 +272,7 @@ namespace Impact {
     void handleEvents(void);
     void shakeEarth(float32 intensity, const sf::Time &duration);
     void startFadeEffect(bool darken = false, const sf::Time &duration = DefaultFadeEffectDuration);
+    void startAberrationEffect(float32 gravityScale, const sf::Time &duration = DefaultAberrationEffectDuration);
     void setKillingsPerKillingSpree(int);
     void resetKillingSpree(void);
 

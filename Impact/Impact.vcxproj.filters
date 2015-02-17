@@ -126,9 +126,6 @@
     <None Include="resources\shaders\title.frag">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="resources\shaders\postfx.frag">
-      <Filter>Fragment Shaders</Filter>
-    </None>
     <None Include="..\..\Impac%27t\Impact\resources\shaders\fallingblock.frag">
       <Filter>Fragment Shaders</Filter>
     </None>
@@ -143,6 +140,12 @@
       <Filter>Fragment Shaders</Filter>
     </None>
     <None Include="resources\shaders\earthquake.frag">
+      <Filter>Fragment Shaders</Filter>
+    </None>
+    <None Include="..\..\Impac%27t\Impact\resources\shaders\aberration.frag">
+      <Filter>Fragment Shaders</Filter>
+    </None>
+    <None Include="..\..\Impac%27t\Impact\resources\shaders\mix.frag">
       <Filter>Fragment Shaders</Filter>
     </None>
   </ItemGroup>

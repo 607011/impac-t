@@ -35,6 +35,7 @@ namespace Impact {
   const int Game::NewLiveAfterSoManyPointsDefault = 100000;
   const sf::Time Game::DefaultKillingSpreeInterval = sf::milliseconds(2500);
   const sf::Time Game::DefaultFadeEffectDuration = sf::milliseconds(150);
+  const sf::Time Game::DefaultAberrationEffectDuration = sf::milliseconds(250);
   const sf::Time Game::DefaultEarthquakeDuration = sf::milliseconds(10 * 1000);
 
   Game::Game(void)
@@ -57,6 +58,7 @@ namespace Impact {
     , mEarthquakeDuration(DefaultEarthquakeDuration)
     , mScaleGravityEnabled(false)
     , mScaleBallDensityEnabled(false)
+    , mAberrationIntensity(0.f)
     , mBlurPlayground(false)
     , mLastKillingsIndex(0)
   {
@@ -250,8 +252,10 @@ namespace Impact {
     mTitleSprite.setTexture(mTitleTexture);
     mTitleSprite.setPosition(0.f, 0.f);
 
-    mPostFXShader.loadFromFile(gShadersDir + "/postfx.frag", sf::Shader::Fragment);
-    mPostFXShader.setParameter("uDistort", 0.1f);
+    mAberrationShader.loadFromFile(gShadersDir + "/aberration.frag", sf::Shader::Fragment);
+    mAberrationShader.setParameter("uDistort", 0.1f);
+
+    mMixShader.loadFromFile(gShadersDir + "/mix.frag", sf::Shader::Fragment);
 
     mVBlurShader.loadFromFile(gShadersDir + "/vblur.frag", sf::Shader::Fragment);
     mVBlurShader.setParameter("uBlur", 4.f);
@@ -320,9 +324,9 @@ namespace Impact {
 
     mContactPointCount = 0;
 
-    mPostFXShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
-    mPostFXShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
-    mPostFXShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
+    mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
+    mMixShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
+    mMixShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
 
     gotoWelcomeScreen();
 
@@ -606,7 +610,7 @@ namespace Impact {
 
     update(elapsed);
 
-    drawPlayground();
+    drawPlayground(elapsed.asSeconds());
 
     mLevelCompletedMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mLevelCompletedMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mLevelCompletedMsg);
@@ -631,7 +635,7 @@ namespace Impact {
 
     update(elapsed);
 
-    drawPlayground();
+    drawPlayground(elapsed.asSeconds());
 
     mPlayerWonMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mPlayerWonMsg);
@@ -656,7 +660,7 @@ namespace Impact {
     setState(State::GameOver);
     mBlurClock.restart();
     mBlurPlayground = true;
-    mPostFXShader.setParameter("uColorMix", sf::Color(255, 255, 255, 220));
+    mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 220));
     mTotalScore = b2Max(0, mScore - mLevelTimer.accumulatedSeconds());
   }
 
@@ -667,7 +671,7 @@ namespace Impact {
 
     update(elapsed);
 
-    drawPlayground();
+    drawPlayground(elapsed.asSeconds());
 
     mGameOverMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mGameOverMsg);
@@ -698,7 +702,7 @@ namespace Impact {
     clearWorld();
     mBallHasBeenLost = false;
     mWindow.setMouseCursorVisible(false);
-    mPostFXShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
+    mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
     mScaleGravityEnabled = false;
     mScaleBallDensityEnabled = false;
     if (mLevel.gotoNext()) {
@@ -708,8 +712,10 @@ namespace Impact {
       setState(State::Playing);
       mBlurPlayground = false;
       mFadeEffectsActive = 0;
+      mEarthquakeDuration = sf::Time::Zero;
       mEarthquakeIntensity = 0.f;
-      mEarthquakeDuration = DefaultEarthquakeDuration;
+      mAberrationDuration = sf::Time::Zero;
+      mAberrationIntensity = 0.f;
     }
     else {
       gotoPlayerWon();
@@ -764,11 +770,11 @@ namespace Impact {
         std::cout << "Ball density back to normal." << std::endl;
 #endif
     }
-    drawPlayground();
+    drawPlayground(elapsed.asSeconds());
   }
 
 
-  void Game::drawPlayground(void)
+  void Game::drawPlayground(float elapsedSeconds)
   {
     handleEvents();
 
@@ -777,21 +783,20 @@ namespace Impact {
     mRenderTexture0.clear(mLevel.backgroundColor());
     mRenderTexture0.draw(mLevel.backgroundSprite());
     mRenderTexture0.setView(mDefaultView);
+    mRenderTexture1.setView(mDefaultView);
 
     for (BodyList::const_iterator b = mBodies.cbegin(); b != mBodies.cend(); ++b) {
       const Body *body = *b;
-      if (body->isAlive()) {
+      if (body->isAlive())
         mRenderTexture0.draw(*body);
-      }
     }
 
     sf::RenderStates states0;
     sf::Sprite sprite0;
+    sf::RenderStates states1;
+    sf::Sprite sprite1;
 
     if (mBlurPlayground) {
-      mRenderTexture1.setView(mDefaultView);
-      sf::RenderStates states1;
-      sf::Sprite sprite1;
       states0.shader = &mHBlurShader;
       states1.shader = &mVBlurShader;
       const float blur = b2Min(4.f, 1.f + mBlurClock.getElapsedTime().asSeconds());
@@ -804,11 +809,24 @@ namespace Impact {
         mRenderTexture0.draw(sprite0, states0);
       }
     }
-
+    else if (mAberrationDuration > sf::Time::Zero) {
+      if (mAberrationClock.getElapsedTime() < mAberrationDuration) {
+        states1.shader = &mAberrationShader;
+        const float distort = mAberrationIntensity - Easing<float>::quadEaseInForthAndBack(mAberrationClock.getElapsedTime().asSeconds(), 0.0f, mAberrationIntensity, mAberrationDuration.asSeconds());
+        mAberrationShader.setParameter("uDistort", distort);
+        sprite0.setTexture(mRenderTexture0.getTexture());
+        mRenderTexture1.draw(sprite0, states1);
+        sprite1.setTexture(mRenderTexture1.getTexture());
+        mRenderTexture0.draw(sprite1);
+      }
+      else {
+        mAberrationDuration = sf::Time::Zero;
+        mAberrationIntensity = 0.f;
+      }
+    }
 
     if (mEarthquakeIntensity > 0.f && mEarthquakeClock.getElapsedTime() < mEarthquakeDuration) {
-      sf::RenderStates states1;
-      float32 maxIntensity = mEarthquakeIntensity * InvScale;
+      const float32 maxIntensity = mEarthquakeIntensity * InvScale;
       boost::random::uniform_real_distribution<float32> randomShift(-maxIntensity, maxIntensity);
       states1.shader = &mEarthquakeShader;
       mEarthquakeShader.setParameter("uT", mEarthquakeClock.getElapsedTime().asSeconds());
@@ -835,15 +853,15 @@ namespace Impact {
         mFadeEffectsActive = 0;
       }
       if (mFadeEffectsDarken)
-        mPostFXShader.setParameter("uColorSub", sf::Color(c, c, c, 0));
+        mMixShader.setParameter("uColorSub", sf::Color(c, c, c, 0));
       else
-        mPostFXShader.setParameter("uColorAdd", sf::Color(c, c, c, 0));
+        mMixShader.setParameter("uColorAdd", sf::Color(c, c, c, 0));
     }
     else {
-      mPostFXShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
-      mPostFXShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
+      mMixShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
+      mMixShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
     }
-    states0.shader = &mPostFXShader;
+    states0.shader = &mMixShader;
     mWindow.draw(sprite0, states0);
 
     mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
@@ -852,7 +870,7 @@ namespace Impact {
     mWindow.draw(mLevelMsg);
     if (mState == State::Playing) {
       int penalty = 5 * mLevelTimer.accumulatedMilliseconds() / 1000;
-      mScoreMsg.setString(std::to_string(b2Max(0, mScore - penalty)));
+      mScoreMsg.setString(std::to_string(b2Max(0, mScore - penalty)) + " " + std::to_string(1e3*elapsedSeconds));
       mScoreMsg.setPosition(mDefaultView.getCenter().x + mDefaultView.getSize().x / 2 - mScoreMsg.getLocalBounds().width - 4, 4);
       mWindow.draw(mScoreMsg);
       for (int life = 0; life < mLives; ++life) {
@@ -1009,6 +1027,14 @@ namespace Impact {
       mFadeEffectTimer.restart();
     }
     ++mFadeEffectsActive;
+  }
+
+
+  void Game::startAberrationEffect(float32 gravityScale, const sf::Time &duration)
+  {
+    mAberrationClock.restart();
+    mAberrationDuration += duration;
+    mAberrationIntensity += .02f * gravityScale;
   }
 
 
@@ -1230,6 +1256,7 @@ namespace Impact {
         mScaleGravityEnabled = true;
         mScaleGravityClock.restart();
         mScaleGravityDuration = tileParam.scaleGravityDuration;
+        startAberrationEffect(tileParam.scaleGravityBy, tileParam.scaleGravityDuration);
       }
       if (tileParam.scaleBallDensityDuration > sf::Time::Zero) {
         mBall->setDensity(tileParam.scaleBallDensityBy * mBall->tileParam().density.get());

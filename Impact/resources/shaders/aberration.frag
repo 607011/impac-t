@@ -18,17 +18,11 @@
 */
 
 uniform sampler2D uTexture;
-uniform vec4 uColorMix;
-uniform vec4 uColorAdd;
-uniform vec4 uColorSub;
-
-uniform vec2 uMouse;
-uniform vec2 uResolution;
-uniform int uIterations;
 uniform float uDistort;
 
-vec2 barrelDistortion(vec2 coord, float amt, vec2 center) {
-  vec2 cc = coord - center;
+
+vec2 barrelDistortion(vec2 coord, float amt) {
+  vec2 cc = coord - vec2(0.5, 0.5);
   float dist = dot(cc, cc);
   return coord + cc * dist * amt;
 }
@@ -47,75 +41,73 @@ float remap(float t, float a, float b) {
 }
 
 vec3 spectrum_offset(float t) {
-  vec3 ret;
   float lo = step(t, 0.5);
   float hi = 1.0 - lo;
   float w = linterp(remap(t, 1.0/6.0, 5.0/6.0));
-  ret = vec3(lo,1.0,hi) * vec3(1.0-w, w, 1.0-w);
+  vec3 ret = vec3(lo,1.0,hi) * vec3(1.0-w, w, 1.0-w);
   return pow(ret, vec3(1.0/2.2));
 }
 
-vec4 lensDistort(vec2 uv)
+vec4 lensDistort(vec2 uv, float distort)
 {
-  // vec2 center = uMouse / uResolution;
-  vec2 center = vec2(0.5, 0.5);
-  float reci_num_iter_f = 1.0 / float(10);
+  int numIter = 10;
+  float invIter = 1.0 / float(numIter);
   vec3 sumcol = vec3(0.0);
   vec3 sumw = vec3(0.0);
   float t;
   vec3 w;
 
-  // unrolled loop
+  // unrolled loop (numIter iterations)
 
-  t = 0.f * reci_num_iter_f;
+  t = 0.f * invIter;
   w = spectrum_offset(t);
   sumw += w;
-  sumcol += w * texture2D(uTexture, barrelDistortion(uv, uDistort*t, center)).rgb;
+  sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 1.f * reci_num_iter_f;
+  t = 1.f * invIter;
   w = spectrum_offset(t);
   sumw += w;
-  sumcol += w * texture2D(uTexture, barrelDistortion(uv, uDistort*t, center)).rgb;
+  sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 2.f * reci_num_iter_f;
+  t = 2.f * invIter;
   w = spectrum_offset(t);
   sumw += w;
-  sumcol += w * texture2D(uTexture, barrelDistortion(uv, uDistort*t, center)).rgb;
+  sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 3.f * reci_num_iter_f;
+  t = 3.f * invIter;
   w = spectrum_offset(t);
   sumw += w;
-  sumcol += w * texture2D(uTexture, barrelDistortion(uv, uDistort*t, center)).rgb;
+  sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 4.f * reci_num_iter_f;
+  t = 4.f * invIter;
   w = spectrum_offset(t);
   sumw += w;
-  sumcol += w * texture2D(uTexture, barrelDistortion(uv, uDistort*t, center)).rgb;
+  sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 5.f * reci_num_iter_f;
+  t = 5.f * invIter;
   w = spectrum_offset(t);
   sumw += w;
-  sumcol += w * texture2D(uTexture, barrelDistortion(uv, uDistort*t, center)).rgb;
+  sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 6.f * reci_num_iter_f;
+  t = 6.f * invIter;
   w = spectrum_offset(t);
   sumw += w;
-  sumcol += w * texture2D(uTexture, barrelDistortion(uv, uDistort*t, center)).rgb;
+  sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 7.f * reci_num_iter_f;
+  t = 7.f * invIter;
   w = spectrum_offset(t);
   sumw += w;
-  sumcol += w * texture2D(uTexture, barrelDistortion(uv, uDistort*t, center)).rgb;
+  sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 8.f * reci_num_iter_f;
+  t = 8.f * invIter;
   w = spectrum_offset(t);
   sumw += w;
-  sumcol += w * texture2D(uTexture, barrelDistortion(uv, uDistort*t, center)).rgb;
+  sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 9.f * reci_num_iter_f;
+  t = 9.f * invIter;
   w = spectrum_offset(t);
   sumw += w;
-  sumcol += w * texture2D(uTexture, barrelDistortion(uv, uDistort*t, center)).rgb;
+  sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
   return vec4(sumcol.rgb / sumw, 1.0);
 }
@@ -123,6 +115,6 @@ vec4 lensDistort(vec2 uv)
 void main()
 {
   vec2 pos = gl_TexCoord[0].xy;
-  pos.y = 1.0 - pos.y;
-  gl_FragColor = (lensDistort(pos) + uColorAdd - uColorSub) * uColorMix * gl_Color;
+  // pos.y = 1.0 - pos.y;
+  gl_FragColor = lensDistort(pos, uDistort) * gl_Color;
 }

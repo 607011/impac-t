@@ -132,14 +132,15 @@
     <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Impac%27t\Impact\resources\shaders\aberration.frag" />
     <None Include="..\..\Impac%27t\Impact\resources\shaders\fallingblock.frag" />
     <None Include="..\..\Impac%27t\Impact\resources\shaders\hblur.frag" />
+    <None Include="..\..\Impac%27t\Impact\resources\shaders\mix.frag" />
     <None Include="resources\shaders\earthquake.frag" />
     <None Include="..\..\Impac%27t\Impact\resources\shaders\softparticlesystem.frag" />
     <None Include="..\..\Impac%27t\Impact\resources\shaders\vblur.frag" />
     <None Include="..\README.md" />
     <None Include="resources\shaders\particlesystem.frag" />
-    <None Include="resources\shaders\postfx.frag" />
     <None Include="resources\shaders\title.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
