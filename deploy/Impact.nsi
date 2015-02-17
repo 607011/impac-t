@@ -1,4 +1,4 @@
-!define VERSION "1.0.0-BETA10"
+!define VERSION "1.0.0-BETA11"
 !define APP "Impact"
 !define PUBLISHER "c't"
 !define SFMLPATH "D:\Developer\SFML-2.1"
@@ -17,7 +17,7 @@ ShowInstDetails show
 
 Page license
 
-  LicenseData ..\${APP}\LICENSE
+  LicenseData "..\${APP}\LICENSE"
 
 Page directory
 
@@ -26,8 +26,8 @@ Page instfiles
 
 Section "vcredist"
   ClearErrors
-  ReadRegDword $R0 HKLM "SOFTWARE\Wow6432Node\Microsoft\DevDiv\vc\Servicing\11.0\RuntimeMinimum" "Version"
-  ${If} $R0 != "11.0.61030"
+  ReadRegDword $R0 HKLM "SOFTWARE\Wow6432Node\Microsoft\DevDiv\vc\Servicing\12.0\RuntimeMinimum" "Version"
+  ${If} $R0 != "12.0.21005"
     SetOutPath "$INSTDIR"
     File "vcredist_x86.exe"
     ExecWait '"$INSTDIR\vcredist_x86.exe" /norestart /passive'
