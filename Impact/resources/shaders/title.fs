@@ -18,6 +18,7 @@
 */
 
 uniform sampler2D uTexture;
+uniform vec2 uResolution;
 uniform float uT;
 uniform float uMaxT;
 
@@ -43,8 +44,28 @@ float bounceEaseOut(float t, float b, float c, float d)
 
 void main()
 {
-	vec2 pos = gl_TexCoord[0].xy;
-	const vec2 center = vec2(0.5, 0.4);
+  const vec2 center = vec2(0.5, 0.4);
+  vec4 total = vec4(0.0);
+  vec4 grabPixel;
   float scale = uT < uMaxT ? bounceEaseOut(uT, 0.1, 1.0, uMaxT) : 1.1;
-	gl_FragColor = texture2D(uTexture, (pos - center) / scale + center);
+  vec2 pos = (gl_TexCoord[0].st - center) / scale + center;
+  pos.y = 1.0 - pos.y;
+  total += texture2D(uTexture, pos + vec2(-1.0, -1.0) / uResolution);
+  total += texture2D(uTexture, pos + vec2(1.0, -1.0) / uResolution);
+  total += texture2D(uTexture, pos + vec2(1.0, 1.0) / uResolution);
+  total += texture2D(uTexture, pos + vec2(-1.0, 1.0) / uResolution);
+  grabPixel = texture2D(uTexture, pos + vec2(0.0, -1.0) / uResolution);
+  total += grabPixel * 2.0;
+  grabPixel = texture2D(uTexture, pos + vec2(0.0, 1.0) / uResolution);
+  total += grabPixel * 2.0;
+  grabPixel = texture2D(uTexture, pos + vec2(-1.0, 0.0) / uResolution);
+  total += grabPixel * 2.0;
+  grabPixel = texture2D(uTexture, pos + vec2(1.0, 0.0) / uResolution);
+  total += grabPixel * 2.0;
+  grabPixel = texture2D(uTexture, pos);
+  total += grabPixel * 4.0;
+  total *= 1.0 / 16.0;
+  if (total.a < 0.5)
+    total *= vec4(0.0, 0.0, 0.0, 1.0 / 0.5);
+  gl_FragColor = total;
 }

@@ -86,6 +86,9 @@ namespace Impact {
     if (!ok)
       std::cerr << gFontsDir + "/04b_03.ttf failed to load." << std::endl;
 
+    ok = mTitleFont.loadFromFile(gFontsDir + "/Dimitri.ttf");
+    if (!ok)
+      std::cerr << gFontsDir + "/Dimitri.ttf failed to load." << std::endl;
     ok = mStartupBuffer.loadFromFile(gSoundFXDir + "/startup.ogg");
     if (!ok)
       std::cerr << gSoundFXDir + "/startup.ogg failed to load." << std::endl;
@@ -178,6 +181,13 @@ namespace Impact {
       mSoftParticleShaderCode = buffer.str();
     }
 
+    {
+      std::ifstream t(gShadersDir + "/outline.fs");
+      std::stringstream buffer;
+      buffer << t.rdbuf();
+      mOutlineShaderCode = buffer.str();
+    }
+
     mLevelCompletedMsg.setString("Level complete");
     mLevelCompletedMsg.setFont(mFixedFont);
     mLevelCompletedMsg.setCharacterSize(64U);
@@ -247,10 +257,15 @@ namespace Impact {
     mLogoSprite.setOrigin(float(mLogoTexture.getSize().x), float(mLogoTexture.getSize().y));
     mLogoSprite.setPosition(mDefaultView.getSize().x - 8.f, mDefaultView.getSize().y - 8.f);
 
-    mTitleTexture.loadFromFile(gImagesDir + "/title.png");
+    sf::Text titleText("Impac't", mTitleFont, 120U);
+    titleText.setPosition(.5f * (Game::DefaultWindowWidth - titleText.getLocalBounds().width), .25f * (Game::DefaultWindowHeight - titleText.getLocalBounds().height));
+    sf::RenderTexture titleRenderTexture;
+    titleRenderTexture.create(Game::DefaultWindowWidth, Game::DefaultWindowHeight);
+    titleRenderTexture.draw(titleText);
+
+    mTitleTexture = titleRenderTexture.getTexture();
     mTitleTexture.setSmooth(true);
     mTitleSprite.setTexture(mTitleTexture);
-    mTitleSprite.setPosition(0.f, 0.f);
 
     ok = mAberrationShader.loadFromFile(gShadersDir + "/aberration.fs", sf::Shader::Fragment);
     if (!ok)
