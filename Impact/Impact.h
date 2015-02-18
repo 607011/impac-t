@@ -207,6 +207,9 @@ namespace Impact {
     sf::Sound mKillingSpreeSound;
 
     std::vector<sf::Music*> mMusic;
+    std::vector<int> mFPSArray;
+    std::vector<int>::size_type mFPSIndex;
+    int mFPS;
 
     // Box2D
     static const int32 VelocityIterations = 4;
