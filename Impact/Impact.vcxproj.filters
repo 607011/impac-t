@@ -15,8 +15,7 @@
     </Filter>
     <Filter Include="Fragment Shaders">
       <UniqueIdentifier>{5b9c3794-6170-4971-bfa1-1c337c5bd4db}</UniqueIdentifier>
-      <Extensions>*.frag</Extensions>
-      <ParseFiles>false</ParseFiles>
+      <Extensions>*.fs</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -120,32 +119,35 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shaders\particlesystem.frag">
+    <None Include="resources\shaders\particlesystem.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="resources\shaders\title.frag">
+    <None Include="resources\shaders\title.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
     <None Include="..\README.md" />
-    <None Include="resources\shaders\earthquake.frag">
+    <None Include="resources\shaders\earthquake.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="resources\shaders\aberration.frag">
+    <None Include="resources\shaders\aberration.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="resources\shaders\fallingblock.frag">
+    <None Include="resources\shaders\fallingblock.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="resources\shaders\hblur.frag">
+    <None Include="resources\shaders\hblur.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="resources\shaders\mix.frag">
+    <None Include="resources\shaders\mix.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="resources\shaders\softparticlesystem.frag">
+    <None Include="resources\shaders\softparticlesystem.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="resources\shaders\vblur.frag">
+    <None Include="resources\shaders\vblur.fs">
+      <Filter>Fragment Shaders</Filter>
+    </None>
+    <None Include="..\..\Impac%27t (vs2013)\Impact\resources\shaders\outline.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
   </ItemGroup>

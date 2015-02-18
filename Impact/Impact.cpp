@@ -166,13 +166,13 @@ namespace Impact {
     mParticleTexture.loadFromFile(gImagesDir + "/particle.png");
     mSoftParticleTexture.loadFromFile(gImagesDir + "/smooth-dot-12x12.png");
     {
-      std::ifstream t(gShadersDir + "/particlesystem.frag");
+      std::ifstream t(gShadersDir + "/particlesystem.fs");
       std::stringstream buffer;
       buffer << t.rdbuf();
       mParticleShaderCode = buffer.str();
     }
     {
-      std::ifstream t(gShadersDir + "/softparticlesystem.frag");
+      std::ifstream t(gShadersDir + "/softparticlesystem.fs");
       std::stringstream buffer;
       buffer << t.rdbuf();
       mSoftParticleShaderCode = buffer.str();
@@ -252,33 +252,34 @@ namespace Impact {
     mTitleSprite.setTexture(mTitleTexture);
     mTitleSprite.setPosition(0.f, 0.f);
 
-    ok = mAberrationShader.loadFromFile(gShadersDir + "/aberration.frag", sf::Shader::Fragment);
+    ok = mAberrationShader.loadFromFile(gShadersDir + "/aberration.fs", sf::Shader::Fragment);
     if (!ok)
-      std::cerr << gShadersDir + "/aberration.frag" << " failed to load/compile." << std::endl;
+      std::cerr << gShadersDir + "/aberration.fs" << " failed to load/compile." << std::endl;
 
-    mMixShader.loadFromFile(gShadersDir + "/mix.frag", sf::Shader::Fragment);
+    mMixShader.loadFromFile(gShadersDir + "/mix.fs", sf::Shader::Fragment);
     if (!ok)
-      std::cerr << gShadersDir + "/mix.frag" << " failed to load/compile." << std::endl;
+      std::cerr << gShadersDir + "/mix.fs" << " failed to load/compile." << std::endl;
 
-    mVBlurShader.loadFromFile(gShadersDir + "/vblur.frag", sf::Shader::Fragment);
+    mVBlurShader.loadFromFile(gShadersDir + "/vblur.fs", sf::Shader::Fragment);
     if (!ok)
-      std::cerr << gShadersDir + "/vblur.frag" << " failed to load/compile." << std::endl;
+      std::cerr << gShadersDir + "/vblur.fs" << " failed to load/compile." << std::endl;
     mVBlurShader.setParameter("uBlur", 4.f);
     mVBlurShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
 
-    mHBlurShader.loadFromFile(gShadersDir + "/hblur.frag", sf::Shader::Fragment);
+    mHBlurShader.loadFromFile(gShadersDir + "/hblur.fs", sf::Shader::Fragment);
     if (!ok)
-      std::cerr << gShadersDir + "/hblur.frag" << " failed to load/compile." << std::endl;
+      std::cerr << gShadersDir + "/hblur.fs" << " failed to load/compile." << std::endl;
     mHBlurShader.setParameter("uBlur", 4.f);
     mHBlurShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
 
-    mTitleShader.loadFromFile(gShadersDir + "/title.frag", sf::Shader::Fragment);
+    mTitleShader.loadFromFile(gShadersDir + "/title.fs", sf::Shader::Fragment);
     if (!ok)
-      std::cerr << gShadersDir + "/title.frag" << " failed to load/compile." << std::endl;
+      std::cerr << gShadersDir + "/title.fs" << " failed to load/compile." << std::endl;
+    mTitleShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
 
-    mEarthquakeShader.loadFromFile(gShadersDir + "/earthquake.frag", sf::Shader::Fragment);
+    mEarthquakeShader.loadFromFile(gShadersDir + "/earthquake.fs", sf::Shader::Fragment);
     if (!ok)
-      std::cerr << gShadersDir + "/earthquake.frag" << " failed to load/compile." << std::endl;
+      std::cerr << gShadersDir + "/earthquake.fs" << " failed to load/compile." << std::endl;
 
     mKeyMapping[Action::PauseAction] = sf::Keyboard::Pause;
     mKeyMapping[Action::MoveLeft] = sf::Keyboard::Left;

@@ -43,7 +43,7 @@ namespace Impact {
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(.5f * mTexture.getSize().x, .5f * mTexture.getSize().y);
 
-    mShader.loadFromFile(gShadersDir + "/fallingblock.frag", sf::Shader::Fragment);
+    mShader.loadFromFile(gShadersDir + "/fallingblock.fs", sf::Shader::Fragment);
     mShader.setParameter("uAge", 0.f);
     mShader.setParameter("uBlur", 0.f);
     mShader.setParameter("uColor", sf::Color(255, 255, 255, 255));

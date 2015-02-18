@@ -85,7 +85,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);sfml-main.lib;sfml-window.lib;sfml-system.lib;sfml-graphics.lib;sfml-audio.lib;zdll.lib;glew32.lib;OpenGL32.Lib;Box2D.lib</AdditionalDependencies>
@@ -132,16 +132,17 @@
     <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shaders\aberration.frag" />
-    <None Include="resources\shaders\fallingblock.frag" />
-    <None Include="resources\shaders\hblur.frag" />
-    <None Include="resources\shaders\mix.frag" />
-    <None Include="resources\shaders\earthquake.frag" />
-    <None Include="resources\shaders\softparticlesystem.frag" />
-    <None Include="resources\shaders\vblur.frag" />
+    <None Include="..\..\Impac%27t (vs2013)\Impact\resources\shaders\outline.fs" />
+    <None Include="resources\shaders\aberration.fs" />
+    <None Include="resources\shaders\fallingblock.fs" />
+    <None Include="resources\shaders\hblur.fs" />
+    <None Include="resources\shaders\mix.fs" />
+    <None Include="resources\shaders\earthquake.fs" />
+    <None Include="resources\shaders\softparticlesystem.fs" />
+    <None Include="resources\shaders\vblur.fs" />
     <None Include="..\README.md" />
-    <None Include="resources\shaders\particlesystem.frag" />
-    <None Include="resources\shaders\title.frag" />
+    <None Include="resources\shaders\particlesystem.fs" />
+    <None Include="resources\shaders\title.fs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
