@@ -152,6 +152,7 @@ namespace Impact {
     sf::Texture mSoftParticleTexture;
     std::string mSoftParticleShaderCode;
     std::string mOutlineShaderCode;
+    std::string mFadeShaderCode;
     sf::Shader mEarthquakeShader;
     float32 mEarthquakeIntensity;
     sf::Clock mEarthquakeClock;

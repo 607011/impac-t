@@ -189,6 +189,13 @@ namespace Impact {
       mOutlineShaderCode = buffer.str();
     }
 
+    {
+      std::ifstream t(gShadersDir + "/fade.fs");
+      std::stringstream buffer;
+      buffer << t.rdbuf();
+      mFadeShaderCode = buffer.str();
+    }
+    
     mLevelCompletedMsg.setString("Level complete");
     mLevelCompletedMsg.setFont(mFixedFont);
     mLevelCompletedMsg.setCharacterSize(64U);
@@ -263,7 +270,6 @@ namespace Impact {
     sf::RenderTexture titleRenderTexture;
     titleRenderTexture.create(Game::DefaultWindowWidth, Game::DefaultWindowHeight);
     titleRenderTexture.draw(titleText);
-
     mTitleTexture = titleRenderTexture.getTexture();
     mTitleTexture.setSmooth(true);
     mTitleSprite.setTexture(mTitleTexture);
@@ -1220,7 +1226,7 @@ namespace Impact {
     addToScore(score * factor);
     const std::string &text = (factor > 1 ? (std::to_string(factor) + "*") : "") + std::to_string(score);
     TextBodyDef td(this, text, mFixedFont, atPos);
-    td.fragmentShaderCode = mOutlineShaderCode;
+    td.fragmentShaderCode = mFadeShaderCode;
     TextBody *scoreText = new TextBody(td);
     addBody(scoreText);
   }

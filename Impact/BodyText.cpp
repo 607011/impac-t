@@ -38,20 +38,28 @@ namespace Impact {
     const unsigned int H2 = 2 * unsigned int(H);
     text.setOrigin(-.5f * W, .5f * H);
     text.setPosition(0.f, .5f * H);
+
     sf::RenderTexture renderTexture;
     renderTexture.create(W2, H2);
+    sf::Shader outlineShader;
+    outlineShader.loadFromFile(gShadersDir + "/outline.fs", sf::Shader::Fragment);
+    // outlineShader.setParameter("uScale", 5.f);
+    outlineShader.setParameter("uResolution", sf::Vector2f(float(W2 * 2), float(H2 * 2)));
+    sf::RenderStates states;
+    states.shader = &outlineShader;
+    renderTexture.draw(text, states);
     renderTexture.draw(text);
+
     mTexture = renderTexture.getTexture();
     mTexture.setSmooth(true);
     mSprite.setTexture(mTexture);
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
-    bd.position.Set(def.pos.x - 0.5f * Game::InvScale * mSprite.getGlobalBounds().width, def.pos.y - 0.5f * Game::InvScale * mSprite.getGlobalBounds().height);
+    bd.position.Set(std::ceil(def.pos.x - 0.5f * Game::InvScale * mSprite.getGlobalBounds().width), std::ceil(def.pos.y - 0.5f * Game::InvScale * mSprite.getGlobalBounds().height));
     bd.gravityScale = -1.f;
     bd.fixedRotation = true;
     mBody = mGame->world()->CreateBody(&bd);
     mShader.loadFromMemory(def.fragmentShaderCode, sf::Shader::Fragment);
-    mShader.setParameter("uResolution", sf::Vector2f(float(W2 * 2), float(H2 * 2)));
     mShader.setParameter("uMaxT", def.maxAge.asSeconds());
   }
 

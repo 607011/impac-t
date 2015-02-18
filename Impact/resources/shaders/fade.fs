@@ -18,36 +18,24 @@
 */
 
 uniform sampler2D uTexture;
-uniform vec2 uResolution;
-uniform float uScale;
+uniform float uT;
+uniform float uMaxT;
 
-const int NUM = 9;
 
-vec2 c[NUM] = {
-  vec2(-1.0, 1.0), vec2(0.0,  1.0), vec2(1.0, 1.0),
-  vec2(-1.0, 0.0), vec2(0.0,  0.0), vec2(1.0, 0.0),
-  vec2(-1.0,-1.0), vec2(0.0, -1.0), vec2(1.0,-1.0)
-};
-
-float w[NUM] = {
-  -1.0, -1.0, -1.0,
-  -1.0,  8.0, -1.0,
-  -1.0, -1.0, -1.0
-};
+float quadEaseInOut(float t, float d)
+{
+  t /= 0.5 * d;
+  if (t < 1.0)
+    return 0.5 * t * t;
+  return -0.5 * (((t - 2.0) * (--t)) - 1.0);
+}
 
 
 void main()
 {
-  const vec2 Center = vec2(0.5);
   vec2 pos = gl_TexCoord[0].st;
-
-  vec3 color[NUM];
-  for (int i = 0; i < NUM; ++i) {
-    color[i] = texture2D(uTexture, pos + c[i] / uResolution).rgb;
-  }
-  vec3 c = vec4(0.0);
-  for (int i = 0; i < NUM; ++i) {
-    c += color[i] * w[i];
-  }
-  gl_FragColor = vec4(c, 1.0);
+  pos.y = 1.0 - pos.y;
+  vec4 color = texture2D(uTexture, pos);
+  float alpha = quadEaseInOut(uT, uMaxT);
+  gl_FragColor = gl_Color * color * vec4(1.0, 1.0, 1.0, alpha);
 }
