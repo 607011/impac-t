@@ -5,10 +5,12 @@ A Breakout/Bolo clone, augmented with a physics engine
 
 ## TODO
 
+ - let user select a certain level
+ - amend Level::load() with the ability to load complete levels (tile map, graphics) from a zip file. The zip file must have a flat 
  - display gravity vector as a visual aid for the player
  - nicer visual effect when the racket hits a block
  - nicer visual effect for killing spree bonus
- - special blocks that
+ - special blocks that ...
    - blur the screen
    - make blocks semi-transparent
    - distort the screen
@@ -16,6 +18,11 @@ A Breakout/Bolo clone, augmented with a physics engine
    - increase inertia of racket
    - speed up/slow down ball (friction?)
  - place racket on level's default position in case it was caught in between wall segments or something like that
+ - integrate with Steam:
+   - leaderboard for every level
+   - leaderboard for campaigns
+   - stats & achievements
+
 
 
 Nutzungshinweise und Lizenz
