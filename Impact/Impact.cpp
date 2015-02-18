@@ -19,6 +19,8 @@
 
 
 #include "stdafx.h"
+#include <intrin.h>
+#include <mmintrin.h>
 
 
 namespace Impact {
@@ -61,6 +63,9 @@ namespace Impact {
     , mAberrationIntensity(0.f)
     , mBlurPlayground(false)
     , mLastKillingsIndex(0)
+    , mFPSArray(20, 0)
+    , mFPS(0)
+    , mFPSIndex(0)
   {
     bool ok;
     glewInit();
@@ -929,7 +934,8 @@ namespace Impact {
     mWindow.draw(mLevelMsg);
     if (mState == State::Playing) {
       int penalty = 5 * mLevelTimer.accumulatedMilliseconds() / 1000;
-      mScoreMsg.setString(std::to_string(b2Max(0, mScore - penalty)) + " " + std::to_string(int(std::ceil(1.f/elapsed.asSeconds()))));
+
+      mScoreMsg.setString(std::to_string(b2Max(0, mScore - penalty)) + " " + std::to_string(mFPS) + "fps");
       mScoreMsg.setPosition(mDefaultView.getCenter().x + mDefaultView.getSize().x / 2 - mScoreMsg.getLocalBounds().width - 4, 4);
       mWindow.draw(mScoreMsg);
       for (int life = 0; life < mLives; ++life) {
@@ -1056,6 +1062,11 @@ namespace Impact {
 
     mContactPointCount = 0;
     mWorld->Step(elapsedSeconds, VelocityIterations, PositionIterations);
+
+    mFPSArray[mFPSIndex++] = int(1.f / elapsed.asSeconds());
+    if (mFPSIndex >= mFPSArray.size())
+      mFPSIndex = 0;
+    mFPS = std::accumulate(mFPSArray.begin(), mFPSArray.end(), 0) / mFPSArray.size();
   }
 
 

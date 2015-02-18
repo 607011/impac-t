@@ -39,6 +39,7 @@
 
 #include <limits>
 #include <algorithm>
+#include <numeric>
 #include <memory>
 #include <utility>
 #include <vector>
