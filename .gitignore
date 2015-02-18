@@ -13,3 +13,5 @@ Debug/*
 Release/*
 ipch/*
 *.vcxproj.user
+*.psess
+*.vsp
