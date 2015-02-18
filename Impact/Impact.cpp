@@ -89,6 +89,7 @@ namespace Impact {
     ok = mTitleFont.loadFromFile(gFontsDir + "/Dimitri.ttf");
     if (!ok)
       std::cerr << gFontsDir + "/Dimitri.ttf failed to load." << std::endl;
+
     ok = mStartupBuffer.loadFromFile(gSoundFXDir + "/startup.ogg");
     if (!ok)
       std::cerr << gSoundFXDir + "/startup.ogg failed to load." << std::endl;
@@ -1218,9 +1219,9 @@ namespace Impact {
   {
     addToScore(score * factor);
     const std::string &text = (factor > 1 ? (std::to_string(factor) + "*") : "") + std::to_string(score);
-    TextBody *scoreText = new TextBody(this, text, 24U);
-    scoreText->setFont(mFixedFont);
-    scoreText->setPosition(atPos.x, atPos.y);
+    TextBodyDef td(this, text, mFixedFont, atPos);
+    td.fragmentShaderCode = mOutlineShaderCode;
+    TextBody *scoreText = new TextBody(td);
     addBody(scoreText);
   }
 

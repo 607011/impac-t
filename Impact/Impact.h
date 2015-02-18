@@ -136,6 +136,7 @@ namespace Impact {
     sf::Shader mVBlurShader;
     bool mBlurPlayground;
     sf::Font mFixedFont;
+    sf::Font mTitleFont;
     sf::Texture mBackgroundTexture;
     sf::Sprite mBackgroundSprite;
     sf::Shader mTitleShader;
@@ -150,6 +151,7 @@ namespace Impact {
     std::string mParticleShaderCode;
     sf::Texture mSoftParticleTexture;
     std::string mSoftParticleShaderCode;
+    std::string mOutlineShaderCode;
     sf::Shader mEarthquakeShader;
     float32 mEarthquakeIntensity;
     sf::Clock mEarthquakeClock;

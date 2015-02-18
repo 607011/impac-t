@@ -33,26 +33,36 @@
 
 namespace Impact {
 
+  struct TextBodyDef {
+    TextBodyDef(Game *game, const std::string &text, const sf::Font &font, const b2Vec2 &pos)
+      : game(game)
+      , pos(pos)
+      , size(24U)
+      , text(text)
+      , font(font)
+      , maxAge(sf::milliseconds(500))
+    { /* ... */ }
+    Game *game;
+    b2Vec2 pos;
+    const std::string &text;
+    unsigned int size;
+    const sf::Font &font;
+    sf::Time maxAge;
+    std::string fragmentShaderCode;
+  };
+
   class TextBody : public Body
   {
   public:
-    TextBody(Game *game, const std::string &text, unsigned int size = 22U, const sf::Time &maxAge = sf::milliseconds(500));
+    TextBody(const TextBodyDef &);
 
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);
     virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
     virtual BodyType type(void) const { return Body::BodyType::Text; }
 
-    virtual void setPosition(float x, float y);
-
-    void setCharacterSize(unsigned int size);
-    void setText(const char *);
-    void setText(const std::string &);
-    void setFont(const sf::Font &);
-
   private:
-    sf::Text mText;
-
+    sf::Shader mShader;
   };
 
 }

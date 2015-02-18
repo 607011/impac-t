@@ -22,43 +22,44 @@
 
 namespace Impact {
 
-  TextBody::TextBody(Game *game, const std::string &text, unsigned int size, const sf::Time &maxAge)
-    : Body(Body::BodyType::Text, game)
-  {
-    setLifetime(maxAge);
-    setCharacterSize(size);
-    mText.setString(sf::String(text));
-  }
 
-
-  void TextBody::setPosition(float x, float y)
+ 
+  TextBody::TextBody(const TextBodyDef &def)
+    : Body(Body::BodyType::Text, def.game)
   {
+    setLifetime(def.maxAge);
+    sf::Text text;
+    text.setCharacterSize(def.size);
+    text.setFont(def.font);
+    text.setString(sf::String(def.text));
+    const float W = text.getLocalBounds().width;
+    const float H = text.getLocalBounds().height;
+    const unsigned int W2 = 2 * unsigned int(W);
+    const unsigned int H2 = 2 * unsigned int(H);
+    text.setOrigin(-.5f * W, .5f * H);
+    text.setPosition(0.f, .5f * H);
+    sf::RenderTexture renderTexture;
+    renderTexture.create(W2, H2);
+    renderTexture.draw(text);
+    mTexture = renderTexture.getTexture();
+    mTexture.setSmooth(true);
+    mSprite.setTexture(mTexture);
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
-    bd.position.Set(x - 0.5f * Game::InvScale * mText.getGlobalBounds().width , y - 0.5f * Game::InvScale * mText.getGlobalBounds().height);
-    bd.gravityScale = -2.f;
+    bd.position.Set(def.pos.x - 0.5f * Game::InvScale * mSprite.getGlobalBounds().width, def.pos.y - 0.5f * Game::InvScale * mSprite.getGlobalBounds().height);
+    bd.gravityScale = -1.f;
     bd.fixedRotation = true;
     mBody = mGame->world()->CreateBody(&bd);
-  }
-
-
-  void TextBody::setCharacterSize(unsigned int size)
-  {
-    mText.setCharacterSize(size);
-  }
-
-
-  void TextBody::setFont(const sf::Font &font)
-  {
-    mText.setFont(font);
+    mShader.loadFromMemory(def.fragmentShaderCode, sf::Shader::Fragment);
+    mShader.setParameter("uResolution", sf::Vector2f(float(W2 * 2), float(H2 * 2)));
+    mShader.setParameter("uMaxT", def.maxAge.asSeconds());
   }
 
 
   void TextBody::onUpdate(float elapsedSeconds)
   {
-    sf::Uint8 alpha = sf::Uint8(Easing<float>::quadEaseInOut(age().asSeconds(), 0, 255, mMaxAge.asSeconds()));
-    mText.setColor(sf::Color(255, 255, 255, alpha));
-    mText.setPosition(Game::Scale * mBody->GetPosition().x, Game::Scale * mBody->GetPosition().y);
+    mShader.setParameter("uT", age().asSeconds());
+    mSprite.setPosition(Game::Scale * mBody->GetPosition().x, Game::Scale * mBody->GetPosition().y);
     if (overAge())
       this->kill();
   }
@@ -66,7 +67,8 @@ namespace Impact {
 
   void TextBody::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
   {
-    target.draw(mText, states);
+    states.shader = &mShader;
+    target.draw(mSprite, states);
   }
 
 }
