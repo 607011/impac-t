@@ -130,7 +130,7 @@ namespace Impact {
       mBody->SetLinearDamping(0.f);
       mBody->SetGravityScale(mGravityScale);
       mShader.setParameter("uColor", sf::Color(sf::Color(255, 255, 255, 230)));
-      mShader.setParameter("uBlur", 1.28f);
+      mShader.setParameter("uBlur", 2.28f);
     }
     return destroyed;
   }
