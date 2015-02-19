@@ -20,7 +20,7 @@
 #ifndef __GAME_H_
 #define __GAME_H_
 
-#define IMPACT_VERSION "1.0.0-BETA10"
+#define IMPACT_VERSION "1.0.0-BETA12"
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
@@ -59,15 +59,9 @@ namespace Impact {
     typedef enum _Actions {
       NoAction,
       PauseAction,
-      MoveLeft,
-      MoveRight,
-      KickLeft,
-      KickRight,
-      NewBall,
-      SpecialAction,
       BackAction,
+      NewBall,
       Restart,
-      ExplosionTest,
       ContinueAction,
       LastAction
     } Action;
@@ -85,11 +79,15 @@ namespace Impact {
 
 
   public:
-    static const int Scale;
+    static const int Scale = 16;
     static const float32 InvScale;
-    static const int DefaultWindowWidth;
-    static const int DefaultWindowHeight;
-    static const int ColorDepth;
+    static const int DefaultPlaygroundWidth = 640;
+    static const int DefaultPlaygroundHeight = 400;
+    static const int DefaultStatsWidth = DefaultPlaygroundWidth;
+    static const int DefaultStatsHeight = 80;
+    static const int DefaultWindowWidth = DefaultPlaygroundWidth;
+    static const int DefaultWindowHeight = DefaultPlaygroundHeight + DefaultStatsHeight;
+    static const int ColorDepth = 32;
     static const int DefaultLives;
     static const int DefaultPenalty;
     static const int NewLiveAfterSoManyPointsDefault;
@@ -133,6 +131,8 @@ namespace Impact {
     // SFML
     sf::RenderWindow mWindow;
     sf::View mDefaultView;
+    sf::View mPlaygroundView;
+    sf::View mStatsView;
     sf::RenderTexture mRenderTexture0;
     sf::RenderTexture mRenderTexture1;
     sf::Shader mMixShader;

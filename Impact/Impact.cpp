@@ -25,11 +25,7 @@
 
 namespace Impact {
 
-  const int Game::Scale = 16;
   const float32 Game::InvScale = 1.f / Game::Scale;
-  const int Game::DefaultWindowWidth = 40 * Game::Scale;
-  const int Game::DefaultWindowHeight = 25 * Game::Scale;
-  const int Game::ColorDepth = 32;
   const int Game::DefaultLives = 3;
   const int Game::DefaultPenalty = 100;
   const float32 DefaultGravity = 9.81f;
@@ -73,6 +69,7 @@ namespace Impact {
     glGetIntegerv(GL_MAJOR_VERSION, &mGLVersionMajor);
     glGetIntegerv(GL_MINOR_VERSION, &mGLVersionMinor);
     mGLShadingLanguageVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
@@ -80,9 +77,9 @@ namespace Impact {
     mWindow.setVerticalSyncEnabled(false); // DO NOT CHANGE UNLESS YOU'D LIKE TO RISK TUNNELING OR OTHER ADVERSARY EFFECTS!!!
     resize();
 
-    mRenderTexture0.create(Game::DefaultWindowWidth, Game::DefaultWindowHeight);
-    mRenderTexture1.create(Game::DefaultWindowWidth, Game::DefaultWindowHeight);
-    mOverlayRenderTexture.create(Game::DefaultWindowWidth, Game::DefaultWindowHeight);
+    mRenderTexture0.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
+    mRenderTexture1.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
+    mOverlayRenderTexture.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
 
     sf::Image icon;
     icon.loadFromFile(gImagesDir + "/app-icon.png");
@@ -234,21 +231,22 @@ namespace Impact {
     mProgramInfoMsg.setFont(mFixedFont);
     mProgramInfoMsg.setColor(sf::Color::White);
     mProgramInfoMsg.setCharacterSize(8U);
-    mProgramInfoMsg.setPosition(8.f, mDefaultView.getCenter().y + 0.5f * mDefaultView.getSize().y - mProgramInfoMsg.getLocalBounds().height - 8.f);
+    mProgramInfoMsg.setPosition(8.f, mDefaultView.getSize().y - mProgramInfoMsg.getLocalBounds().height - 8.f);
 
     mBackgroundTexture.loadFromFile(gBackgroundsDir + "/abstract05.jpg");
     mBackgroundSprite.setTexture(mBackgroundTexture);
     mBackgroundSprite.setPosition(0.f, 0.f);
+    mBackgroundSprite.setScale(static_cast<float>(mDefaultView.getSize().x) / static_cast<float>(mBackgroundTexture.getSize().x), static_cast<float>(mDefaultView.getSize().y) / static_cast<float>(mBackgroundTexture.getSize().y));
 
     mLogoTexture.loadFromFile(gImagesDir + "/ct_logo.png");
     mLogoSprite.setTexture(mLogoTexture);
-    mLogoSprite.setOrigin(float(mLogoTexture.getSize().x), float(mLogoTexture.getSize().y));
+    mLogoSprite.setOrigin(static_cast<float>(mLogoTexture.getSize().x), static_cast<float>(mLogoTexture.getSize().y));
     mLogoSprite.setPosition(mDefaultView.getSize().x - 8.f, mDefaultView.getSize().y - 8.f);
 
     sf::Text titleText("Impac't", mTitleFont, 120U);
-    titleText.setPosition(.5f * (Game::DefaultWindowWidth - titleText.getLocalBounds().width), .25f * (Game::DefaultWindowHeight - titleText.getLocalBounds().height));
+    titleText.setPosition(.5f * (mDefaultView.getSize().x - titleText.getLocalBounds().width), .25f * (mDefaultView.getSize().y - titleText.getLocalBounds().height));
     sf::RenderTexture titleRenderTexture;
-    titleRenderTexture.create(Game::DefaultWindowWidth, Game::DefaultWindowHeight);
+    titleRenderTexture.create(unsigned int(mDefaultView.getSize().x), unsigned int(mDefaultView.getSize().y));
     titleRenderTexture.draw(titleText);
     mTitleTexture = titleRenderTexture.getTexture();
     mTitleTexture.setSmooth(true);
@@ -286,15 +284,8 @@ namespace Impact {
     }
 
     mKeyMapping[Action::PauseAction] = sf::Keyboard::Pause;
-    mKeyMapping[Action::MoveLeft] = sf::Keyboard::Left;
-    mKeyMapping[Action::MoveRight] = sf::Keyboard::Right;
-    mKeyMapping[Action::SpecialAction] = sf::Keyboard::Space;
-    mKeyMapping[Action::NewBall] = sf::Keyboard::N;
     mKeyMapping[Action::BackAction] = sf::Keyboard::Escape;
-    mKeyMapping[Action::KickLeft] = sf::Keyboard::X;
-    mKeyMapping[Action::KickRight] = sf::Keyboard::Y;
     mKeyMapping[Action::Restart] = sf::Keyboard::Delete;
-    mKeyMapping[Action::ExplosionTest] = sf::Keyboard::P;
     mKeyMapping[Action::ContinueAction] = sf::Keyboard::Space;
 
     restart();
@@ -366,8 +357,14 @@ namespace Impact {
 
   void Game::resize(void)
   {
-    mDefaultView = sf::View(sf::FloatRect(0.f, 0.f, float(mWindow.getSize().x), float(mWindow.getSize().y)));
-    mDefaultView.setCenter(0.5f * sf::Vector2f(mWindow.getSize()));
+    mDefaultView.reset(sf::FloatRect(0.f, 0.f, static_cast<float>(DefaultWindowWidth), static_cast<float>(DefaultWindowHeight)));
+    mDefaultView.setCenter(.5f * sf::Vector2f(static_cast<float>(DefaultWindowWidth), static_cast<float>(DefaultWindowHeight)));
+    mPlaygroundView.reset(sf::FloatRect(0.f, 0.f, static_cast<float>(DefaultPlaygroundWidth), static_cast<float>(DefaultPlaygroundHeight)));
+    mPlaygroundView.setCenter(.5f * sf::Vector2f(static_cast<float>(DefaultPlaygroundWidth), static_cast<float>(DefaultPlaygroundHeight)));
+    mPlaygroundView.setViewport(sf::FloatRect(0.f, 0.f, 1.f, static_cast<float>(DefaultPlaygroundHeight) / static_cast<float>(DefaultWindowHeight)));
+    mStatsView.reset(sf::FloatRect(0.f, static_cast<float>(DefaultPlaygroundHeight), static_cast<float>(DefaultStatsWidth), static_cast<float>(DefaultStatsHeight)));
+    mStatsView.setCenter(sf::Vector2f(.5f * DefaultStatsWidth, .5f * DefaultStatsHeight));
+    mStatsView.setViewport(sf::FloatRect(0.f, static_cast<float>(DefaultWindowHeight - DefaultStatsHeight) / static_cast<float>(DefaultWindowHeight), 1.f, static_cast<float>(DefaultStatsHeight) / static_cast<float>(DefaultWindowHeight)));
   }
 
 
@@ -420,7 +417,7 @@ namespace Impact {
 
   inline void Game::clearWindow(void)
   {
-    mWindow.clear(mLevel.backgroundColor());
+    mWindow.clear(sf::Color(42, 52, 54, 255));
   }
 
 
@@ -519,7 +516,9 @@ namespace Impact {
     mStartMsg.setString("Click to start");
     setState(State::WelcomeScreen);
     mWindow.setView(mDefaultView);
-    mTitleShader.setParameter("uMaxT", 1.f);
+    if (sf::Shader::isAvailable()) {
+      mTitleShader.setParameter("uMaxT", 1.f);
+    }
     mWelcomeLevel = 0;
     mWallClock.restart();
     mWindow.setMouseCursorVisible(true);
@@ -551,13 +550,19 @@ namespace Impact {
     mWindow.draw(mBackgroundSprite);
 
     update(elapsed);
-    drawWorld(mDefaultView);
+    drawWorld(mWindow.getDefaultView());
 
     const float t = mWallClock.getElapsedTime().asSeconds();
-    sf::RenderStates states;
-    states.shader = &mTitleShader;
-    mTitleShader.setParameter("uT", t);
-    mWindow.draw(mTitleSprite, states);
+
+    if (sf::Shader::isAvailable()) {
+      sf::RenderStates states;
+      states.shader = &mTitleShader;
+      mTitleShader.setParameter("uT", t);
+      mWindow.draw(mTitleSprite, states);
+    }
+    else {
+      mWindow.draw(mTitleSprite);
+    }
 
     if (mWelcomeLevel == 0) {
       ParticleSystemDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f));
@@ -621,7 +626,8 @@ namespace Impact {
 
     drawPlayground(elapsed);
 
-    mLevelCompletedMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mLevelCompletedMsg.getLocalBounds().width, 20.f);
+    mWindow.setView(mPlaygroundView);
+    mLevelCompletedMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mLevelCompletedMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mLevelCompletedMsg);
     
     drawStartMessage();
@@ -646,17 +652,19 @@ namespace Impact {
 
     drawPlayground(elapsed);
 
-    mPlayerWonMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
+    mWindow.setView(mPlaygroundView);
+
+    mPlayerWonMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mPlayerWonMsg);
 
-    mYourScoreMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mYourScoreMsg.getLocalBounds().width, mDefaultView.getCenter().y);
+    mYourScoreMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mYourScoreMsg.getLocalBounds().width, mPlaygroundView.getCenter().y);
     mWindow.draw(mYourScoreMsg);
 
-    mTotalScoreMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mTotalScoreMsg.getLocalBounds().width, mDefaultView.getCenter().y - mTotalScoreMsg.getLocalBounds().height - 32);
+    mTotalScoreMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mTotalScoreMsg.getLocalBounds().width, mPlaygroundView.getCenter().y - mTotalScoreMsg.getLocalBounds().height - 32);
     mWindow.draw(mTotalScoreMsg);
 
     mTotalScorePointsMsg.setString(std::to_string(mTotalScore));
-    mTotalScorePointsMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mTotalScorePointsMsg.getLocalBounds().width, mDefaultView.getCenter().y - mTotalScorePointsMsg.getLocalBounds().height + 64);
+    mTotalScorePointsMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mTotalScorePointsMsg.getLocalBounds().width, mPlaygroundView.getCenter().y - mTotalScorePointsMsg.getLocalBounds().height + 64);
     mWindow.draw(mTotalScorePointsMsg);
 
     drawStartMessage();
@@ -669,7 +677,9 @@ namespace Impact {
     setState(State::GameOver);
     mBlurClock.restart();
     mBlurPlayground = true;
-    mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 220));
+    if (sf::Shader::isAvailable()) {
+      mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 220));
+    }
     mTotalScore = b2Max(0, mScore - mLevelTimer.accumulatedSeconds());
   }
 
@@ -682,14 +692,15 @@ namespace Impact {
 
     drawPlayground(elapsed);
 
-    mGameOverMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
+    mWindow.setView(mPlaygroundView);
+    mGameOverMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mGameOverMsg);
 
-    mYourScoreMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mYourScoreMsg.getLocalBounds().width, mDefaultView.getCenter().y);
+    mYourScoreMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mYourScoreMsg.getLocalBounds().width, mPlaygroundView.getCenter().y);
     mWindow.draw(mYourScoreMsg);
 
     mTotalScorePointsMsg.setString(std::to_string(mTotalScore));
-    mTotalScorePointsMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mTotalScorePointsMsg.getLocalBounds().width, mDefaultView.getCenter().y - mTotalScorePointsMsg.getLocalBounds().height + 64);
+    mTotalScorePointsMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mTotalScorePointsMsg.getLocalBounds().width, mPlaygroundView.getCenter().y - mTotalScorePointsMsg.getLocalBounds().height + 64);
     mWindow.draw(mTotalScorePointsMsg);
 
     drawStartMessage();
@@ -711,7 +722,9 @@ namespace Impact {
     clearWorld();
     mBallHasBeenLost = false;
     mWindow.setMouseCursorVisible(false);
-    mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
+    if (sf::Shader::isAvailable()) {
+      mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
+    }
     mScaleGravityEnabled = false;
     mScaleBallDensityEnabled = false;
     bool levelAvailable = mPlaymode == Playmode::Campaign ? mLevel.gotoNext() : mLevel.isAvailable();
@@ -743,7 +756,7 @@ namespace Impact {
         if (mBall != nullptr) { // check if ball has been kicked out of the screen
           const float ballX = mBall->position().x;
           const float ballY = mBall->position().y;
-          if (0 > ballX || ballX > float(mLevel.width()) || 0 > ballY) {
+          if (0 > ballX || ballX > static_cast<float>(mLevel.width()) || 0 > ballY) {
             mBall->kill();
           }
           else if (ballY > mLevel.height()) {
@@ -796,8 +809,15 @@ namespace Impact {
 
   void Game::startAberrationEffect(float32 gravityScale, const sf::Time &duration)
   {
-    mAberrationClock.restart();
-    mAberrationDuration += duration;
+    if (!sf::Shader::isAvailable())
+      return;
+    const sf::Time &elapsed = mAberrationClock.restart();
+    if (mAberrationDuration > sf::Time::Zero) {
+      mAberrationDuration += duration - elapsed;
+    }
+    else {
+      mAberrationDuration += duration;
+    }
     mAberrationIntensity += .02f * gravityScale;
     mAberrationShader.setParameter("uMaxT", mAberrationDuration.asSeconds());
     mAberrationShader.setParameter("uDistort", mAberrationIntensity);
@@ -807,20 +827,22 @@ namespace Impact {
   inline void Game::executeBlur(sf::RenderTexture &out, sf::RenderTexture &in)
   {
     sf::RenderStates states0;
-	  sf::Sprite sprite0;
-	  sf::RenderStates states1;
-	  sf::Sprite sprite1;
-	  states0.shader = &mHBlurShader;
-	  states1.shader = &mVBlurShader;
-	  const float blur = b2Min(4.f, 1.f + mBlurClock.getElapsedTime().asSeconds());
-	  for (int i = 1; i < 4; ++i) {
-		  sprite1.setTexture(in.getTexture());
-		  mVBlurShader.setParameter("uBlur", blur * i);
-		  out.draw(sprite1, states1);
-		  sprite0.setTexture(out.getTexture());
-		  mHBlurShader.setParameter("uBlur", blur * i);
-		  in.draw(sprite0, states0);
-	  }
+    sf::Sprite sprite0;
+    sf::RenderStates states1;
+    sf::Sprite sprite1;
+    if (sf::Shader::isAvailable()) {
+      states0.shader = &mHBlurShader;
+      states1.shader = &mVBlurShader;
+    }
+    const float blur = b2Min(4.f, 1.f + mBlurClock.getElapsedTime().asSeconds());
+    for (int i = 1; i < 4; ++i) {
+      sprite1.setTexture(in.getTexture());
+      mVBlurShader.setParameter("uBlur", blur * i);
+      out.draw(sprite1, states1);
+      sprite0.setTexture(out.getTexture());
+      mHBlurShader.setParameter("uBlur", blur * i);
+      in.draw(sprite0, states0);
+    }
     executeCopy(out, in);
   }
 
@@ -831,17 +853,19 @@ namespace Impact {
     sf::RenderStates states;
     states.shader = &mEarthquakeShader;
     const float32 maxIntensity = mEarthquakeIntensity * InvScale;
-	  boost::random::uniform_real_distribution<float32> randomShift(-maxIntensity, maxIntensity);
-	  mEarthquakeShader.setParameter("uT", mEarthquakeClock.getElapsedTime().asSeconds());
-	  mEarthquakeShader.setParameter("uRShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
-	  mEarthquakeShader.setParameter("uGShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
-	  mEarthquakeShader.setParameter("uBShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
+    boost::random::uniform_real_distribution<float32> randomShift(-maxIntensity, maxIntensity);
+    mEarthquakeShader.setParameter("uT", mEarthquakeClock.getElapsedTime().asSeconds());
+    mEarthquakeShader.setParameter("uRShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
+    mEarthquakeShader.setParameter("uGShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
+    mEarthquakeShader.setParameter("uBShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
     out.draw(sprite, states);
   }
 
 
   void Game::startEarthquake(float32 intensity, const sf::Time &duration)
   {
+    if (!sf::Shader::isAvailable())
+      return;
     if (mEarthquakeIntensity > 0.f) {
       mEarthquakeDuration += duration;
       mEarthquakeIntensity += intensity;
@@ -866,12 +890,11 @@ namespace Impact {
   {
     handleEvents();
 
+    mWindow.setView(mPlaygroundView);
     clearWindow();
 
     mRenderTexture0.clear(mLevel.backgroundColor());
     mRenderTexture0.draw(mLevel.backgroundSprite());
-    mRenderTexture0.setView(mDefaultView);
-    mRenderTexture1.setView(mDefaultView);
 
     for (BodyList::const_iterator b = mBodies.cbegin(); b != mBodies.cend(); ++b) {
       const Body *body = *b;
@@ -879,12 +902,12 @@ namespace Impact {
         mRenderTexture0.draw(*body);
     }
 
-    if (mBlurPlayground) {
+    if (mBlurPlayground && sf::Shader::isAvailable()) {
       executeBlur(mRenderTexture1, mRenderTexture0);
       executeCopy(mRenderTexture0, mRenderTexture1);
     }
     
-    if (mAberrationDuration > sf::Time::Zero) {
+    if (mAberrationDuration > sf::Time::Zero && sf::Shader::isAvailable()) {
       if (mAberrationClock.getElapsedTime() < mAberrationDuration) {
         executeAberration(mRenderTexture1, mRenderTexture0);
         executeCopy(mRenderTexture0, mRenderTexture1);
@@ -895,7 +918,8 @@ namespace Impact {
       }
     }
 
-    if (mEarthquakeIntensity > 0.f && mEarthquakeClock.getElapsedTime() < mEarthquakeDuration) {
+    if (mEarthquakeIntensity > 0.f && mEarthquakeClock.getElapsedTime() < mEarthquakeDuration && sf::Shader::isAvailable()) {
+      // TODO: display hint what's going on ...
       executeEarthquake(mRenderTexture1, mRenderTexture0);
       executeCopy(mRenderTexture0, mRenderTexture1);
     }
@@ -904,45 +928,50 @@ namespace Impact {
         mEarthquakeIntensity = 0.f;
     }
 
-    if (mFadeEffectsActive > 0) {
-      sf::Uint8 c;
-      if (mFadeEffectTimer.getElapsedTime() < mFadeEffectDuration) {
-        c = sf::Uint8(Easing<float>::quadEaseInForthAndBack(mFadeEffectTimer.getElapsedTime().asSeconds(), 0.f, 255.f, mFadeEffectDuration.asSeconds()));
+    if (sf::Shader::isAvailable()) {
+      if (mFadeEffectsActive > 0) {
+        sf::Uint8 c;
+        if (mFadeEffectTimer.getElapsedTime() < mFadeEffectDuration) {
+          c = sf::Uint8(Easing<float>::quadEaseInForthAndBack(mFadeEffectTimer.getElapsedTime().asSeconds(), 0.f, 255.f, mFadeEffectDuration.asSeconds()));
+        }
+        else {
+          c = 0;
+          mFadeEffectsActive = 0;
+        }
+        if (mFadeEffectsDarken)
+          mMixShader.setParameter("uColorSub", sf::Color(c, c, c, 0));
+        else
+          mMixShader.setParameter("uColorAdd", sf::Color(c, c, c, 0));
       }
       else {
-        c = 0;
-        mFadeEffectsActive = 0;
+        mMixShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
+        mMixShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
       }
-      if (mFadeEffectsDarken)
-        mMixShader.setParameter("uColorSub", sf::Color(c, c, c, 0));
-      else
-        mMixShader.setParameter("uColorAdd", sf::Color(c, c, c, 0));
+      sf::Sprite sprite(mRenderTexture0.getTexture());
+      sf::RenderStates states;
+      states.shader = &mMixShader;
+      mWindow.draw(sprite, states);
     }
     else {
-      mMixShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
-      mMixShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
+      sf::Sprite sprite(mRenderTexture0.getTexture());
+      mWindow.draw(sprite);
     }
-    sf::Sprite sprite(mRenderTexture0.getTexture());
-    sf::RenderStates states;
-    states.shader = &mMixShader;
-    mWindow.draw(sprite, states);
 
+    mWindow.setView(mStatsView);
     mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
     mLevelMsg.setPosition(4, 4);
-
     mWindow.draw(mLevelMsg);
+
     if (mState == State::Playing) {
       int penalty = 5 * mLevelTimer.accumulatedMilliseconds() / 1000;
-
-      mScoreMsg.setString(std::to_string(b2Max(0, mScore - penalty)) + " " + std::to_string(mFPS) + "fps");
-      mScoreMsg.setPosition(mDefaultView.getCenter().x + mDefaultView.getSize().x / 2 - mScoreMsg.getLocalBounds().width - 4, 4);
+      mScoreMsg.setString(std::to_string(b2Max(0, mScore - penalty)));
+      mScoreMsg.setPosition(mStatsView.getSize().x - mScoreMsg.getLocalBounds().width - 4, 4);
       mWindow.draw(mScoreMsg);
       for (int life = 0; life < mLives; ++life) {
         const sf::Texture &ballTexture = mLevel.texture(Ball::Name);
         sf::Sprite lifeSprite(ballTexture);
         lifeSprite.setOrigin(0.f, 0.f);
-        lifeSprite.setColor(sf::Color(255, 255, 255, 0xa0));
-        lifeSprite.setPosition(4 + (ballTexture.getSize().x * 1.5f) * life, mDefaultView.getCenter().y - 0.5f * mDefaultView.getSize().y + 26);
+        lifeSprite.setPosition(4 + (ballTexture.getSize().x * 1.5f) * life, 26.f);
         mWindow.draw(lifeSprite);
       }
     }
@@ -952,7 +981,7 @@ namespace Impact {
   void Game::drawStartMessage(void)
   {
     mStartMsg.setColor(sf::Color(255, 255, 255, 192 + sf::Uint8(63 * std::sin(14 * mWallClock.getElapsedTime().asSeconds()))));
-    mStartMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mStartMsg.getLocalBounds().width, mDefaultView.getCenter().y + mDefaultView.getSize().y / 4);
+    mStartMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mStartMsg.getLocalBounds().width, mPlaygroundView.getCenter().y + mPlaygroundView.getSize().y / 4);
     mWindow.draw(mStartMsg);
   }
 
