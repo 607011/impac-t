@@ -50,6 +50,12 @@ namespace Impact {
 
   class Game : public b2ContactListener {
 
+    typedef enum _Playmode {
+      Campaign,
+      SingleLevel,
+      LastPlaymode
+    } Playmode;
+
     typedef enum _Actions {
       NoAction,
       PauseAction,
@@ -73,7 +79,8 @@ namespace Impact {
       LevelCompleted,
       Pausing,
       PlayerWon,
-      GameOver
+      GameOver,
+      LastState
     } State;
 
 
@@ -235,6 +242,7 @@ namespace Impact {
     // game logic
     std::vector<sf::Keyboard::Key> mKeyMapping;
     State mState;
+    Playmode mPlaymode;
     int mScore;
     int mTotalScore;
     int mLives;

@@ -51,6 +51,7 @@ namespace Impact {
     , mLives(3)
     , mPaused(false)
     , mState(State::Initialization)
+    , mPlaymode(Playmode::Campaign)
     , mKeyMapping(Action::LastAction)
     , mBlockCount(0)
     , mFadeEffectsActive(0)
@@ -709,7 +710,8 @@ namespace Impact {
     mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
     mScaleGravityEnabled = false;
     mScaleBallDensityEnabled = false;
-    if (mLevel.gotoNext()) {
+    bool levelAvailable = mPlaymode == Playmode::Campaign ? mLevel.gotoNext() : mLevel.isAvailable();
+    if (levelAvailable) {
       buildLevel();
       mClock.restart();
       mBlurPlayground = false;

@@ -67,6 +67,10 @@ namespace Impact {
     uint32_t mapData(int x, int y) const;
     uint32_t *const mapDataScanLine(int y) const;
     const TileParam &tileParam(int index) const;
+    inline bool isAvailable(void) const
+    {
+      return mSuccessfullyLoaded;
+    }
     inline int num(void) const
     {
       return mLevelNum;
@@ -129,6 +133,7 @@ namespace Impact {
   private:
     bool load(void);
 
+    bool mSuccessfullyLoaded;
     float mBackgroundImageOpacity;
     sf::Color mBackgroundColor;
     sf::Texture mBackgroundTexture;

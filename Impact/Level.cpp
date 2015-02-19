@@ -77,6 +77,7 @@ namespace Impact {
     , mKillingsPerKillingSpree(Game::DefaultKillingsPerKillingSpree)
     , mKillingSpreeBonus(Game::DefaultKillingSpreeBonus)
     , mKillingSpreeInterval(Game::DefaultKillingSpreeInterval)
+    , mSuccessfullyLoaded(false)
   {
     // ...
   }
@@ -90,11 +91,11 @@ namespace Impact {
 
   bool Level::set(int level)
   {
-    bool valid = false;
+    mSuccessfullyLoaded = false;
     mLevelNum = level;
     if (mLevelNum > 0)
-      valid = load();
-    return valid;
+      mSuccessfullyLoaded = load();
+    return mSuccessfullyLoaded;
   }
 
 
