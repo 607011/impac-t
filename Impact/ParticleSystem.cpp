@@ -27,18 +27,21 @@ namespace Impact {
   ParticleSystem::ParticleSystem(const ParticleSystemDef &def)
     : Body(Body::BodyType::Particle, def.game)
     , mParticles(def.count)
+    , mShader(nullptr)
   {
     mName = std::string("ParticleSystem");
     setLifetime(def.maxLifetime);
     mTexture = def.texture;
-    if (sShader == nullptr) {
+    if (sf::Shader::isAvailable() && sShader == nullptr) {
       sShader = new sf::Shader;
       sShader->loadFromFile(gShadersDir + "/particlesystem.fs", sf::Shader::Fragment);
     }
 
-    mShader = sShader;
-    mShader->setParameter("uTexture", sf::Shader::CurrentTexture);
-    mShader->setParameter("uMaxAge", def.maxLifetime.asSeconds());
+    if (sShader != nullptr) {
+      mShader = sShader;
+      mShader->setParameter("uTexture", sf::Shader::CurrentTexture);
+      mShader->setParameter("uMaxAge", def.maxLifetime.asSeconds());
+    }
 
     boost::random::uniform_int_distribution<sf::Int32> randomLifetime(def.minLifetime.asMilliseconds(), def.maxLifetime.asMilliseconds());
     boost::random::uniform_real_distribution<float32> randomSpeed(def.minSpeed * Game::Scale, def.maxSpeed * Game::Scale);
@@ -119,8 +122,10 @@ namespace Impact {
 
   void ParticleSystem::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
   {
-    mShader->setParameter("uAge", age().asSeconds());
-    states.shader = mShader;
+    if (mShader != nullptr) {
+      mShader->setParameter("uAge", age().asSeconds());
+      states.shader = mShader;
+    }
     for (std::vector<SimpleParticle>::const_iterator p = mParticles.cbegin(); p != mParticles.cend(); ++p)
       if (!p->dead)
         target.draw(p->sprite, states);

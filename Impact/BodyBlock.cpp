@@ -43,11 +43,13 @@ namespace Impact {
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(.5f * mTexture.getSize().x, .5f * mTexture.getSize().y);
 
-    mShader.loadFromFile(gShadersDir + "/fallingblock.fs", sf::Shader::Fragment);
-    mShader.setParameter("uAge", 0.f);
-    mShader.setParameter("uBlur", 0.f);
-    mShader.setParameter("uColor", sf::Color(255, 255, 255, 255));
-    mShader.setParameter("uResolution", float(mTexture.getSize().x), float(mTexture.getSize().y));
+    if (sf::Shader::isAvailable()) {
+      mShader.loadFromFile(gShadersDir + "/fallingblock.fs", sf::Shader::Fragment);
+      mShader.setParameter("uAge", 0.f);
+      mShader.setParameter("uBlur", 0.f);
+      mShader.setParameter("uColor", sf::Color(255, 255, 255, 255));
+      mShader.setParameter("uResolution", static_cast<float>(mTexture.getSize().x), static_cast<float>(mTexture.getSize().y));
+    }
 
     const int W = texture.getSize().x;
     const int H = texture.getSize().y;
@@ -111,13 +113,15 @@ namespace Impact {
     UNUSED(elapsedSeconds);
     mSprite.setPosition(Game::Scale * mBody->GetPosition().x, Game::Scale * mBody->GetPosition().y);
     mSprite.setRotation(rad2deg(mBody->GetAngle()));
-    mShader.setParameter("uAge", age().asSeconds());
+    if (mShader.isAvailable())
+      mShader.setParameter("uAge", age().asSeconds());
   }
 
 
   void Block::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
   {
-    states.shader = &mShader;
+    if (mShader.isAvailable())
+      states.shader = &mShader;
     target.draw(mSprite, states);
   }
 
@@ -129,8 +133,10 @@ namespace Impact {
     if (!destroyed && v > mMinimumHitImpulse) {
       mBody->SetLinearDamping(0.f);
       mBody->SetGravityScale(mGravityScale);
-      mShader.setParameter("uColor", sf::Color(sf::Color(255, 255, 255, 230)));
-      mShader.setParameter("uBlur", 2.28f);
+      if (mShader.isAvailable()) {
+        mShader.setParameter("uColor", sf::Color(sf::Color(255, 255, 255, 230)));
+        mShader.setParameter("uBlur", 2.28f);
+      }
     }
     return destroyed;
   }

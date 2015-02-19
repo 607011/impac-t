@@ -254,34 +254,36 @@ namespace Impact {
     mTitleTexture.setSmooth(true);
     mTitleSprite.setTexture(mTitleTexture);
 
-    ok = mAberrationShader.loadFromFile(gShadersDir + "/aberration.fs", sf::Shader::Fragment);
-    if (!ok)
-      std::cerr << gShadersDir + "/aberration.fs" << " failed to load/compile." << std::endl;
+    if (sf::Shader::isAvailable()) {
+      ok = mAberrationShader.loadFromFile(gShadersDir + "/aberration.fs", sf::Shader::Fragment);
+      if (!ok)
+        std::cerr << gShadersDir + "/aberration.fs" << " failed to load/compile." << std::endl;
 
-    mMixShader.loadFromFile(gShadersDir + "/mix.fs", sf::Shader::Fragment);
-    if (!ok)
-      std::cerr << gShadersDir + "/mix.fs" << " failed to load/compile." << std::endl;
+      mMixShader.loadFromFile(gShadersDir + "/mix.fs", sf::Shader::Fragment);
+      if (!ok)
+        std::cerr << gShadersDir + "/mix.fs" << " failed to load/compile." << std::endl;
 
-    mVBlurShader.loadFromFile(gShadersDir + "/vblur.fs", sf::Shader::Fragment);
-    if (!ok)
-      std::cerr << gShadersDir + "/vblur.fs" << " failed to load/compile." << std::endl;
-    mVBlurShader.setParameter("uBlur", 4.f);
-    mVBlurShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
+      mVBlurShader.loadFromFile(gShadersDir + "/vblur.fs", sf::Shader::Fragment);
+      if (!ok)
+        std::cerr << gShadersDir + "/vblur.fs" << " failed to load/compile." << std::endl;
+      mVBlurShader.setParameter("uBlur", 4.f);
+      mVBlurShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(mWindow.getSize().x), static_cast<float>(mWindow.getSize().y)));
 
-    mHBlurShader.loadFromFile(gShadersDir + "/hblur.fs", sf::Shader::Fragment);
-    if (!ok)
-      std::cerr << gShadersDir + "/hblur.fs" << " failed to load/compile." << std::endl;
-    mHBlurShader.setParameter("uBlur", 4.f);
-    mHBlurShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
+      mHBlurShader.loadFromFile(gShadersDir + "/hblur.fs", sf::Shader::Fragment);
+      if (!ok)
+        std::cerr << gShadersDir + "/hblur.fs" << " failed to load/compile." << std::endl;
+      mHBlurShader.setParameter("uBlur", 4.f);
+      mHBlurShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(mWindow.getSize().x), static_cast<float>(mWindow.getSize().y)));
 
-    mTitleShader.loadFromFile(gShadersDir + "/title.fs", sf::Shader::Fragment);
-    if (!ok)
-      std::cerr << gShadersDir + "/title.fs" << " failed to load/compile." << std::endl;
-    mTitleShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
+      mTitleShader.loadFromFile(gShadersDir + "/title.fs", sf::Shader::Fragment);
+      if (!ok)
+        std::cerr << gShadersDir + "/title.fs" << " failed to load/compile." << std::endl;
+      mTitleShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(mWindow.getSize().x), static_cast<float>(mWindow.getSize().y)));
 
-    mEarthquakeShader.loadFromFile(gShadersDir + "/earthquake.fs", sf::Shader::Fragment);
-    if (!ok)
-      std::cerr << gShadersDir + "/earthquake.fs" << " failed to load/compile." << std::endl;
+      mEarthquakeShader.loadFromFile(gShadersDir + "/earthquake.fs", sf::Shader::Fragment);
+      if (!ok)
+        std::cerr << gShadersDir + "/earthquake.fs" << " failed to load/compile." << std::endl;
+    }
 
     mKeyMapping[Action::PauseAction] = sf::Keyboard::Pause;
     mKeyMapping[Action::MoveLeft] = sf::Keyboard::Left;
@@ -333,9 +335,11 @@ namespace Impact {
 
     mContactPointCount = 0;
 
-    mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
-    mMixShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
-    mMixShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
+    if (sf::Shader::isAvailable()) {
+      mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
+      mMixShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
+      mMixShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
+    }
 
     gotoWelcomeScreen();
 
