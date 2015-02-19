@@ -110,7 +110,7 @@ namespace Impact {
       }
       else {
         const b2Transform &tx = p.body->GetTransform();
-        p.sprite.setPosition(float(Game::Scale) * sf::Vector2f(tx.p.x, tx.p.y));
+        p.sprite.setPosition(static_cast<float>(Game::Scale) * sf::Vector2f(tx.p.x, tx.p.y));
         p.sprite.setRotation(rad2deg(tx.q.GetAngle()));
       }
       allDead &= p.dead;
