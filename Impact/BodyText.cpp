@@ -22,62 +22,27 @@
 
 namespace Impact {
 
-  sf::Shader *TextBody::sShader = nullptr;
-  sf::Shader *TextBody::sOutlineShader = nullptr;
-
   TextBody::TextBody(const TextBodyDef &def)
     : Body(Body::BodyType::Text, def.game)
   {
     setLifetime(def.maxAge);
-    sf::Text text;
-    text.setCharacterSize(def.size);
-    text.setFont(def.font);
-    text.setString(sf::String(def.text));
-    const float W = text.getLocalBounds().width;
-    const float H = text.getLocalBounds().height;
-    const unsigned int W2 = 2 * unsigned int(W);
-    const unsigned int H2 = 2 * unsigned int(H);
-    text.setOrigin(-.5f * W, .5f * H);
-    text.setPosition(0.f, .5f * H);
+    mText.setCharacterSize(def.size);
+    mText.setFont(def.font);
+    mText.setString(sf::String(def.text));
+    mText.setOrigin(.5f * mText.getLocalBounds().width, -.5f * mText.getLocalBounds().height);
 
-    sf::RenderTexture renderTexture;
-    renderTexture.create(W2, H2);
-
-    if (sOutlineShader == nullptr) {
-      sOutlineShader = new sf::Shader;
-      sOutlineShader->loadFromFile(gShadersDir + "/outline.fs", sf::Shader::Fragment);
-      sOutlineShader->setParameter("uResolution", sf::Vector2f(float(W2 * 2), float(H2 * 2)));
-    }
-
-    sf::RenderStates states;
-    states.shader = sOutlineShader;
-    renderTexture.draw(text, states);
-    renderTexture.draw(text);
-
-    mTexture = renderTexture.getTexture();
-    mTexture.setSmooth(true);
-    mSprite.setTexture(mTexture);
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
     bd.position.Set(std::ceil(def.pos.x - 0.5f * Game::InvScale * mSprite.getGlobalBounds().width), std::ceil(def.pos.y - 0.5f * Game::InvScale * mSprite.getGlobalBounds().height));
     bd.gravityScale = -1.f;
     bd.fixedRotation = true;
     mBody = mGame->world()->CreateBody(&bd);
-
-    if (sShader == nullptr) {
-      sShader = new sf::Shader;
-      sShader->loadFromFile(gShadersDir + "/fade.fs", sf::Shader::Fragment);
-    }
-
-    mShader = sShader;
-    mShader->setParameter("uMaxT", def.maxAge.asSeconds());
   }
 
 
   void TextBody::onUpdate(float elapsedSeconds)
   {
-    mShader->setParameter("uT", age().asSeconds());
-    mSprite.setPosition(Game::Scale * mBody->GetPosition().x, Game::Scale * mBody->GetPosition().y);
+    mText.setPosition(Game::Scale * mBody->GetPosition().x, Game::Scale * mBody->GetPosition().y);
     if (overAge())
       this->kill();
   }
@@ -85,8 +50,7 @@ namespace Impact {
 
   void TextBody::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
   {
-    states.shader = mShader;
-    target.draw(mSprite, states);
+    target.draw(mText);
   }
 
 }

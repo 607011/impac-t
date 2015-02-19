@@ -61,9 +61,7 @@ namespace Impact {
     virtual BodyType type(void) const { return Body::BodyType::Text; }
 
   private:
-    static sf::Shader *sOutlineShader;
-    static sf::Shader *sShader;
-    sf::Shader *mShader;
+    sf::Text mText;
   };
 
 }
