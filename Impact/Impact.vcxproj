@@ -42,15 +42,15 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <ExecutablePath>D:\Developer\SFML-2.1\bin;$(VCInstallDir)bin;$(WindowsSDK_ExecutablePath_x86);$(VSInstallDir)Common7\Tools\bin;$(VSInstallDir)Common7\tools;$(VSInstallDir)Common7\ide;$(ProgramFiles)\HTML Help Workshop;$(MSBuildToolsPath32);$(VSInstallDir);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
-    <IncludePath>D:\Developer\box2d-read-only\Box2D;D:\Developer\boost_1_57_0;D:\Developer\boost_1_56_0;D:\Developer\glew-1.12.0\include;$(SolutionDir)\zlib\include;D:\Developer\SFML-2.1\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>$(SolutionDir)\$(Configuration);D:\Developer\glew-1.12.0\lib\Release\Win32;$(SolutionDir)\$(Configuration);$(SolutionDir)\zlib\lib;D:\Developer\SFML-2.1\lib;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86)</LibraryPath>
+    <ExecutablePath>D:\Developer\SFML-2.2\bin;$(VCInstallDir)bin;$(WindowsSDK_ExecutablePath_x86);$(VSInstallDir)Common7\Tools\bin;$(VSInstallDir)Common7\tools;$(VSInstallDir)Common7\ide;$(ProgramFiles)\HTML Help Workshop;$(MSBuildToolsPath32);$(VSInstallDir);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
+    <IncludePath>D:\Developer\box2d-read-only\Box2D;D:\Developer\boost_1_57_0;D:\Developer\boost_1_56_0;D:\Developer\glew-1.12.0\include;$(SolutionDir)\zlib\include;D:\Developer\SFML-2.2\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\$(Configuration);D:\Developer\glew-1.12.0\lib\Release\Win32;$(SolutionDir)\$(Configuration);$(SolutionDir)\zlib\lib;D:\Developer\SFML-2.1\lib;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86);D:\Developer\steamworks-sdk\redistributable_bin</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <ExecutablePath>D:\Developer\SFML-2.1\bin;$(VCInstallDir)bin;$(WindowsSDK_ExecutablePath_x86);$(VSInstallDir)Common7\Tools\bin;$(VSInstallDir)Common7\tools;$(VSInstallDir)Common7\ide;$(ProgramFiles)\HTML Help Workshop;$(MSBuildToolsPath32);$(VSInstallDir);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
-    <LibraryPath>$(SolutionDir)\$(Configuration);D:\Developer\glew-1.12.0\lib\Release\Win32;$(SolutionDir)\zlib\lib;D:\Developer\SFML-2.1\lib;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86);</LibraryPath>
-    <IncludePath>D:\Developer\box2d-read-only\Box2D;D:\Developer\boost_1_57_0;D:\Developer\boost_1_56_0;D:\Developer\glew-1.12.0\include;$(SolutionDir)\glew;$(SolutionDir)\zlib\include;D:\Developer\SFML-2.1\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
+    <ExecutablePath>D:\Developer\SFML-2.2\bin;$(VCInstallDir)bin;$(WindowsSDK_ExecutablePath_x86);$(VSInstallDir)Common7\Tools\bin;$(VSInstallDir)Common7\tools;$(VSInstallDir)Common7\ide;$(ProgramFiles)\HTML Help Workshop;$(MSBuildToolsPath32);$(VSInstallDir);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
+    <LibraryPath>$(SolutionDir)\$(Configuration);D:\Developer\glew-1.12.0\lib\Release\Win32;$(SolutionDir)\zlib\lib;D:\Developer\SFML-2.1\lib;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86);D:\Developer\steamworks-sdk\redistributable_bin</LibraryPath>
+    <IncludePath>D:\Developer\box2d-read-only\Box2D;D:\Developer\boost_1_57_0;D:\Developer\boost_1_56_0;D:\Developer\glew-1.12.0\include;$(SolutionDir)\glew;$(SolutionDir)\zlib\include;D:\Developer\SFML-2.2\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

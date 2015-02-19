@@ -1,7 +1,7 @@
 !define VERSION "1.0.0-BETA11"
 !define APP "Impact"
 !define PUBLISHER "c't"
-!define SFMLPATH "D:\Developer\SFML-2.1"
+!define SFMLPATH "D:\Developer\SFML-2.2"
 !define GLEWPATH "D:\Developer\glew-1.12.0\bin\Release\Win32"
 !define ZLIBPATH "..\zlib"
 
