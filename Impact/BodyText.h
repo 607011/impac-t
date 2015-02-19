@@ -48,7 +48,6 @@ namespace Impact {
     unsigned int size;
     const sf::Font &font;
     sf::Time maxAge;
-    std::string fragmentShaderCode;
   };
 
   class TextBody : public Body
@@ -62,7 +61,9 @@ namespace Impact {
     virtual BodyType type(void) const { return Body::BodyType::Text; }
 
   private:
-    sf::Shader mShader;
+    static sf::Shader *sOutlineShader;
+    static sf::Shader *sShader;
+    sf::Shader *mShader;
   };
 
 }

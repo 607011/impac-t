@@ -22,8 +22,9 @@
 
 namespace Impact {
 
+  sf::Shader *TextBody::sShader = nullptr;
+  sf::Shader *TextBody::sOutlineShader = nullptr;
 
- 
   TextBody::TextBody(const TextBodyDef &def)
     : Body(Body::BodyType::Text, def.game)
   {
@@ -41,12 +42,15 @@ namespace Impact {
 
     sf::RenderTexture renderTexture;
     renderTexture.create(W2, H2);
-    sf::Shader outlineShader;
-    outlineShader.loadFromFile(gShadersDir + "/outline.fs", sf::Shader::Fragment);
-    // outlineShader.setParameter("uScale", 5.f);
-    outlineShader.setParameter("uResolution", sf::Vector2f(float(W2 * 2), float(H2 * 2)));
+
+    if (sOutlineShader == nullptr) {
+      sOutlineShader = new sf::Shader;
+      sOutlineShader->loadFromFile(gShadersDir + "/outline.fs", sf::Shader::Fragment);
+      sOutlineShader->setParameter("uResolution", sf::Vector2f(float(W2 * 2), float(H2 * 2)));
+    }
+
     sf::RenderStates states;
-    states.shader = &outlineShader;
+    states.shader = sOutlineShader;
     renderTexture.draw(text, states);
     renderTexture.draw(text);
 
@@ -59,14 +63,20 @@ namespace Impact {
     bd.gravityScale = -1.f;
     bd.fixedRotation = true;
     mBody = mGame->world()->CreateBody(&bd);
-    mShader.loadFromMemory(def.fragmentShaderCode, sf::Shader::Fragment);
-    mShader.setParameter("uMaxT", def.maxAge.asSeconds());
+
+    if (sShader == nullptr) {
+      sShader = new sf::Shader;
+      sShader->loadFromFile(gShadersDir + "/fade.fs", sf::Shader::Fragment);
+    }
+
+    mShader = sShader;
+    mShader->setParameter("uMaxT", def.maxAge.asSeconds());
   }
 
 
   void TextBody::onUpdate(float elapsedSeconds)
   {
-    mShader.setParameter("uT", age().asSeconds());
+    mShader->setParameter("uT", age().asSeconds());
     mSprite.setPosition(Game::Scale * mBody->GetPosition().x, Game::Scale * mBody->GetPosition().y);
     if (overAge())
       this->kill();
@@ -75,7 +85,7 @@ namespace Impact {
 
   void TextBody::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
   {
-    states.shader = &mShader;
+    states.shader = mShader;
     target.draw(mSprite, states);
   }
 

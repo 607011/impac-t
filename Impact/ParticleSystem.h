@@ -73,7 +73,6 @@ namespace Impact {
     float32 friction;
     float32 restitution;
     sf::Texture texture;
-    std::string fragmentShaderCode;
   };
 
 
@@ -90,6 +89,9 @@ namespace Impact {
 
   protected:
     std::vector<SimpleParticle> mParticles;
+
+    static sf::Shader *sShader;
+    sf::Shader *mShader;
   };
 
 }
