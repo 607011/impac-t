@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="25" tilewidth="16" tileheight="16" backgroundcolor="#000000">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="25" tilewidth="16" tileheight="16" backgroundcolor="#4d6f74">
  <properties>
-  <property name="ExplosionParticlesCollideWithBall" value="0"/>
+  <property name="Author" value="ola@ct.de"/>
+  <property name="Credits" value="blah"/>
+  <property name="ExplosionParticlesCollideWithBall" value="true"/>
   <property name="Gravity" value="9.81"/>
   <property name="KillingSpreeBonus" value="1000"/>
   <property name="KillingSpreeInterval" value="2500"/>
