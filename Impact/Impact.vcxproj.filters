@@ -126,12 +126,6 @@
       <Filter>Fragment Shaders</Filter>
     </None>
     <None Include="..\README.md" />
-    <None Include="resources\shaders\earthquake.fs">
-      <Filter>Fragment Shaders</Filter>
-    </None>
-    <None Include="resources\shaders\aberration.fs">
-      <Filter>Fragment Shaders</Filter>
-    </None>
     <None Include="resources\shaders\fallingblock.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
@@ -151,6 +145,12 @@
       <Filter>Fragment Shaders</Filter>
     </None>
     <None Include="..\..\Impac%27t (vs2013)\Impact\resources\shaders\fade.fs">
+      <Filter>Fragment Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\aberration.fs">
+      <Filter>Fragment Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\earthquake.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
   </ItemGroup>
