@@ -133,7 +133,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Impac%27t (vs2013)\Impact\resources\shaders\fade.fs" />
-    <None Include="..\..\Impac%27t (vs2013)\Impact\resources\shaders\outline.fs" />
     <None Include="resources\shaders\aberration.fs" />
     <None Include="resources\shaders\fallingblock.fs" />
     <None Include="resources\shaders\hblur.fs" />

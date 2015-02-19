@@ -141,9 +141,6 @@
     <None Include="resources\shaders\vblur.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="..\..\Impac%27t (vs2013)\Impact\resources\shaders\outline.fs">
-      <Filter>Fragment Shaders</Filter>
-    </None>
     <None Include="..\..\Impac%27t (vs2013)\Impact\resources\shaders\fade.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
