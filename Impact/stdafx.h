@@ -68,6 +68,12 @@
 
 #include <zlib.h>
 
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#include <steam_api.h>
+#include <steam_gameserver.h>
+#pragma warning(pop)
+
 #include "util.h"
 #include "globals.h"
 #include "Easings.h"
@@ -84,6 +90,5 @@
 #include "BodyWall.h"
 #include "ParticleSystem.h"
 #include "Impact.h"
-
 
 #endif // __STDAFX_H_

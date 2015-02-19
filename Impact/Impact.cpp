@@ -63,6 +63,7 @@ namespace Impact {
     , mFPSArray(20, 0)
     , mFPS(0)
     , mFPSIndex(0)
+    , mSteamInitialized(false)
   {
     bool ok;
     glewInit();
@@ -288,6 +289,47 @@ namespace Impact {
     mKeyMapping[Action::Restart] = sf::Keyboard::Delete;
     mKeyMapping[Action::ContinueAction] = sf::Keyboard::Space;
 
+    mSteamInitialized = SteamAPI_Init();
+    if (mSteamInitialized) {
+      SteamAPI_RunCallbacks();
+
+      std::cout << "Steam API initialized." << std::endl;
+      CSteamID steamId;
+      if (SteamUser()) {
+        char pchBuffer[1024];
+        SteamUser()->GetUserDataFolder(pchBuffer, 1024);
+        std::cout << "SteamUser()->GetUserDataFolder(): " << pchBuffer << std::endl;
+        steamId = SteamUser()->GetSteamID();
+        int hAvatar = SteamFriends()->GetLargeFriendAvatar(steamId);
+        uint32 avatarWidth = 0, avatarHeight = 0;
+        SteamUtils()->GetImageSize(hAvatar, &avatarWidth, &avatarWidth);
+        std::cout << "avatar: " << avatarWidth << "x" << avatarWidth << " [" << hAvatar << "]" << std::endl;
+        uint8 *imgBuffer = reinterpret_cast<uint8*>(std::malloc(4 * avatarWidth * avatarHeight));
+        ok = SteamUtils()->GetImageRGBA(hAvatar, imgBuffer, 4 * avatarWidth * avatarHeight * sizeof(char));
+        if (ok) {
+          sf::Image avatarImage;
+          avatarImage.create(avatarWidth, avatarHeight, imgBuffer);
+          std::cout << avatarImage.getSize().x << "x" << avatarImage.getSize().y << std::endl;
+          mAvatarTexture.loadFromImage(avatarImage);
+        }
+        std::free(imgBuffer);
+        const char *playerName = SteamFriends()->GetPersonaName();
+        if (playerName != nullptr)
+          std::cout << "SteamFriends()->GetPersonaName(): " << playerName << std::endl;
+        if (SteamFriends())
+          playerName = SteamFriends()->GetPlayerNickname(steamId);
+        if (playerName != nullptr)
+          std::cout << "SteamFriends()->GetPlayerNickname(): " << playerName << std::endl;
+        bool bAchieved = true;
+        SteamUserStats()->GetUserAchievement(steamId, "Extra ball", &bAchieved);
+        std::cout << "Extra ball achieved: " << bAchieved << std::endl;
+      }
+
+    }
+    else {
+      std::cerr << "Steam API not initialized." << std::endl;
+    }
+
     restart();
   }
 
@@ -295,6 +337,8 @@ namespace Impact {
   Game::~Game(void)
   {
     clearWorld();
+    if (mSteamInitialized)
+      SteamAPI_Shutdown();
   }
 
 
@@ -563,6 +607,10 @@ namespace Impact {
     else {
       mWindow.draw(mTitleSprite);
     }
+
+    sf::Sprite avatar;
+    avatar.setTexture(mAvatarTexture);
+    mWindow.draw(avatar);
 
     if (mWelcomeLevel == 0) {
       ParticleSystemDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f));

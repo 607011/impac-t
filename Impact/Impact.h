@@ -215,6 +215,10 @@ namespace Impact {
     std::vector<int>::size_type mFPSIndex;
     int mFPS;
 
+    // Steam
+    bool mSteamInitialized;
+    sf::Texture mAvatarTexture;
+
     // Box2D
     static const int32 VelocityIterations = 4;
     static const int32 PositionIterations = 2;

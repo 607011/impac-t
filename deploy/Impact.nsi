@@ -1,8 +1,9 @@
-!define VERSION "1.0.0-BETA11"
+!define VERSION "1.0.0-BETA12"
 !define APP "Impact"
 !define PUBLISHER "c't"
 !define SFMLPATH "D:\Developer\SFML-2.2"
 !define GLEWPATH "D:\Developer\glew-1.12.0\bin\Release\Win32"
+!define STEAMSDKPATH "D:\Developer\steamworks-sdk"
 !define ZLIBPATH "..\zlib"
 
 !include LogicLib.nsh
@@ -57,6 +58,7 @@ Section "${APP}"
   File "${SFMLPATH}\bin\sfml-window-2.dll"
   File "${SFMLPATH}\bin\sfml-network-2.dll"
   File "${GLEWPATH}\glew32.dll"
+  File "${STEAMSDKPATH}\redistributable_bin\steam_api.dll"
   WriteUninstaller "$INSTDIR\uninstall.exe"
 
   SetOutPath "$INSTDIR\resources\backgrounds"
