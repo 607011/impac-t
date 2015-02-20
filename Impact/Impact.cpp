@@ -66,6 +66,50 @@ namespace Impact {
     , mSteamInitialized(false)
   {
     bool ok;
+
+    mSteamInitialized = SteamAPI_Init();
+    if (mSteamInitialized) {
+      SteamAPI_RunCallbacks();
+
+      std::cout << "Steam API initialized." << std::endl;
+      CSteamID steamId;
+      if (SteamUser()) {
+        char pchBuffer[1024];
+        SteamUser()->GetUserDataFolder(pchBuffer, 1024);
+        std::cout << "SteamUser()->GetUserDataFolder(): " << pchBuffer << std::endl;
+        steamId = SteamUser()->GetSteamID();
+        int hAvatar = SteamFriends()->GetLargeFriendAvatar(steamId);
+        uint32 avatarWidth = 0, avatarHeight = 0;
+        SteamUtils()->GetImageSize(hAvatar, &avatarWidth, &avatarWidth);
+        std::cout << "avatar: " << avatarWidth << "x" << avatarWidth << " [" << hAvatar << "]" << std::endl;
+        uint8 *imgBuffer = reinterpret_cast<uint8*>(std::malloc(4 * avatarWidth * avatarHeight));
+        ok = SteamUtils()->GetImageRGBA(hAvatar, imgBuffer, 4 * avatarWidth * avatarHeight * sizeof(char));
+        if (ok) {
+          sf::Image avatarImage;
+          avatarImage.create(avatarWidth, avatarHeight, imgBuffer);
+          std::cout << avatarImage.getSize().x << "x" << avatarImage.getSize().y << std::endl;
+          mAvatarTexture.loadFromImage(avatarImage);
+        }
+        std::free(imgBuffer);
+        const char *playerName = SteamFriends()->GetPersonaName();
+        if (playerName != nullptr) {
+          std::cout << "SteamFriends()->GetPersonaName(): " << playerName << std::endl;
+          mPlayerName = playerName;
+        }
+        if (SteamFriends())
+          playerName = SteamFriends()->GetPlayerNickname(steamId);
+        if (playerName != nullptr)
+          std::cout << "SteamFriends()->GetPlayerNickname(): " << playerName << std::endl;
+        bool bAchieved = true;
+        SteamUserStats()->GetUserAchievement(steamId, "Extra ball", &bAchieved);
+        std::cout << "Extra ball achieved: " << bAchieved << std::endl;
+      }
+
+    }
+    else {
+      std::cerr << "Steam API not initialized." << std::endl;
+    }
+
     glewInit();
     glGetIntegerv(GL_MAJOR_VERSION, &mGLVersionMajor);
     glGetIntegerv(GL_MINOR_VERSION, &mGLVersionMinor);
@@ -228,6 +272,7 @@ namespace Impact {
       + " - "
       + "OpenGL " + std::to_string(mGLVersionMajor) + "." + std::to_string(mGLVersionMinor) + ", "
       + "GLSL " + std::string(reinterpret_cast<const char*>(mGLShadingLanguageVersion))
+      + ", Your Steam persona: " + mPlayerName
       );
     mProgramInfoMsg.setFont(mFixedFont);
     mProgramInfoMsg.setColor(sf::Color::White);
@@ -288,47 +333,6 @@ namespace Impact {
     mKeyMapping[Action::BackAction] = sf::Keyboard::Escape;
     mKeyMapping[Action::Restart] = sf::Keyboard::Delete;
     mKeyMapping[Action::ContinueAction] = sf::Keyboard::Space;
-
-    mSteamInitialized = SteamAPI_Init();
-    if (mSteamInitialized) {
-      SteamAPI_RunCallbacks();
-
-      std::cout << "Steam API initialized." << std::endl;
-      CSteamID steamId;
-      if (SteamUser()) {
-        char pchBuffer[1024];
-        SteamUser()->GetUserDataFolder(pchBuffer, 1024);
-        std::cout << "SteamUser()->GetUserDataFolder(): " << pchBuffer << std::endl;
-        steamId = SteamUser()->GetSteamID();
-        int hAvatar = SteamFriends()->GetLargeFriendAvatar(steamId);
-        uint32 avatarWidth = 0, avatarHeight = 0;
-        SteamUtils()->GetImageSize(hAvatar, &avatarWidth, &avatarWidth);
-        std::cout << "avatar: " << avatarWidth << "x" << avatarWidth << " [" << hAvatar << "]" << std::endl;
-        uint8 *imgBuffer = reinterpret_cast<uint8*>(std::malloc(4 * avatarWidth * avatarHeight));
-        ok = SteamUtils()->GetImageRGBA(hAvatar, imgBuffer, 4 * avatarWidth * avatarHeight * sizeof(char));
-        if (ok) {
-          sf::Image avatarImage;
-          avatarImage.create(avatarWidth, avatarHeight, imgBuffer);
-          std::cout << avatarImage.getSize().x << "x" << avatarImage.getSize().y << std::endl;
-          mAvatarTexture.loadFromImage(avatarImage);
-        }
-        std::free(imgBuffer);
-        const char *playerName = SteamFriends()->GetPersonaName();
-        if (playerName != nullptr)
-          std::cout << "SteamFriends()->GetPersonaName(): " << playerName << std::endl;
-        if (SteamFriends())
-          playerName = SteamFriends()->GetPlayerNickname(steamId);
-        if (playerName != nullptr)
-          std::cout << "SteamFriends()->GetPlayerNickname(): " << playerName << std::endl;
-        bool bAchieved = true;
-        SteamUserStats()->GetUserAchievement(steamId, "Extra ball", &bAchieved);
-        std::cout << "Extra ball achieved: " << bAchieved << std::endl;
-      }
-
-    }
-    else {
-      std::cerr << "Steam API not initialized." << std::endl;
-    }
 
     restart();
   }
