@@ -97,19 +97,26 @@ namespace Impact {
     static std::vector<sf::Shader*> sShaders;
     static std::vector<sf::Shader*>::size_type sCurrentShaderIndex;
     struct ShaderPool {
-      static const std::vector<sf::Shader*>::size_type N = 20;
+      static const std::vector<sf::Shader*>::size_type N = 20; // maximum number of concurrent explosions
       ShaderPool(void)
       {
         if (!sf::Shader::isAvailable())
           return;
+        std::ifstream inFile;
+        inFile.open(gShadersDir + "/particlesystem.fs");
+        std::stringstream strStream;
+        strStream << inFile.rdbuf();
+        std::string fragmentShaderCode = strStream.str();
         for (std::vector<sf::Shader*>::size_type i = 0; i < N; ++i) {
           sf::Shader *shader = new sf::Shader;
-          shader->loadFromFile(gShadersDir + "/particlesystem.fs", sf::Shader::Fragment);
+          shader->loadFromMemory(fragmentShaderCode, sf::Shader::Fragment);
           sShaders.push_back(shader);
         }
       }
       inline static sf::Shader *getNext(void)
       {
+        if (!sf::Shader::isAvailable())
+          return nullptr;
         sf::Shader *next = sShaders.at(sCurrentShaderIndex);
         if (++sCurrentShaderIndex >= sShaders.size())
           sCurrentShaderIndex = 0;
