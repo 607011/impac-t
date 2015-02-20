@@ -76,7 +76,7 @@ namespace Impact {
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
     mWindow.setActive();
-    mWindow.setVerticalSyncEnabled(true);
+    mWindow.setVerticalSyncEnabled(false);
     resize();
 
     mRenderTexture0.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
@@ -491,13 +491,13 @@ namespace Impact {
   {
     if (mRacket != nullptr) {
       mMousePos = sf::Mouse::getPosition(mWindow);
-      if (mMousePos.x < 0 || mMousePos.x > int(mWindow.getSize().x) || mMousePos.y < 0 || mMousePos.y > int(mWindow.getSize().y)) {
-        mMousePos = sf::Vector2i(int(Game::Scale * mRacket->position().x), int(Game::Scale * mRacket->position().y));
+      if (mMousePos.x < 0 || mMousePos.x > static_cast<int>(mWindow.getSize().x) || mMousePos.y < 0 || mMousePos.y > static_cast<int>(mWindow.getSize().y)) {
+        mMousePos = sf::Vector2i(static_cast<int>(Game::Scale * mRacket->position().x), static_cast<int>(Game::Scale * mRacket->position().y));
         mLastMousePos = mMousePos;
         sf::Mouse::setPosition(mMousePos, mWindow);
       }
       const sf::Vector2i &d = mMousePos - mLastMousePos;
-      const b2Vec2 &v = Game::InvScale / elapsed.asSeconds() * b2Vec2(static_cast<float32>(d.x), static_cast<float32>(d.y));
+      const b2Vec2 &v = InvScale / elapsed.asSeconds() * b2Vec2(static_cast<float32>(d.x), static_cast<float32>(d.y));
       mRacket->applyLinearVelocity(v);
       mLastMousePos = mMousePos;
       if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {

@@ -143,9 +143,7 @@ namespace Impact {
 
   void Racket::applyLinearVelocity(const b2Vec2 &v)
   {
-    mTeetingBody->SetLinearVelocity(v);
     mBody->SetLinearVelocity(v);
-    // mBody->ApplyLinearImpulse(0.5f * v, mBody->GetPosition(), true);
   }
 
 
