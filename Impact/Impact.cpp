@@ -74,7 +74,7 @@ namespace Impact {
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
     mWindow.setActive();
-    mWindow.setVerticalSyncEnabled(false); // DO NOT CHANGE UNLESS YOU'D LIKE TO RISK TUNNELING OR OTHER ADVERSARY EFFECTS!!!
+    mWindow.setVerticalSyncEnabled(true);
     resize();
 
     mRenderTexture0.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);

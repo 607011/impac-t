@@ -216,8 +216,8 @@ namespace Impact {
     int mFPS;
 
     // Box2D
-    static const int32 VelocityIterations = 4;
-    static const int32 PositionIterations = 2;
+    static const int32 VelocityIterations = 30;
+    static const int32 PositionIterations = 20;
     b2World *mWorld;
     Ground *mGround;
     ContactPoint mPoints[MaxContactPoints];
