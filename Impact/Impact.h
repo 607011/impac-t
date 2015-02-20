@@ -51,8 +51,15 @@ namespace Impact {
   struct OverlayDef {
     OverlayDef(void)
       : duration(sf::milliseconds(1000))
-      , minScale(.5f)
-      , maxScale(3.2f)
+      , minScale(.2f)
+      , maxScale(2.5f)
+    { /* ... */ }
+    OverlayDef(const OverlayDef &other)
+      : duration(other.duration)
+      , minScale(other.minScale)
+      , maxScale(other.maxScale)
+      , line1(other.line1)
+      , line2(other.line2)
     { /* ... */
     }
     sf::Time duration;
