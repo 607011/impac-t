@@ -82,96 +82,96 @@ namespace Impact {
     mOverlayRenderTexture.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
 
     sf::Image icon;
-    icon.loadFromFile(gImagesDir + "/app-icon.png");
+    icon.loadFromFile(ImagesDir + "/app-icon.png");
     mWindow.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 
-    ok = mFixedFont.loadFromFile(gFontsDir + "/04b_03.ttf");
+    ok = mFixedFont.loadFromFile(FontsDir + "/04b_03.ttf");
     if (!ok)
-      std::cerr << gFontsDir + "/04b_03.ttf failed to load." << std::endl;
+      std::cerr << FontsDir + "/04b_03.ttf failed to load." << std::endl;
 
-    ok = mTitleFont.loadFromFile(gFontsDir + "/Dimitri.ttf");
+    ok = mTitleFont.loadFromFile(FontsDir + "/Dimitri.ttf");
     if (!ok)
-      std::cerr << gFontsDir + "/Dimitri.ttf failed to load." << std::endl;
+      std::cerr << FontsDir + "/Dimitri.ttf failed to load." << std::endl;
 
-    ok = mStartupBuffer.loadFromFile(gSoundFXDir + "/startup.ogg");
+    ok = mStartupBuffer.loadFromFile(SoundFXDir + "/startup.ogg");
     if (!ok)
-      std::cerr << gSoundFXDir + "/startup.ogg failed to load." << std::endl;
+      std::cerr << SoundFXDir + "/startup.ogg failed to load." << std::endl;
     mStartupSound.setBuffer(mStartupBuffer);
     mStartupSound.setVolume(100);
     mStartupSound.setLoop(false);
 
-    ok = mNewBallBuffer.loadFromFile(gSoundFXDir + "/new-ball.ogg");
+    ok = mNewBallBuffer.loadFromFile(SoundFXDir + "/new-ball.ogg");
     if (!ok)
-      std::cerr << gSoundFXDir + "/new-ball.ogg failed to load." << std::endl;
+      std::cerr << SoundFXDir + "/new-ball.ogg failed to load." << std::endl;
     mNewBallSound.setBuffer(mNewBallBuffer);
     mNewBallSound.setVolume(100);
     mNewBallSound.setLoop(false);
 
-    ok = mNewLifeBuffer.loadFromFile(gSoundFXDir + "/new-life.ogg");
+    ok = mNewLifeBuffer.loadFromFile(SoundFXDir + "/new-life.ogg");
     if (!ok)
-      std::cerr << gSoundFXDir + "/new-ball.ogg failed to load." << std::endl;
+      std::cerr << SoundFXDir + "/new-ball.ogg failed to load." << std::endl;
     mNewLifeSound.setBuffer(mNewLifeBuffer);
     mNewLifeSound.setVolume(100);
     mNewLifeSound.setLoop(false);
 
-    ok = mBallOutBuffer.loadFromFile(gSoundFXDir + "/ball-out.ogg");
+    ok = mBallOutBuffer.loadFromFile(SoundFXDir + "/ball-out.ogg");
     if (!ok)
-      std::cerr << gSoundFXDir + "/ball-out.ogg failed to load." << std::endl;
+      std::cerr << SoundFXDir + "/ball-out.ogg failed to load." << std::endl;
     mBallOutSound.setBuffer(mBallOutBuffer);
     mBallOutSound.setVolume(100);
     mBallOutSound.setLoop(false);
 
-    ok = mBlockHitBuffer.loadFromFile(gSoundFXDir + "/block-hit.ogg");
+    ok = mBlockHitBuffer.loadFromFile(SoundFXDir + "/block-hit.ogg");
     if (!ok)
-      std::cerr << gSoundFXDir + "/block-hit.ogg failed to load." << std::endl;
+      std::cerr << SoundFXDir + "/block-hit.ogg failed to load." << std::endl;
     mBlockHitSound.setBuffer(mBlockHitBuffer);
     mBlockHitSound.setVolume(100);
     mBlockHitSound.setLoop(false);
 
-    ok = mPenaltyBuffer.loadFromFile(gSoundFXDir + "/penalty.ogg");
+    ok = mPenaltyBuffer.loadFromFile(SoundFXDir + "/penalty.ogg");
     if (!ok)
-      std::cerr << gSoundFXDir + "/penalty.ogg failed to load." << std::endl;
+      std::cerr << SoundFXDir + "/penalty.ogg failed to load." << std::endl;
     mPenaltySound.setBuffer(mPenaltyBuffer);
     mPenaltySound.setVolume(100);
     mPenaltySound.setLoop(false);
 
-    ok = mRacketHitBuffer.loadFromFile(gSoundFXDir + "/racket-hit.ogg");
+    ok = mRacketHitBuffer.loadFromFile(SoundFXDir + "/racket-hit.ogg");
     if (!ok)
-      std::cerr << gSoundFXDir + "/racket-hit.ogg failed to load." << std::endl;
+      std::cerr << SoundFXDir + "/racket-hit.ogg failed to load." << std::endl;
     mRacketHitSound.setBuffer(mRacketHitBuffer);
     mRacketHitSound.setVolume(100);
     mRacketHitSound.setLoop(false);
 
-    ok = mRacketHitBlockBuffer.loadFromFile(gSoundFXDir + "/racket-hit-block.ogg");
+    ok = mRacketHitBlockBuffer.loadFromFile(SoundFXDir + "/racket-hit-block.ogg");
     if (!ok)
-      std::cerr << gSoundFXDir + "/racket-hit-block.ogg failed to load." << std::endl;
+      std::cerr << SoundFXDir + "/racket-hit-block.ogg failed to load." << std::endl;
     mRacketHitBlockSound.setBuffer(mRacketHitBlockBuffer);
     mRacketHitBlockSound.setVolume(100);
     mRacketHitBlockSound.setLoop(false);
 
-    ok = mExplosionBuffer.loadFromFile(gSoundFXDir + "/explosion.ogg");
+    ok = mExplosionBuffer.loadFromFile(SoundFXDir + "/explosion.ogg");
     if (!ok)
-      std::cerr << gSoundFXDir + "/explosion.ogg failed to load." << std::endl;
+      std::cerr << SoundFXDir + "/explosion.ogg failed to load." << std::endl;
     mExplosionSound.setBuffer(mExplosionBuffer);
     mExplosionSound.setVolume(100);
     mExplosionSound.setLoop(false);
 
-    ok = mLevelCompleteBuffer.loadFromFile(gSoundFXDir + "/level-complete.ogg");
+    ok = mLevelCompleteBuffer.loadFromFile(SoundFXDir + "/level-complete.ogg");
     if (!ok)
-      std::cerr << gSoundFXDir + "/level-complete.ogg failed to load." << std::endl;
+      std::cerr << SoundFXDir + "/level-complete.ogg failed to load." << std::endl;
     mLevelCompleteSound.setBuffer(mLevelCompleteBuffer);
     mLevelCompleteSound.setVolume(100);
     mLevelCompleteSound.setLoop(false);
 
-    ok = mKillingSpreeSoundBuffer.loadFromFile(gSoundFXDir + "/killing-spree.ogg");
+    ok = mKillingSpreeSoundBuffer.loadFromFile(SoundFXDir + "/killing-spree.ogg");
     if (!ok)
-      std::cerr << gSoundFXDir + "/killing-spree.ogg failed to load." << std::endl;
+      std::cerr << SoundFXDir + "/killing-spree.ogg failed to load." << std::endl;
     mKillingSpreeSound.setBuffer(mKillingSpreeSoundBuffer);
     mKillingSpreeSound.setVolume(100);
     mKillingSpreeSound.setLoop(false);
 
-    mParticleTexture.loadFromFile(gImagesDir + "/particle.png");
-    mSoftParticleTexture.loadFromFile(gImagesDir + "/smooth-dot-12x12.png");
+    mParticleTexture.loadFromFile(ImagesDir + "/particle.png");
+    mSoftParticleTexture.loadFromFile(ImagesDir + "/smooth-dot-12x12.png");
 
     mLevelCompletedMsg.setString("Level complete");
     mLevelCompletedMsg.setFont(mFixedFont);
@@ -233,12 +233,12 @@ namespace Impact {
     mProgramInfoMsg.setCharacterSize(8U);
     mProgramInfoMsg.setPosition(8.f, mDefaultView.getSize().y - mProgramInfoMsg.getLocalBounds().height - 8.f);
 
-    mBackgroundTexture.loadFromFile(gBackgroundsDir + "/abstract05.jpg");
+    mBackgroundTexture.loadFromFile(BackgroundsDir + "/abstract05.jpg");
     mBackgroundSprite.setTexture(mBackgroundTexture);
     mBackgroundSprite.setPosition(0.f, 0.f);
     mBackgroundSprite.setScale(static_cast<float>(mDefaultView.getSize().x) / static_cast<float>(mBackgroundTexture.getSize().x), static_cast<float>(mDefaultView.getSize().y) / static_cast<float>(mBackgroundTexture.getSize().y));
 
-    mLogoTexture.loadFromFile(gImagesDir + "/ct_logo.png");
+    mLogoTexture.loadFromFile(ImagesDir + "/ct_logo.png");
     mLogoSprite.setTexture(mLogoTexture);
     mLogoSprite.setOrigin(static_cast<float>(mLogoTexture.getSize().x), static_cast<float>(mLogoTexture.getSize().y));
     mLogoSprite.setPosition(mDefaultView.getSize().x - 8.f, mDefaultView.getSize().y - 8.f);
@@ -253,34 +253,34 @@ namespace Impact {
     mTitleSprite.setTexture(mTitleTexture);
 
     if (sf::Shader::isAvailable()) {
-      ok = mAberrationShader.loadFromFile(gShadersDir + "/aberration.fs", sf::Shader::Fragment);
+      ok = mAberrationShader.loadFromFile(ShadersDir + "/aberration.fs", sf::Shader::Fragment);
       if (!ok)
-        std::cerr << gShadersDir + "/aberration.fs" << " failed to load/compile." << std::endl;
+        std::cerr << ShadersDir + "/aberration.fs" << " failed to load/compile." << std::endl;
 
-      mMixShader.loadFromFile(gShadersDir + "/mix.fs", sf::Shader::Fragment);
+      mMixShader.loadFromFile(ShadersDir + "/mix.fs", sf::Shader::Fragment);
       if (!ok)
-        std::cerr << gShadersDir + "/mix.fs" << " failed to load/compile." << std::endl;
+        std::cerr << ShadersDir + "/mix.fs" << " failed to load/compile." << std::endl;
 
-      mVBlurShader.loadFromFile(gShadersDir + "/vblur.fs", sf::Shader::Fragment);
+      mVBlurShader.loadFromFile(ShadersDir + "/vblur.fs", sf::Shader::Fragment);
       if (!ok)
-        std::cerr << gShadersDir + "/vblur.fs" << " failed to load/compile." << std::endl;
+        std::cerr << ShadersDir + "/vblur.fs" << " failed to load/compile." << std::endl;
       mVBlurShader.setParameter("uBlur", 4.f);
       mVBlurShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(mWindow.getSize().x), static_cast<float>(mWindow.getSize().y)));
 
-      mHBlurShader.loadFromFile(gShadersDir + "/hblur.fs", sf::Shader::Fragment);
+      mHBlurShader.loadFromFile(ShadersDir + "/hblur.fs", sf::Shader::Fragment);
       if (!ok)
-        std::cerr << gShadersDir + "/hblur.fs" << " failed to load/compile." << std::endl;
+        std::cerr << ShadersDir + "/hblur.fs" << " failed to load/compile." << std::endl;
       mHBlurShader.setParameter("uBlur", 4.f);
       mHBlurShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(mWindow.getSize().x), static_cast<float>(mWindow.getSize().y)));
 
-      mTitleShader.loadFromFile(gShadersDir + "/title.fs", sf::Shader::Fragment);
+      mTitleShader.loadFromFile(ShadersDir + "/title.fs", sf::Shader::Fragment);
       if (!ok)
-        std::cerr << gShadersDir + "/title.fs" << " failed to load/compile." << std::endl;
+        std::cerr << ShadersDir + "/title.fs" << " failed to load/compile." << std::endl;
       mTitleShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(mWindow.getSize().x), static_cast<float>(mWindow.getSize().y)));
 
-      mEarthquakeShader.loadFromFile(gShadersDir + "/earthquake.fs", sf::Shader::Fragment);
+      mEarthquakeShader.loadFromFile(ShadersDir + "/earthquake.fs", sf::Shader::Fragment);
       if (!ok)
-        std::cerr << gShadersDir + "/earthquake.fs" << " failed to load/compile." << std::endl;
+        std::cerr << ShadersDir + "/earthquake.fs" << " failed to load/compile." << std::endl;
     }
 
     mKeyMapping[Action::PauseAction] = sf::Keyboard::Pause;
@@ -565,11 +565,11 @@ namespace Impact {
     }
 
     if (mWelcomeLevel == 0) {
-      ParticleSystemDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f));
+      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f));
       pd.ballCollisionEnabled = false;
       pd.count = gDetailLevel * 40;
       pd.texture = mParticleTexture;
-      addBody(new ParticleSystem(pd));
+      addBody(new Explosion(pd));
       mWelcomeLevel = 1;
     }
 
@@ -578,10 +578,10 @@ namespace Impact {
       if (mWelcomeLevel == 1) {
         mExplosionSound.play();
         mWelcomeLevel = 2;
-        ParticleSystemDef pd(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y));
+        ExplosionDef pd(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y));
         pd.count = gDetailLevel * 30;
         pd.texture = mParticleTexture;
-        addBody(new ParticleSystem(pd));
+        addBody(new Explosion(pd));
       }
     }
     if (t > 0.6f) {
@@ -589,10 +589,10 @@ namespace Impact {
       if (mWelcomeLevel == 2) {
         mExplosionSound.play();
         mWelcomeLevel = 3;
-        ParticleSystemDef pd(this, Game::InvScale * b2Vec2(mLogoSprite.getPosition().x, mLogoSprite.getPosition().y));
+        ExplosionDef pd(this, Game::InvScale * b2Vec2(mLogoSprite.getPosition().x, mLogoSprite.getPosition().y));
         pd.count = gDetailLevel * 30;
         pd.texture = mParticleTexture;
-        addBody(new ParticleSystem(pd));
+        addBody(new Explosion(pd));
       }
     }
     if (t > 0.7f) {
@@ -600,10 +600,10 @@ namespace Impact {
       if (mWelcomeLevel == 4) {
         mExplosionSound.play();
         mWelcomeLevel = 5;
-        ParticleSystemDef pd(this, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y));
+        ExplosionDef pd(this, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y));
         pd.texture = mParticleTexture;
         pd.count = gDetailLevel * 30;
-        addBody(new ParticleSystem(pd));
+        addBody(new Explosion(pd));
       }
     }
   }
@@ -1321,11 +1321,11 @@ namespace Impact {
   {
     if (killedBody->type() == Body::BodyType::Block) {
       mExplosionSound.play();
-      ParticleSystemDef pd(this, killedBody->position());
+      ExplosionDef pd(this, killedBody->position());
       pd.ballCollisionEnabled = mLevel.explosionParticlesCollideWithBall();
       pd.count = gDetailLevel * 20;
       pd.texture = mParticleTexture;
-      addBody(new ParticleSystem(pd));
+      addBody(new Explosion(pd));
       {
         // check for killing spree
         mLastKillings[mLastKillingsIndex] = mWallClock.getElapsedTime();

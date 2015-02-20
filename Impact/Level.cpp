@@ -132,7 +132,7 @@ namespace Impact {
 #ifndef NDEBUG
     // mLevelNum = 10;
 #endif
-    buf << gLevelsDir << "/" << std::setw(4) << std::setfill('0') << mLevelNum << ".tmx";
+    buf << LevelsDir << "/" << std::setw(4) << std::setfill('0') << mLevelNum << ".tmx";
     const std::string &filename = buf.str();
 
     ok = fileExists(filename.c_str());
@@ -244,7 +244,7 @@ namespace Impact {
       if (!ok)
         return false;
 
-      const std::string &backgroundTextureFilename = gLevelsDir + "/" + pt.get<std::string>("map.imagelayer.image.<xmlattr>.source");
+      const std::string &backgroundTextureFilename = LevelsDir + "/" + pt.get<std::string>("map.imagelayer.image.<xmlattr>.source");
       mBackgroundTexture.loadFromFile(backgroundTextureFilename);
       mBackgroundSprite.setTexture(mBackgroundTexture);
       try {
@@ -276,7 +276,7 @@ namespace Impact {
           const int id = mFirstGID + tile.get<int>("<xmlattr>.id");
           mTiles.resize(id + 1);
           TileParam tileParam;
-          const std::string &filename = gLevelsDir + "/" + tile.get<std::string>("image.<xmlattr>.source");
+          const std::string &filename = LevelsDir + "/" + tile.get<std::string>("image.<xmlattr>.source");
           ok = tileParam.texture.loadFromFile(filename);
           if (!ok)
             return false;
