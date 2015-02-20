@@ -219,6 +219,7 @@ namespace Impact {
     bool mSteamInitialized;
     sf::Texture mAvatarTexture;
     std::string mPlayerName;
+    std::string mUserDataFolder;
 
     // Box2D
     static const int32 VelocityIterations = 30;

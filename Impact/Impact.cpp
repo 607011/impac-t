@@ -74,35 +74,32 @@ namespace Impact {
       std::cout << "Steam API initialized." << std::endl;
       CSteamID steamId;
       if (SteamUser()) {
-        char pchBuffer[1024];
+        char *pchBuffer = new char[1024];
         SteamUser()->GetUserDataFolder(pchBuffer, 1024);
-        std::cout << "SteamUser()->GetUserDataFolder(): " << pchBuffer << std::endl;
+        mUserDataFolder = pchBuffer;
+        delete [] pchBuffer;
+
         steamId = SteamUser()->GetSteamID();
-        int hAvatar = SteamFriends()->GetLargeFriendAvatar(steamId);
+        int hAvatar = SteamFriends()->GetSmallFriendAvatar(steamId);
         uint32 avatarWidth = 0, avatarHeight = 0;
-        SteamUtils()->GetImageSize(hAvatar, &avatarWidth, &avatarWidth);
-        std::cout << "avatar: " << avatarWidth << "x" << avatarWidth << " [" << hAvatar << "]" << std::endl;
-        uint8 *imgBuffer = reinterpret_cast<uint8*>(std::malloc(4 * avatarWidth * avatarHeight));
-        ok = SteamUtils()->GetImageRGBA(hAvatar, imgBuffer, 4 * avatarWidth * avatarHeight * sizeof(char));
-        if (ok) {
-          sf::Image avatarImage;
-          avatarImage.create(avatarWidth, avatarHeight, imgBuffer);
-          std::cout << avatarImage.getSize().x << "x" << avatarImage.getSize().y << std::endl;
-          mAvatarTexture.loadFromImage(avatarImage);
+        SteamUtils()->GetImageSize(hAvatar, &avatarWidth, &avatarHeight);
+        if (avatarWidth > 0 && avatarHeight > 0) {
+          uint8 *imgBuffer = new uint8[4 * avatarWidth * avatarHeight];
+          ok = SteamUtils()->GetImageRGBA(hAvatar, imgBuffer, 4 * avatarWidth * avatarHeight * sizeof(char));
+          if (ok) {
+            sf::Image avatarImage;
+            avatarImage.create(avatarWidth, avatarHeight, imgBuffer);
+            mAvatarTexture.loadFromImage(avatarImage);
+          }
+          delete[] imgBuffer;
         }
-        std::free(imgBuffer);
+
         const char *playerName = SteamFriends()->GetPersonaName();
         if (playerName != nullptr) {
           std::cout << "SteamFriends()->GetPersonaName(): " << playerName << std::endl;
           mPlayerName = playerName;
         }
-        if (SteamFriends())
-          playerName = SteamFriends()->GetPlayerNickname(steamId);
-        if (playerName != nullptr)
-          std::cout << "SteamFriends()->GetPlayerNickname(): " << playerName << std::endl;
-        bool bAchieved = true;
-        SteamUserStats()->GetUserAchievement(steamId, "Extra ball", &bAchieved);
-        std::cout << "Extra ball achieved: " << bAchieved << std::endl;
+
       }
 
     }
