@@ -48,6 +48,21 @@ namespace Impact {
   };
 
 
+  struct OverlayDef {
+    OverlayDef(void)
+      : duration(sf::milliseconds(1000))
+      , minScale(.5f)
+      , maxScale(3.2f)
+    { /* ... */
+    }
+    sf::Time duration;
+    float minScale;
+    float maxScale;
+    std::string line1;
+    std::string line2;
+  };
+
+
   class Game : public b2ContactListener {
 
     typedef enum _Playmode {
@@ -81,13 +96,13 @@ namespace Impact {
   public:
     static const int Scale = 16;
     static const float32 InvScale;
-    static const int DefaultPlaygroundWidth = 640;
-    static const int DefaultPlaygroundHeight = 400;
-    static const int DefaultStatsWidth = DefaultPlaygroundWidth;
-    static const int DefaultStatsHeight = 80;
-    static const int DefaultWindowWidth = DefaultPlaygroundWidth;
-    static const int DefaultWindowHeight = DefaultPlaygroundHeight + DefaultStatsHeight;
-    static const int ColorDepth = 32;
+    static const unsigned int DefaultPlaygroundWidth = 640;
+    static const unsigned int DefaultPlaygroundHeight = 400;
+    static const unsigned int DefaultStatsWidth = DefaultPlaygroundWidth;
+    static const unsigned int DefaultStatsHeight = 80;
+    static const unsigned int DefaultWindowWidth = DefaultPlaygroundWidth;
+    static const unsigned int DefaultWindowHeight = DefaultPlaygroundHeight + DefaultStatsHeight;
+    static const unsigned int ColorDepth = 32;
     static const int DefaultLives;
     static const int DefaultPenalty;
     static const int NewLiveAfterSoManyPointsDefault;
@@ -96,6 +111,7 @@ namespace Impact {
     static const sf::Time DefaultFadeEffectDuration;
     static const sf::Time DefaultAberrationEffectDuration;
     static const sf::Time DefaultEarthquakeDuration;
+    static const sf::Time DefaultOverlayDuration;
     static const int DefaultKillingsPerKillingSpree = 5;
     static const int DefaultKillingSpreeBonus = 1000;
     static const sf::Time DefaultKillingSpreeInterval;
@@ -151,9 +167,12 @@ namespace Impact {
     sf::Sprite mTitleSprite;
     sf::Texture mLogoTexture;
     sf::Sprite mLogoSprite;
-    sf::RenderTexture mOverlayRenderTexture;
     sf::Texture mOverlayTexture;
     sf::Sprite mOverlaySprite;
+    sf::Shader mOverlayShader;
+    sf::Time mOverlayDuration;
+    sf::Clock mOverlayClock;
+    std::vector<OverlayDef> mOverlayQueue;
     sf::Texture mParticleTexture;
     sf::Texture mSoftParticleTexture;
     std::string mFadeShaderCode;
@@ -281,6 +300,7 @@ namespace Impact {
     void update(const sf::Time &elapsed);
     void evaluateCollisions(void);
     void handleEvents(void);
+    void startOverlay(const OverlayDef &);
     void startEarthquake(float32 intensity, const sf::Time &duration);
     void startFadeEffect(bool darken = false, const sf::Time &duration = DefaultFadeEffectDuration);
     void startAberrationEffect(float32 gravityScale, const sf::Time &duration = DefaultAberrationEffectDuration);

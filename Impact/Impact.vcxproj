@@ -132,6 +132,7 @@
     <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Impac%27t (vs2013)\Impact\resources\shaders\approachingoverlay.fs" />
     <None Include="resources\shaders\fade.fs" />
     <None Include="resources\shaders\aberration.fs" />
     <None Include="resources\shaders\fallingblock.fs" />

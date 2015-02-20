@@ -150,5 +150,8 @@
     <None Include="resources\shaders\explosion.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
+    <None Include="..\..\Impac%27t (vs2013)\Impact\resources\shaders\approachingoverlay.fs">
+      <Filter>Fragment Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

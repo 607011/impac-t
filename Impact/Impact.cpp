@@ -35,6 +35,7 @@ namespace Impact {
   const sf::Time Game::DefaultFadeEffectDuration = sf::milliseconds(150);
   const sf::Time Game::DefaultAberrationEffectDuration = sf::milliseconds(250);
   const sf::Time Game::DefaultEarthquakeDuration = sf::milliseconds(10 * 1000);
+  const sf::Time Game::DefaultOverlayDuration = sf::milliseconds(300);
 
   Game::Game(void)
     : mWindow(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Impac't", sf::Style::Titlebar | sf::Style::Close)
@@ -59,6 +60,7 @@ namespace Impact {
     , mScaleBallDensityEnabled(false)
     , mAberrationIntensity(0.f)
     , mBlurPlayground(false)
+    , mOverlayDuration(DefaultOverlayDuration)
     , mLastKillingsIndex(0)
     , mFPSArray(20, 0)
     , mFPS(0)
@@ -79,7 +81,6 @@ namespace Impact {
 
     mRenderTexture0.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
     mRenderTexture1.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
-    mOverlayRenderTexture.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
 
     sf::Image icon;
     icon.loadFromFile(ImagesDir + "/app-icon.png");
@@ -246,7 +247,7 @@ namespace Impact {
     sf::Text titleText("Impac't", mTitleFont, 120U);
     titleText.setPosition(.5f * (mDefaultView.getSize().x - titleText.getLocalBounds().width), .25f * (mDefaultView.getSize().y - titleText.getLocalBounds().height));
     sf::RenderTexture titleRenderTexture;
-    titleRenderTexture.create(unsigned int(mDefaultView.getSize().x), unsigned int(mDefaultView.getSize().y));
+    titleRenderTexture.create(static_cast<unsigned int>(mDefaultView.getSize().x), static_cast<unsigned int>(mDefaultView.getSize().y));
     titleRenderTexture.draw(titleText);
     mTitleTexture = titleRenderTexture.getTexture();
     mTitleTexture.setSmooth(true);
@@ -281,6 +282,10 @@ namespace Impact {
       mEarthquakeShader.loadFromFile(ShadersDir + "/earthquake.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/earthquake.fs" << " failed to load/compile." << std::endl;
+
+      mOverlayShader.loadFromFile(ShadersDir + "/approachingoverlay.fs", sf::Shader::Fragment);
+      if (!ok)
+        std::cerr << ShadersDir + "/approachingoverlay.fs" << " failed to load/compile." << std::endl;
     }
 
     mKeyMapping[Action::PauseAction] = sf::Keyboard::Pause;
@@ -879,7 +884,43 @@ namespace Impact {
       mEarthquakeClock.restart();
     }
     mEarthquakeShader.setParameter("uMaxT", mEarthquakeDuration.asSeconds());
+
+    OverlayDef od;
+    od.line1 = std::string("Shake ") + std::to_string(static_cast<int>(10 * mEarthquakeIntensity));
+    od.line2 = std::string("for ") + std::to_string(mEarthquakeDuration.asMilliseconds() / 1000) + "s";
+    startOverlay(od);
   }
+
+
+  void Game::startOverlay(const OverlayDef &od)
+  {
+    if (!sf::Shader::isAvailable())
+      return;
+
+    mOverlayDuration = od.duration;
+    mOverlayShader.setParameter("uMinScale", od.minScale);
+    mOverlayShader.setParameter("uMaxScale", od.maxScale);
+    mOverlayShader.setParameter("uMaxT", od.duration.asSeconds());
+    mOverlayShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(DefaultWindowWidth), static_cast<float>(DefaultWindowHeight)));
+
+    sf::RenderTexture overlayRenderTexture;
+    overlayRenderTexture.create(static_cast<unsigned int>(mDefaultView.getSize().x), static_cast<unsigned int>(mDefaultView.getSize().y));
+
+    sf::Text overlayText1(od.line1, mTitleFont, 80U);
+    overlayText1.setPosition(.5f * (mDefaultView.getSize().x - overlayText1.getLocalBounds().width), .15f * (mDefaultView.getSize().y - overlayText1.getLocalBounds().height));
+    overlayRenderTexture.draw(overlayText1);
+
+    sf::Text overlayText2(od.line2, mTitleFont, 80U);
+    overlayText2.setPosition(.5f * (mDefaultView.getSize().x - overlayText2.getLocalBounds().width), .32f * (mDefaultView.getSize().y - overlayText2.getLocalBounds().height));
+    overlayRenderTexture.draw(overlayText2);
+
+    mOverlayTexture = overlayRenderTexture.getTexture();
+    mOverlayTexture.setSmooth(true);
+    mOverlaySprite.setTexture(mOverlayTexture);
+
+    mOverlayClock.restart();
+  }
+
 
 
   inline void Game::executeCopy(sf::RenderTexture &out, sf::RenderTexture &in)
@@ -958,6 +999,24 @@ namespace Impact {
     else {
       sf::Sprite sprite(mRenderTexture0.getTexture());
       mWindow.draw(sprite);
+    }
+
+    if (mOverlayDuration > sf::Time::Zero) {
+      if (mOverlayClock.getElapsedTime() < mOverlayDuration) {
+        mWindow.setView(mDefaultView);
+        if (sf::Shader::isAvailable()) {
+          sf::RenderStates states;
+          states.shader = &mOverlayShader;
+          mOverlayShader.setParameter("uT", mOverlayClock.getElapsedTime().asSeconds());
+          mWindow.draw(mOverlaySprite, states);
+        }
+        else {
+          mWindow.draw(mOverlaySprite);
+        }
+      }
+      else {
+        mOverlayDuration = sf::Time::Zero;
+      }
     }
 
     mWindow.setView(mStatsView);
@@ -1348,6 +1407,10 @@ namespace Impact {
         mScaleGravityClock.restart();
         mScaleGravityDuration = tileParam.scaleGravityDuration;
         startAberrationEffect(tileParam.scaleGravityBy, tileParam.scaleGravityDuration);
+        OverlayDef od;
+        od.line1 = std::string("G*") + std::to_string(static_cast<int>(tileParam.scaleGravityBy));
+        od.line2 = std::string("for ") + std::to_string(tileParam.scaleGravityDuration.asMilliseconds() / 1000) + "s";
+        startOverlay(od);
       }
       if (tileParam.scaleBallDensityDuration > sf::Time::Zero) {
         mBall->setDensity(tileParam.scaleBallDensityBy * mBall->tileParam().density.get());
