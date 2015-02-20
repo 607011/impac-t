@@ -6,7 +6,7 @@ A Breakout/Bolo clone, augmented with a physics engine
 ## TODO
 
  - let user select a certain level
- - amend Level::load() with the ability to load complete levels (tile map, graphics) from a zip file. The zip file must have a flat 
+ - amend `Level::load()` with the ability to load complete levels (tile map, graphics) from a single zip file.
  - display gravity vector as a visual aid for the player
  - nicer visual effect when the racket hits a block
  - nicer visual effect for killing spree bonus
