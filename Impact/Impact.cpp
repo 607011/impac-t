@@ -907,7 +907,7 @@ namespace Impact {
     overlayRenderTexture.create(static_cast<unsigned int>(mDefaultView.getSize().x), static_cast<unsigned int>(mDefaultView.getSize().y));
 
     sf::Text overlayText1(od.line1, mTitleFont, 80U);
-    overlayText1.setPosition(.5f * (mDefaultView.getSize().x - overlayText1.getLocalBounds().width), .15f * (mDefaultView.getSize().y - overlayText1.getLocalBounds().height));
+    overlayText1.setPosition(.5f * (mDefaultView.getSize().x - overlayText1.getLocalBounds().width), .16f * (mDefaultView.getSize().y - overlayText1.getLocalBounds().height));
     overlayRenderTexture.draw(overlayText1);
 
     sf::Text overlayText2(od.line2, mTitleFont, 80U);
