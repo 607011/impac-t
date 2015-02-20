@@ -26,6 +26,8 @@
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
 
+#include <vector>
+
 #include "Body.h"
 #include "Impact.h"
 
@@ -87,11 +89,26 @@ namespace Impact {
     virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
     virtual BodyType type(void) const { return Body::BodyType::Particle; }
 
-  protected:
+  private:
     std::vector<SimpleParticle> mParticles;
 
-    static sf::Shader *sShader;
     sf::Shader *mShader;
+
+    static std::vector<sf::Shader*> sShaders;
+    static std::vector<sf::Shader*>::size_type sCurrentShaderIndex;
+    static class _init {
+    public:
+      _init(void)
+      {
+        if (!sf::Shader::isAvailable())
+          return;
+        sShaders.resize(20);
+        for (std::vector<sf::Shader*>::iterator shader = sShaders.begin(); shader != sShaders.end(); ++shader) {
+          *shader = new sf::Shader;
+          (*shader)->loadFromFile(gShadersDir + "/particlesystem.fs", sf::Shader::Fragment);
+        }
+      }
+    } _initializer;
   };
 
 }

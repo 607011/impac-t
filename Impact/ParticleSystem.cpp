@@ -22,7 +22,9 @@
 
 namespace Impact {
 
-  sf::Shader *ParticleSystem::sShader = nullptr;
+  std::vector<sf::Shader*>::size_type ParticleSystem::sCurrentShaderIndex = 0;
+  ParticleSystem::_init ParticleSystem::_initializer;
+  std::vector<sf::Shader*> ParticleSystem::sShaders;
 
   ParticleSystem::ParticleSystem(const ParticleSystemDef &def)
     : Body(Body::BodyType::Particle, def.game)
@@ -32,13 +34,11 @@ namespace Impact {
     mName = std::string("ParticleSystem");
     setLifetime(def.maxLifetime);
     mTexture = def.texture;
-    if (sf::Shader::isAvailable() && sShader == nullptr) {
-      sShader = new sf::Shader;
-      sShader->loadFromFile(gShadersDir + "/particlesystem.fs", sf::Shader::Fragment);
-    }
 
-    if (sShader != nullptr) {
-      mShader = sShader;
+    if (sf::Shader::isAvailable()) {
+      mShader = sShaders.at(sCurrentShaderIndex);
+      if (++sCurrentShaderIndex > sShaders.size())
+        sCurrentShaderIndex = 0;
       mShader->setParameter("uTexture", sf::Shader::CurrentTexture);
       mShader->setParameter("uMaxAge", def.maxLifetime.asSeconds());
     }
