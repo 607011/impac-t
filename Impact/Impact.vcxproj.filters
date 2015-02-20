@@ -43,9 +43,6 @@
     <ClCompile Include="BodyGround.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BodyText.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -59,6 +56,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Impact.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Explosion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -93,9 +93,6 @@
     <ClInclude Include="globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Easings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -117,11 +114,11 @@
     <ClInclude Include="TileParam.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Explosion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shaders\particlesystem.fs">
-      <Filter>Fragment Shaders</Filter>
-    </None>
     <None Include="resources\shaders\title.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
@@ -141,13 +138,16 @@
     <None Include="resources\shaders\vblur.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="..\..\Impac%27t (vs2013)\Impact\resources\shaders\fade.fs">
+    <None Include="resources\shaders\fade.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
     <None Include="resources\shaders\aberration.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
     <None Include="resources\shaders\earthquake.fs">
+      <Filter>Fragment Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\explosion.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
   </ItemGroup>

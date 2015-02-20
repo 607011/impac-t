@@ -42,9 +42,9 @@ namespace Impact {
   };
 
 
-  struct ParticleSystemDef
+  struct ExplosionDef
   {
-    ParticleSystemDef(Game *game, const b2Vec2 &pos)
+    ExplosionDef(Game *game, const b2Vec2 &pos)
       : game(game)
       , pos(pos)
       , ballCollisionEnabled(false)
@@ -78,11 +78,11 @@ namespace Impact {
   };
 
 
-  class ParticleSystem : public Body
+  class Explosion : public Body
   {
   public:
-    ParticleSystem(const ParticleSystemDef &);
-    virtual ~ParticleSystem();
+    Explosion(const ExplosionDef &);
+    virtual ~Explosion();
 
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);
@@ -100,10 +100,10 @@ namespace Impact {
       static const std::vector<sf::Shader*>::size_type N = 20; // maximum number of concurrent explosions
       ShaderPool(void)
       {
-        if (!sf::Shader::isAvailable() || gDetailLevel < 3)
+        if (!sf::Shader::isAvailable())
           return;
         std::ifstream inFile;
-        inFile.open(gShadersDir + "/particlesystem.fs");
+        inFile.open(ShadersDir + "/explosion.fs");
         std::stringstream strStream;
         strStream << inFile.rdbuf();
         std::string fragmentShaderCode = strStream.str();
