@@ -758,7 +758,6 @@ namespace Impact {
   {
     const sf::Time &elapsed = mClock.restart();
     if (!mPaused) {
-      handlePlayerInteraction(elapsed);
       update(elapsed);
       if (mState == State::Playing) {
         if (mBall != nullptr) { // check if ball has been kicked out of the screen
@@ -779,11 +778,12 @@ namespace Impact {
           if (racketY > mLevel.height())
             mRacket->setPosition(racketX, mLevel.height() - .5f);
           if (racketX < 0.f)
-            mRacket->setPosition(1.f, racketY);
+            mRacket->setPosition(1.5f, racketY);
           else if (racketX > mLevel.width())
-            mRacket->setPosition(mLevel.width() - 1.f, racketY);
+            mRacket->setPosition(mLevel.width() - 1.5f, racketY);
         }
       }
+      handlePlayerInteraction(elapsed);
     }
     if (mScaleGravityEnabled && mScaleGravityClock.getElapsedTime() > mScaleGravityDuration) {
         mWorld->SetGravity(b2Vec2(0.f, mLevel.gravity()));
