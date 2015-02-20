@@ -6,7 +6,7 @@ A Breakout/Bolo clone, augmented with a physics engine
 ## TODO
 
  - let user select a certain level
- - amend Level::load() with the ability to load complete levels (tile map, graphics) from a zip file. The zip file must have a flat 
+ - amend {{{Level::load()}}} with the ability to load complete levels (tile map, graphics) from a zip file. The zip file must have a flat directory structure.
  - display gravity vector as a visual aid for the player
  - nicer visual effect when the racket hits a block
  - nicer visual effect for killing spree bonus
@@ -22,6 +22,11 @@ A Breakout/Bolo clone, augmented with a physics engine
    - leaderboard for every level
    - leaderboard for campaigns
    - stats & achievements
+
+### Architecture
+
+Currently {{{ParticleSystem}}} uses a shader common to all objects due to performance reasons. In effect one {{{ParticleSystem}}} object influences the display of another. 
+Maybe it would be helpful to create an array of reusable shaders. At each instantiation of a {{{ParticleSystem}}} object a currently unused shader from that array is assigned to the {{{ParticleSystem}}} object.
 
 
 
