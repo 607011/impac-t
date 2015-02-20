@@ -25,17 +25,17 @@
 
 namespace Impact {
 
-  extern const std::string gResourcesDir;
-
-  extern const std::string gFontsDir;
-  extern const std::string gImagesDir;
-  extern const std::string gLevelsDir;
-  extern const std::string gSoundFXDir;
-  extern const std::string gBackgroundsDir;
-  extern const std::string gShadersDir;
+#define ResourcesDir std::string("resources")
+#define LevelsDir ResourcesDir + "/levels"
+#define SoundFXDir ResourcesDir + "/soundfx"
+#define ImagesDir ResourcesDir + "/images"
+#define BackgroundsDir ResourcesDir + "/backgrounds"
+#define FontsDir ResourcesDir + "/fonts"
+#define ShadersDir ResourcesDir + "/shaders"
 
   extern boost::random::mt19937 gRNG;
 
+  extern int gDetailLevel;
 }
 
 

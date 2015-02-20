@@ -22,13 +22,7 @@
 
 namespace Impact {
 
-  const std::string gResourcesDir = "resources";
-  const std::string gLevelsDir =  gResourcesDir + "/levels";
-  const std::string gSoundFXDir = gResourcesDir + "/soundfx";
-  const std::string gImagesDir = gResourcesDir + "/images";
-  const std::string gBackgroundsDir = gResourcesDir + "/backgrounds";
-  const std::string gFontsDir = gResourcesDir + "/fonts";
-  const std::string gShadersDir = gResourcesDir + "/shaders";
-
   boost::random::mt19937 gRNG;
+
+  int gDetailLevel = 3; // 0..3
 }

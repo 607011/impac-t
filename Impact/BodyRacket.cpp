@@ -39,6 +39,7 @@ namespace Impact {
     bd.type = b2_dynamicBody;
     bd.gravityScale = 0.f;
     bd.bullet = true;
+    bd.allowSleep = false;
     mTeetingBody = mGame->world()->CreateBody(&bd);
 
     b2PolygonShape polygon;
@@ -82,8 +83,9 @@ namespace Impact {
     b2BodyDef bdHinge;
     bdHinge.position.Set(0.f, 1.5f);
     bdHinge.type = b2_dynamicBody;
+    bdHinge.bullet = true;
     bdHinge.gravityScale = 0.f;
-    bdHinge.allowSleep = true;
+    bdHinge.allowSleep = false;
     bdHinge.awake = true;
     bdHinge.userData = this;
     bdHinge.fixedRotation = true;
@@ -141,6 +143,7 @@ namespace Impact {
 
   void Racket::applyLinearVelocity(const b2Vec2 &v)
   {
+    mTeetingBody->SetLinearVelocity(v);
     mBody->SetLinearVelocity(v);
     // mBody->ApplyLinearImpulse(0.5f * v, mBody->GetPosition(), true);
   }
@@ -148,8 +151,8 @@ namespace Impact {
 
   void Racket::setXAxisConstraint(float32 y)
   {
-    const float32 W = float32(mTexture.getSize().x);
-    const float32 H = float32(mTexture.getSize().y);
+    const float32 W = static_cast<float32>(mTexture.getSize().x);
+    const float32 H = static_cast<float32>(mTexture.getSize().y);
     b2BodyDef bd;
     bd.position.Set(0.f, y);
     b2Body *xAxis = mGame->world()->CreateBody(&bd);

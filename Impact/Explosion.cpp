@@ -22,23 +22,21 @@
 
 namespace Impact {
 
-  sf::Shader *ParticleSystem::sShader = nullptr;
+  std::vector<sf::Shader*>::size_type Explosion::sCurrentShaderIndex = 0;
+  std::vector<sf::Shader*> Explosion::sShaders;
+  Explosion::ShaderPool Explosion::sShaderPool;
 
-  ParticleSystem::ParticleSystem(const ParticleSystemDef &def)
+  Explosion::Explosion(const ExplosionDef &def)
     : Body(Body::BodyType::Particle, def.game)
     , mParticles(def.count)
     , mShader(nullptr)
   {
-    mName = std::string("ParticleSystem");
+    mName = std::string("Explosion");
     setLifetime(def.maxLifetime);
     mTexture = def.texture;
-    if (sf::Shader::isAvailable() && sShader == nullptr) {
-      sShader = new sf::Shader;
-      sShader->loadFromFile(gShadersDir + "/particlesystem.fs", sf::Shader::Fragment);
-    }
 
-    if (sShader != nullptr) {
-      mShader = sShader;
+    if (sf::Shader::isAvailable() && gDetailLevel > 2) {
+      mShader = ShaderPool::getNext();
       mShader->setParameter("uTexture", sf::Shader::CurrentTexture);
       mShader->setParameter("uMaxAge", def.maxLifetime.asSeconds());
     }
@@ -61,7 +59,7 @@ namespace Impact {
       b2BodyDef bd;
       bd.type = b2_dynamicBody;
       bd.position = def.pos;
-      bd.fixedRotation = true;
+      bd.fixedRotation = false;
       bd.bullet = false;
       bd.userData = this;
       bd.gravityScale = def.gravityScale;
@@ -87,7 +85,7 @@ namespace Impact {
   }
 
 
-  ParticleSystem::~ParticleSystem()
+  Explosion::~Explosion()
   {
     b2World *world = mGame->world();
     for (std::vector<SimpleParticle>::const_iterator p = mParticles.cbegin(); p != mParticles.cend(); ++p) {
@@ -97,7 +95,7 @@ namespace Impact {
   }
 
 
-  void ParticleSystem::onUpdate(float)
+  void Explosion::onUpdate(float)
   {
     bool allDead = true;
     const int N = mParticles.size();
@@ -120,7 +118,7 @@ namespace Impact {
   }
 
 
-  void ParticleSystem::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
+  void Explosion::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
   {
     if (mShader != nullptr) {
       mShader->setParameter("uAge", age().asSeconds());

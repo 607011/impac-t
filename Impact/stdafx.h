@@ -35,6 +35,7 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
+// #include <boost/thread/mutex.hpp>
 #pragma warning(pop)
 
 #include <limits>
@@ -88,7 +89,7 @@
 #include "BodyRacket.h"
 #include "BodyGround.h"
 #include "BodyWall.h"
-#include "ParticleSystem.h"
+#include "Explosion.h"
 #include "Impact.h"
 
 #endif // __STDAFX_H_

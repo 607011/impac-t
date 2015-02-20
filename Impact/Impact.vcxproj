@@ -92,6 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Explosion.cpp" />
     <ClCompile Include="Body.cpp" />
     <ClCompile Include="BodyBall.cpp" />
     <ClCompile Include="BodyBlock.cpp" />
@@ -103,7 +104,6 @@
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</MultiProcessorCompilation>
@@ -112,6 +112,7 @@
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Explosion.h" />
     <ClInclude Include="Body.h" />
     <ClInclude Include="BodyBall.h" />
     <ClInclude Include="BodyBlock.h" />
@@ -126,13 +127,12 @@
     <ClInclude Include="globals.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="LevelTimer.h" />
-    <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="TileParam.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Impac%27t (vs2013)\Impact\resources\shaders\fade.fs" />
+    <None Include="resources\shaders\fade.fs" />
     <None Include="resources\shaders\aberration.fs" />
     <None Include="resources\shaders\fallingblock.fs" />
     <None Include="resources\shaders\hblur.fs" />
@@ -141,7 +141,7 @@
     <None Include="resources\shaders\softparticlesystem.fs" />
     <None Include="resources\shaders\vblur.fs" />
     <None Include="..\README.md" />
-    <None Include="resources\shaders\particlesystem.fs" />
+    <None Include="resources\shaders\explosion.fs" />
     <None Include="resources\shaders\title.fs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

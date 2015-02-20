@@ -58,7 +58,7 @@ namespace Impact {
 
   void Wall::setPosition(int x, int y)
   {
-    setPosition(b2Vec2(float32(x), float32(y)));
+    setPosition(b2Vec2(static_cast<float32>(x), static_cast<float32>(y)));
   }
 
 

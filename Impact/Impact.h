@@ -20,7 +20,7 @@
 #ifndef __GAME_H_
 #define __GAME_H_
 
-#define IMPACT_VERSION "1.0.0-BETA12"
+#define IMPACT_VERSION "1.0.0-BETA13"
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
@@ -220,8 +220,8 @@ namespace Impact {
     sf::Texture mAvatarTexture;
 
     // Box2D
-    static const int32 VelocityIterations = 4;
-    static const int32 PositionIterations = 2;
+    static const int32 VelocityIterations = 30;
+    static const int32 PositionIterations = 20;
     b2World *mWorld;
     Ground *mGround;
     ContactPoint mPoints[MaxContactPoints];
