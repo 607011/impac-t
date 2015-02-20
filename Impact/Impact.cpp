@@ -492,7 +492,7 @@ namespace Impact {
         sf::Mouse::setPosition(mMousePos, mWindow);
       }
       const sf::Vector2i &d = mMousePos - mLastMousePos;
-      const b2Vec2 &v = Game::InvScale / elapsed.asSeconds() * b2Vec2(float32(d.x), float32(d.y));
+      const b2Vec2 &v = Game::InvScale / elapsed.asSeconds() * b2Vec2(static_cast<float32>(d.x), static_cast<float32>(d.y));
       mRacket->applyLinearVelocity(v);
       mLastMousePos = mMousePos;
       if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
@@ -1160,7 +1160,7 @@ namespace Impact {
     fdLeft.shape = &leftShape;
     boundaries->CreateFixture(&fdLeft);
     b2EdgeShape topShape;
-    topShape.Set(b2Vec2(0, g > 0.f ? 0.f : float32(mLevel.height())), b2Vec2(W, g > 0.f ? 0.f : float32(mLevel.height())));
+    topShape.Set(b2Vec2(0, g > 0.f ? 0.f : static_cast<float32>(mLevel.height())), b2Vec2(W, g > 0.f ? 0.f : static_cast<float32>(mLevel.height())));
     b2FixtureDef fdTop;
     fdTop.restitution = 0.9f;
     fdTop.density = 0.f;
@@ -1181,7 +1181,7 @@ namespace Impact {
     for (int y = 0; y < mLevel.height(); ++y) {
       const uint32_t *mapRow = mLevel.mapDataScanLine(y);
       for (int x = 0; x < mLevel.width(); ++x) {
-        const b2Vec2 &pos = b2Vec2(float32(x), float32(y));
+        const b2Vec2 &pos = b2Vec2(static_cast<float32>(x), static_cast<float32>(y));
         const uint32_t tileId = mapRow[x];
         if (tileId == 0)
           continue;
@@ -1230,7 +1230,7 @@ namespace Impact {
     }
 
     // place mouse cursor on racket position
-    const b2Vec2 &racketPos = float32(Game::Scale) * mRacket->position();
+    const b2Vec2 &racketPos = static_cast<float32>(Game::Scale) * mRacket->position();
     mMousePos = sf::Vector2i(int(racketPos.x), int(racketPos.y));
     mLastMousePos = mMousePos;
     sf::Mouse::setPosition(mMousePos, mWindow);

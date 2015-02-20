@@ -122,13 +122,13 @@ namespace Impact {
 
   void Body::setPosition(int x, int y)
   {
-    setPosition(b2Vec2(float32(x), float32(y)));
+    setPosition(b2Vec2(static_cast<float32>(x), static_cast<float32>(y)));
   }
 
 
   void Body::setPosition(const b2Vec2 &p)
   {
-    mBody->SetTransform(p + .5f * Game::InvScale * b2Vec2(float32(mTexture.getSize().x), float32(mTexture.getSize().y)), mBody->GetAngle());
+    mBody->SetTransform(p + .5f * Game::InvScale * b2Vec2(static_cast<float32>(mTexture.getSize().x), static_cast<float32>(mTexture.getSize().y)), mBody->GetAngle());
   }
 
 
