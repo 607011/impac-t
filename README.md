@@ -23,11 +23,6 @@ A Breakout/Bolo clone, augmented with a physics engine
    - leaderboard for campaigns
    - stats & achievements
 
-### Architecture
-
-Currently `ParticleSystem` uses a shader common to all objects due to performance reasons. In effect one `ParticleSystem` object influences the display of another. 
-Maybe it would be helpful to create an array of reusable shaders. At each instantiation of a `ParticleSystem` object a currently unused shader from that array is assigned to the `ParticleSystem` object.
-
 
 
 Nutzungshinweise und Lizenz
