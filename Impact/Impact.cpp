@@ -567,7 +567,7 @@ namespace Impact {
     if (mWelcomeLevel == 0) {
       ParticleSystemDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f));
       pd.ballCollisionEnabled = false;
-      pd.count = 120;
+      pd.count = gDetailLevel * 40;
       pd.texture = mParticleTexture;
       addBody(new ParticleSystem(pd));
       mWelcomeLevel = 1;
@@ -579,6 +579,7 @@ namespace Impact {
         mExplosionSound.play();
         mWelcomeLevel = 2;
         ParticleSystemDef pd(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y));
+        pd.count = gDetailLevel * 30;
         pd.texture = mParticleTexture;
         addBody(new ParticleSystem(pd));
       }
@@ -589,6 +590,7 @@ namespace Impact {
         mExplosionSound.play();
         mWelcomeLevel = 3;
         ParticleSystemDef pd(this, Game::InvScale * b2Vec2(mLogoSprite.getPosition().x, mLogoSprite.getPosition().y));
+        pd.count = gDetailLevel * 30;
         pd.texture = mParticleTexture;
         addBody(new ParticleSystem(pd));
       }
@@ -600,6 +602,7 @@ namespace Impact {
         mWelcomeLevel = 5;
         ParticleSystemDef pd(this, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y));
         pd.texture = mParticleTexture;
+        pd.count = gDetailLevel * 30;
         addBody(new ParticleSystem(pd));
       }
     }
@@ -1320,7 +1323,7 @@ namespace Impact {
       mExplosionSound.play();
       ParticleSystemDef pd(this, killedBody->position());
       pd.ballCollisionEnabled = mLevel.explosionParticlesCollideWithBall();
-      pd.count = 50;
+      pd.count = gDetailLevel * 20;
       pd.texture = mParticleTexture;
       addBody(new ParticleSystem(pd));
       {

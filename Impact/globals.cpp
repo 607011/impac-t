@@ -31,4 +31,6 @@ namespace Impact {
   const std::string gShadersDir = gResourcesDir + "/shaders";
 
   boost::random::mt19937 gRNG;
+
+  int gDetailLevel = 3; // 0..3
 }

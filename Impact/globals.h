@@ -36,6 +36,7 @@ namespace Impact {
 
   extern boost::random::mt19937 gRNG;
 
+  extern int gDetailLevel;
 }
 
 

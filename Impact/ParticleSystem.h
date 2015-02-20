@@ -100,7 +100,7 @@ namespace Impact {
       static const std::vector<sf::Shader*>::size_type N = 20; // maximum number of concurrent explosions
       ShaderPool(void)
       {
-        if (!sf::Shader::isAvailable())
+        if (!sf::Shader::isAvailable() || gDetailLevel < 3)
           return;
         std::ifstream inFile;
         inFile.open(gShadersDir + "/particlesystem.fs");
@@ -115,7 +115,7 @@ namespace Impact {
       }
       inline static sf::Shader *getNext(void)
       {
-        if (!sf::Shader::isAvailable())
+        if (!sf::Shader::isAvailable() || gDetailLevel < 3)
           return nullptr;
         sf::Shader *next = sShaders.at(sCurrentShaderIndex);
         if (++sCurrentShaderIndex >= sShaders.size())
