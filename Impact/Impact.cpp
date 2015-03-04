@@ -76,7 +76,7 @@ namespace Impact {
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
     mWindow.setActive();
-    mWindow.setVerticalSyncEnabled(false);
+    mWindow.setVerticalSyncEnabled(true);
     resize();
 
     mRenderTexture0.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
@@ -411,6 +411,18 @@ namespace Impact {
         onPlayerWon();
         break;
 
+      case State::AchievementsScreen:
+        onAchievementsScreen();
+        break;
+
+      case State::CreditsScreen:
+        onCreditsScreen();
+        break;
+
+      case State::OptionsScreen:
+        onOptionsScreen();
+        break;
+
       default:
         break;
       }
@@ -498,7 +510,8 @@ namespace Impact {
       }
       const sf::Vector2i &d = mMousePos - mLastMousePos;
       const b2Vec2 &v = InvScale / elapsed.asSeconds() * b2Vec2(static_cast<float32>(d.x), static_cast<float32>(d.y));
-      mRacket->applyLinearVelocity(v);
+      // mRacket->applyLinearVelocity(v);
+      mRacket->moveTo(InvScale * b2Vec2(static_cast<float32>(mMousePos.x), static_cast<float32>(mMousePos.y)));
       mLastMousePos = mMousePos;
       if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
         mRacket->kickLeft();
@@ -803,6 +816,36 @@ namespace Impact {
     }
     drawPlayground(elapsed);
   }
+
+
+  void Game::gotoAchievementsScreen(void)
+  {
+  }
+
+
+  void Game::onAchievementsScreen(void)
+  {
+  }
+
+  void Game::gotoCreditsScreen(void)
+  {
+  }
+
+
+  void Game::onCreditsScreen(void)
+  {
+  }
+
+
+  void Game::gotoOptionsScreen(void)
+  {
+  }
+
+
+  void Game::onOptionsScreen(void)
+  {
+  }
+
 
 
   inline void Game::executeAberration(sf::RenderTexture &out, sf::RenderTexture &in)
@@ -1258,7 +1301,7 @@ namespace Impact {
             mBall->setTileParam(tileParam);
           }
           else if (tileParam.textureName == Racket::Name) {
-            mRacket = new Racket(this, pos);
+            mRacket = new Racket(this, pos, mGround->body());
             mRacket->setSmooth(tileParam.smooth);
             // mRacket->setXAxisConstraint(mLevel.height() - .5f);
             addBody(mRacket);

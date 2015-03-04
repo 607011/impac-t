@@ -27,9 +27,11 @@ namespace Impact {
   const float32 Racket::DefaultFriction = .71f;
   const float32 Racket::DefaultRestitution = .1f;
 
-  Racket::Racket(Game *game, const b2Vec2 &pos)
+  Racket::Racket(Game *game, const b2Vec2 &pos, b2Body *ground)
     : Body(Body::BodyType::Racket, game)
+    , mMouseJoint(nullptr)
   {
+    mGround = ground;
     mName = Name;
     mTexture = mGame->level()->texture(mName);
     mSprite.setTexture(mTexture);
@@ -91,15 +93,15 @@ namespace Impact {
     bdHinge.fixedRotation = true;
     mBody = mGame->world()->CreateBody(&bdHinge);
 
-    b2RevoluteJointDef jd;
-    jd.Initialize(mBody, mTeetingBody, b2Vec2_zero);
-    jd.enableMotor = true;
-    jd.maxMotorTorque = 20000.0f;
-    jd.enableLimit = true;
-    jd.motorSpeed = 0.f;
-    jd.lowerAngle = deg2rad(-17.5f);
-    jd.upperAngle = deg2rad(+17.5f);
-    mJoint = reinterpret_cast<b2RevoluteJoint*>(mGame->world()->CreateJoint(&jd));
+    b2RevoluteJointDef rjd;
+    rjd.Initialize(mBody, mTeetingBody, b2Vec2_zero);
+    rjd.enableMotor = true;
+    rjd.maxMotorTorque = 20000.0f;
+    rjd.enableLimit = true;
+    rjd.motorSpeed = 0.f;
+    rjd.lowerAngle = deg2rad(-17.5f);
+    rjd.upperAngle = deg2rad(+17.5f);
+    mJoint = reinterpret_cast<b2RevoluteJoint*>(mGame->world()->CreateJoint(&rjd));
 
     setPosition(pos);
   }
@@ -143,7 +145,34 @@ namespace Impact {
 
   void Racket::applyLinearVelocity(const b2Vec2 &v)
   {
-    mBody->SetLinearVelocity(v);
+    mBody->SetAwake(true);
+    mTeetingBody->SetAwake(true);
+    // mBody->SetLinearVelocity(v);
+    mTeetingBody->SetLinearVelocity(v);
+  }
+
+
+  void Racket::moveTo(const b2Vec2 &target)
+  {
+    if (mMouseJoint == nullptr) {
+      b2MouseJointDef mjd;
+      mjd.bodyA = mGround;
+      mjd.bodyB = mTeetingBody;
+      mjd.target = target;
+      mjd.collideConnected = true;
+      mjd.frequencyHz = 6.f;
+      mjd.dampingRatio = .9f;
+      mjd.maxForce = 1000.f * mTeetingBody->GetMass();
+      mMouseJoint = reinterpret_cast<b2MouseJoint*>(mGame->world()->CreateJoint(&mjd));
+    }
+    mMouseJoint->SetTarget(target);
+  }
+
+
+  void Racket::stopMotion(void)
+  {
+    mBody->GetWorld()->DestroyJoint(mMouseJoint);
+    mMouseJoint = nullptr;
   }
 
 
@@ -177,24 +206,6 @@ namespace Impact {
   b2Body *Racket::body(void)
   {
     return mTeetingBody;
-  }
-
-
-  void Racket::moveLeft(void)
-  {
-    applyLinearVelocity(b2Vec2(-25.f, 0.f));
-  }
-
-
-  void Racket::moveRight(void)
-  {
-    applyLinearVelocity(b2Vec2(+25.f, 0.f));
-  }
-
-
-  void Racket::stopMotion(void)
-  {
-    applyLinearVelocity(b2Vec2_zero);
   }
 
 

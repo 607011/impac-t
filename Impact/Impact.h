@@ -20,7 +20,7 @@
 #ifndef __GAME_H_
 #define __GAME_H_
 
-#define IMPACT_VERSION "1.0.0-BETA13"
+#define IMPACT_VERSION "1.0.0-BETA14"
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
@@ -91,6 +91,9 @@ namespace Impact {
     typedef enum _State {
       Initialization,
       WelcomeScreen,
+      CreditsScreen,
+      OptionsScreen,
+      AchievementsScreen,
       Playing,
       LevelCompleted,
       Pausing,
@@ -242,8 +245,8 @@ namespace Impact {
     int mFPS;
 
     // Box2D
-    static const int32 VelocityIterations = 30;
-    static const int32 PositionIterations = 20;
+    static const int32 VelocityIterations = 100;
+    static const int32 PositionIterations = 50;
     b2World *mWorld;
     Ground *mGround;
     ContactPoint mPoints[MaxContactPoints];
@@ -332,6 +335,15 @@ namespace Impact {
 
     void gotoPlayerWon(void);
     void onPlayerWon(void);
+
+    void gotoAchievementsScreen(void);
+    void onAchievementsScreen(void);
+
+    void gotoCreditsScreen(void);
+    void onCreditsScreen(void);
+    
+    void gotoOptionsScreen(void);
+    void onOptionsScreen(void);
 
     void onPausing(void);
   };

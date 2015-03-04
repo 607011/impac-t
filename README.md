@@ -5,6 +5,16 @@ A Breakout/Bolo clone, augmented with a physics engine
 
 ## TODO
 
+ - add 
+
+    - INSTANT PLAY
+    - CAMPAIGN
+    - ACHIEVEMENTS
+    - OPTIONS
+    - CREDITS
+
+   to welcome screen
+
  - let user select a certain level
  - amend Level::load() with the ability to load complete levels (tile map, graphics) from a zip file. The zip file must have a flat 
  - display gravity vector as a visual aid for the player
