@@ -133,9 +133,8 @@ namespace Impact {
     // mLevelNum = 10;
 #endif
     buf << LevelsDir << "/" << std::setw(4) << std::setfill('0') << mLevelNum << ".tmx";
-    const std::string &filename = buf.str();
-
-    ok = fileExists(filename.c_str());
+    const std::string filename = buf.str();
+    ok = fileExists(filename);
     if (!ok)
       return false;
 
