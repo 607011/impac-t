@@ -71,6 +71,7 @@ namespace Impact {
     glewInit();
     glGetIntegerv(GL_MAJOR_VERSION, &mGLVersionMajor);
     glGetIntegerv(GL_MINOR_VERSION, &mGLVersionMinor);
+
     mGLShadingLanguageVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -79,6 +80,14 @@ namespace Impact {
     mWindow.setActive();
     mWindow.setVerticalSyncEnabled(false);
     resize();
+
+#ifndef NDEBUG
+    sf::ContextSettings settings = mWindow.getSettings();
+    std::cout << "depth bits: " << settings.depthBits << std::endl;
+    std::cout << "stencil bits: " << settings.stencilBits << std::endl;
+    std::cout << "antialiasing level: " << settings.antialiasingLevel << std::endl;
+    std::cout << "OpenGL version: " << settings.majorVersion << "." << settings.minorVersion << std::endl;
+#endif
 
     sf::Image icon;
     icon.loadFromFile(ImagesDir + "/app-icon.png");
