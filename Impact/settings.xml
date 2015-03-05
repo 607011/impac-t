@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <impact>
+  <use-shaders>true</use-shaders>
   <vertical-sync>false</vertical-sync>
+  <particles-per-explosion>50</particles-per-explosion>
+  <antialiasing>16</antialiasing>
 </impact>

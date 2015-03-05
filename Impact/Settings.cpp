@@ -20,84 +20,78 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "stdafx.h"
 
+#include <ShlObj.h>
+
 namespace Impact {
 
   Settings gSettings;
 
-
   Settings::Settings(void)
     : useShaders(ENABLE_SHADERS)
+    , verticalSync(false)
+    , antialiasing(16U)
     , particlesPerExplosion(50)
   {
-    load();
+    TCHAR szPath[MAX_PATH];
+    if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, szPath))) {
+      appData = szPath;
+      appData += "\\Impact";
+      settingsFile = appData + "\\settings.xml";
+#ifndef NDEBUG
+      std::cout << "settingsFile = '" << settingsFile << "'" << std::endl;
+#endif
+      load();
+    }
   }
 
 
-  void Settings::save(void)
+  bool Settings::save(void)
   {
     // TODO ...
+    return false;
   }
 
 
-  LONG GetDWORDRegKey(HKEY hKey, const std::wstring &strValueName, DWORD &nValue, DWORD nDefaultValue)
+  /**
+  <impact>
+    <vertical-sync>true</vertical-sync>
+
+  </impact>
+  */
+
+  bool Settings::load(void)
   {
-    nValue = nDefaultValue;
-    DWORD dwBufferSize(sizeof(DWORD));
-    DWORD nResult(0);
-    LONG nError = ::RegQueryValueExW(hKey,
-      strValueName.c_str(),
-      0,
-      NULL,
-      reinterpret_cast<LPBYTE>(&nResult),
-      &dwBufferSize);
-    if (nError == ERROR_SUCCESS) {
-      nValue = nResult;
+    bool ok;
+    ok = fileExists(settingsFile);
+    if (!ok)
+      return true;
+    boost::property_tree::ptree pt;
+    try {
+      boost::property_tree::xml_parser::read_xml(settingsFile, pt);
     }
-    return nError;
-  }
-
-
-  LONG GetBoolRegKey(HKEY hKey, const std::wstring &strValueName, bool &bValue, bool bDefaultValue)
-  {
-    DWORD nDefValue((bDefaultValue) ? 1 : 0);
-    DWORD nResult(nDefValue);
-    LONG nError = GetDWORDRegKey(hKey, strValueName.c_str(), nResult, nDefValue);
-    if (nError == ERROR_SUCCESS) {
-      bValue = (nResult != 0) ? true : false;
+    catch (const boost::property_tree::xml_parser::xml_parser_error &ex) {
+      std::cerr << "XML parser error: " << ex.what() << " (line " << ex.line() << ")" << std::endl;
+      ok = false;
     }
-    return nError;
-  }
 
+    if (!ok)
+      return false;
 
-  LONG GetStringRegKey(HKEY hKey, const std::wstring &strValueName, std::wstring &strValue, const std::wstring &strDefaultValue)
-  {
-    strValue = strDefaultValue;
-    WCHAR szBuffer[512];
-    DWORD dwBufferSize = sizeof(szBuffer);
-    ULONG nError;
-    nError = RegQueryValueExW(hKey, strValueName.c_str(), 0, NULL, (LPBYTE)szBuffer, &dwBufferSize);
-    if (nError == ERROR_SUCCESS) {
-      strValue = szBuffer;
-    }
-    return nError;
-  }
+    useShaders = pt.get<bool>("impact.use-shaders", true);
+    verticalSync = pt.get<bool>("impact.vertical-sync", false);
+    particlesPerExplosion = pt.get<unsigned int>("impact.particles-per-explosion", 50);
+    antialiasing = pt.get<unsigned int>("impact.antialiasing", 16U);
 
-  void Settings::load(void)
-  {
-    // TODO ...
-    HKEY hKey;
-    LONG lRes = RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Impact", 0, KEY_READ, &hKey);
 #ifndef NDEBUG
-    std::cout << "RegOpenKeyExW('HKLM\\SOFTWARE\\Impact') -> " << lRes << std::endl;
+    std::cout << "useShaders: " << useShaders << std::endl;
+    std::cout << "verticalSync: " << verticalSync << std::endl;
+    std::cout << "particlesPerExplosion: " << particlesPerExplosion << std::endl;
+    std::cout << "antialiasing: " << antialiasing << std::endl;
 #endif
-    if (lRes == ERROR_SUCCESS) {
-      bool useShaders;
-      GetBoolRegKey(hKey, L"useShaders", useShaders, true);
-#ifndef NDEBUG
-      std::cout << "HKLM\\SOFTWARE\\Impact\\useShaders -> " << useShaders << std::endl;
-#endif
-    }
-  }
 
+    useShaders &= sf::Shader::isAvailable();
+
+    return true;
+  }
 
 }

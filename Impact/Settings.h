@@ -28,11 +28,16 @@ namespace Impact {
   public:
     Settings(void);
 
-    void save(void);
-    void load(void);
+    bool save(void);
+    bool load(void);
 
     bool useShaders;
+    bool verticalSync;
+    unsigned int antialiasing;
     unsigned int particlesPerExplosion;
+
+    std::string appData;
+    std::string settingsFile;
   };
 
 }
