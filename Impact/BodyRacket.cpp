@@ -29,9 +29,7 @@ namespace Impact {
 
   Racket::Racket(Game *game, const b2Vec2 &pos, b2Body *ground)
     : Body(Body::BodyType::Racket, game)
-    , mMouseJoint(nullptr)
   {
-    mGround = ground;
     mName = Name;
     mTexture = mGame->level()->texture(mName);
     mSprite.setTexture(mTexture);
@@ -103,6 +101,16 @@ namespace Impact {
     rjd.upperAngle = deg2rad(+17.5f);
     mJoint = reinterpret_cast<b2RevoluteJoint*>(mGame->world()->CreateJoint(&rjd));
 
+    b2MouseJointDef mjd;
+    mjd.bodyA = ground;
+    mjd.bodyB = mTeetingBody;
+    mjd.target = mBody->GetPosition();
+    mjd.collideConnected = true;
+    mjd.frequencyHz = 6.f;
+    mjd.dampingRatio = .9f;
+    mjd.maxForce = 1000.f * mTeetingBody->GetMass();
+    mMouseJoint = reinterpret_cast<b2MouseJoint*>(mGame->world()->CreateJoint(&mjd));
+
     setPosition(pos);
   }
 
@@ -143,36 +151,11 @@ namespace Impact {
   }
 
 
-  void Racket::applyLinearVelocity(const b2Vec2 &v)
+  void Racket::moveTo(const b2Vec2 &target)
   {
     mBody->SetAwake(true);
     mTeetingBody->SetAwake(true);
-    // mBody->SetLinearVelocity(v);
-    mTeetingBody->SetLinearVelocity(v);
-  }
-
-
-  void Racket::moveTo(const b2Vec2 &target)
-  {
-    if (mMouseJoint == nullptr) {
-      b2MouseJointDef mjd;
-      mjd.bodyA = mGround;
-      mjd.bodyB = mTeetingBody;
-      mjd.target = target;
-      mjd.collideConnected = true;
-      mjd.frequencyHz = 6.f;
-      mjd.dampingRatio = .9f;
-      mjd.maxForce = 1000.f * mTeetingBody->GetMass();
-      mMouseJoint = reinterpret_cast<b2MouseJoint*>(mGame->world()->CreateJoint(&mjd));
-    }
     mMouseJoint->SetTarget(target);
-  }
-
-
-  void Racket::stopMotion(void)
-  {
-    mBody->GetWorld()->DestroyJoint(mMouseJoint);
-    mMouseJoint = nullptr;
   }
 
 

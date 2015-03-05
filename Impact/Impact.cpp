@@ -634,7 +634,6 @@ namespace Impact {
     mStartMsg.setString(tr("Click to continue"));
     mBlurClock.restart();
     mBlurPlayground = true;
-    mRacket->applyLinearVelocity(b2Vec2_zero);
     setState(State::LevelCompleted);
   }
 

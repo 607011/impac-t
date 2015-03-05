@@ -44,9 +44,7 @@ namespace Impact {
     virtual void setPosition(float32 x, float32 y);
     virtual void setPosition(const b2Vec2 &pos);
     virtual const b2Vec2 &position(void) const;
-    virtual void applyLinearVelocity(const b2Vec2 &v);
     virtual void moveTo(const b2Vec2 &pos);
-    virtual void stopMotion(void);
     void setXAxisConstraint(float32 y);
     virtual b2Body *body(void);
 
@@ -64,7 +62,6 @@ namespace Impact {
     b2RevoluteJoint *mJoint;
     b2Body *mTeetingBody;
     b2MouseJoint *mMouseJoint;
-    b2Body *mGround;
   };
 
 }
