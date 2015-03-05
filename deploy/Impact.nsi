@@ -59,6 +59,10 @@ Section "${APP}"
   File "${SFMLPATH}\bin\sfml-network-2.dll"
   File "${GLEWPATH}\glew32.dll"
   WriteUninstaller "$INSTDIR\uninstall.exe"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP}" "DisplayName" "${APP}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP}" "NoModify" 1
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP}" "NoRepair" 1
 
   SetOutPath "$INSTDIR\resources\backgrounds"
   File /a /r "..\${APP}\resources\backgrounds\"
