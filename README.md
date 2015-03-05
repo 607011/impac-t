@@ -5,6 +5,10 @@ A Breakout/Bolo clone, augmented with a physics engine
 
 ## TODO
 
+### Essential
+
+ - prerequisites: CPU? RAM? OpenGL version? GLSL version?
+ - integrate 3rd party sources/libraries into Visual Studio solution
  - add 
 
     - INSTANT PLAY
@@ -17,6 +21,10 @@ A Breakout/Bolo clone, augmented with a physics engine
 
  - let user select a certain level
  - amend Level::load() with the ability to load complete levels (tile map, graphics) from a zip file. The zip file must have a flat 
+
+### Nice to have
+
+ - create multi size ICO file
  - display gravity vector as a visual aid for the player
  - nicer visual effect when the racket hits a block
  - nicer visual effect for killing spree bonus
@@ -51,7 +59,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+along with this program. If not, see
+<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.
 
 
 __This software was programmed for teaching and demonstration purposes only
