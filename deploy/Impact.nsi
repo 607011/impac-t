@@ -3,7 +3,7 @@
 !define VERSION "${VERSIONMAJOR}.${VERSIONMINOR}-BETA14"
 !define GUID "{95E41A25-7E41-45CA-A1F6-0FFAB66A1B2F}"
 !define APP "Impact"
-!define PUBLISHER "Heise Media GmbH - Redaktion c't"
+!define PUBLISHER "Heise Medien GmbH - Redaktion c't"
 !define SFMLPATH "D:\Developer\SFML-2.2"
 !define GLEWPATH "D:\Developer\glew-1.12.0\bin\Release\Win32"
 !define ZLIBPATH "..\zlib"
@@ -50,6 +50,7 @@ Section "${APP}"
   CreateDirectory "$INSTDIR\resources\music"
   CreateDirectory "$INSTDIR\resources\shaders"
   CreateDirectory "$INSTDIR\resources\soundfx"
+  CreateDirectory "$APPDATA\${APP}"
   File "..\Release\${APP}.exe"
   File "..\${APP}\LICENSE"
   File "..\${APP}\app-icon.ico"
@@ -99,6 +100,9 @@ Section "${APP}"
   SetOutPath "$INSTDIR\resources\soundfx"
   File /a /r "..\${APP}\resources\soundfx\*.ogg"
 
+  SetOutPath "$APPDATA\${APP}"
+  File "..\${APP}\settings.xml"
+
   SetOutPath "$INSTDIR"
 
 SectionEnd
@@ -128,6 +132,9 @@ Section "Uninstall"
   Delete "$INSTDIR\sfml-network-2.dll"
   Delete "$INSTDIR\${APP}.exe"
   Delete "$INSTDIR\uninstall.exe"
+
+  Delete "$APPDATA\${APP}\settings.xml"
+  RMDir /r "$APPDATA\${APP}"
 
   RMDir /r "$INSTDIR\resources"
   
