@@ -275,32 +275,32 @@ namespace Impact {
       if (!ok)
         std::cerr << ShadersDir + "/aberration.fs" << " failed to load/compile." << std::endl;
 
-      mMixShader.loadFromFile(ShadersDir + "/mix.fs", sf::Shader::Fragment);
+      ok = mMixShader.loadFromFile(ShadersDir + "/mix.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/mix.fs" << " failed to load/compile." << std::endl;
 
-      mVBlurShader.loadFromFile(ShadersDir + "/vblur.fs", sf::Shader::Fragment);
+      ok = mVBlurShader.loadFromFile(ShadersDir + "/vblur.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/vblur.fs" << " failed to load/compile." << std::endl;
       mVBlurShader.setParameter("uBlur", 4.f);
       mVBlurShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(mWindow.getSize().x), static_cast<float>(mWindow.getSize().y)));
 
-      mHBlurShader.loadFromFile(ShadersDir + "/hblur.fs", sf::Shader::Fragment);
+      ok = mHBlurShader.loadFromFile(ShadersDir + "/hblur.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/hblur.fs" << " failed to load/compile." << std::endl;
       mHBlurShader.setParameter("uBlur", 4.f);
       mHBlurShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(mWindow.getSize().x), static_cast<float>(mWindow.getSize().y)));
 
-      mTitleShader.loadFromFile(ShadersDir + "/title.fs", sf::Shader::Fragment);
+      ok = mTitleShader.loadFromFile(ShadersDir + "/title.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/title.fs" << " failed to load/compile." << std::endl;
       mTitleShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(mWindow.getSize().x), static_cast<float>(mWindow.getSize().y)));
 
-      mEarthquakeShader.loadFromFile(ShadersDir + "/earthquake.fs", sf::Shader::Fragment);
+      ok = mEarthquakeShader.loadFromFile(ShadersDir + "/earthquake.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/earthquake.fs" << " failed to load/compile." << std::endl;
 
-      mOverlayShader.loadFromFile(ShadersDir + "/approachingoverlay.fs", sf::Shader::Fragment);
+      ok = mOverlayShader.loadFromFile(ShadersDir + "/approachingoverlay.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/approachingoverlay.fs" << " failed to load/compile." << std::endl;
     }
