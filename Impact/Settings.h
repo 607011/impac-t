@@ -24,15 +24,10 @@ namespace Impact {
 
   class Settings {
   public:
-    Settings(void)
-      : useShaders(false)
-      , particlesPerExplosion(50)
-    {
-      useShaders &= sf::Shader::isAvailable();
-    }
+    Settings(void);
 
-    bool save(void);
-    bool load(void);
+    void save(void);
+    void load(void);
 
     bool useShaders;
     unsigned int particlesPerExplosion;

@@ -25,15 +25,76 @@ namespace Impact {
   Settings gSettings;
 
 
-  bool Settings::save(void)
+  Settings::Settings(void)
+    : useShaders(false)
+    , particlesPerExplosion(50)
   {
-    return true;
+    load();
   }
 
 
-  bool Settings::load(void)
+  void Settings::save(void)
   {
-    return true;
+  }
+
+
+  LONG GetDWORDRegKey(HKEY hKey, const std::wstring &strValueName, DWORD &nValue, DWORD nDefaultValue)
+  {
+    nValue = nDefaultValue;
+    DWORD dwBufferSize(sizeof(DWORD));
+    DWORD nResult(0);
+    LONG nError = ::RegQueryValueExW(hKey,
+      strValueName.c_str(),
+      0,
+      NULL,
+      reinterpret_cast<LPBYTE>(&nResult),
+      &dwBufferSize);
+    if (nError == ERROR_SUCCESS) {
+      nValue = nResult;
+    }
+    return nError;
+  }
+
+
+  LONG GetBoolRegKey(HKEY hKey, const std::wstring &strValueName, bool &bValue, bool bDefaultValue)
+  {
+    DWORD nDefValue((bDefaultValue) ? 1 : 0);
+    DWORD nResult(nDefValue);
+    LONG nError = GetDWORDRegKey(hKey, strValueName.c_str(), nResult, nDefValue);
+    if (nError == ERROR_SUCCESS) {
+      bValue = (nResult != 0) ? true : false;
+    }
+    return nError;
+  }
+
+
+  LONG GetStringRegKey(HKEY hKey, const std::wstring &strValueName, std::wstring &strValue, const std::wstring &strDefaultValue)
+  {
+    strValue = strDefaultValue;
+    WCHAR szBuffer[512];
+    DWORD dwBufferSize = sizeof(szBuffer);
+    ULONG nError;
+    nError = RegQueryValueExW(hKey, strValueName.c_str(), 0, NULL, (LPBYTE)szBuffer, &dwBufferSize);
+    if (nError == ERROR_SUCCESS) {
+      strValue = szBuffer;
+    }
+    return nError;
+  }
+
+  void Settings::load(void)
+  {
+    HKEY hKey;
+    LONG lRes = RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Impact", 0, KEY_READ, &hKey);
+#ifndef NDEBUG
+    std::cout << "RegOpenKeyExW('HKLM\\SOFTWARE\\Impact') -> " << lRes << std::endl;
+#endif
+    if (lRes == ERROR_SUCCESS) {
+      bool useShaders;
+      GetBoolRegKey(hKey, L"useShaders", useShaders, true);
+#ifndef NDEBUG
+      std::cout << "HKLM\\SOFTWARE\\Impact\\useShaders -> " << useShaders << std::endl;
+#endif
+    }
   }
 
 
