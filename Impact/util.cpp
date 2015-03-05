@@ -40,6 +40,15 @@ namespace Impact {
   }
 
 
+
+  bool fileExists(const std::string &filename)
+  {
+    struct stat buffer;
+    return stat(filename.c_str(), &buffer) == 0;
+  }
+
+
+
   bool base64_decode(std::string base64, uint8_t *&buf, unsigned long &sz) {
     std::string encodedString = rtrim(base64);
     std::size_t inLen = encodedString.size();
