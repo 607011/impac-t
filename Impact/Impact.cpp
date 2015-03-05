@@ -502,17 +502,8 @@ namespace Impact {
   inline void Game::handlePlayerInteraction(const sf::Time &elapsed)
   {
     if (mRacket != nullptr) {
-      mMousePos = sf::Mouse::getPosition(mWindow);
-      if (mMousePos.x < 0 || mMousePos.x > static_cast<int>(mWindow.getSize().x) || mMousePos.y < 0 || mMousePos.y > static_cast<int>(mWindow.getSize().y)) {
-        mMousePos = sf::Vector2i(static_cast<int>(Game::Scale * mRacket->position().x), static_cast<int>(Game::Scale * mRacket->position().y));
-        mLastMousePos = mMousePos;
-        sf::Mouse::setPosition(mMousePos, mWindow);
-      }
-      const sf::Vector2i &d = mMousePos - mLastMousePos;
-      const b2Vec2 &v = InvScale / elapsed.asSeconds() * b2Vec2(static_cast<float32>(d.x), static_cast<float32>(d.y));
-      // mRacket->applyLinearVelocity(v);
-      mRacket->moveTo(InvScale * b2Vec2(static_cast<float32>(mMousePos.x), static_cast<float32>(mMousePos.y)));
-      mLastMousePos = mMousePos;
+      const sf::Vector2i &mousePos = sf::Mouse::getPosition(mWindow);
+      mRacket->moveTo(InvScale * b2Vec2(float32(mousePos.x), float32(mousePos.y)));
       if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
         mRacket->kickLeft();
       }
@@ -741,7 +732,7 @@ namespace Impact {
     stopAllMusic();
     clearWorld();
     mBallHasBeenLost = false;
-    mWindow.setMouseCursorVisible(false);
+    // mWindow.setMouseCursorVisible(false);
     if (sf::Shader::isAvailable()) {
       mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
     }
@@ -1335,9 +1326,7 @@ namespace Impact {
 
     // place mouse cursor on racket position
     const b2Vec2 &racketPos = static_cast<float32>(Game::Scale) * mRacket->position();
-    mMousePos = sf::Vector2i(int(racketPos.x), int(racketPos.y));
-    mLastMousePos = mMousePos;
-    sf::Mouse::setPosition(mMousePos, mWindow);
+    sf::Mouse::setPosition(sf::Vector2i(int(racketPos.x), int(racketPos.y)), mWindow);
   }
 
 

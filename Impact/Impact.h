@@ -280,8 +280,6 @@ namespace Impact {
     int mBlockCount;
     int mWelcomeLevel;
     int mExtraLifeIndex;
-    sf::Vector2i mMousePos;
-    sf::Vector2i mLastMousePos;
     bool mBallHasBeenLost;
     Ball *mBall;
     Racket *mRacket;
