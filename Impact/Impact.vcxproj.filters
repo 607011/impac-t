@@ -156,4 +156,7 @@
       <Filter>Fragment Shaders</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="settings.xml" />
+  </ItemGroup>
 </Project>

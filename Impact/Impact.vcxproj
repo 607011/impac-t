@@ -148,7 +148,7 @@
     <None Include="resources\shaders\title.fs" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="..\..\Impac%27t (vs2013)\Impact\settings.xml" />
+    <Xml Include="settings.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
