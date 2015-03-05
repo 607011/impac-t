@@ -810,30 +810,37 @@ namespace Impact {
 
   void Game::gotoAchievementsScreen(void)
   {
+    // TODO
   }
 
 
   void Game::onAchievementsScreen(void)
   {
+    // TODO
   }
+
 
   void Game::gotoCreditsScreen(void)
   {
+    // TODO
   }
 
 
   void Game::onCreditsScreen(void)
   {
+    // TODO
   }
 
 
   void Game::gotoOptionsScreen(void)
   {
+    // TODO
   }
 
 
   void Game::onOptionsScreen(void)
   {
+    // TODO
   }
 
 
