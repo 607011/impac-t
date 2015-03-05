@@ -77,10 +77,17 @@ namespace Impact {
     if (!ok)
       return false;
 
-    useShaders = pt.get<bool>("impact.use-shaders", true);
-    verticalSync = pt.get<bool>("impact.vertical-sync", false);
-    particlesPerExplosion = pt.get<unsigned int>("impact.particles-per-explosion", 50);
-    antialiasing = pt.get<unsigned int>("impact.antialiasing", 16U);
+    try {
+      useShaders = pt.get<bool>("impact.use-shaders", true);
+      verticalSync = pt.get<bool>("impact.vertical-sync", false);
+      particlesPerExplosion = pt.get<unsigned int>("impact.particles-per-explosion", 50);
+      antialiasing = pt.get<unsigned int>("impact.antialiasing", 16U);
+    }
+    catch (const boost::property_tree::xml_parser::xml_parser_error &ex) {
+      std::cerr << "XML parser error: " << ex.what() << " (line " << ex.line() << ")" << std::endl;
+      ok = false;
+    }
+
 
 #ifndef NDEBUG
     std::cout << "useShaders: " << useShaders << std::endl;
