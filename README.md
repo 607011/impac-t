@@ -21,6 +21,7 @@ A Breakout/Bolo clone, augmented with a physics engine
  - integrate 3rd party sources/libraries into Visual Studio solution
  - add 
 
+    - PLAY LEVEL x
     - INSTANT PLAY
     - CAMPAIGN
     - ACHIEVEMENTS
@@ -29,7 +30,6 @@ A Breakout/Bolo clone, augmented with a physics engine
 
    to welcome screen
 
- - let user select a certain level
  - amend Level::load() with the ability to load complete levels (tile map, graphics) from a zip file. The zip file must have a flat 
 
 ### Nice to have
