@@ -21,9 +21,13 @@
 #ifndef __GLOBALS_H_
 #define __GLOBALS_H_
 
+#include <string>
 #include <boost/random/mersenne_twister.hpp>
+#include "Settings.h"
 
 namespace Impact {
+
+#define IMPACT_VERSION "1.0.0-BETA14"
 
 #define ResourcesDir std::string("resources")
 #define LevelsDir ResourcesDir + "/levels"
@@ -35,7 +39,7 @@ namespace Impact {
 
   extern boost::random::mt19937 gRNG;
 
-  extern int gDetailLevel;
+  extern Settings gSettings;
 }
 
 

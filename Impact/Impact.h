@@ -20,13 +20,14 @@
 #ifndef __GAME_H_
 #define __GAME_H_
 
-#define IMPACT_VERSION "1.0.0-BETA14"
-
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/OpenGL.hpp>
+
+#include "globals.h"
+#include "Settings.h"
 
 #include "BodyBall.h"
 #include "BodyRacket.h"
@@ -173,6 +174,7 @@ namespace Impact {
     sf::Texture mBackgroundTexture;
     sf::Sprite mBackgroundSprite;
     sf::Shader mTitleShader;
+    sf::Text mTitleText;
     sf::Texture mTitleTexture;
     sf::Sprite mTitleSprite;
     sf::Texture mLogoTexture;

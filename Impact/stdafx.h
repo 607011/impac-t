@@ -70,6 +70,7 @@
 #include <zlib.h>
 
 #include "util.h"
+#include "Settings.h"
 #include "globals.h"
 #include "Easings.h"
 #include "LevelTimer.h"

@@ -9,10 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Fragment Shaders">
       <UniqueIdentifier>{5b9c3794-6170-4971-bfa1-1c337c5bd4db}</UniqueIdentifier>
       <Extensions>*.fs</Extensions>
@@ -59,6 +55,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Explosion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -117,6 +116,9 @@
     <ClInclude Include="Explosion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\title.fs">
@@ -150,7 +152,7 @@
     <None Include="resources\shaders\explosion.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="..\..\Impac%27t (vs2013)\Impact\resources\shaders\approachingoverlay.fs">
+    <None Include="resources\shaders\approachingoverlay.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
   </ItemGroup>
