@@ -35,7 +35,7 @@ namespace Impact {
     setLifetime(def.maxLifetime);
     mTexture = def.texture;
 
-    if (sf::Shader::isAvailable() && gDetailLevel > 2) {
+    if (gSettings.useShaders) {
       mShader = ShaderPool::getNext();
       mShader->setParameter("uTexture", sf::Shader::CurrentTexture);
       mShader->setParameter("uMaxAge", def.maxLifetime.asSeconds());
@@ -99,7 +99,7 @@ namespace Impact {
   {
     bool allDead = true;
     const int N = mParticles.size();
-#pragma omp parallel for reduction(&:allDead)
+// #pragma omp parallel for reduction(&:allDead)
     for (int i = 0; i < N; ++i) {
       SimpleParticle &p = mParticles[i];
       if (age() > p.lifeTime && !p.dead) {
