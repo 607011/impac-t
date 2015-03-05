@@ -38,7 +38,7 @@ namespace Impact {
   const sf::Time Game::DefaultOverlayDuration = sf::milliseconds(300);
 
   Game::Game(void)
-    : mWindow(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Impac't", sf::Style::Titlebar | sf::Style::Close)
+    : mWindow(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Impac't", sf::Style::Titlebar | sf::Style::Close, sf::ContextSettings(24U, 0U, 16U, 3U, 0U))
     , mWorld(nullptr)
     , mBallHasBeenLost(false)
     , mBall(nullptr)
