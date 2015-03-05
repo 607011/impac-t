@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace Impact {
 
+#define ENABLE_SHADERS 1
+
   class Settings {
   public:
     Settings(void);
@@ -31,10 +33,6 @@ namespace Impact {
 
     bool useShaders;
     unsigned int particlesPerExplosion;
-
-
-
-
   };
 
 }

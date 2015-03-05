@@ -26,7 +26,7 @@ namespace Impact {
 
 
   Settings::Settings(void)
-    : useShaders(false)
+    : useShaders(ENABLE_SHADERS)
     , particlesPerExplosion(50)
   {
     load();
@@ -35,6 +35,7 @@ namespace Impact {
 
   void Settings::save(void)
   {
+    // TODO ...
   }
 
 
@@ -83,6 +84,7 @@ namespace Impact {
 
   void Settings::load(void)
   {
+    // TODO ...
     HKEY hKey;
     LONG lRes = RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Impact", 0, KEY_READ, &hKey);
 #ifndef NDEBUG

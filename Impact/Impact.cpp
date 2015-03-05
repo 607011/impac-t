@@ -232,9 +232,10 @@ namespace Impact {
       + tr("Built with") + ": SFML " + std::to_string(SFML_VERSION_MAJOR) + "." + std::to_string(SFML_VERSION_MINOR) + ", "
       + "Box2D " + std::to_string(b2_version.major) + "." + std::to_string(b2_version.minor) + "." + std::to_string(b2_version.revision) + ", "
       + "glew " + std::to_string(GLEW_VERSION) + "." + std::to_string(GLEW_VERSION_MAJOR) + "." + std::to_string(GLEW_VERSION_MINOR)
-      + " - "
-      + "OpenGL " + std::to_string(mGLVersionMajor) + "." + std::to_string(mGLVersionMinor) + ", "
-      + "GLSL " + std::string(reinterpret_cast<const char*>(mGLShadingLanguageVersion))
+      + " - " + "OpenGL " + std::to_string(mGLVersionMajor) + "." + std::to_string(mGLVersionMinor)
+#if ENABLE_SHADERS
+      + ", "  + "GLSL " + std::string(reinterpret_cast<const char*>(mGLShadingLanguageVersion))
+#endif
       );
     mProgramInfoMsg.setFont(mFixedFont);
     mProgramInfoMsg.setColor(sf::Color::White);
@@ -358,6 +359,10 @@ namespace Impact {
     resetKillingSpree();
 
     resume();
+
+    if (mGLVersionMajor < 3) // TODO: exit more nicely, i.e. inform user about reason
+      mWindow.close();
+
   }
 
 
@@ -450,7 +455,8 @@ namespace Impact {
 
   inline void Game::clearWindow(void)
   {
-    mWindow.clear(sf::Color(42, 52, 54, 255));
+    // mWindow.clear(sf::Color(42, 52, 54, 255));
+    mWindow.clear(mStatsColor);
   }
 
 
@@ -951,27 +957,27 @@ namespace Impact {
   {
     mOverlayDuration = od.duration;
 
+    mOverlayText1 = sf::Text(od.line1, mTitleFont, 80U);
+    mOverlayText1.setPosition(.5f * (mDefaultView.getSize().x - mOverlayText1.getLocalBounds().width), .16f * (mDefaultView.getSize().y - mOverlayText1.getLocalBounds().height));
+    mOverlayText2 = sf::Text(od.line2, mTitleFont, 80U);
+    mOverlayText2.setPosition(.5f * (mDefaultView.getSize().x - mOverlayText2.getLocalBounds().width), .32f * (mDefaultView.getSize().y - mOverlayText2.getLocalBounds().height));
     if (gSettings.useShaders) {
       mOverlayShader.setParameter("uMinScale", od.minScale);
       mOverlayShader.setParameter("uMaxScale", od.maxScale);
       mOverlayShader.setParameter("uMaxT", od.duration.asSeconds());
       mOverlayShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(DefaultWindowWidth), static_cast<float>(DefaultWindowHeight)));
+      sf::RenderTexture overlayRenderTexture;
+      overlayRenderTexture.create(static_cast<unsigned int>(mDefaultView.getSize().x), static_cast<unsigned int>(mDefaultView.getSize().y));
+      overlayRenderTexture.draw(mOverlayText1);
+      overlayRenderTexture.draw(mOverlayText2);
+      mOverlayTexture = overlayRenderTexture.getTexture();
+      mOverlayTexture.setSmooth(true);
+      mOverlaySprite.setTexture(mOverlayTexture);
     }
-
-    sf::RenderTexture overlayRenderTexture;
-    overlayRenderTexture.create(static_cast<unsigned int>(mDefaultView.getSize().x), static_cast<unsigned int>(mDefaultView.getSize().y));
-
-    sf::Text overlayText1(od.line1, mTitleFont, 80U);
-    overlayText1.setPosition(.5f * (mDefaultView.getSize().x - overlayText1.getLocalBounds().width), .16f * (mDefaultView.getSize().y - overlayText1.getLocalBounds().height));
-    overlayRenderTexture.draw(overlayText1);
-
-    sf::Text overlayText2(od.line2, mTitleFont, 80U);
-    overlayText2.setPosition(.5f * (mDefaultView.getSize().x - overlayText2.getLocalBounds().width), .32f * (mDefaultView.getSize().y - overlayText2.getLocalBounds().height));
-    overlayRenderTexture.draw(overlayText2);
-
-    mOverlayTexture = overlayRenderTexture.getTexture();
-    mOverlayTexture.setSmooth(true);
-    mOverlaySprite.setTexture(mOverlayTexture);
+    else {
+      mOverlayText1.setColor(sf::Color(255, 255, 255, 128));
+      mOverlayText2.setColor(sf::Color(255, 255, 255, 128));
+    }
 
     mOverlayClock.restart();
   }
@@ -1079,7 +1085,7 @@ namespace Impact {
           mWindow.draw(mOverlaySprite, states);
         }
         else {
-          mWindow.draw(mOverlaySprite);
+          mWindow.draw(mOverlayText1);
         }
       }
       else {
@@ -1305,6 +1311,22 @@ namespace Impact {
     safeRenew(mBallTrace, new BallTrace(this));
     addBody(mBallTrace);
 #endif
+
+    {
+      const sf::Texture *bgTex = mLevel.backgroundSprite().getTexture();
+      sf::Image bg = bgTex->copyToImage();
+      unsigned int nPixels = bg.getSize().x * bg.getSize().y;
+      const sf::Uint8 *pixels = bg.getPixelsPtr();
+      const sf::Uint8 *pixelsEnd = pixels + (4 * nPixels);
+      sf::Vector3i color;
+      while (pixels < pixelsEnd) {
+        color.x += *(pixels + 0);
+        color.y += *(pixels + 1);
+        color.z += *(pixels + 2);
+        pixels += 4;
+      }
+      mStatsColor = sf::Color(sf::Uint8(color.x / nPixels), sf::Uint8(color.y / nPixels), sf::Uint8(color.z / nPixels), 255U);
+    }
 
     // create level elements
     mBlockCount = 0;

@@ -160,6 +160,7 @@ namespace Impact {
     sf::View mDefaultView;
     sf::View mPlaygroundView;
     sf::View mStatsView;
+    sf::Color mStatsColor;
     sf::RenderTexture mRenderTexture0;
     sf::RenderTexture mRenderTexture1;
     sf::Shader mMixShader;
@@ -179,6 +180,8 @@ namespace Impact {
     sf::Sprite mTitleSprite;
     sf::Texture mLogoTexture;
     sf::Sprite mLogoSprite;
+    sf::Text mOverlayText1;
+    sf::Text mOverlayText2;
     sf::Texture mOverlayTexture;
     sf::Sprite mOverlaySprite;
     sf::Shader mOverlayShader;

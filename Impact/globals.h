@@ -27,7 +27,7 @@
 
 namespace Impact {
 
-#define IMPACT_VERSION "1.0.0-BETA14"
+#define IMPACT_VERSION "1.0-BETA14"
 
 #define ResourcesDir std::string("resources")
 #define LevelsDir ResourcesDir + "/levels"
