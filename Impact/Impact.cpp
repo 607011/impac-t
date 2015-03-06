@@ -246,7 +246,7 @@ namespace Impact {
     mProgramInfoMsg.setCharacterSize(8U);
     mProgramInfoMsg.setPosition(8.f, mDefaultView.getSize().y - mProgramInfoMsg.getLocalBounds().height - 8.f);
 
-    mBackgroundTexture.loadFromFile(BackgroundsDir + "/abstract05.jpg");
+    mBackgroundTexture.loadFromFile(ImagesDir + "/welcome-background.jpg");
     mBackgroundSprite.setTexture(mBackgroundTexture);
     mBackgroundSprite.setPosition(0.f, 0.f);
     mBackgroundSprite.setScale(static_cast<float>(mDefaultView.getSize().x) / static_cast<float>(mBackgroundTexture.getSize().x), static_cast<float>(mDefaultView.getSize().y) / static_cast<float>(mBackgroundTexture.getSize().y));

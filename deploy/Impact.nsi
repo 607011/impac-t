@@ -1,6 +1,6 @@
 !define VERSIONMAJOR "1"
 !define VERSIONMINOR "0"
-!define VERSION "${VERSIONMAJOR}.${VERSIONMINOR}-BETA14"
+!define VERSION "${VERSIONMAJOR}.${VERSIONMINOR}-BETA15"
 !define GUID "{95E41A25-7E41-45CA-A1F6-0FFAB66A1B2F}"
 !define APP "Impact"
 !define PUBLISHER "Heise Medien GmbH - Redaktion c't"
@@ -43,7 +43,6 @@ SectionEnd
 Section "${APP}"
   SetOutPath "$INSTDIR"
   CreateDirectory "$INSTDIR\resources"
-  CreateDirectory "$INSTDIR\resources\backgrounds"
   CreateDirectory "$INSTDIR\resources\fonts"
   CreateDirectory "$INSTDIR\resources\images"
   CreateDirectory "$INSTDIR\resources\levels"
@@ -51,6 +50,7 @@ Section "${APP}"
   CreateDirectory "$INSTDIR\resources\shaders"
   CreateDirectory "$INSTDIR\resources\soundfx"
   CreateDirectory "$APPDATA\${APP}"
+  CreateDirectory "$APPDATA\${APP}\levels"
   File "..\Release\${APP}.exe"
   File "..\${APP}\LICENSE"
   File "..\${APP}\app-icon.ico"
@@ -79,17 +79,11 @@ Section "${APP}"
   IntFmt $0 "0x%08X" $0
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "EstimatedSize" "$0"
 
-  SetOutPath "$INSTDIR\resources\backgrounds"
-  File /a /r "..\${APP}\resources\backgrounds\"
-
   SetOutPath "$INSTDIR\resources\fonts"
   File /a /r "..\${APP}\resources\fonts\"
 
   SetOutPath "$INSTDIR\resources\images"
   File /a /r "..\${APP}\resources\images\"
-
-  SetOutPath "$INSTDIR\resources\levels"
-  File /a /r "..\${APP}\resources\levels\"
 
 ;  SetOutPath "$INSTDIR\resources\music"
 ;  File /a /r "..\${APP}\resources\music\"
@@ -99,6 +93,9 @@ Section "${APP}"
 
   SetOutPath "$INSTDIR\resources\soundfx"
   File /a /r "..\${APP}\resources\soundfx\*.ogg"
+
+  SetOutPath "$APPDATA\${APP}\levels"
+  File /a /r "..\${APP}\resources\levels\"
 
   SetOutPath "$APPDATA\${APP}"
   File "..\${APP}\settings.xml"
@@ -132,9 +129,6 @@ Section "Uninstall"
   Delete "$INSTDIR\sfml-network-2.dll"
   Delete "$INSTDIR\${APP}.exe"
   Delete "$INSTDIR\uninstall.exe"
-
-  Delete "$APPDATA\${APP}\settings.xml"
-  RMDir /r "$APPDATA\${APP}"
 
   RMDir /r "$INSTDIR\resources"
   

@@ -30,10 +30,8 @@ namespace Impact {
 #define IMPACT_VERSION "1.0-BETA14"
 
 #define ResourcesDir std::string("resources")
-#define LevelsDir ResourcesDir + "/levels"
 #define SoundFXDir ResourcesDir + "/soundfx"
 #define ImagesDir ResourcesDir + "/images"
-#define BackgroundsDir ResourcesDir + "/backgrounds"
 #define FontsDir ResourcesDir + "/fonts"
 #define ShadersDir ResourcesDir + "/shaders"
 
