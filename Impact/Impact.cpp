@@ -495,6 +495,8 @@ namespace Impact {
         pause();
         break;
       case sf::Event::GainedFocus:
+        if (mState == State::Playing)
+          sf::Mouse::setPosition(sf::Vector2i(static_cast<int>(Scale * mRacket->position().x), static_cast<int>(Scale * mRacket->position().y)), mWindow);
         resume();
         break;
       case sf::Event::MouseButtonPressed:
