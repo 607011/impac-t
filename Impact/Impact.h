@@ -181,6 +181,11 @@ namespace Impact {
     sf::Text mTitleText;
     sf::Texture mTitleTexture;
     sf::Sprite mTitleSprite;
+    sf::Text mMenuInstantPlayText;
+    sf::Text mMenuCampaignText;
+    sf::Text mMenuAchievementsText;
+    sf::Text mMenuOptionsText;
+    sf::Text mMenuCreditsText;
     sf::Texture mLogoTexture;
     sf::Sprite mLogoSprite;
     sf::Text mOverlayText1;

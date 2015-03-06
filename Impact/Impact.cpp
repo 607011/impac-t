@@ -257,6 +257,20 @@ namespace Impact {
     mTitleText = sf::Text("Impac't", mTitleFont, 120U);
     mTitleText.setPosition(.5f * (mDefaultView.getSize().x - mTitleText.getLocalBounds().width), .25f * (mDefaultView.getSize().y - mTitleText.getLocalBounds().height));
 
+    mMenuInstantPlayText = sf::Text(tr("Instant Play"), mFixedFont, 32U);
+    mMenuInstantPlayText.setPosition(.5f * (mDefaultView.getSize().x - mMenuInstantPlayText.getLocalBounds().width), mDefaultView.getCenter().y);
+
+    mMenuCampaignText = sf::Text(tr("Campaign"), mFixedFont, 32U);
+    mMenuCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuCampaignText.getLocalBounds().width), 32 + mDefaultView.getCenter().y);
+
+    mMenuAchievementsText = sf::Text(tr("Achievements"), mFixedFont, 32U);
+    mMenuAchievementsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuAchievementsText.getLocalBounds().width), 64 + mDefaultView.getCenter().y);
+
+    mMenuOptionsText = sf::Text(tr("Options"), mFixedFont, 32U);
+    mMenuOptionsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuOptionsText.getLocalBounds().width), 96 + mDefaultView.getCenter().y);
+
+    mMenuCreditsText = sf::Text(tr("Credits"), mFixedFont, 32U);
+    mMenuCreditsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuCreditsText.getLocalBounds().width), 128 + mDefaultView.getCenter().y);
 
     if (gSettings.useShaders) {
       mRenderTexture0.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
@@ -561,6 +575,10 @@ namespace Impact {
   void Game::onWelcomeScreen(void)
   {
     sf::Time elapsed = mClock.restart();
+
+    const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
+    const sf::Vector2f &mousePos = sf::Vector2f(static_cast<float>(mousePosI.x), static_cast<float>(mousePosI.y));
+
     sf::Event event;
     while (mWindow.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
@@ -568,7 +586,16 @@ namespace Impact {
       }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
-          gotoNextLevel();
+          if (mMenuInstantPlayText.getGlobalBounds().contains(mousePos))
+            return;
+          else if (mMenuCampaignText.getGlobalBounds().contains(mousePos))
+            gotoNextLevel();
+          else if (mMenuAchievementsText.getGlobalBounds().contains(mousePos))
+            gotoAchievementsScreen();
+          else if (mMenuOptionsText.getGlobalBounds().contains(mousePos))
+            gotoOptionsScreen();
+          else if (mMenuCreditsText.getGlobalBounds().contains(mousePos))
+            gotoCreditsScreen();
           return;
         }
       }
@@ -606,8 +633,18 @@ namespace Impact {
       mWelcomeLevel = 1;
     }
 
-    if (t > 0.5f) {
-      drawStartMessage();
+    if (t > .5f) {
+      mMenuInstantPlayText.setColor(sf::Color(255, 255, 255, mMenuInstantPlayText.getGlobalBounds().contains(mousePos) ? 32 : 32));
+      mWindow.draw(mMenuInstantPlayText);
+      mMenuCampaignText.setColor(sf::Color(255, 255, 255, mMenuCampaignText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mWindow.draw(mMenuCampaignText);
+      mMenuAchievementsText.setColor(sf::Color(255, 255, 255, mMenuAchievementsText.getGlobalBounds().contains(mousePos) ? 32 : 32));
+      mWindow.draw(mMenuAchievementsText);
+      mMenuOptionsText.setColor(sf::Color(255, 255, 255, mMenuOptionsText.getGlobalBounds().contains(mousePos) ? 32 : 32));
+      mWindow.draw(mMenuOptionsText);
+      mMenuCreditsText.setColor(sf::Color(255, 255, 255, mMenuCreditsText.getGlobalBounds().contains(mousePos) ? 32 : 32));
+      mWindow.draw(mMenuCreditsText);
+
       if (mWelcomeLevel == 1) {
         mExplosionSound.play();
         mWelcomeLevel = 2;
@@ -617,7 +654,7 @@ namespace Impact {
         addBody(new Explosion(pd));
       }
     }
-    if (t > 0.6f) {
+    if (t > .6f) {
       mWindow.draw(mLogoSprite);
       if (mWelcomeLevel == 2) {
         mExplosionSound.play();
@@ -628,7 +665,7 @@ namespace Impact {
         addBody(new Explosion(pd));
       }
     }
-    if (t > 0.7f) {
+    if (t > .7f) {
       mWindow.draw(mProgramInfoMsg);
       if (mWelcomeLevel == 4) {
         mExplosionSound.play();
@@ -639,6 +676,7 @@ namespace Impact {
         addBody(new Explosion(pd));
       }
     }
+
   }
 
 
