@@ -629,7 +629,7 @@ namespace Impact {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
           if (mMenuInstantPlayText.getGlobalBounds().contains(mousePos)) {
             mPlaymode = SingleLevel;
-            // TODO
+            // TODO: implement instant play
           }
           else if (mMenuLoadLevelText.getGlobalBounds().contains(mousePos)) {
             mPlaymode = SingleLevel;
@@ -940,37 +940,37 @@ namespace Impact {
 
   void Game::gotoAchievementsScreen(void)
   {
-    // TODO
+    // TODO: implement gotoAchievementsScreen()
   }
 
 
   void Game::onAchievementsScreen(void)
   {
-    // TODO
+    // TODO: implement onAchievementsScreen()
   }
 
 
   void Game::gotoCreditsScreen(void)
   {
-    // TODO
+    // TODO: implement gotoCreditsScreen()
   }
 
 
   void Game::onCreditsScreen(void)
   {
-    // TODO
+    // TODO: implement onCreditsScreen()
   }
 
 
   void Game::gotoOptionsScreen(void)
   {
-    // TODO
+    // TODO: implement gotoOptionsScreen()
   }
 
 
   void Game::onOptionsScreen(void)
   {
-    // TODO
+    // TODO: implement onOptionsScreen()
   }
 
 
@@ -1134,7 +1134,6 @@ namespace Impact {
       }
 
       if (mEarthquakeIntensity > 0.f && mEarthquakeClock.getElapsedTime() < mEarthquakeDuration && gSettings.useShaders) {
-        // TODO: display hint what's going on ...
         executeEarthquake(mRenderTexture1, mRenderTexture0);
         executeCopy(mRenderTexture0, mRenderTexture1);
       }

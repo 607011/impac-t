@@ -17,19 +17,7 @@ A Breakout/Bolo clone, augmented with a physics engine
 ### Essential
 
  - racket sometimes gets stuck in walls
- - prerequisites: CPU? RAM? OpenGL version? GLSL version?
  - integrate 3rd party sources/libraries into Visual Studio solution
- - add 
-
-    - INSTANT PLAY
-    - CAMPAIGN
-    - ACHIEVEMENTS
-    - OPTIONS
-    - CREDITS
-
-   to welcome screen
-
- - amend Level::load() with the ability to load complete levels (tile map, graphics) from a zip file. The zip file should have a flat directory structure
 
 ### Nice to have
 
