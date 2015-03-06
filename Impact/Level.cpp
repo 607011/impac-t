@@ -20,6 +20,8 @@
 
 #include "stdafx.h"
 
+#include "../zip-utils/unzip.h"
+
 
 namespace Impact {
 
@@ -77,28 +79,59 @@ namespace Impact {
 
 
 #pragma warning(disable : 4503)
-  bool Level::load(void)
+  bool Level::load(const std::string &zipFilename)
   {
     bool ok = true;
     safeFree(mMapData);
     mBackgroundImageOpacity = 1.f;
 
-    std::ostringstream buf;
+    std::string levelPath;
+    std::string levelFilename;
+    if (!zipFilename.empty()) {
+      HZIP hz = OpenZip(zipFilename.c_str(), nullptr);
+      levelPath = gSettings.levelsDir + "/9999";
+      SetUnzipBaseDir(hz, levelPath.c_str());
+      ZIPENTRY ze;
+      GetZipItem(hz, -1, &ze);
+      int nItems = ze.index;
+      for (int i = 0; i < nItems; ++i) {
+        GetZipItem(hz, i, &ze);
+        UnzipItem(hz, i, ze.name);
+        std::string currentItemName = ze.name;
+        if (boost::algorithm::ends_with(currentItemName, ".tmx"))
+          levelFilename = levelPath + "/" + currentItemName;
+#ifndef NDEBUG
+        std::cout << "Unzipping " << ze.name << " ..." << std::endl;
+#endif
+      }
+      CloseZip(hz);
+      mLevelNum = 9999;
+    }
+    else {
+      std::ostringstream levelStrBuf;
+      levelStrBuf << std::setw(4) << std::setfill('0') << mLevelNum;
+      const std::string levelStr = levelStrBuf.str();
+      levelPath = gSettings.levelsDir + "/" + levelStr;
+      levelFilename = levelPath + "/" + levelStr + ".tmx";
+    }
+
 #ifndef NDEBUG
     // mLevelNum = 10;
 #endif
-    buf << LevelsDir << "/" << std::setw(4) << std::setfill('0') << mLevelNum << ".tmx";
-    const std::string filename = buf.str();
-    ok = fileExists(filename);
+#ifndef NDEBUG
+    std::cout << "Level::load() " << levelFilename << " ..." << std::endl;
+#endif
+    ok = fileExists(levelFilename);
     if (!ok)
       return false;
 
 #ifndef NDEBUG
-    std::cout << "Loading level " << filename << " ..." << std::endl;
+    std::cout << "Opening " << levelFilename << "..." << std::endl;
 #endif
+
     boost::property_tree::ptree pt;
     try {
-      boost::property_tree::xml_parser::read_xml(filename, pt);
+      boost::property_tree::xml_parser::read_xml(levelFilename, pt);
     }
     catch (const boost::property_tree::xml_parser::xml_parser_error &ex) {
       std::cerr << "XML parser error: " << ex.what() << " (line " << ex.line() << ")" << std::endl;
@@ -198,7 +231,7 @@ namespace Impact {
       if (!ok)
         return false;
 
-      const std::string &backgroundTextureFilename = LevelsDir + "/" + pt.get<std::string>("map.imagelayer.image.<xmlattr>.source");
+      const std::string &backgroundTextureFilename = levelPath + "/" + pt.get<std::string>("map.imagelayer.image.<xmlattr>.source");
       mBackgroundTexture.loadFromFile(backgroundTextureFilename);
       mBackgroundSprite.setTexture(mBackgroundTexture);
       try {
@@ -230,7 +263,7 @@ namespace Impact {
           const int id = mFirstGID + tile.get<int>("<xmlattr>.id");
           mTiles.resize(id + 1);
           TileParam tileParam;
-          const std::string &filename = LevelsDir + "/" + tile.get<std::string>("image.<xmlattr>.source");
+          const std::string &filename = levelPath + "/" + tile.get<std::string>("image.<xmlattr>.source");
           ok = tileParam.texture.loadFromFile(filename);
           if (!ok)
             return false;
@@ -327,6 +360,10 @@ namespace Impact {
       std::cerr << "Error parsing TMX file: " << e.what() << std::endl;
       ok = false;
     }
+
+#ifndef NDEBUG
+    std::cout << "Level loaded." << std::endl;
+#endif
     return ok;
   }
 

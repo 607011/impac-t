@@ -27,6 +27,8 @@
 #include "globals.h"
 #include "TileParam.h"
 
+#include "../zip-utils/unzip.h"
+
 namespace Impact {
 
   struct Boundary {
@@ -138,9 +140,9 @@ namespace Impact {
       return mKillingSpreeInterval;
     }
 
-  private:
-    bool load(void);
+    bool load(const std::string &zipFilename = std::string());
 
+  private:
     bool mSuccessfullyLoaded;
     float mBackgroundImageOpacity;
     sf::Color mBackgroundColor;
@@ -161,7 +163,6 @@ namespace Impact {
     sf::Time mKillingSpreeInterval;
 
     std::vector<TileParam> mTiles;
-    sf::Texture load(const std::string &filename);
   };
 
 }

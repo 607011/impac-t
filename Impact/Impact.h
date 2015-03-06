@@ -155,6 +155,7 @@ namespace Impact {
     int mGLVersionMinor;
     const GLubyte *mGLShadingLanguageVersion;
 
+
     // SFML
     sf::RenderWindow mWindow;
     sf::View mDefaultView;
@@ -179,6 +180,7 @@ namespace Impact {
     sf::Texture mTitleTexture;
     sf::Sprite mTitleSprite;
     sf::Text mMenuInstantPlayText;
+    sf::Text mMenuLoadLevelText;
     sf::Text mMenuCampaignText;
     sf::Text mMenuAchievementsText;
     sf::Text mMenuOptionsText;
@@ -354,6 +356,8 @@ namespace Impact {
     void onOptionsScreen(void);
 
     void onPausing(void);
+
+    void loadLevelFromZip(void);
   };
 
 }

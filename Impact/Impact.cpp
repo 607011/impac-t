@@ -19,8 +19,8 @@
 
 
 #include "stdafx.h"
-#include <intrin.h>
-#include <mmintrin.h>
+
+#include <Shlwapi.h>
 
 
 namespace Impact {
@@ -265,14 +265,17 @@ namespace Impact {
     mMenuCampaignText = sf::Text(tr("Campaign"), mFixedFont, 32U);
     mMenuCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuCampaignText.getLocalBounds().width), 32 + mDefaultView.getCenter().y);
 
+    mMenuLoadLevelText = sf::Text(tr("Load level"), mFixedFont, 32U);
+    mMenuLoadLevelText.setPosition(.5f * (mDefaultView.getSize().x - mMenuLoadLevelText.getLocalBounds().width), 64 + mDefaultView.getCenter().y);
+
     mMenuAchievementsText = sf::Text(tr("Achievements"), mFixedFont, 32U);
-    mMenuAchievementsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuAchievementsText.getLocalBounds().width), 64 + mDefaultView.getCenter().y);
+    mMenuAchievementsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuAchievementsText.getLocalBounds().width), 96 + mDefaultView.getCenter().y);
 
     mMenuOptionsText = sf::Text(tr("Options"), mFixedFont, 32U);
-    mMenuOptionsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuOptionsText.getLocalBounds().width), 96 + mDefaultView.getCenter().y);
+    mMenuOptionsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuOptionsText.getLocalBounds().width), 128 + mDefaultView.getCenter().y);
 
     mMenuCreditsText = sf::Text(tr("Credits"), mFixedFont, 32U);
-    mMenuCreditsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuCreditsText.getLocalBounds().width), 128 + mDefaultView.getCenter().y);
+    mMenuCreditsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuCreditsText.getLocalBounds().width), 160 + mDefaultView.getCenter().y);
 
     if (gSettings.useShaders) {
       mRenderTexture0.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
@@ -557,6 +560,35 @@ namespace Impact {
   }
 
 
+  void Game::loadLevelFromZip(void)
+  {
+#ifndef NDEBUG
+    std::cout << "loadLevelFromZip()" << std::endl;
+#endif
+    char szFile[MAX_PATH];
+    ZeroMemory(szFile, sizeof(szFile));
+    OPENFILENAME ofn;
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = "Zip\0*.zip\0";
+    ofn.nFilterIndex = 0;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = gSettings.lastOpenDir.c_str();
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    BOOL ok = GetOpenFileName(&ofn);
+    if (ok == TRUE) {
+      std::string zipFilename = ofn.lpstrFile;
+      PathRemoveFileSpec(ofn.lpstrFile);
+      gSettings.lastOpenDir = ofn.lpstrFile;
+      mLevel.load(zipFilename);
+    }
+  }
+
+
   void Game::gotoWelcomeScreen(void) 
   {
     clearWorld();
@@ -588,16 +620,25 @@ namespace Impact {
       }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
-          if (mMenuInstantPlayText.getGlobalBounds().contains(mousePos))
-            return;
-          else if (mMenuCampaignText.getGlobalBounds().contains(mousePos))
+          if (mMenuInstantPlayText.getGlobalBounds().contains(mousePos)) {
+            // TODO
+          }
+          else if (mMenuLoadLevelText.getGlobalBounds().contains(mousePos)) {
+            loadLevelFromZip();
+          }
+          else if (mMenuCampaignText.getGlobalBounds().contains(mousePos)) {
+            mLevel.set(0);
             gotoNextLevel();
-          else if (mMenuAchievementsText.getGlobalBounds().contains(mousePos))
+          }
+          else if (mMenuAchievementsText.getGlobalBounds().contains(mousePos)) {
             gotoAchievementsScreen();
-          else if (mMenuOptionsText.getGlobalBounds().contains(mousePos))
+          }
+          else if (mMenuOptionsText.getGlobalBounds().contains(mousePos)) {
             gotoOptionsScreen();
-          else if (mMenuCreditsText.getGlobalBounds().contains(mousePos))
+          }
+          else if (mMenuCreditsText.getGlobalBounds().contains(mousePos)) {
             gotoCreditsScreen();
+          }
           return;
         }
       }
@@ -640,6 +681,8 @@ namespace Impact {
       mWindow.draw(mMenuInstantPlayText);
       mMenuCampaignText.setColor(sf::Color(255, 255, 255, mMenuCampaignText.getGlobalBounds().contains(mousePos) ? 255 : 192));
       mWindow.draw(mMenuCampaignText);
+      mMenuLoadLevelText.setColor(sf::Color(255, 255, 255, mMenuLoadLevelText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mWindow.draw(mMenuLoadLevelText);
       mMenuAchievementsText.setColor(sf::Color(255, 255, 255, mMenuAchievementsText.getGlobalBounds().contains(mousePos) ? 32 : 32));
       mWindow.draw(mMenuAchievementsText);
       mMenuOptionsText.setColor(sf::Color(255, 255, 255, mMenuOptionsText.getGlobalBounds().contains(mousePos) ? 32 : 32));
