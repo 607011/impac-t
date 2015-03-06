@@ -38,10 +38,7 @@ namespace Impact {
   const sf::Time Game::DefaultOverlayDuration = sf::milliseconds(300);
 
   Game::Game(void)
-    : mWindow(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Impac't", sf::Style::Titlebar | sf::Style::Close, sf::ContextSettings(24U, 0U, 16U, 3U, 0U))
-    , mScale(Game::Scale)
-    , mInvScale(Game::InvScale)
-    , mWorld(nullptr)
+    : mWorld(nullptr)
     , mBallHasBeenLost(false)
     , mBall(nullptr)
     , mGround(nullptr)
@@ -76,12 +73,9 @@ namespace Impact {
 
     mGLShadingLanguageVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
 
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_TEXTURE_2D);
-    mWindow.setActive();
-    mWindow.setVerticalSyncEnabled(false);
-    resize();
+    sf::ContextSettings requestedContextSettings(24U, 0U, 16U, 3U, 0U);
+    requestedContextSettings.antialiasingLevel = gSettings.antialiasing;
+    mWindow.create(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Impac't", sf::Style::Titlebar | sf::Style::Close, requestedContextSettings);
 
 #ifndef NDEBUG
     sf::ContextSettings settings = mWindow.getSettings();
@@ -90,6 +84,14 @@ namespace Impact {
     std::cout << "antialiasing level: " << settings.antialiasingLevel << std::endl;
     std::cout << "OpenGL version: " << settings.majorVersion << "." << settings.minorVersion << std::endl;
 #endif
+
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_TEXTURE_2D);
+
+    mWindow.setActive();
+    mWindow.setVerticalSyncEnabled(true);
+    resize();
 
     sf::Image icon;
     icon.loadFromFile(ImagesDir + "/app-icon.png");

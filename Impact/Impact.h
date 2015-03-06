@@ -155,9 +155,6 @@ namespace Impact {
     int mGLVersionMinor;
     const GLubyte *mGLShadingLanguageVersion;
 
-    float mScale;
-    float mInvScale;
-
     // SFML
     sf::RenderWindow mWindow;
     sf::View mDefaultView;
