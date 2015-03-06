@@ -31,6 +31,7 @@ namespace Impact {
     , verticalSync(false)
     , antialiasingLevel(16U)
     , particlesPerExplosion(50)
+    , lastCampaignLevel(1)
   {
     TCHAR szPath[MAX_PATH];
     if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, szPath))) {
@@ -58,6 +59,7 @@ namespace Impact {
     pt.put("impact.particles-per-explosion", particlesPerExplosion);
     pt.put("impact.antialiasing-level", antialiasingLevel);
     pt.put("impact.last-open-dir", lastOpenDir);
+    pt.put("impact.campaign.last-level", lastCampaignLevel);
     try {
       boost::property_tree::xml_parser::write_xml(settingsFile, pt);
     }
@@ -94,6 +96,7 @@ namespace Impact {
       particlesPerExplosion = pt.get<unsigned int>("impact.particles-per-explosion", 50);
       antialiasingLevel = pt.get<unsigned int>("impact.antialiasing-level", 0U);
       lastOpenDir = pt.get<std::string>("impact.last-open-dir", std::string());
+      lastCampaignLevel = pt.get<int>("impact.campaign.last-level", 1);
     }
     catch (const boost::property_tree::xml_parser::xml_parser_error &ex) {
       std::cerr << "XML parser error: " << ex.what() << " (line " << ex.line() << ")" << std::endl;
@@ -101,11 +104,12 @@ namespace Impact {
     }
 
 #ifndef NDEBUG
-    std::cout << "useShaders: " << useShaders << std::endl;
-    std::cout << "verticalSync: " << verticalSync << std::endl;
-    std::cout << "particlesPerExplosion: " << particlesPerExplosion << std::endl;
-    std::cout << "antialiasing: " << antialiasingLevel << std::endl;
-    std::cout << "last open dir: " << lastOpenDir << std::endl;
+    std::cout << "use-shaders: " << useShaders << std::endl;
+    std::cout << "vertical-sync: " << verticalSync << std::endl;
+    std::cout << "particles-per-explosion: " << particlesPerExplosion << std::endl;
+    std::cout << "antialiasing-level: " << antialiasingLevel << std::endl;
+    std::cout << "last-open-dir: " << lastOpenDir << std::endl;
+    std::cout << "campaign.last-level: " << lastCampaignLevel << std::endl;
 #endif
 
     useShaders &= sf::Shader::isAvailable();

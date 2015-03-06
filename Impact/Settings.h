@@ -36,6 +36,7 @@ namespace Impact {
     unsigned int antialiasingLevel;
     unsigned int particlesPerExplosion;
     std::string lastOpenDir;
+    int lastCampaignLevel;
 
     std::string appData;
     std::string settingsFile;
