@@ -51,8 +51,8 @@ namespace Impact {
       mShader.setParameter("uResolution", static_cast<float>(mTexture.getSize().x), static_cast<float>(mTexture.getSize().y));
     }
 
-    const int W = texture.getSize().x;
-    const int H = texture.getSize().y;
+    const unsigned int W = texture.getSize().x;
+    const unsigned int H = texture.getSize().y;
 
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
