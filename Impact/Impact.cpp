@@ -1375,9 +1375,6 @@ namespace Impact {
   {
     float elapsedSeconds = 1e-6f * elapsed.asMicroseconds();
     
-    if (mState == State::Playing)
-      evaluateCollisions();
-
     BodyList remainingBodies;
     for (BodyList::iterator b = mBodies.begin(); b != mBodies.end(); ++b) {
       Body *body = *b;
@@ -1395,6 +1392,14 @@ namespace Impact {
 
     mContactPointCount = 0;
     mWorld->Step(elapsedSeconds, VelocityIterations, PositionIterations);
+    /* Note from the Box2D manual: You should always process the
+     * contact points [collected in PostSolve()] immediately after
+     * the time step; otherwise some other client code might
+     * alter the physics world, invalidating the contact buffer.
+     */
+    if (mState == State::Playing)
+      evaluateCollisions();
+    mWorld->ClearForces();
 
     mFPSArray[mFPSIndex++] = int(1.f / elapsed.asSeconds());
     if (mFPSIndex >= mFPSArray.size())
@@ -1417,14 +1422,8 @@ namespace Impact {
 
   void Game::PreSolve(b2Contact *contact, const b2Manifold *oldManifold)
   {
+    B2_NOT_USED(contact);
     B2_NOT_USED(oldManifold);
-    b2Manifold *manifold = contact->GetManifold();
-    b2Fixture *fixtureA = contact->GetFixtureA();
-    b2Fixture *fixtureB = contact->GetFixtureB();
-    Body *bodyA = reinterpret_cast<Body*>(fixtureA->GetUserData());
-    Body *bodyB = reinterpret_cast<Body*>(fixtureB->GetUserData());
-    if (bodyA->type() == Body::BodyType::Racket || bodyB->type() == Body::BodyType::Racket)
-      std::cout << manifold->localNormal.x << "/" << manifold->localNormal.y << std::endl;
   }
 
 
