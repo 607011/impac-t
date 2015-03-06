@@ -192,6 +192,31 @@ namespace Impact {
   }
 
 
+  b2AABB Racket::aabb(void) const
+  {
+    b2AABB aabb;
+    b2Transform t;
+    t.SetIdentity();
+    aabb.lowerBound = b2Vec2(FLT_MAX, FLT_MAX);
+    aabb.upperBound = b2Vec2(-FLT_MAX, -FLT_MAX);
+    b2Fixture* fixture = mTeetingBody->GetFixtureList();
+    while (fixture != nullptr) {
+      const b2Shape *shape = fixture->GetShape();
+      const int childCount = shape->GetChildCount();
+      for (int child = 0; child < childCount; ++child) {
+        const b2Vec2 r(shape->m_radius, shape->m_radius);
+        b2AABB shapeAABB;
+        shape->ComputeAABB(&shapeAABB, t, child);
+        shapeAABB.lowerBound = shapeAABB.lowerBound + r;
+        shapeAABB.upperBound = shapeAABB.upperBound - r;
+        aabb.Combine(shapeAABB);
+      }
+      fixture = fixture->GetNext();
+    }
+    return aabb;
+  }
+
+
   void Racket::kickLeft(void)
   {
     mJoint->SetMotorSpeed(-1700.f);

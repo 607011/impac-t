@@ -265,20 +265,10 @@ namespace Impact {
     int32 mContactPointCount;
 
     // b2ContactListener interface
-    virtual void PreSolve(b2Contact *contact, const b2Manifold *oldManifold)
-    {
-      B2_NOT_USED(contact);
-      B2_NOT_USED(oldManifold);
-    }
-    virtual void BeginContact(b2Contact *contact)
-    {
-      B2_NOT_USED(contact);
-    }
-    virtual void EndContact(b2Contact *contact)
-    {
-      B2_NOT_USED(contact);
-    }
-    virtual void PostSolve(b2Contact *contact, const b2ContactImpulse *impulse);
+    void PreSolve(b2Contact *contact, const b2Manifold *oldManifold);
+    void BeginContact(b2Contact *contact);
+    void EndContact(b2Contact *contact);
+    void PostSolve(b2Contact *contact, const b2ContactImpulse *impulse);
 
     // game logic
     std::vector<sf::Keyboard::Key> mKeyMapping;

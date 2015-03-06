@@ -25,6 +25,58 @@
 
 namespace Impact {
 
+
+  class LeftBoundary : public Body
+  {
+  public:
+    LeftBoundary(Game *game)
+      : Body(Body::BodyType::LeftBoundary, game)
+    { /* ... */
+    }
+    BodyType type(void) const { return Body::BodyType::LeftBoundary; }
+    virtual void onUpdate(float elapsedSeconds) { UNUSED(elapsedSeconds); }
+    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const  { UNUSED(target); UNUSED(states); };
+  };
+
+  class RightBoundary : public Body
+  {
+  public:
+    RightBoundary(Game *game)
+      : Body(Body::BodyType::RightBoundary, game)
+    { /* ... */
+    }
+    BodyType type(void) const { return Body::BodyType::RightBoundary; }
+    virtual void onUpdate(float elapsedSeconds) { UNUSED(elapsedSeconds); }
+    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const  { UNUSED(target); UNUSED(states); };
+  };
+
+  class TopBoundary : public Body
+  {
+  public:
+    TopBoundary(Game *game)
+      : Body(Body::BodyType::TopBoundary, game)
+    { /* ... */
+    }
+    BodyType type(void) const { return Body::BodyType::TopBoundary; }
+    virtual void onUpdate(float elapsedSeconds) { UNUSED(elapsedSeconds); }
+    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const  { UNUSED(target); UNUSED(states); };
+  };
+
+  class BottomBoundary : public Body
+  {
+  public:
+    BottomBoundary(Game *game)
+      : Body(Body::BodyType::BottomBoundary, game)
+    { /* ... */
+    }
+    BodyType type(void) const { return Body::BodyType::BottomBoundary; }
+    virtual void onUpdate(float elapsedSeconds) { UNUSED(elapsedSeconds); }
+    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const  { UNUSED(target); UNUSED(states); };
+  };
+
+
+
+
   const float32 Game::InvScale = 1.f / Game::Scale;
   const int Game::DefaultLives = 3;
   const int Game::DefaultPenalty = 100;
@@ -549,7 +601,17 @@ namespace Impact {
   inline void Game::handlePlayerInteraction(const sf::Time &elapsed)
   {
     if (mRacket != nullptr) {
-      const sf::Vector2i &mousePos = sf::Mouse::getPosition(mWindow);
+      sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
+      const b2AABB &aabb = mRacket->aabb();
+      const float32 w = aabb.upperBound.x - aabb.lowerBound.x;
+      const float32 h = aabb.upperBound.y - aabb.lowerBound.y;
+      if (mousePos.x < 0) {
+        mousePos.x = static_cast<int>(Scale * w);
+      }
+      if (mousePos.x > static_cast<int>(mWindow.getSize().x)) {
+        mousePos.x = mWindow.getSize().x - static_cast<int>(Scale * w);
+      }
+      sf::Mouse::setPosition(mousePos, mWindow);
       mRacket->moveTo(InvScale * b2Vec2(float32(mousePos.x), float32(mousePos.y)));
       if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
         mRacket->kickLeft();
@@ -1341,6 +1403,31 @@ namespace Impact {
   }
 
 
+  void Game::BeginContact(b2Contact *contact)
+  {
+    B2_NOT_USED(contact);
+  }
+
+
+  void Game::EndContact(b2Contact *contact)
+  {
+    B2_NOT_USED(contact);
+  }
+
+
+  void Game::PreSolve(b2Contact *contact, const b2Manifold *oldManifold)
+  {
+    B2_NOT_USED(oldManifold);
+    b2Manifold *manifold = contact->GetManifold();
+    b2Fixture *fixtureA = contact->GetFixtureA();
+    b2Fixture *fixtureB = contact->GetFixtureB();
+    Body *bodyA = reinterpret_cast<Body*>(fixtureA->GetUserData());
+    Body *bodyB = reinterpret_cast<Body*>(fixtureB->GetUserData());
+    if (bodyA->type() == Body::BodyType::Racket || bodyB->type() == Body::BodyType::Racket)
+      std::cout << manifold->localNormal.x << "/" << manifold->localNormal.y << std::endl;
+  }
+
+
   void Game::PostSolve(b2Contact *contact, const b2ContactImpulse *impulse)
   {
     if (mContactPointCount < MaxContactPoints) {
@@ -1394,6 +1481,7 @@ namespace Impact {
     fdRight.restitution = 0.9f;
     fdRight.density = 0.f;
     fdRight.shape = &rightShape;
+    fdRight.userData = new RightBoundary(this);
     boundaries->CreateFixture(&fdRight);
     b2EdgeShape leftShape;
     leftShape.Set(b2Vec2(0, 0), b2Vec2(0, H));
@@ -1401,6 +1489,7 @@ namespace Impact {
     fdLeft.restitution = 0.9f;
     fdLeft.density = 0.f;
     fdLeft.shape = &leftShape;
+    fdLeft.userData = new LeftBoundary(this);
     boundaries->CreateFixture(&fdLeft);
     b2EdgeShape topShape;
     topShape.Set(b2Vec2(0, g > 0.f ? 0.f : static_cast<float32>(mLevel.height())), b2Vec2(W, g > 0.f ? 0.f : static_cast<float32>(mLevel.height())));

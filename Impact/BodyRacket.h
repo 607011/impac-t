@@ -47,6 +47,7 @@ namespace Impact {
     virtual void moveTo(const b2Vec2 &pos);
     void setXAxisConstraint(float32 y);
     virtual b2Body *body(void);
+    b2AABB aabb(void) const;
 
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);

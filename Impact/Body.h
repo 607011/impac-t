@@ -54,7 +54,11 @@ namespace Impact {
       Ground,
       Particle,
       Text,
-      Wall
+      Wall,
+      LeftBoundary,
+      TopBoundary,
+      RightBoundary,
+      BottomBoundary
     } BodyType;
 
     static const int16 DefaultCollisionGroup = 1;
