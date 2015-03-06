@@ -794,7 +794,7 @@ namespace Impact {
     stopAllMusic();
     clearWorld();
     mBallHasBeenLost = false;
-    // mWindow.setMouseCursorVisible(false);
+    mWindow.setMouseCursorVisible(false);
     if (gSettings.useShaders) {
       mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
     }
