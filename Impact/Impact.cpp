@@ -39,6 +39,8 @@ namespace Impact {
 
   Game::Game(void)
     : mWindow(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Impac't", sf::Style::Titlebar | sf::Style::Close, sf::ContextSettings(24U, 0U, 16U, 3U, 0U))
+    , mScale(Game::Scale)
+    , mInvScale(Game::InvScale)
     , mWorld(nullptr)
     , mBallHasBeenLost(false)
     , mBall(nullptr)

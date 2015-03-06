@@ -92,6 +92,14 @@ namespace Impact {
     {
       return mLevelNum;
     }
+    inline int tileWidth(void) const
+    {
+      return mTileWidth;
+    }
+    inline int tileHeight(void) const
+    {
+      return mTileHeight;
+    }
     /// number of tiles in horizontal direction
     inline int width(void) const
     {

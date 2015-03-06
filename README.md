@@ -30,10 +30,11 @@ A Breakout/Bolo clone, augmented with a physics engine
 
    to welcome screen
 
- - amend Level::load() with the ability to load complete levels (tile map, graphics) from a zip file. The zip file must have a flat 
+ - amend Level::load() with the ability to load complete levels (tile map, graphics) from a zip file. The zip file should have a flat directory structure
 
 ### Nice to have
 
+ - allow resizing of screen + fullscreen mode
  - create multi size ICO file
  - display gravity vector as a visual aid for the player
  - nicer visual effect when the racket hits a block
