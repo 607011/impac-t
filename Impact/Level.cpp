@@ -53,12 +53,12 @@ namespace Impact {
   }
 
 
-  bool Level::set(int level)
+  bool Level::set(int level, bool doLoad)
   {
     mSuccessfullyLoaded = false;
     mLevelNum = level;
-    if (mLevelNum > 0)
-      mSuccessfullyLoaded = load();
+    if (mLevelNum > 0 && doLoad)
+      load();
     return mSuccessfullyLoaded;
   }
 
@@ -79,17 +79,16 @@ namespace Impact {
 
 
 #pragma warning(disable : 4503)
-  bool Level::load(const std::string &zipFilename)
+  void Level::load(const std::string &zipFilename)
   {
+    mSuccessfullyLoaded = false;
     bool ok = true;
-    safeFree(mMapData);
-    mBackgroundImageOpacity = 1.f;
 
     std::string levelPath;
     std::string levelFilename;
     if (!zipFilename.empty()) {
       HZIP hz = OpenZip(zipFilename.c_str(), nullptr);
-      levelPath = gSettings.levelsDir + "/9999";
+      levelPath = gSettings.levelsDir + "/current";
       SetUnzipBaseDir(hz, levelPath.c_str());
       ZIPENTRY ze;
       GetZipItem(hz, -1, &ze);
@@ -105,30 +104,31 @@ namespace Impact {
 #endif
       }
       CloseZip(hz);
-      mLevelNum = 9999;
     }
     else {
       std::ostringstream levelStrBuf;
       levelStrBuf << std::setw(4) << std::setfill('0') << mLevelNum;
       const std::string levelStr = levelStrBuf.str();
-      levelPath = gSettings.levelsDir + "/" + levelStr;
-      levelFilename = levelPath + "/" + levelStr + ".tmx";
+      levelFilename = gSettings.levelsDir + "/" + levelStr + ".zip";
+#ifndef NDEBUG
+      std::cout << "Level ZIP filename: " << levelFilename << "." << std::endl;
+#endif
+      return load(levelFilename);
     }
 
-#ifndef NDEBUG
-    // mLevelNum = 10;
-#endif
 #ifndef NDEBUG
     std::cout << "Level::load() " << levelFilename << " ..." << std::endl;
 #endif
     ok = fileExists(levelFilename);
     if (!ok)
-      return false;
+      return;
 
 #ifndef NDEBUG
     std::cout << "Opening " << levelFilename << "..." << std::endl;
 #endif
 
+    safeFree(mMapData);
+    mBackgroundImageOpacity = 1.f;
     boost::property_tree::ptree pt;
     try {
       boost::property_tree::xml_parser::read_xml(levelFilename, pt);
@@ -139,7 +139,7 @@ namespace Impact {
     }
 
     if (!ok)
-      return false;
+      return;
 
     try { // evaluate level properties
       mGravity = DefaultGravity;
@@ -229,7 +229,7 @@ namespace Impact {
       }
 
       if (!ok)
-        return false;
+        return;
 
       const std::string &backgroundTextureFilename = levelPath + "/" + pt.get<std::string>("map.imagelayer.image.<xmlattr>.source");
       mBackgroundTexture.loadFromFile(backgroundTextureFilename);
@@ -242,14 +242,10 @@ namespace Impact {
       mBoundary = Boundary();
       try {
         const boost::property_tree::ptree &object = pt.get_child("map.objectgroup.object");
-        int x = object.get<int>("<xmlattr>.x");
-        int y = object.get<int>("<xmlattr>.y");
-        int w = object.get<int>("<xmlattr>.width");
-        int h = object.get<int>("<xmlattr>.height");
-        mBoundary.left = x;
-        mBoundary.top = y;
-        mBoundary.right = x + w;
-        mBoundary.bottom = y + h;
+        mBoundary.left = object.get<int>("<xmlattr>.x");
+        mBoundary.top = object.get<int>("<xmlattr>.y");
+        mBoundary.right = mBoundary.left + object.get<int>("<xmlattr>.width");
+        mBoundary.bottom = mBoundary.top + object.get<int>("<xmlattr>.height");
         mBoundary.valid = true;
       } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
 
@@ -266,7 +262,7 @@ namespace Impact {
           const std::string &filename = levelPath + "/" + tile.get<std::string>("image.<xmlattr>.source");
           ok = tileParam.texture.loadFromFile(filename);
           if (!ok)
-            return false;
+            return;
           const boost::property_tree::ptree &tileProperties = tile.get_child("properties");
           boost::property_tree::ptree::const_iterator pi;
           for (pi = tileProperties.begin(); pi != tileProperties.end(); ++pi) {
@@ -364,7 +360,7 @@ namespace Impact {
 #ifndef NDEBUG
     std::cout << "Level loaded." << std::endl;
 #endif
-    return ok;
+    mSuccessfullyLoaded = ok;
   }
 
 

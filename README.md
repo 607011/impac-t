@@ -21,7 +21,6 @@ A Breakout/Bolo clone, augmented with a physics engine
  - integrate 3rd party sources/libraries into Visual Studio solution
  - add 
 
-    - PLAY LEVEL x
     - INSTANT PLAY
     - CAMPAIGN
     - ACHIEVEMENTS
@@ -52,6 +51,7 @@ A Breakout/Bolo clone, augmented with a physics engine
    - leaderboard for every level
    - leaderboard for campaigns
    - stats & achievements
+ - use custom cursor instead of OS's default (https://github.com/LaurentGomila/SFML/wiki/Tutorial:-Change-Cursor)
 
 ## License
 

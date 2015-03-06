@@ -303,6 +303,7 @@ namespace Impact {
     void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);
     void newBall(const b2Vec2 &pos = b2Vec2_zero);
+    void setCursorOnRacket(void);
     void extraBall(void);
     void setState(State state);
     void clearWorld(void);
@@ -333,6 +334,8 @@ namespace Impact {
 
     void gotoWelcomeScreen(void);
     void onWelcomeScreen(void);
+
+    void gotoCurrentLevel(void);
 
     void gotoNextLevel(void);
     void onPlaying(void);

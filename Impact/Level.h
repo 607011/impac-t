@@ -61,7 +61,7 @@ namespace Impact {
     static const float32 DefaultGravity;
 
     void clear(void);
-    bool set(int level);
+    bool set(int level, bool doLoad = true);
     bool gotoNext(void);
 
     const sf::Texture &texture(const std::string &name) const;
@@ -140,7 +140,7 @@ namespace Impact {
       return mKillingSpreeInterval;
     }
 
-    bool load(const std::string &zipFilename = std::string());
+    void load(const std::string &zipFilename = std::string());
 
   private:
     bool mSuccessfullyLoaded;

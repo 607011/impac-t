@@ -41,6 +41,7 @@ namespace Impact {
     : mWorld(nullptr)
     , mBallHasBeenLost(false)
     , mBall(nullptr)
+    , mRacket(nullptr)
     , mGround(nullptr)
     , mContactPointCount(0)
     , mScore(0)
@@ -476,7 +477,6 @@ namespace Impact {
 
   inline void Game::clearWindow(void)
   {
-    // mWindow.clear(sf::Color(42, 52, 54, 255));
     mWindow.clear(mStatsColor);
   }
 
@@ -495,7 +495,7 @@ namespace Impact {
         break;
       case sf::Event::GainedFocus:
         if (mState == State::Playing)
-          sf::Mouse::setPosition(sf::Vector2i(static_cast<int>(Scale * mRacket->position().x), static_cast<int>(Scale * mRacket->position().y)), mWindow);
+          setCursorOnRacket();
         resume();
         break;
       case sf::Event::MouseButtonPressed:
@@ -515,8 +515,10 @@ namespace Impact {
           mWindow.close();
         }
         else if (event.key.code == mKeyMapping[Action::PauseAction]) {
-          if (mPaused)
+          if (mPaused) {
             resume();
+            setCursorOnRacket();
+          }
           else
             pause();
         }
@@ -587,6 +589,8 @@ namespace Impact {
       PathRemoveFileSpec(ofn.lpstrFile);
       gSettings.lastOpenDir = ofn.lpstrFile;
       mLevel.load(zipFilename);
+      if (mLevel.isAvailable())
+        gotoCurrentLevel();
     }
   }
 
@@ -624,13 +628,16 @@ namespace Impact {
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
           if (mMenuInstantPlayText.getGlobalBounds().contains(mousePos)) {
+            mPlaymode = SingleLevel;
             // TODO
           }
           else if (mMenuLoadLevelText.getGlobalBounds().contains(mousePos)) {
+            mPlaymode = SingleLevel;
             loadLevelFromZip();
           }
           else if (mMenuCampaignText.getGlobalBounds().contains(mousePos)) {
-            mLevel.set(0);
+            mPlaymode = Campaign;
+            mLevel.set(gSettings.lastCampaignLevel - 1);
             gotoNextLevel();
           }
           else if (mMenuAchievementsText.getGlobalBounds().contains(mousePos)) {
@@ -834,10 +841,10 @@ namespace Impact {
   }
 
 
-  void Game::gotoNextLevel(void)
+  void Game::gotoCurrentLevel(void)
   {
 #ifndef NDEBUG
-    std::cout << "Game::gotoNextLevel()" << std::endl;
+    std::cout << "Game::gotoCurrentLevel(), level = " << mLevel.num() << std::endl;
 #endif
     stopAllMusic();
     clearWorld();
@@ -848,8 +855,10 @@ namespace Impact {
     }
     mScaleGravityEnabled = false;
     mScaleBallDensityEnabled = false;
-    bool levelAvailable = mPlaymode == Playmode::Campaign ? mLevel.gotoNext() : mLevel.isAvailable();
-    if (levelAvailable) {
+    if (mLevel.isAvailable()) {
+      mWindow.setVerticalSyncEnabled(gSettings.verticalSync);
+      if (mPlaymode == Campaign)
+        gSettings.lastCampaignLevel = mLevel.num();
       buildLevel();
       mClock.restart();
       mBlurPlayground = false;
@@ -864,6 +873,17 @@ namespace Impact {
     else {
       gotoPlayerWon();
     }
+  }
+
+
+  void Game::gotoNextLevel(void)
+  {
+#ifndef NDEBUG
+    std::cout << "Game::gotoNextLevel()" << std::endl;
+#endif
+    if (mPlaymode == Campaign)
+      mLevel.gotoNext();
+    gotoCurrentLevel();
   }
 
 
@@ -1499,6 +1519,13 @@ namespace Impact {
       }
     }
     mScore = b2Max(newScore, 0);
+  }
+
+
+  void Game::setCursorOnRacket(void)
+  {
+    if (mRacket != nullptr)
+      sf::Mouse::setPosition(sf::Vector2i(static_cast<int>(Scale * mRacket->position().x), static_cast<int>(Scale * mRacket->position().y)), mWindow);
   }
 
 
