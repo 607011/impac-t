@@ -33,11 +33,13 @@ namespace Impact {
 
     bool useShaders;
     bool verticalSync;
-    unsigned int antialiasing;
+    unsigned int antialiasingLevel;
     unsigned int particlesPerExplosion;
+    std::string lastOpenDir;
 
     std::string appData;
     std::string settingsFile;
+    std::string levelsDir;
   };
 
 }

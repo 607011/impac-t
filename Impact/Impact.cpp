@@ -74,7 +74,7 @@ namespace Impact {
     mGLShadingLanguageVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
 
     sf::ContextSettings requestedContextSettings(24U, 0U, 16U, 3U, 0U);
-    requestedContextSettings.antialiasingLevel = gSettings.antialiasing;
+    requestedContextSettings.antialiasingLevel = gSettings.antialiasingLevel;
     mWindow.create(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Impac't", sf::Style::Titlebar | sf::Style::Close, requestedContextSettings);
 
 #ifndef NDEBUG
@@ -337,6 +337,7 @@ namespace Impact {
 
   Game::~Game(void)
   {
+    gSettings.save();
     clearWorld();
   }
 
