@@ -90,7 +90,6 @@ namespace Impact {
     glEnable(GL_TEXTURE_2D);
 
     mWindow.setActive();
-    mWindow.setVerticalSyncEnabled(true);
     resize();
 
     sf::Image icon;
@@ -606,6 +605,7 @@ namespace Impact {
     mWelcomeLevel = 0;
     mWallClock.restart();
     mWindow.setMouseCursorVisible(true);
+    mWindow.setVerticalSyncEnabled(true);
   }
 
 
