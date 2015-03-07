@@ -139,6 +139,22 @@ namespace Impact {
     {
       return mKillingSpreeInterval;
     }
+    inline const std::string &credits(void) const
+    {
+      return mCredits;
+    }
+    inline const std::string &author(void) const
+    {
+      return mAuthor;
+    }
+    inline const std::string &copyright(void) const
+    {
+      return mCopyright;
+    }
+    inline const std::string &name(void) const
+    {
+      return mName;
+    }
 
     void load(const std::string &zipFilename = std::string());
 
@@ -161,6 +177,10 @@ namespace Impact {
     int mKillingsPerKillingSpree;
     int mKillingSpreeBonus;
     sf::Time mKillingSpreeInterval;
+    std::string mName;
+    std::string mCredits;
+    std::string mAuthor;
+    std::string mCopyright;
 
     std::vector<TileParam> mTiles;
   };

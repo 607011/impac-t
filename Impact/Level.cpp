@@ -143,6 +143,10 @@ namespace Impact {
 
     try { // evaluate level properties
       mGravity = DefaultGravity;
+      mCredits = std::string();
+      mAuthor = std::string();
+      mCopyright = std::string();
+      mName = std::string();
       mKillingsPerKillingSpree = Game::DefaultKillingsPerKillingSpree;
       mKillingSpreeBonus = Game::DefaultKillingSpreeBonus;
       mKillingSpreeInterval = Game::DefaultKillingSpreeInterval;
@@ -154,32 +158,56 @@ namespace Impact {
         if (pi->first == "property") {
           std::string propName = property.get<std::string>("<xmlattr>.name");
           boost::algorithm::to_lower(propName);
-          if (propName == "gravity") {
-            mGravity = property.get<float32>("<xmlattr>.value");
+          if (propName == "credits") {
+            mCredits = property.get<std::string>("<xmlattr>.value", std::string());
+#ifndef NDEBUG
+            std::cout << "mCredits = " << mCredits << std::endl;
+#endif
+          }
+          else if (propName == "author") {
+            mAuthor = property.get<std::string>("<xmlattr>.value", std::string());
+#ifndef NDEBUG
+            std::cout << "mAuthor = " << mAuthor << std::endl;
+#endif
+          }
+          else if (propName == "copyright") {
+            mCopyright = property.get<std::string>("<xmlattr>.value", std::string());
+#ifndef NDEBUG
+            std::cout << "mCopyright = " << mCopyright << std::endl;
+#endif
+          }
+          else if (propName == "name") {
+            mName = property.get<std::string>("<xmlattr>.value", std::string());
+#ifndef NDEBUG
+            std::cout << "mName = " << mName << std::endl;
+#endif
+          }
+          else if (propName == "gravity") {
+            mGravity = property.get<float32>("<xmlattr>.value", 9.81f);
 #ifndef NDEBUG
             std::cout << "mGravity = " << mGravity << std::endl;
 #endif
           }
           else if (propName == "explosionparticlescollidewithball") {
-            mExplosionParticlesCollideWithBall = property.get<int>("<xmlattr>.value") > 0;
+            mExplosionParticlesCollideWithBall = property.get<bool>("<xmlattr>.value", false);
 #ifndef NDEBUG
             std::cout << "mExplosionParticlesCollideWithBall = " << mExplosionParticlesCollideWithBall << std::endl;
 #endif
           }
           else if (propName == "killingspreebonus") {
-            mKillingSpreeBonus = property.get<int>("<xmlattr>.value");
+            mKillingSpreeBonus = property.get<int>("<xmlattr>.value", Game::DefaultKillingSpreeBonus);
 #ifndef NDEBUG
             std::cout << "mKillingSpreeBonus = " << mKillingSpreeBonus << std::endl;
 #endif
           }
           else if (propName == "killingspreeinterval") {
-            mKillingSpreeInterval = sf::milliseconds(property.get<int>("<xmlattr>.value"));
+            mKillingSpreeInterval = sf::milliseconds(property.get<int>("<xmlattr>.value", Game::DefaultKillingSpreeInterval.asMilliseconds()));
 #ifndef NDEBUG
             std::cout << "mKillingSpreeInterval = " << mKillingSpreeInterval.asMilliseconds() << std::endl;
 #endif
           }
           else if (propName == "killingsperkillingspree") {
-            mKillingsPerKillingSpree = property.get<int>("<xmlattr>.value");
+            mKillingsPerKillingSpree = property.get<int>("<xmlattr>.value", Game::DefaultKillingsPerKillingSpree);
 #ifndef NDEBUG
             std::cout << "mKillingsPerKillingSpree = " << mKillingsPerKillingSpree << std::endl;
 #endif
