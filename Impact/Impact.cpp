@@ -844,7 +844,7 @@ namespace Impact {
 
     mWindow.setView(mPlaygroundView);
 
-    mPlayerWonMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
+    mPlayerWonMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mPlayerWonMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mPlayerWonMsg);
 
     mYourScoreMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mYourScoreMsg.getLocalBounds().width, mPlaygroundView.getCenter().y);
