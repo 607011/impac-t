@@ -192,13 +192,12 @@ namespace Impact {
   }
 
 
-  b2AABB Racket::aabb(void) const
+  const b2AABB &Racket::aabb(void) const
   {
-    b2AABB aabb;
     b2Transform t;
     t.SetIdentity();
-    aabb.lowerBound = b2Vec2(FLT_MAX, FLT_MAX);
-    aabb.upperBound = b2Vec2(-FLT_MAX, -FLT_MAX);
+    mAABB.lowerBound = b2Vec2(FLT_MAX, FLT_MAX);
+    mAABB.upperBound = b2Vec2(-FLT_MAX, -FLT_MAX);
     b2Fixture* fixture = mTeetingBody->GetFixtureList();
     while (fixture != nullptr) {
       const b2Shape *shape = fixture->GetShape();
@@ -209,11 +208,11 @@ namespace Impact {
         shape->ComputeAABB(&shapeAABB, t, child);
         shapeAABB.lowerBound = shapeAABB.lowerBound + r;
         shapeAABB.upperBound = shapeAABB.upperBound - r;
-        aabb.Combine(shapeAABB);
+        mAABB.Combine(shapeAABB);
       }
       fixture = fixture->GetNext();
     }
-    return aabb;
+    return mAABB;
   }
 
 
