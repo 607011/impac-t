@@ -135,7 +135,7 @@ namespace Impact {
     std::string levelFilename;
 
     char szPath[MAX_PATH];
-    memcpy_s(szPath, MAX_PATH, zipFilename.c_str(), zipFilename.size());
+    strcpy_s(szPath, MAX_PATH, zipFilename.c_str());
     PathStripPath(szPath);
     PathRemoveExtension(szPath);
     mName = szPath;
