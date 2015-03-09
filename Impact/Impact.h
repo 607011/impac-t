@@ -182,6 +182,8 @@ namespace Impact {
     sf::Sprite mTitleSprite;
     sf::Text mMenuInstantPlayText;
     sf::Text mMenuLoadLevelText;
+    sf::Text mMenuExitText;
+    sf::Text mMenuBackText;
     sf::Text mMenuCampaignText;
     sf::Text mMenuRestartCampaignText;
     sf::Text mMenuResumeCampaignText;

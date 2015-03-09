@@ -339,12 +339,17 @@ namespace Impact {
     mMenuCreditsText = sf::Text(tr("Credits"), mFixedFont, 32U);
     mMenuCreditsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuCreditsText.getLocalBounds().width), 160 + menuTop);
 
+    mMenuExitText = sf::Text(tr("Exit"), mFixedFont, 32U);
+    mMenuExitText.setPosition(.5f * (mDefaultView.getSize().x - mMenuExitText.getLocalBounds().width), 192 + menuTop);
+
     mMenuResumeCampaignText = sf::Text(tr("Resume Campaign"), mFixedFont, 32U);
     mMenuResumeCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuResumeCampaignText.getLocalBounds().width), 0 + menuTop);
 
     mMenuRestartCampaignText = sf::Text(tr("Restart Campaign"), mFixedFont, 32U);
     mMenuRestartCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuRestartCampaignText.getLocalBounds().width), 32 + menuTop);
 
+    mMenuBackText = sf::Text(tr("Back"), mFixedFont, 32U);
+    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 224 + menuTop);
 
     if (gSettings.useShaders) {
       mRenderTexture0.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
@@ -764,7 +769,7 @@ namespace Impact {
       mWelcomeLevel = 1;
     }
 
-    if (t > .5f) {
+    if (t > 350) {
       mMenuInstantPlayText.setColor(sf::Color(255, 255, 255, mMenuInstantPlayText.getGlobalBounds().contains(mousePos) ? 32 : 32));
       mWindow.draw(mMenuInstantPlayText);
       mMenuCampaignText.setColor(sf::Color(255, 255, 255, mMenuCampaignText.getGlobalBounds().contains(mousePos) ? 255 : 192));
@@ -777,6 +782,8 @@ namespace Impact {
       mWindow.draw(mMenuOptionsText);
       mMenuCreditsText.setColor(sf::Color(255, 255, 255, mMenuCreditsText.getGlobalBounds().contains(mousePos) ? 32 : 32));
       mWindow.draw(mMenuCreditsText);
+      mMenuExitText.setColor(sf::Color(255, 255, 255, mMenuExitText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mWindow.draw(mMenuExitText);
 
       if (mWelcomeLevel == 1) {
         mExplosionSound.play();
@@ -787,7 +794,7 @@ namespace Impact {
         addBody(new Explosion(pd));
       }
     }
-    if (t > .6f) {
+    if (t > 550) {
       mWindow.draw(mLogoSprite);
       if (mWelcomeLevel == 2) {
         mExplosionSound.play();
@@ -798,7 +805,7 @@ namespace Impact {
         addBody(new Explosion(pd));
       }
     }
-    if (t > .7f) {
+    if (t > 670) {
       mWindow.draw(mProgramInfoMsg);
       if (mWelcomeLevel == 4) {
         mExplosionSound.play();
@@ -1072,6 +1079,8 @@ namespace Impact {
     mWindow.setView(mDefaultView);
     mWindow.setMouseCursorVisible(true);
     mWindow.setVerticalSyncEnabled(true);
+    mRacketHitSound.play();
+    mWelcomeLevel = 0;
   }
 
 
@@ -1124,7 +1133,7 @@ namespace Impact {
 
     const float menuTop = std::floor(mDefaultView.getCenter().y - 45.5f);
 
-    sf::Text campaignLevelText = sf::Text(tr("Campaign @ Level ") + std::to_string(gSettings.lastCampaignLevel), mFixedFont, 32U);
+    sf::Text campaignLevelText = sf::Text(tr(">>> Campaign @ Level ") + std::to_string(gSettings.lastCampaignLevel) + " <<<", mFixedFont, 32U);
     campaignLevelText.setPosition(.5f * (mDefaultView.getSize().x - campaignLevelText.getLocalBounds().width), 0 + menuTop);
     mWindow.draw(campaignLevelText);
 
@@ -1137,6 +1146,22 @@ namespace Impact {
       mMenuRestartCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuRestartCampaignText.getLocalBounds().width), 96 + menuTop);
       mWindow.draw(mMenuRestartCampaignText);
     }
+
+    mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 224 + menuTop);
+    mWindow.draw(mMenuBackText);
+
+    if (mWelcomeLevel == 0) {
+      ExplosionDef pd(this, InvScale * b2Vec2(mousePos.x, mousePos.y));
+      pd.ballCollisionEnabled = false;
+      pd.count = gSettings.particlesPerExplosion;
+      pd.texture = mParticleTexture;
+      addBody(new Explosion(pd));
+      mWelcomeLevel = 1;
+    }
+
+    update(elapsed);
+    drawWorld(mWindow.getDefaultView());
   }
 
 
