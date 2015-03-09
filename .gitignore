@@ -16,4 +16,3 @@ ipch/*
 *.psess
 *.vsp
 packages/*
-packages.config
