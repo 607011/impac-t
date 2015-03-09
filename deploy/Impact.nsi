@@ -123,6 +123,7 @@ Section "Uninstall"
   Delete "$INSTDIR\sfml-system-2.dll"
   Delete "$INSTDIR\sfml-window-2.dll"
   Delete "$INSTDIR\sfml-network-2.dll"
+  Delete "$INSTDIR\app-icon.ico"
   Delete "$INSTDIR\${APP}.exe"
   Delete "$INSTDIR\uninstall.exe"
 
