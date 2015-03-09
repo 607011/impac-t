@@ -20,9 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __SETTINGS_H_
 #define __SETTINGS_H_
 
-namespace Impact {
+#include <string>
 
-#define ENABLE_SHADERS 1
+#define ENABLE_SHADERS (true)
+
+namespace Impact {
 
   class Settings {
   public:
