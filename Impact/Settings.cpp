@@ -95,7 +95,7 @@ namespace Impact {
       verticalSync = pt.get<bool>("impact.vertical-sync", false);
       particlesPerExplosion = pt.get<unsigned int>("impact.particles-per-explosion", 50);
       antialiasingLevel = pt.get<unsigned int>("impact.antialiasing-level", 0U);
-      lastOpenDir = pt.get<std::string>("impact.last-open-dir", std::string());
+      lastOpenDir = pt.get<std::string>("impact.last-open-dir", levelsDir);
       lastCampaignLevel = pt.get<int>("impact.campaign.last-level", 1);
     }
     catch (const boost::property_tree::xml_parser::xml_parser_error &ex) {
