@@ -17,6 +17,8 @@ A Breakout/Bolo clone, augmented with a physics engine
 ### Essential
 
  - racket sometimes gets stuck in walls
+ - let the user reset the campaign
+ - playing a Custom Level results in 'Failed to open shader file "resources/shaders/fallingblock.fs"' (BodyBlock)
  - integrate 3rd party sources/libraries into Visual Studio solution
 
 ### Nice to have
@@ -38,7 +40,12 @@ A Breakout/Bolo clone, augmented with a physics engine
  - integrate with Steam:
    - leaderboard for every level
    - leaderboard for campaigns
-   - stats & achievements
+   - stats
+   - achievements, e.g.:
+	 - 2, 4, 8, 16 ... killing sprees in one level
+	 - uninterrupted play for 15, 30, 60, 90 ... minutes
+	 - 1, 2, 4, 8, 16 hours total play time
+	 - no ball lost in 1, 2, 4, 8, 16 levels
  - use custom cursor instead of OS's default (https://github.com/LaurentGomila/SFML/wiki/Tutorial:-Change-Cursor)
 
 ## License
