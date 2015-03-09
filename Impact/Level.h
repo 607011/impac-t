@@ -56,9 +56,13 @@ namespace Impact {
   class Level {
   public:
     Level(void);
+    Level(const Level &);
     ~Level();
 
     static const float32 DefaultGravity;
+
+    static const std::vector<Level> &enumerateAllLevels(void);
+    static std::vector<Level> sLevels;
 
     void clear(void);
     bool set(int level, bool doLoad = true);
@@ -156,7 +160,8 @@ namespace Impact {
       return mName;
     }
 
-    void load(const std::string &zipFilename = std::string());
+    void load(void);
+    void load(const std::string &zipFilename);
 
   private:
     bool mSuccessfullyLoaded;

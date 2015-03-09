@@ -97,6 +97,7 @@ namespace Impact {
       AchievementsScreen,
       Playing,
       LevelCompleted,
+      SelectLevelScreen,
       Pausing,
       PlayerWon,
       GameOver,
@@ -347,6 +348,9 @@ namespace Impact {
     
     void gotoOptionsScreen(void);
     void onOptionsScreen(void);
+
+    void gotoSelectLevelScreen(void);
+    void onSelectLevelScreen(void);
 
     void onPausing(void);
 

@@ -126,6 +126,8 @@ namespace Impact {
 
     mGLShadingLanguageVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
 
+    Level::enumerateAllLevels();
+
     sf::ContextSettings requestedContextSettings(24U, 0U, 16U, 3U, 0U);
     requestedContextSettings.antialiasingLevel = gSettings.antialiasingLevel;
     mWindow.create(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Impac't", sf::Style::Titlebar | sf::Style::Close, requestedContextSettings);
@@ -516,6 +518,10 @@ namespace Impact {
 
       case State::OptionsScreen:
         onOptionsScreen();
+        break;
+
+      case State::SelectLevelScreen:
+        onSelectLevelScreen();
         break;
 
       default:
@@ -1035,6 +1041,17 @@ namespace Impact {
     // TODO: implement onOptionsScreen()
   }
 
+
+  void Game::gotoSelectLevelScreen(void)
+  {
+    // TODO: implement gotoSelectLevelScreen()
+  }
+
+
+  void Game::onSelectLevelScreen(void)
+  {
+    // TODO: implement onSelectLevelScreen()
+  }
 
 
   inline void Game::executeAberration(sf::RenderTexture &out, sf::RenderTexture &in)

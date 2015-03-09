@@ -21,11 +21,14 @@
 #include "stdafx.h"
 
 #include "../zip-utils/unzip.h"
-
+#include <Shlwapi.h>
+#include <memory.h>
 
 namespace Impact {
 
   const float32 Level::DefaultGravity = 9.81f;
+
+  std::vector<Level> Level::sLevels;
 
   Level::Level(void)
     : mBackgroundColor(sf::Color::Black)
@@ -42,6 +45,30 @@ namespace Impact {
     , mKillingSpreeBonus(Game::DefaultKillingSpreeBonus)
     , mKillingSpreeInterval(Game::DefaultKillingSpreeInterval)
     , mSuccessfullyLoaded(false)
+  {
+    // ...
+  }
+
+
+  Level::Level(const Level &other)
+    : mBackgroundColor(other.mBackgroundColor)
+    , mFirstGID(other.mFirstGID)
+    , mMapData(other.mMapData)
+    , mNumTilesX(other.mNumTilesX)
+    , mNumTilesY(other.mNumTilesY)
+    , mTileWidth(other.mTileWidth)
+    , mTileHeight(other.mTileHeight)
+    , mLevelNum(other.mLevelNum)
+    , mGravity(other.mGravity)
+    , mExplosionParticlesCollideWithBall(other.mExplosionParticlesCollideWithBall)
+    , mKillingsPerKillingSpree(other.mKillingsPerKillingSpree)
+    , mKillingSpreeBonus(other.mKillingSpreeBonus)
+    , mKillingSpreeInterval(other.mKillingSpreeInterval)
+    , mSuccessfullyLoaded(other.mSuccessfullyLoaded)
+    , mName(other.mName)
+    , mCredits(other.mCredits)
+    , mAuthor(other.mAuthor)
+    , mCopyright(other.mCopyright)
   {
     // ...
   }
@@ -78,6 +105,20 @@ namespace Impact {
   }
 
 
+  void Level::load(void)
+  {
+    std::string levelFilename;
+    std::ostringstream levelStrBuf;
+    levelStrBuf << std::setw(4) << std::setfill('0') << mLevelNum;
+    const std::string levelStr = levelStrBuf.str();
+    levelFilename = gSettings.levelsDir + "/" + levelStr + ".zip";
+#ifndef NDEBUG
+    std::cout << "Level ZIP filename: " << levelFilename << "." << std::endl;
+#endif
+    load(levelFilename);
+  }
+
+
 #pragma warning(disable : 4503)
   void Level::load(const std::string &zipFilename)
   {
@@ -86,39 +127,37 @@ namespace Impact {
 
     std::string levelPath;
     std::string levelFilename;
-    if (!zipFilename.empty()) {
-      HZIP hz = OpenZip(zipFilename.c_str(), nullptr);
-      levelPath = gSettings.levelsDir + "/current";
-      SetUnzipBaseDir(hz, levelPath.c_str());
-      ZIPENTRY ze;
-      GetZipItem(hz, -1, &ze);
-      int nItems = ze.index;
-      for (int i = 0; i < nItems; ++i) {
-        GetZipItem(hz, i, &ze);
-        UnzipItem(hz, i, ze.name);
-        std::string currentItemName = ze.name;
-        if (boost::algorithm::ends_with(currentItemName, ".tmx"))
-          levelFilename = levelPath + "/" + currentItemName;
+
+    char szPath[MAX_PATH];
+    memcpy_s(szPath, MAX_PATH, zipFilename.c_str(), zipFilename.size());
+    PathStripPath(szPath);
+    PathRemoveExtension(szPath);
+    mName = szPath;
 #ifndef NDEBUG
-        std::cout << "Unzipping " << ze.name << " ..." << std::endl;
+    std::cout << "LEVEL NAME: " << mName << std::endl;
 #endif
-      }
-      CloseZip(hz);
-    }
-    else {
-      std::ostringstream levelStrBuf;
-      levelStrBuf << std::setw(4) << std::setfill('0') << mLevelNum;
-      const std::string levelStr = levelStrBuf.str();
-      levelFilename = gSettings.levelsDir + "/" + levelStr + ".zip";
+    HZIP hz = OpenZip(zipFilename.c_str(), nullptr);
+    levelPath = gSettings.levelsDir + "/" + mName;
+    SetUnzipBaseDir(hz, levelPath.c_str());
+    ZIPENTRY ze;
+    GetZipItem(hz, -1, &ze);
+    int nItems = ze.index;
+    for (int i = 0; i < nItems; ++i) {
+      GetZipItem(hz, i, &ze);
+      UnzipItem(hz, i, ze.name);
+      std::string currentItemName = ze.name;
+      if (boost::algorithm::ends_with(currentItemName, ".tmx"))
+        levelFilename = levelPath + "/" + currentItemName;
 #ifndef NDEBUG
-      std::cout << "Level ZIP filename: " << levelFilename << "." << std::endl;
+      std::cout << "Unzipping " << ze.name << " ..." << std::endl;
 #endif
-      return load(levelFilename);
     }
+    CloseZip(hz);
 
 #ifndef NDEBUG
     std::cout << "Level::load() " << levelFilename << " ..." << std::endl;
 #endif
+
     ok = fileExists(levelFilename);
     if (!ok)
       return;
@@ -239,9 +278,9 @@ namespace Impact {
       uLong compressedSize = 0UL;
       base64_decode(mapDataB64, compressed, compressedSize);
       if (compressed != nullptr && compressedSize > 0) {
-        static const int CHUNKSIZE = 1*1024*1024;
+        static const size_t CHUNKSIZE = sizeof(uint32_t) * 12800ULL;
         mMapData = (uint32_t*)std::malloc(CHUNKSIZE);
-        uLongf mapDataSize = CHUNKSIZE;
+        uLongf mapDataSize = (uLongf)CHUNKSIZE;
         int rc = uncompress((Bytef*)mMapData, &mapDataSize, (Bytef*)compressed, compressedSize);
         if (rc == Z_OK) {
           mMapData = reinterpret_cast<uint32_t*>(std::realloc(mMapData, mapDataSize));
@@ -395,7 +434,12 @@ namespace Impact {
   void Level::clear(void)
   {
     mTiles.clear();
+    /*
+#ifndef NDEBUG
+    std::cout << "safeFree(" << mMapData << ")" << std::endl;
+#endif
     safeFree(mMapData);
+    */
   }
 
 
@@ -411,7 +455,7 @@ namespace Impact {
 
   const sf::Texture &Level::texture(const std::string &name) const
   {
-    int index = bodyIndexByTextureName(name);
+    const int index = bodyIndexByTextureName(name);
     if (index < 0)
       throw "Bad texture name: '" + name + "'";
     return mTiles.at(index).texture;
@@ -435,4 +479,22 @@ namespace Impact {
     return mTiles.at(index);
   }
 
+
+  const std::vector<Level> &Level::enumerateAllLevels(void)
+  {
+    if (sLevels.empty()) {
+      Level level;
+      int l = 1;
+      bool loaded = false;
+      do {
+        loaded = level.set(l, true);
+#ifndef NDEBUG
+        std::cout << "Level " << l << " loaded: " << loaded << std::endl;
+#endif
+        ++l;
+      } while (loaded);
+      sLevels.push_back(level);
+    }
+    return sLevels;
+  }
 }
