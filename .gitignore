@@ -16,3 +16,5 @@ ipch/*
 *.psess
 *.vsp
 packages/*
+Impact/nuget.exe
+*.dgml
