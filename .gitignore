@@ -15,3 +15,5 @@ ipch/*
 *.vcxproj.user
 *.psess
 *.vsp
+packages/*
+packages.config

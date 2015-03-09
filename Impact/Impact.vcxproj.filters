@@ -161,6 +161,7 @@
     <None Include="resources\shaders\approachingoverlay.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="settings.xml" />

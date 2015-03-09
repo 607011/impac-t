@@ -20,6 +20,9 @@
 
 #include "stdafx.h"
 
+
+#include <zlib.h>
+
 #include "../zip-utils/unzip.h"
 #include <Shlwapi.h>
 #include <memory.h>
