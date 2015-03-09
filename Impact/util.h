@@ -30,6 +30,10 @@
 #pragma warning(disable : 4503)
 #include <boost/optional.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+
+
 struct BoolTranslator
 {
   typedef std::string internal_type;

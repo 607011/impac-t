@@ -20,6 +20,11 @@
 
 #include "stdafx.h"
 
+#include <boost/random.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
+
+
 namespace Impact {
 
   std::vector<sf::Shader*>::size_type Explosion::sCurrentShaderIndex = 0;

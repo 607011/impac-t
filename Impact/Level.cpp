@@ -20,10 +20,14 @@
 
 #include "stdafx.h"
 
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <zlib.h>
 
 #include "../zip-utils/unzip.h"
+
 #include <Shlwapi.h>
 #include <memory.h>
 

@@ -17,11 +17,16 @@
 
 */
 
-
 #include "stdafx.h"
 
-#include <Shlwapi.h>
+#include <boost/random/uniform_int_distribution.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/signals2.hpp>
 
+
+#include <Shlwapi.h>
+#include <commdlg.h>
 
 namespace Impact {
 
