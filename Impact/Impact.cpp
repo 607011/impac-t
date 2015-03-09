@@ -131,6 +131,8 @@ namespace Impact {
 
     mGLShadingLanguageVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
 
+    //boost::asio::io_service io;
+    //boost::asio::deadline_timer t(io, boost::posix_time::seconds(5));
     Level::enumerateAllLevels();
 
     sf::ContextSettings requestedContextSettings(24U, 0U, 16U, 3U, 0U);
@@ -314,25 +316,35 @@ namespace Impact {
     mLogoSprite.setPosition(mDefaultView.getSize().x - 8.f, mDefaultView.getSize().y - 8.f);
 
     mTitleText = sf::Text("Impac't", mTitleFont, 120U);
-    mTitleText.setPosition(.5f * (mDefaultView.getSize().x - mTitleText.getLocalBounds().width), .25f * (mDefaultView.getSize().y - mTitleText.getLocalBounds().height));
+    mTitleText.setPosition(.5f * (mDefaultView.getSize().x - mTitleText.getLocalBounds().width), .11f * (mDefaultView.getSize().y - mTitleText.getLocalBounds().height));
 
+    const float menuTop = std::floor(mDefaultView.getCenter().y - 45.5f);
+
+    // main menu
     mMenuInstantPlayText = sf::Text(tr("Instant Play"), mFixedFont, 32U);
-    mMenuInstantPlayText.setPosition(.5f * (mDefaultView.getSize().x - mMenuInstantPlayText.getLocalBounds().width), mDefaultView.getCenter().y);
+    mMenuInstantPlayText.setPosition(.5f * (mDefaultView.getSize().x - mMenuInstantPlayText.getLocalBounds().width), menuTop);
 
     mMenuCampaignText = sf::Text(tr("Campaign"), mFixedFont, 32U);
-    mMenuCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuCampaignText.getLocalBounds().width), 32 + mDefaultView.getCenter().y);
+    mMenuCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuCampaignText.getLocalBounds().width), 32 + menuTop);
 
     mMenuLoadLevelText = sf::Text(tr("Load level"), mFixedFont, 32U);
-    mMenuLoadLevelText.setPosition(.5f * (mDefaultView.getSize().x - mMenuLoadLevelText.getLocalBounds().width), 64 + mDefaultView.getCenter().y);
+    mMenuLoadLevelText.setPosition(.5f * (mDefaultView.getSize().x - mMenuLoadLevelText.getLocalBounds().width), 64 + menuTop);
 
     mMenuAchievementsText = sf::Text(tr("Achievements"), mFixedFont, 32U);
-    mMenuAchievementsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuAchievementsText.getLocalBounds().width), 96 + mDefaultView.getCenter().y);
+    mMenuAchievementsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuAchievementsText.getLocalBounds().width), 96 + menuTop);
 
     mMenuOptionsText = sf::Text(tr("Options"), mFixedFont, 32U);
-    mMenuOptionsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuOptionsText.getLocalBounds().width), 128 + mDefaultView.getCenter().y);
+    mMenuOptionsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuOptionsText.getLocalBounds().width), 128 + menuTop);
 
     mMenuCreditsText = sf::Text(tr("Credits"), mFixedFont, 32U);
-    mMenuCreditsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuCreditsText.getLocalBounds().width), 160 + mDefaultView.getCenter().y);
+    mMenuCreditsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuCreditsText.getLocalBounds().width), 160 + menuTop);
+
+    mMenuResetCampaignText = sf::Text(tr("Reset Campaign"), mFixedFont, 32U);
+    mMenuResetCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuResetCampaignText.getLocalBounds().width), 0 + menuTop);
+
+    mMenuResumeCampaignText = sf::Text(tr("Resume Campaign"), mFixedFont, 32U);
+    mMenuResumeCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuResumeCampaignText.getLocalBounds().width), 32 + menuTop);
+
 
     if (gSettings.useShaders) {
       mRenderTexture0.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
@@ -527,6 +539,10 @@ namespace Impact {
         onSelectLevelScreen();
         break;
 
+      case State::CampaignScreen:
+        onCampaignScreen();
+        break;
+
       default:
         break;
       }
@@ -707,9 +723,7 @@ namespace Impact {
             loadLevelFromZip();
           }
           else if (mMenuCampaignText.getGlobalBounds().contains(mousePos)) {
-            mPlaymode = Campaign;
-            mLevel.set(gSettings.lastCampaignLevel - 1);
-            gotoNextLevel();
+            gotoCampaignScreen();
           }
           else if (mMenuAchievementsText.getGlobalBounds().contains(mousePos)) {
             gotoAchievementsScreen();
@@ -1054,6 +1068,84 @@ namespace Impact {
   void Game::onSelectLevelScreen(void)
   {
     // TODO: implement onSelectLevelScreen()
+  }
+
+
+  void Game::gotoCampaignScreen(void)
+  {
+
+    clearWorld();
+    setState(State::CampaignScreen);
+    mWindow.setView(mDefaultView);
+    mWindow.setMouseCursorVisible(true);
+    mWindow.setVerticalSyncEnabled(true);
+  }
+
+
+  void Game::onCampaignScreen(void)
+  {
+    sf::Time elapsed = mClock.restart();
+
+    const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
+    const sf::Vector2f &mousePos = sf::Vector2f(static_cast<float>(mousePosI.x), static_cast<float>(mousePosI.y));
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) {
+        mWindow.close();
+      }
+      else if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          if (mMenuResumeCampaignText.getGlobalBounds().contains(mousePos)) {
+            mPlaymode = Campaign;
+            mLevel.set(gSettings.lastCampaignLevel - 1);
+            gotoNextLevel();
+          }
+          else if (gSettings.lastCampaignLevel > 1 && mMenuResetCampaignText.getGlobalBounds().contains(mousePos)) {
+            mPlaymode = Campaign;
+            mLevel.set(0);
+            gotoNextLevel();
+          }
+          return;
+        }
+      }
+      else if (event.type == sf::Event::KeyPressed) {
+        if (event.key.code == mKeyMapping[Action::BackAction]) {
+          mWindow.close();
+          return;
+        }
+      }
+    }
+    mWindow.clear(sf::Color(31, 31, 47));
+    mWindow.draw(mBackgroundSprite);
+
+    const float t = mWallClock.getElapsedTime().asSeconds();
+
+    if (gSettings.useShaders) {
+      sf::RenderStates states;
+      states.shader = &mTitleShader;
+      mTitleShader.setParameter("uT", t);
+      mWindow.draw(mTitleSprite, states);
+    }
+    else {
+      mWindow.draw(mTitleText);
+    }
+
+    const float menuTop = std::floor(mDefaultView.getCenter().y - 45.5f);
+
+    sf::Text campaignLevelText = sf::Text(tr("Campaign @ Level ") + std::to_string(gSettings.lastCampaignLevel), mFixedFont, 32U);
+    campaignLevelText.setPosition(.5f * (mDefaultView.getSize().x - campaignLevelText.getLocalBounds().width), 0 + menuTop);
+    mWindow.draw(campaignLevelText);
+
+    mMenuResumeCampaignText.setColor(sf::Color(255, 255, 255, mMenuResumeCampaignText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mMenuResumeCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuResumeCampaignText.getLocalBounds().width), 64 + menuTop);
+    mWindow.draw(mMenuResumeCampaignText);
+
+    if (gSettings.lastCampaignLevel > 1) {
+      mMenuResetCampaignText.setColor(sf::Color(255, 255, 255, mMenuResetCampaignText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mMenuResetCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuResetCampaignText.getLocalBounds().width), 96 + menuTop);
+      mWindow.draw(mMenuResetCampaignText);
+    }
   }
 
 

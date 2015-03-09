@@ -92,6 +92,7 @@ namespace Impact {
     typedef enum _State {
       Initialization,
       WelcomeScreen,
+      CampaignScreen,
       CreditsScreen,
       OptionsScreen,
       AchievementsScreen,
@@ -183,6 +184,8 @@ namespace Impact {
     sf::Text mMenuInstantPlayText;
     sf::Text mMenuLoadLevelText;
     sf::Text mMenuCampaignText;
+    sf::Text mMenuResetCampaignText;
+    sf::Text mMenuResumeCampaignText;
     sf::Text mMenuAchievementsText;
     sf::Text mMenuOptionsText;
     sf::Text mMenuCreditsText;
@@ -351,6 +354,9 @@ namespace Impact {
 
     void gotoSelectLevelScreen(void);
     void onSelectLevelScreen(void);
+
+    void gotoCampaignScreen(void);
+    void onCampaignScreen(void);
 
     void onPausing(void);
 
