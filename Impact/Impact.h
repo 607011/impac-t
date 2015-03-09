@@ -82,7 +82,6 @@ namespace Impact {
     typedef enum _Actions {
       NoAction,
       PauseAction,
-      BackAction,
       NewBall,
       Restart,
       ContinueAction,

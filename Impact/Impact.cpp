@@ -396,7 +396,6 @@ namespace Impact {
     }
 
     mKeyMapping[Action::PauseAction] = sf::Keyboard::Pause;
-    mKeyMapping[Action::BackAction] = sf::Keyboard::Escape;
     mKeyMapping[Action::Restart] = sf::Keyboard::Delete;
     mKeyMapping[Action::ContinueAction] = sf::Keyboard::Space;
 
@@ -588,10 +587,7 @@ namespace Impact {
         }
         break;
       case sf::Event::KeyPressed:
-        if (event.key.code == mKeyMapping[Action::BackAction]) {
-          mWindow.close();
-        }
-        else if (event.key.code == mKeyMapping[Action::PauseAction]) {
+        if (event.key.code == mKeyMapping[Action::PauseAction]) {
           if (mPaused) {
             resume();
             setCursorOnRacket();
@@ -734,12 +730,9 @@ namespace Impact {
           else if (mMenuCreditsText.getGlobalBounds().contains(mousePos)) {
             gotoCreditsScreen();
           }
-          return;
-        }
-      }
-      else if (event.type == sf::Event::KeyPressed) {
-        if (event.key.code == mKeyMapping[Action::BackAction]) {
-          mWindow.close();
+          else if (mMenuExitText.getGlobalBounds().contains(mousePos)) {
+            mWindow.close();
+          }
           return;
         }
       }
@@ -750,12 +743,12 @@ namespace Impact {
     update(elapsed);
     drawWorld(mWindow.getDefaultView());
 
-    const float t = mWallClock.getElapsedTime().asSeconds();
+    const sf::Int32 t = mWallClock.getElapsedTime().asMilliseconds();
 
     if (gSettings.useShaders) {
       sf::RenderStates states;
       states.shader = &mTitleShader;
-      mTitleShader.setParameter("uT", t);
+      mTitleShader.setParameter("uT", 1e-3f * t);
       mWindow.draw(mTitleSprite, states);
     }
     else {
@@ -1101,17 +1094,15 @@ namespace Impact {
             mLevel.set(gSettings.lastCampaignLevel - 1);
             gotoNextLevel();
           }
-          else if (gSettings.lastCampaignLevel > 1 && mMenuRestartCampaignText.getGlobalBounds().contains(mousePos)) {
+          else if (mMenuRestartCampaignText.getGlobalBounds().contains(mousePos) && gSettings.lastCampaignLevel > 1) {
             mPlaymode = Campaign;
             mLevel.set(0);
             gotoNextLevel();
           }
-          return;
-        }
-      }
-      else if (event.type == sf::Event::KeyPressed) {
-        if (event.key.code == mKeyMapping[Action::BackAction]) {
-          mWindow.close();
+          else if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
+            mBlockHitSound.play();
+            gotoWelcomeScreen();
+          }
           return;
         }
       }
