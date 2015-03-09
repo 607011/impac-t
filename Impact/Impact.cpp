@@ -1490,14 +1490,16 @@ namespace Impact {
     BodyList remainingBodies;
     for (BodyList::iterator b = mBodies.begin(); b != mBodies.end(); ++b) {
       Body *body = *b;
-      if (body->isAlive()) {
-        body->update(elapsedSeconds);
-        remainingBodies.push_back(body);
-      }
-      else {
-        if (body->type() == Body::BodyType::Ball)
-          mBall = nullptr;
-        delete body;
+      if (body != nullptr) {
+        if (body->isAlive()) {
+          body->update(elapsedSeconds);
+          remainingBodies.push_back(body);
+        }
+        else {
+          if (body->type() == Body::BodyType::Ball)
+            mBall = nullptr;
+          delete body;
+        }
       }
     }
     mBodies = remainingBodies;
