@@ -16,7 +16,6 @@ A Breakout/Bolo clone, augmented with a physics engine
 
 ### Essential
 
- - let the user reset the campaign
  - playing a Custom Level results in 'Failed to open shader file "resources/shaders/fallingblock.fs"' (BodyBlock)
  - integrate 3rd party sources/libraries into Visual Studio solution
 

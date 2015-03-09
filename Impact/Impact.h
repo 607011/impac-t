@@ -184,7 +184,7 @@ namespace Impact {
     sf::Text mMenuInstantPlayText;
     sf::Text mMenuLoadLevelText;
     sf::Text mMenuCampaignText;
-    sf::Text mMenuResetCampaignText;
+    sf::Text mMenuRestartCampaignText;
     sf::Text mMenuResumeCampaignText;
     sf::Text mMenuAchievementsText;
     sf::Text mMenuOptionsText;

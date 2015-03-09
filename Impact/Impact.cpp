@@ -339,11 +339,11 @@ namespace Impact {
     mMenuCreditsText = sf::Text(tr("Credits"), mFixedFont, 32U);
     mMenuCreditsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuCreditsText.getLocalBounds().width), 160 + menuTop);
 
-    mMenuResetCampaignText = sf::Text(tr("Reset Campaign"), mFixedFont, 32U);
-    mMenuResetCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuResetCampaignText.getLocalBounds().width), 0 + menuTop);
-
     mMenuResumeCampaignText = sf::Text(tr("Resume Campaign"), mFixedFont, 32U);
-    mMenuResumeCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuResumeCampaignText.getLocalBounds().width), 32 + menuTop);
+    mMenuResumeCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuResumeCampaignText.getLocalBounds().width), 0 + menuTop);
+
+    mMenuRestartCampaignText = sf::Text(tr("Restart Campaign"), mFixedFont, 32U);
+    mMenuRestartCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuRestartCampaignText.getLocalBounds().width), 32 + menuTop);
 
 
     if (gSettings.useShaders) {
@@ -1101,7 +1101,7 @@ namespace Impact {
             mLevel.set(gSettings.lastCampaignLevel - 1);
             gotoNextLevel();
           }
-          else if (gSettings.lastCampaignLevel > 1 && mMenuResetCampaignText.getGlobalBounds().contains(mousePos)) {
+          else if (gSettings.lastCampaignLevel > 1 && mMenuRestartCampaignText.getGlobalBounds().contains(mousePos)) {
             mPlaymode = Campaign;
             mLevel.set(0);
             gotoNextLevel();
@@ -1142,9 +1142,9 @@ namespace Impact {
     mWindow.draw(mMenuResumeCampaignText);
 
     if (gSettings.lastCampaignLevel > 1) {
-      mMenuResetCampaignText.setColor(sf::Color(255, 255, 255, mMenuResetCampaignText.getGlobalBounds().contains(mousePos) ? 255 : 192));
-      mMenuResetCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuResetCampaignText.getLocalBounds().width), 96 + menuTop);
-      mWindow.draw(mMenuResetCampaignText);
+      mMenuRestartCampaignText.setColor(sf::Color(255, 255, 255, mMenuRestartCampaignText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mMenuRestartCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuRestartCampaignText.getLocalBounds().width), 96 + menuTop);
+      mWindow.draw(mMenuRestartCampaignText);
     }
   }
 
