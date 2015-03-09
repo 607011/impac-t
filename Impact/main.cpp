@@ -20,10 +20,11 @@
 
 #include "stdafx.h"
 
+Impact::Game breakout;
+
 
 int main(int argc, char *argv[])
 {
-  Impact::Game breakout;
   breakout.enterLoop();
   return 0;
 }
