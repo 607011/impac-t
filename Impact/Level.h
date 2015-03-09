@@ -70,8 +70,7 @@ namespace Impact {
 
     const sf::Texture &texture(const std::string &name) const;
     int bodyIndexByTextureName(const std::string &name) const;
-    uint32_t mapData(int x, int y) const;
-    uint32_t *const mapDataScanLine(int y) const;
+    uint32_t *const mapDataScanLine(int y);
     const TileParam &tileParam(int index) const;
     inline bool isAvailable(void) const
     {
@@ -170,7 +169,7 @@ namespace Impact {
     sf::Texture mBackgroundTexture;
     sf::Sprite mBackgroundSprite;
     int mLevelNum;
-    uint32_t *mMapData;
+    std::vector<uint32_t> mMapData;
     int mNumTilesX;
     int mNumTilesY;
     int mTileWidth;

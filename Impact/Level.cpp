@@ -36,7 +36,6 @@ namespace Impact {
   Level::Level(void)
     : mBackgroundColor(sf::Color::Black)
     , mFirstGID(0)
-    , mMapData(nullptr)
     , mNumTilesX(40)
     , mNumTilesY(25)
     , mTileWidth(16)
@@ -169,7 +168,6 @@ namespace Impact {
     std::cout << "Opening " << levelFilename << "..." << std::endl;
 #endif
 
-    safeFree(mMapData);
     mBackgroundImageOpacity = 1.f;
     boost::property_tree::ptree pt;
     try {
@@ -184,6 +182,7 @@ namespace Impact {
       return;
 
     try { // evaluate level properties
+      mMapData.clear();
       mGravity = DefaultGravity;
       mCredits = std::string();
       mAuthor = std::string();
@@ -282,20 +281,25 @@ namespace Impact {
       base64_decode(mapDataB64, compressed, compressedSize);
       if (compressed != nullptr && compressedSize > 0) {
         static const size_t CHUNKSIZE = sizeof(uint32_t) * 12800ULL;
-        mMapData = (uint32_t*)std::malloc(CHUNKSIZE);
-        uLongf mapDataSize = (uLongf)CHUNKSIZE;
-        int rc = uncompress((Bytef*)mMapData, &mapDataSize, (Bytef*)compressed, compressedSize);
-        if (rc == Z_OK) {
-          mMapData = reinterpret_cast<uint32_t*>(std::realloc(mMapData, mapDataSize));
+        uint32_t *mapData = new uint32_t[CHUNKSIZE];
+        if (mapData != nullptr) {
+          uLongf mapDataSize = (uLongf)CHUNKSIZE;
+          int rc = uncompress((Bytef*)mapData, &mapDataSize, (Bytef*)compressed, compressedSize);
+          if (rc == Z_OK) {
+            for (uLongf i = 0; i < mapDataSize; ++i) {
+              mMapData.push_back(*(mapData + i));
+            }
+            delete[] mapData;
 #ifndef NDEBUG
-          std::cout << "map data contains " << (mapDataSize / sizeof(uint32_t)) << " elements." << std::endl;
+            std::cout << "map data contains " << mMapData.size() << " elements." << std::endl;
 #endif
+          }
+          else {
+            std::cerr << "Inflating map data failed with code " << rc << std::endl;
+            ok = false;
+          }
         }
-        else {
-          std::cerr << "Inflating map data failed with code " << rc << std::endl;
-          ok = false;
-        }
-        delete [] compressed;
+        delete[] compressed;
       }
 
       if (!ok)
@@ -306,7 +310,8 @@ namespace Impact {
       mBackgroundSprite.setTexture(mBackgroundTexture);
       try {
         mBackgroundImageOpacity = pt.get<float>("map.imagelayer.<xmlattr>.opacity");
-      } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
+      }
+      catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
       mBackgroundSprite.setColor(sf::Color(255, 255, 255, sf::Uint8(mBackgroundImageOpacity * 0xff)));
 
       mBoundary = Boundary();
@@ -437,12 +442,6 @@ namespace Impact {
   void Level::clear(void)
   {
     mTiles.clear();
-    /*
-#ifndef NDEBUG
-    std::cout << "safeFree(" << mMapData << ")" << std::endl;
-#endif
-    safeFree(mMapData);
-    */
   }
 
 
@@ -465,15 +464,9 @@ namespace Impact {
   }
 
 
-  inline uint32_t *const Level::mapDataScanLine(int y) const
+  uint32_t *const Level::mapDataScanLine(int y)
   {
-    return mMapData + y * mNumTilesX;
-  }
-
-
-  uint32_t Level::mapData(int x, int y) const
-  {
-    return mapDataScanLine(y)[x];
+    return mMapData.data() + y * mNumTilesX;
   }
 
 
