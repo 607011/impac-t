@@ -36,9 +36,9 @@ namespace Impact {
 #define ShadersDir ResourcesDir + "/shaders"
 
   extern std::mt19937 gRNG;
+  extern void warmupRNG(void);
 
   extern Settings gSettings;
-  extern void warmupRNG(void);
 }
 
 

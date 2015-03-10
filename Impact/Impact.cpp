@@ -134,6 +134,7 @@ namespace Impact {
 
     //boost::asio::io_service io;
     //boost::asio::deadline_timer t(io, boost::posix_time::seconds(5));
+    warmupRNG();
     Level::enumerateAllLevels();
 
     sf::ContextSettings requestedContextSettings(24U, 0U, 16U, 3U, 0U);

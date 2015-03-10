@@ -27,10 +27,9 @@
 
 namespace Impact {
 
-  std::mt19937 gRNG;
-
   int gDetailLevel = 3; // 0..3
 
+  std::mt19937 gRNG;
 
   void warmupRNG(void)
   {
