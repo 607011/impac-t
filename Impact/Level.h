@@ -56,6 +56,7 @@ namespace Impact {
   class Level {
   public:
     Level(void);
+    Level(int num);
     Level(const Level &);
     ~Level();
 

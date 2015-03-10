@@ -54,6 +54,13 @@ namespace Impact {
   }
 
 
+  Level::Level(int num)
+    : Level()
+  {
+    set(num, true);
+  }
+
+
   Level::Level(const Level &other)
     : mBackgroundColor(other.mBackgroundColor)
     , mFirstGID(other.mFirstGID)
