@@ -22,7 +22,7 @@
 #define __GLOBALS_H_
 
 #include <string>
-#include <boost/random/mersenne_twister.hpp>
+#include <random>
 #include "Settings.h"
 
 namespace Impact {
@@ -35,9 +35,10 @@ namespace Impact {
 #define FontsDir ResourcesDir + "/fonts"
 #define ShadersDir ResourcesDir + "/shaders"
 
-  extern boost::random::mt19937 gRNG;
+  extern std::mt19937 gRNG;
 
   extern Settings gSettings;
+  extern void warmupRNG(void);
 }
 
 
