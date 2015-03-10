@@ -308,11 +308,11 @@ namespace Impact {
     mBackgroundTexture.loadFromFile(ImagesDir + "/welcome-background.jpg");
     mBackgroundSprite.setTexture(mBackgroundTexture);
     mBackgroundSprite.setPosition(0.f, 0.f);
-    mBackgroundSprite.setScale(static_cast<float>(mDefaultView.getSize().x) / static_cast<float>(mBackgroundTexture.getSize().x), static_cast<float>(mDefaultView.getSize().y) / static_cast<float>(mBackgroundTexture.getSize().y));
+    mBackgroundSprite.setScale(float(mDefaultView.getSize().x) / float(mBackgroundTexture.getSize().x), float(mDefaultView.getSize().y) / float(mBackgroundTexture.getSize().y));
 
     mLogoTexture.loadFromFile(ImagesDir + "/ct_logo.png");
     mLogoSprite.setTexture(mLogoTexture);
-    mLogoSprite.setOrigin(static_cast<float>(mLogoTexture.getSize().x), static_cast<float>(mLogoTexture.getSize().y));
+    mLogoSprite.setOrigin(float(mLogoTexture.getSize().x), float(mLogoTexture.getSize().y));
     mLogoSprite.setPosition(mDefaultView.getSize().x - 8.f, mDefaultView.getSize().y - 8.f);
 
     mTitleText = sf::Text("Impac't", mTitleFont, 120U);
@@ -358,7 +358,7 @@ namespace Impact {
 
     if (gSettings.useShaders) {
       sf::RenderTexture titleRenderTexture;
-      titleRenderTexture.create(static_cast<unsigned int>(mDefaultView.getSize().x), static_cast<unsigned int>(mDefaultView.getSize().y));
+      titleRenderTexture.create(unsigned int(mDefaultView.getSize().x), unsigned int(mDefaultView.getSize().y));
       titleRenderTexture.draw(mTitleText);
       mTitleTexture = titleRenderTexture.getTexture();
       mTitleTexture.setSmooth(true);
@@ -378,18 +378,18 @@ namespace Impact {
       if (!ok)
         std::cerr << ShadersDir + "/vblur.fs" << " failed to load/compile." << std::endl;
       mVBlurShader.setParameter("uBlur", 4.f);
-      mVBlurShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(mWindow.getSize().x), static_cast<float>(mWindow.getSize().y)));
+      mVBlurShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
 
       ok = mHBlurShader.loadFromFile(ShadersDir + "/hblur.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/hblur.fs" << " failed to load/compile." << std::endl;
       mHBlurShader.setParameter("uBlur", 4.f);
-      mHBlurShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(mWindow.getSize().x), static_cast<float>(mWindow.getSize().y)));
+      mHBlurShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
 
       ok = mTitleShader.loadFromFile(ShadersDir + "/title.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/title.fs" << " failed to load/compile." << std::endl;
-      mTitleShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(mWindow.getSize().x), static_cast<float>(mWindow.getSize().y)));
+      mTitleShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
 
       ok = mEarthquakeShader.loadFromFile(ShadersDir + "/earthquake.fs", sf::Shader::Fragment);
       if (!ok)
@@ -478,14 +478,14 @@ namespace Impact {
 
   void Game::resize(void)
   {
-    mDefaultView.reset(sf::FloatRect(0.f, 0.f, static_cast<float>(DefaultWindowWidth), static_cast<float>(DefaultWindowHeight)));
-    mDefaultView.setCenter(.5f * sf::Vector2f(static_cast<float>(DefaultWindowWidth), static_cast<float>(DefaultWindowHeight)));
-    mPlaygroundView.reset(sf::FloatRect(0.f, 0.f, static_cast<float>(DefaultPlaygroundWidth), static_cast<float>(DefaultPlaygroundHeight)));
-    mPlaygroundView.setCenter(.5f * sf::Vector2f(static_cast<float>(DefaultPlaygroundWidth), static_cast<float>(DefaultPlaygroundHeight)));
-    mPlaygroundView.setViewport(sf::FloatRect(0.f, 0.f, 1.f, static_cast<float>(DefaultPlaygroundHeight) / static_cast<float>(DefaultWindowHeight)));
-    mStatsView.reset(sf::FloatRect(0.f, static_cast<float>(DefaultPlaygroundHeight), static_cast<float>(DefaultStatsWidth), static_cast<float>(DefaultStatsHeight)));
+    mDefaultView.reset(sf::FloatRect(0.f, 0.f, float(DefaultWindowWidth), float(DefaultWindowHeight)));
+    mDefaultView.setCenter(.5f * sf::Vector2f(float(DefaultWindowWidth), float(DefaultWindowHeight)));
+    mPlaygroundView.reset(sf::FloatRect(0.f, 0.f, float(DefaultPlaygroundWidth), float(DefaultPlaygroundHeight)));
+    mPlaygroundView.setCenter(.5f * sf::Vector2f(float(DefaultPlaygroundWidth), float(DefaultPlaygroundHeight)));
+    mPlaygroundView.setViewport(sf::FloatRect(0.f, 0.f, 1.f, float(DefaultPlaygroundHeight) / float(DefaultWindowHeight)));
+    mStatsView.reset(sf::FloatRect(0.f, float(DefaultPlaygroundHeight), float(DefaultStatsWidth), float(DefaultStatsHeight)));
     mStatsView.setCenter(sf::Vector2f(.5f * DefaultStatsWidth, .5f * DefaultStatsHeight));
-    mStatsView.setViewport(sf::FloatRect(0.f, static_cast<float>(DefaultWindowHeight - DefaultStatsHeight) / static_cast<float>(DefaultWindowHeight), 1.f, static_cast<float>(DefaultStatsHeight) / static_cast<float>(DefaultWindowHeight)));
+    mStatsView.setViewport(sf::FloatRect(0.f, float(DefaultWindowHeight - DefaultStatsHeight) / float(DefaultWindowHeight), 1.f, float(DefaultStatsHeight) / float(DefaultWindowHeight)));
   }
 
 
@@ -1089,7 +1089,7 @@ namespace Impact {
     sf::Time elapsed = mClock.restart();
 
     const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
-    const sf::Vector2f &mousePos = sf::Vector2f(static_cast<float>(mousePosI.x), static_cast<float>(mousePosI.y));
+    const sf::Vector2f &mousePos = sf::Vector2f(float(mousePosI.x), float(mousePosI.y));
 
     sf::Event event;
     while (mWindow.pollEvent(event)) {
@@ -1263,9 +1263,9 @@ namespace Impact {
       mOverlayShader.setParameter("uMinScale", od.minScale);
       mOverlayShader.setParameter("uMaxScale", od.maxScale);
       mOverlayShader.setParameter("uMaxT", od.duration.asSeconds());
-      mOverlayShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(DefaultWindowWidth), static_cast<float>(DefaultWindowHeight)));
+      mOverlayShader.setParameter("uResolution", sf::Vector2f(float(DefaultWindowWidth), float(DefaultWindowHeight)));
       sf::RenderTexture overlayRenderTexture;
-      overlayRenderTexture.create(static_cast<unsigned int>(mDefaultView.getSize().x), static_cast<unsigned int>(mDefaultView.getSize().y));
+      overlayRenderTexture.create(unsigned int(mDefaultView.getSize().x), unsigned int(mDefaultView.getSize().y));
       overlayRenderTexture.draw(mOverlayText1);
       overlayRenderTexture.draw(mOverlayText2);
       mOverlayTexture = overlayRenderTexture.getTexture();
@@ -1621,7 +1621,7 @@ namespace Impact {
     fdLeft.userData = new LeftBoundary(this);
     boundaries->CreateFixture(&fdLeft);
     b2EdgeShape topShape;
-    topShape.Set(b2Vec2(0, g > 0.f ? 0.f : static_cast<float32>(mLevel.height())), b2Vec2(W, g > 0.f ? 0.f : static_cast<float32>(mLevel.height())));
+    topShape.Set(b2Vec2(0, g > 0.f ? 0.f : float32(mLevel.height())), b2Vec2(W, g > 0.f ? 0.f : float32(mLevel.height())));
     b2FixtureDef fdTop;
     fdTop.restitution = 0.9f;
     fdTop.density = 0.f;
@@ -1658,7 +1658,7 @@ namespace Impact {
     for (int y = 0; y < mLevel.height(); ++y) {
       const uint32_t *mapRow = mLevel.mapDataScanLine(y);
       for (int x = 0; x < mLevel.width(); ++x) {
-        const b2Vec2 &pos = b2Vec2(static_cast<float32>(x), static_cast<float32>(y));
+        const b2Vec2 &pos = b2Vec2(float32(x), float32(y));
         const uint32_t tileId = mapRow[x];
         if (tileId == 0)
           continue;
@@ -1707,7 +1707,7 @@ namespace Impact {
     }
 
     // place mouse cursor on racket position
-    const b2Vec2 &racketPos = static_cast<float32>(Game::Scale) * mRacket->position();
+    const b2Vec2 &racketPos = float32(Game::Scale) * mRacket->position();
     sf::Mouse::setPosition(sf::Vector2i(int(racketPos.x), int(racketPos.y)), mWindow);
   }
 

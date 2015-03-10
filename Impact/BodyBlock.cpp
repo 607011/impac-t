@@ -48,7 +48,7 @@ namespace Impact {
       mShader.setParameter("uAge", 0.f);
       mShader.setParameter("uBlur", 0.f);
       mShader.setParameter("uColor", sf::Color(255, 255, 255, 255));
-      mShader.setParameter("uResolution", static_cast<float>(mTexture.getSize().x), static_cast<float>(mTexture.getSize().y));
+      mShader.setParameter("uResolution", float(mTexture.getSize().x), float(mTexture.getSize().y));
     }
 
     const unsigned int W = texture.getSize().x;
@@ -147,7 +147,7 @@ namespace Impact {
 
   void Block::setPosition(const b2Vec2 &p)
   {
-    mBody->SetTransform(p + .5f * Game::InvScale * b2Vec2(static_cast<float32>(mTexture.getSize().x - 2 * TextureMargin), static_cast<float32>(mTexture.getSize().y - 2 * TextureMargin)), mBody->GetAngle());
+    mBody->SetTransform(p + .5f * Game::InvScale * b2Vec2(float32(mTexture.getSize().x - 2 * TextureMargin), float32(mTexture.getSize().y - 2 * TextureMargin)), mBody->GetAngle());
   }
 
 

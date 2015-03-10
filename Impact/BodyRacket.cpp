@@ -161,8 +161,8 @@ namespace Impact {
 
   void Racket::setXAxisConstraint(float32 y)
   {
-    const float32 W = static_cast<float32>(mTexture.getSize().x);
-    const float32 H = static_cast<float32>(mTexture.getSize().y);
+    const float32 W = float32(mTexture.getSize().x);
+    const float32 H = float32(mTexture.getSize().y);
     b2BodyDef bd;
     bd.position.Set(0.f, y);
     b2Body *xAxis = mGame->world()->CreateBody(&bd);
