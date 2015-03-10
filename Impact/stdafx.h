@@ -27,7 +27,6 @@
 
 #pragma warning(push)
 #pragma warning(disable : 4996)
-//#pragma warning(disable : 4503)
 #include <boost/signals2.hpp>
 #pragma warning(pop)
 
@@ -47,6 +46,9 @@
 #include <cassert>
 #include <sstream>
 #include <typeinfo>
+#include <thread>
+#include <future>
+#include <chrono>
 #include <sys/stat.h>
 
 #include <GL/glew.h>

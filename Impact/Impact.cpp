@@ -19,10 +19,8 @@
 
 #include "stdafx.h"
 
-#include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/signals2.hpp>
 
 #include <zlib.h>
 
@@ -81,8 +79,6 @@ namespace Impact {
   };
 
 
-
-
   const float32 Game::InvScale = 1.f / Game::Scale;
   const int Game::DefaultLives = 3;
   const int Game::DefaultPenalty = 100;
@@ -133,8 +129,6 @@ namespace Impact {
 
     mGLShadingLanguageVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
 
-    //boost::asio::io_service io;
-    //boost::asio::deadline_timer t(io, boost::posix_time::seconds(5));
     warmupRNG();
 
     sf::ContextSettings requestedContextSettings(24U, 0U, 16U, 3U, 0U);
@@ -425,8 +419,6 @@ namespace Impact {
 
   void Game::restart(void)
   {
-
-    pause();
     clearWorld();
 
     safeRenew(mWorld, new b2World(b2Vec2(0.f, DefaultGravity)));
@@ -625,8 +617,7 @@ namespace Impact {
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
           if (mMenuInstantPlayText.getGlobalBounds().contains(mousePos)) {
-            mPlaymode = SingleLevel;
-            // TODO: implement instant play
+            gotoSelectLevelScreen();
           }
           else if (mMenuLoadLevelText.getGlobalBounds().contains(mousePos)) {
             mPlaymode = SingleLevel;
@@ -635,15 +626,15 @@ namespace Impact {
           else if (mMenuCampaignText.getGlobalBounds().contains(mousePos)) {
             gotoCampaignScreen();
           }
-          else if (mMenuAchievementsText.getGlobalBounds().contains(mousePos)) {
-            gotoAchievementsScreen();
-          }
-          else if (mMenuOptionsText.getGlobalBounds().contains(mousePos)) {
-            gotoOptionsScreen();
-          }
-          else if (mMenuCreditsText.getGlobalBounds().contains(mousePos)) {
-            gotoCreditsScreen();
-          }
+          //else if (mMenuAchievementsText.getGlobalBounds().contains(mousePos)) {
+          //  gotoAchievementsScreen();
+          //}
+          //else if (mMenuOptionsText.getGlobalBounds().contains(mousePos)) {
+          //  gotoOptionsScreen();
+          //}
+          //else if (mMenuCreditsText.getGlobalBounds().contains(mousePos)) {
+          //  gotoCreditsScreen();
+          //}
           else if (mMenuExitText.getGlobalBounds().contains(mousePos)) {
             mWindow.close();
           }
@@ -679,7 +670,7 @@ namespace Impact {
     }
 
     if (t > 350) {
-      mMenuInstantPlayText.setColor(sf::Color(255, 255, 255, mMenuInstantPlayText.getGlobalBounds().contains(mousePos) ? 32 : 32));
+      mMenuInstantPlayText.setColor(sf::Color(255, 255, 255, mMenuInstantPlayText.getGlobalBounds().contains(mousePos) ? 255 : 192));
       mWindow.draw(mMenuInstantPlayText);
       mMenuCampaignText.setColor(sf::Color(255, 255, 255, mMenuCampaignText.getGlobalBounds().contains(mousePos) ? 255 : 192));
       mWindow.draw(mMenuCampaignText);
@@ -847,6 +838,12 @@ namespace Impact {
   }
 
 
+  void Game::gotoPausing(void)
+  {
+    pause();
+  }
+
+
   void Game::onPausing(void)
   {
     const sf::Time &elapsed = mClock.restart();
@@ -953,7 +950,7 @@ namespace Impact {
         mWindow.close();
         break;
       case sf::Event::LostFocus:
-        pause();
+        gotoPausing();
         break;
       case sf::Event::GainedFocus:
         resume();
@@ -965,7 +962,7 @@ namespace Impact {
       case sf::Event::KeyPressed:
         if (event.key.code == mKeyMapping[Action::PauseAction]) {
           if (!mPaused)
-            pause();
+            gotoPausing();
           else
             resume();
         }
@@ -1051,6 +1048,7 @@ namespace Impact {
     drawPlayground(elapsed);
   }
 
+
   void Game::gotoAchievementsScreen(void)
   {
     // TODO: implement gotoAchievementsScreen()
@@ -1089,19 +1087,70 @@ namespace Impact {
 
   void Game::gotoSelectLevelScreen(void)
   {
-    // TODO: implement gotoSelectLevelScreen()
+    clearWorld();
+    setState(State::SelectLevelScreen);
+    mWindow.setView(mDefaultView);
+    mWindow.setMouseCursorVisible(true);
+    mWindow.setVerticalSyncEnabled(true);
+    mRacketHitSound.play();
+    std::packaged_task<bool()> task([this]{ return this->enumerateAllLevels(); });
+    mEnumerateFuture = task.get_future();
+    std::thread(std::move(task)).detach();
+    mWallClock.restart();
   }
 
 
   void Game::onSelectLevelScreen(void)
   {
-    // TODO: implement onSelectLevelScreen()
+    sf::Time elapsed = mClock.restart();
+
+    const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
+    const sf::Vector2f &mousePos = sf::Vector2f(float(mousePosI.x), float(mousePosI.y));
+    mWindow.clear(sf::Color(31, 31, 47));
+    mWindow.draw(mBackgroundSprite);
+
+    const float t = mWallClock.getElapsedTime().asSeconds();
+
+    if (gSettings.useShaders) {
+      sf::RenderStates states;
+      states.shader = &mTitleShader;
+      mTitleShader.setParameter("uT", t);
+      mWindow.draw(mTitleSprite, states);
+    }
+    else {
+      mWindow.draw(mTitleText);
+    }
+
+    if (mEnumerateFuture.valid()) {
+      std::future_status status = mEnumerateFuture.wait_for(std::chrono::milliseconds(0));
+      if (status == std::future_status::ready) {
+        std::cout << "ready." << std::endl;
+      }
+      else if (status == std::future_status::timeout) {
+        std::cout << mLevels.size() << " " << std::flush;
+      }
+      else if (status == std::future_status::deferred) {
+        std::cout << "deferred." << std::endl;
+      }
+    }
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) {
+        mWindow.close();
+      }
+      else if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          gotoWelcomeScreen();
+          return;
+        }
+      }
+    }
   }
 
 
   void Game::gotoCampaignScreen(void)
   {
-
     clearWorld();
     setState(State::CampaignScreen);
     mWindow.setView(mDefaultView);
@@ -1109,6 +1158,7 @@ namespace Impact {
     mWindow.setVerticalSyncEnabled(true);
     mRacketHitSound.play();
     mWelcomeLevel = 0;
+    mWallClock.restart();
   }
 
 
@@ -1896,7 +1946,7 @@ namespace Impact {
   }
 
 
-  void Game::enumerateAllLevels(void)
+  bool Game::enumerateAllLevels(void)
   {
 #ifndef NDEBUG
     std::cout << std::endl << "Game::enumerateAllLevels()" << std::endl << std::endl;
@@ -1906,10 +1956,12 @@ namespace Impact {
       int l = 1;
       do {
         level = Level(l++);
+        mEnumerateMutex.lock();
         if (level.isAvailable())
           mLevels.push_back(level);
+        mEnumerateMutex.unlock();
       } while (level.isAvailable());
     }
+    return true;
   }
-
 }

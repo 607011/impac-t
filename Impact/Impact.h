@@ -33,6 +33,8 @@
 #include "BodyRacket.h"
 #include "BodyGround.h"
 
+#include <future>
+
 namespace Impact {
 
   class Game;
@@ -296,7 +298,10 @@ namespace Impact {
     int mLastKillingsIndex;
 
     std::vector<Level> mLevels;
-    void enumerateAllLevels(void);
+    std::mutex mEnumerateMutex;
+    bool enumerateAllLevels(void);
+    std::packaged_task<bool()> mEnumerateTask;
+    std::future<bool> mEnumerateFuture;
 
     void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);
@@ -362,6 +367,7 @@ namespace Impact {
     void gotoCampaignScreen(void);
     void onCampaignScreen(void);
 
+    void gotoPausing(void);
     void onPausing(void);
 
     void loadLevelFromZip(void);
