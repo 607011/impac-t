@@ -28,7 +28,7 @@
 
 #include "globals.h"
 #include "Settings.h"
-
+#include "Level.h"
 #include "BodyBall.h"
 #include "BodyRacket.h"
 #include "BodyGround.h"
@@ -83,12 +83,11 @@ namespace Impact {
       NoAction,
       PauseAction,
       NewBall,
-      Restart,
-      ContinueAction,
       LastAction
     } Action;
 
     typedef enum _State {
+      NoState,
       Initialization,
       WelcomeScreen,
       CampaignScreen,
@@ -277,12 +276,13 @@ namespace Impact {
 
     // game logic
     std::vector<sf::Keyboard::Key> mKeyMapping;
+    bool mPaused;
     State mState;
+    State mLastState;
     Playmode mPlaymode;
     int mScore;
     int mTotalScore;
     int mLives;
-    bool mPaused;
     BodyList mBodies;
     int mBlockCount;
     int mWelcomeLevel;
@@ -315,11 +315,11 @@ namespace Impact {
     void pause(void);
     void resume(void);
     void buildLevel(void);
-    void handlePlayerInteraction(const sf::Time &elapsed);
     void update(const sf::Time &elapsed);
     void evaluateCollisions(void);
-    void handleEvents(void);
     void startOverlay(const OverlayDef &);
+    void startBlurEffect(void);
+    void stopBlurEffect(void);
     void startEarthquake(float32 intensity, const sf::Time &duration);
     void startFadeEffect(bool darken = false, const sf::Time &duration = DefaultFadeEffectDuration);
     void startAberrationEffect(float32 gravityScale, const sf::Time &duration = DefaultAberrationEffectDuration);

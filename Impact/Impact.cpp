@@ -106,6 +106,7 @@ namespace Impact {
     , mLives(3)
     , mPaused(false)
     , mState(State::Initialization)
+    , mLastState(State::NoState)
     , mPlaymode(Playmode::Campaign)
     , mKeyMapping(Action::LastAction)
     , mBlockCount(0)
@@ -135,11 +136,10 @@ namespace Impact {
     //boost::asio::io_service io;
     //boost::asio::deadline_timer t(io, boost::posix_time::seconds(5));
     warmupRNG();
-    Level::enumerateAllLevels();
 
     sf::ContextSettings requestedContextSettings(24U, 0U, 16U, 3U, 0U);
     requestedContextSettings.antialiasingLevel = gSettings.antialiasingLevel;
-    mWindow.create(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Impac't", sf::Style::Titlebar | sf::Style::Close, requestedContextSettings);
+    mWindow.create(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Impac't", sf::Style::Titlebar, requestedContextSettings);
 
 #ifndef NDEBUG
     sf::ContextSettings settings = mWindow.getSettings();
@@ -296,11 +296,12 @@ namespace Impact {
       + " - "
       + "Copyright (c) 2015 Oliver Lau <ola@ct.de>"
       + "\n"
-      + tr("Built with") + ": SFML " + std::to_string(SFML_VERSION_MAJOR) + "." + std::to_string(SFML_VERSION_MINOR) + ", "
-      + "Box2D " + std::to_string(b2_version.major) + "." + std::to_string(b2_version.minor) + "." + std::to_string(b2_version.revision) + ", "
-      + "glew " + std::to_string(GLEW_VERSION) + "." + std::to_string(GLEW_VERSION_MAJOR) + "." + std::to_string(GLEW_VERSION_MINOR)
+      + tr("Built with") + ": SFML " + std::to_string(SFML_VERSION_MAJOR) + "." + std::to_string(SFML_VERSION_MINOR)
+      + ", Box2D " + std::to_string(b2_version.major) + "." + std::to_string(b2_version.minor) + "." + std::to_string(b2_version.revision)
+      + ", glew " + std::to_string(GLEW_VERSION) + "." + std::to_string(GLEW_VERSION_MAJOR) + "." + std::to_string(GLEW_VERSION_MINOR)
+      + ", zlib " + zlibVersion()
       + " - " + "OpenGL " + std::to_string(mGLVersionMajor) + "." + std::to_string(mGLVersionMinor)
-      + ", "  + "GLSL " + std::string(reinterpret_cast<const char*>(mGLShadingLanguageVersion))
+      + ", GLSL " + std::string(reinterpret_cast<const char*>(mGLShadingLanguageVersion))
       );
     mProgramInfoMsg.setFont(mFixedFont);
     mProgramInfoMsg.setColor(sf::Color::White);
@@ -402,9 +403,7 @@ namespace Impact {
         std::cerr << ShadersDir + "/approachingoverlay.fs" << " failed to load/compile." << std::endl;
     }
 
-    mKeyMapping[Action::PauseAction] = sf::Keyboard::Pause;
-    mKeyMapping[Action::Restart] = sf::Keyboard::Delete;
-    mKeyMapping[Action::ContinueAction] = sf::Keyboard::Space;
+    mKeyMapping[Action::PauseAction] = sf::Keyboard::Escape;
 
     restart();
   }
@@ -441,7 +440,7 @@ namespace Impact {
     mLives = DefaultLives;
     mScore = 0;
     mBallHasBeenLost = false;
-    mLevel.set(0);
+    mLevel.set(0, false);
 
     mContactPointCount = 0;
 
@@ -451,15 +450,12 @@ namespace Impact {
       mMixShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
     }
 
-    gotoWelcomeScreen();
-
-    resetKillingSpree();
-
     resume();
+    gotoWelcomeScreen();
+    resetKillingSpree();
 
     if (mGLVersionMajor < 3) // TODO: exit more nicely, i.e. inform user about reason
       mWindow.close();
-
   }
 
 
@@ -493,8 +489,9 @@ namespace Impact {
 
   void Game::setState(State state)
   {
+    mLastState = mState;
 #ifndef NDEBUG
-    std::cout  << "Game::setState(" << int(state) << ")" << std::endl;
+    std::cout << "Game::setState(" << int(state) << "), lastState = " << mLastState << std::endl;
 #endif
     mState = state;
   }
@@ -564,96 +561,6 @@ namespace Impact {
   }
 
 
-  void Game::handleEvents(void)
-  {
-    sf::Event event;
-    while (mWindow.pollEvent(event)) {
-      switch (event.type)
-      {
-      case sf::Event::Closed:
-        mWindow.close();
-        break;
-      case sf::Event::LostFocus:
-        pause();
-        break;
-      case sf::Event::GainedFocus:
-        if (mState == State::Playing)
-          setCursorOnRacket();
-        resume();
-        break;
-      case sf::Event::MouseButtonPressed:
-        if (mState == State::Playing) {
-          if (mBall == nullptr)
-            newBall();
-        }
-        else if (mState == State::LevelCompleted) {
-          gotoNextLevel();
-        }
-        else if (mState == State::GameOver) {
-          restart();
-        }
-        break;
-      case sf::Event::KeyPressed:
-        if (event.key.code == mKeyMapping[Action::PauseAction]) {
-          if (mPaused) {
-            resume();
-            setCursorOnRacket();
-          }
-          else
-            pause();
-        }
-        else if (event.key.code == mKeyMapping[Action::NewBall] || event.key.code == sf::Keyboard::Space) {
-          if (mState == State::Playing) {
-            if (mBall) {
-              const b2Vec2 &padPos = mRacket->position();
-              mBall->setPosition(padPos.x, padPos.y - 3.5f);
-              showScore(-500, mBall->position());
-            }
-            else {
-              newBall();
-            }
-          }
-          else if (mState == State::LevelCompleted) {
-            gotoNextLevel();
-          }
-          else if (mState == State::GameOver) {
-            restart();
-          }
-        }
-        break;
-      }
-    }
-  }
-
-
-  inline void Game::handlePlayerInteraction(const sf::Time &elapsed)
-  {
-    if (mRacket != nullptr) {
-      sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
-      const b2AABB &aabb = mRacket->aabb();
-      const float32 w = aabb.upperBound.x - aabb.lowerBound.x;
-      const float32 h = aabb.upperBound.y - aabb.lowerBound.y;
-      if (mousePos.x < 0) {
-        mousePos.x = static_cast<int>(Scale * w);
-      }
-      if (mousePos.x > static_cast<int>(mWindow.getSize().x)) {
-        mousePos.x = mWindow.getSize().x - static_cast<int>(Scale * w);
-      }
-      sf::Mouse::setPosition(mousePos, mWindow);
-      mRacket->moveTo(InvScale * b2Vec2(float32(mousePos.x), float32(mousePos.y)));
-      if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-        mRacket->kickLeft();
-      }
-      else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
-        mRacket->kickRight();
-      }
-      else {
-        mRacket->stopKick();
-      }
-    }
-  }
-
-
   void Game::loadLevelFromZip(void)
   {
 #ifndef NDEBUG
@@ -708,7 +615,7 @@ namespace Impact {
     sf::Time elapsed = mClock.restart();
 
     const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
-    const sf::Vector2f &mousePos = sf::Vector2f(static_cast<float>(mousePosI.x), static_cast<float>(mousePosI.y));
+    const sf::Vector2f &mousePos = sf::Vector2f(float(mousePosI.x), float(mousePosI.y));
 
     sf::Event event;
     while (mWindow.pollEvent(event)) {
@@ -827,8 +734,7 @@ namespace Impact {
     mLevelTimer.pause();
     mLevelCompleteSound.play();
     mStartMsg.setString(tr("Click to continue"));
-    mBlurClock.restart();
-    mBlurPlayground = true;
+    startBlurEffect();
     setState(State::LevelCompleted);
   }
 
@@ -836,10 +742,17 @@ namespace Impact {
   void Game::onLevelCompleted(void)
   {
     const sf::Time &elapsed = mClock.restart();
-
     update(elapsed);
-
     drawPlayground(elapsed);
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          gotoNextLevel();
+        }
+      }
+    }
 
     mWindow.setView(mPlaygroundView);
     mLevelCompletedMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mLevelCompletedMsg.getLocalBounds().width, 20.f);
@@ -853,8 +766,7 @@ namespace Impact {
   {
     mStartMsg.setString(tr("Click to start over"));
     setState(State::PlayerWon);
-    mBlurClock.restart();
-    mBlurPlayground = true;
+    startBlurEffect();
     mTotalScore = mScore - mLevelTimer.accumulatedSeconds();
   }
 
@@ -862,10 +774,17 @@ namespace Impact {
   void Game::onPlayerWon(void)
   {
     const sf::Time &elapsed = mClock.restart();
-
     update(elapsed);
-
     drawPlayground(elapsed);
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          restart();
+        }
+      }
+    }
 
     mWindow.setView(mPlaygroundView);
 
@@ -890,8 +809,7 @@ namespace Impact {
   {
     mStartMsg.setString(tr("Click to continue"));
     setState(State::GameOver);
-    mBlurClock.restart();
-    mBlurPlayground = true;
+    startBlurEffect();
     if (gSettings.useShaders) {
       mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 220));
     }
@@ -902,10 +820,17 @@ namespace Impact {
   void Game::onGameOver(void)
   {
     const sf::Time &elapsed = mClock.restart();
-
     update(elapsed);
-
     drawPlayground(elapsed);
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          restart();
+        }
+      }
+    }
 
     mWindow.setView(mPlaygroundView);
     mGameOverMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
@@ -924,7 +849,47 @@ namespace Impact {
 
   void Game::onPausing(void)
   {
-    onPlaying();
+    const sf::Time &elapsed = mClock.restart();
+    drawPlayground(elapsed);
+
+    mWindow.setView(mPlaygroundView);
+    sf::Text pausingText(tr(">>> Pausing <<<"), mFixedFont, 64U);
+    pausingText.setPosition(mPlaygroundView.getCenter().x - 0.5f * pausingText.getLocalBounds().width, -20 + mPlaygroundView.getCenter().y - pausingText.getLocalBounds().height);
+    pausingText.setColor(sf::Color::White);
+    mWindow.draw(pausingText);
+
+    const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
+    const sf::Vector2f &mousePos = sf::Vector2f(float(mousePosI.x), float(mousePosI.y));
+
+    sf::Text resumeText(tr("Resume playing"), mFixedFont, 32U);
+    resumeText.setPosition(mPlaygroundView.getCenter().x - 0.5f * resumeText.getLocalBounds().width, 32 + mPlaygroundView.getCenter().y);
+    resumeText.setColor(sf::Color(255, 255, 255, resumeText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mWindow.draw(resumeText);
+
+    sf::Text mainMenuText(tr("Go to main menu"), mFixedFont, 32U);
+    mainMenuText.setPosition(mPlaygroundView.getCenter().x - 0.5f * mainMenuText.getLocalBounds().width, 64 + mPlaygroundView.getCenter().y);
+    mainMenuText.setColor(sf::Color(255, 255, 255, mainMenuText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mWindow.draw(mainMenuText);
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) {
+        mWindow.close();
+      }
+      else if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          if (resumeText.getGlobalBounds().contains(mousePos)) {
+            resume();
+          }
+          else if (mainMenuText.getGlobalBounds().contains(mousePos)) {
+            mBlockHitSound.play();
+            gotoWelcomeScreen();
+          }
+          return;
+        }
+      }
+    }
+
   }
 
 
@@ -948,7 +913,7 @@ namespace Impact {
         gSettings.lastCampaignLevel = mLevel.num();
       buildLevel();
       mClock.restart();
-      mBlurPlayground = false;
+      stopBlurEffect();
       mFadeEffectsActive = 0;
       mEarthquakeDuration = sf::Time::Zero;
       mEarthquakeIntensity = 0.f;
@@ -977,53 +942,114 @@ namespace Impact {
   void Game::onPlaying(void)
   {
     const sf::Time &elapsed = mClock.restart();
-    if (!mPaused) {
-      update(elapsed);
-      if (mState == State::Playing) {
-        if (mBall != nullptr) { // check if ball has been kicked out of the screen
-          const float ballX = mBall->position().x;
-          const float ballY = mBall->position().y;
-          if (0 > ballX || ballX > static_cast<float>(mLevel.width()) || 0 > ballY) {
-            mBall->kill();
-          }
-          else if (ballY > mLevel.height()) {
-            mBall->lethalHit();
-            mBall->kill();
-          }
-        }
 
-        if (mRacket != nullptr) { // check if pad has been kicked out of the screen
-          const float racketX = mRacket->position().x;
-          const float racketY = mRacket->position().y;
-          if (racketY > mLevel.height())
-            mRacket->setPosition(racketX, mLevel.height() - .5f);
-          if (racketX < 0.f)
-            mRacket->setPosition(1.5f, racketY);
-          else if (racketX > mLevel.width())
-            mRacket->setPosition(mLevel.width() - 1.5f, racketY);
+    update(elapsed);
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      switch (event.type)
+      {
+      case sf::Event::Closed:
+        mWindow.close();
+        break;
+      case sf::Event::LostFocus:
+        pause();
+        break;
+      case sf::Event::GainedFocus:
+        resume();
+        break;
+      case sf::Event::MouseButtonPressed:
+        if (mBall == nullptr)
+          newBall();
+        break;
+      case sf::Event::KeyPressed:
+        if (event.key.code == mKeyMapping[Action::PauseAction]) {
+          if (!mPaused)
+            pause();
+          else
+            resume();
         }
+        else if (event.key.code == mKeyMapping[Action::NewBall] || event.key.code == sf::Keyboard::Space) {
+          if (mBall) {
+            const b2Vec2 &padPos = mRacket->position();
+            mBall->setPosition(padPos.x, padPos.y - 3.5f);
+            showScore(-500, mBall->position());
+          }
+          else {
+            newBall();
+          }
+        }
+        break;
       }
-      handlePlayerInteraction(elapsed);
     }
+
+    if (mBall != nullptr) { // check if ball has been kicked out of the screen
+      const float ballX = mBall->position().x;
+      const float ballY = mBall->position().y;
+      if (0 > ballX || ballX > float(mLevel.width()) || 0 > ballY) {
+        mBall->kill();
+      }
+      else if (ballY > mLevel.height()) {
+        mBall->lethalHit();
+        mBall->kill();
+      }
+    }
+
+    if (mRacket != nullptr) {
+      if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+        mRacket->kickLeft();
+      }
+      else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+        mRacket->kickRight();
+      }
+      else {
+        mRacket->stopKick();
+      }
+
+      // check if pad has been kicked out of the screen
+      const float racketX = mRacket->position().x;
+      const float racketY = mRacket->position().y;
+      if (racketY > mLevel.height())
+        mRacket->setPosition(racketX, mLevel.height() - .5f);
+      if (racketX < 0.f)
+        mRacket->setPosition(1.5f, racketY);
+      else if (racketX > mLevel.width())
+        mRacket->setPosition(mLevel.width() - 1.5f, racketY);
+
+      sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
+      const b2AABB &aabb = mRacket->aabb();
+      const float32 w = aabb.upperBound.x - aabb.lowerBound.x;
+      const float32 h = aabb.upperBound.y - aabb.lowerBound.y;
+      if (mousePos.x < 0) {
+        mousePos.x = static_cast<int>(Scale * w);
+      }
+      if (mousePos.x > static_cast<int>(mWindow.getSize().x)) {
+        mousePos.x = mWindow.getSize().x - static_cast<int>(Scale * w);
+      }
+      sf::Mouse::setPosition(mousePos, mWindow);
+      mRacket->moveTo(InvScale * b2Vec2(float32(mousePos.x), float32(mousePos.y)));
+    }
+
     if (mScaleGravityEnabled && mScaleGravityClock.getElapsedTime() > mScaleGravityDuration) {
-        mWorld->SetGravity(b2Vec2(0.f, mLevel.gravity()));
-        mScaleGravityEnabled = false;
+      mWorld->SetGravity(b2Vec2(0.f, mLevel.gravity()));
+      mScaleGravityEnabled = false;
 #ifndef NDEBUG
-        std::cout << "Gravity back to normal." << std::endl;
+      std::cout << "Gravity back to normal." << std::endl;
 #endif
     }
+
     if (mScaleBallDensityEnabled && mScaleBallDensityClock.getElapsedTime() > mScaleBallDensityDuration) {
       if (mBall && mBall->isAlive()) {
         mBall->setDensity(mBall->tileParam().density.get());
       }
       mScaleBallDensityEnabled = false;
 #ifndef NDEBUG
-        std::cout << "Ball density back to normal." << std::endl;
+      std::cout << "Ball density back to normal." << std::endl;
 #endif
     }
+
     drawPlayground(elapsed);
   }
-
 
   void Game::gotoAchievementsScreen(void)
   {
@@ -1102,12 +1128,12 @@ namespace Impact {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
           if (mMenuResumeCampaignText.getGlobalBounds().contains(mousePos)) {
             mPlaymode = Campaign;
-            mLevel.set(gSettings.lastCampaignLevel - 1);
+            mLevel.set(gSettings.lastCampaignLevel - 1, false);
             gotoNextLevel();
           }
           else if (mMenuRestartCampaignText.getGlobalBounds().contains(mousePos) && gSettings.lastCampaignLevel > 1) {
             mPlaymode = Campaign;
-            mLevel.set(0);
+            mLevel.set(0, false);
             gotoNextLevel();
           }
           else if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
@@ -1196,24 +1222,37 @@ namespace Impact {
 
   inline void Game::executeBlur(sf::RenderTexture &out, sf::RenderTexture &in)
   {
-    sf::RenderStates states0;
-    sf::Sprite sprite0;
-    sf::RenderStates states1;
-    sf::Sprite sprite1;
     if (gSettings.useShaders) {
+      sf::RenderStates states0;
       states0.shader = &mHBlurShader;
+      sf::Sprite sprite0;
+      sf::RenderStates states1;
       states1.shader = &mVBlurShader;
-    }
-    const float blur = b2Min(4.f, 1.f + mBlurClock.getElapsedTime().asSeconds());
-    for (int i = 1; i < 4; ++i) {
-      sprite1.setTexture(in.getTexture());
-      mVBlurShader.setParameter("uBlur", blur * i);
-      out.draw(sprite1, states1);
-      sprite0.setTexture(out.getTexture());
-      mHBlurShader.setParameter("uBlur", blur * i);
-      in.draw(sprite0, states0);
+      sf::Sprite sprite1;
+      const float blur = b2Min(4.f, 1.f + mBlurClock.getElapsedTime().asSeconds());
+      for (int i = 1; i < 4; ++i) {
+        sprite1.setTexture(in.getTexture());
+        mVBlurShader.setParameter("uBlur", blur * i);
+        out.draw(sprite1, states1);
+        sprite0.setTexture(out.getTexture());
+        mHBlurShader.setParameter("uBlur", blur * i);
+        in.draw(sprite0, states0);
+      }
     }
     executeCopy(out, in);
+  }
+
+
+  void Game::startBlurEffect(void)
+  {
+    mBlurClock.restart();
+    mBlurPlayground = true;
+  }
+
+
+  void Game::stopBlurEffect(void)
+  {
+    mBlurPlayground = false;
   }
 
 
@@ -1293,12 +1332,9 @@ namespace Impact {
 
   void Game::drawPlayground(const sf::Time &elapsed)
   {
-    handleEvents();
-
     mWindow.setView(mPlaygroundView);
     clearWindow();
-
-
+    
     if (gSettings.useShaders) {
       mRenderTexture0.clear(mLevel.backgroundColor());
       mRenderTexture0.draw(mLevel.backgroundSprite());
@@ -1634,11 +1670,6 @@ namespace Impact {
     mGround->setPosition(0, g < 0.f ? 0 : mLevel.height());
     addBody(mGround);
 
-#ifdef BALL_TRACE
-    safeRenew(mBallTrace, new BallTrace(this));
-    addBody(mBallTrace);
-#endif
-
     {
       const sf::Texture *bgTex = mLevel.backgroundSprite().getTexture();
       sf::Image bg = bgTex->copyToImage();
@@ -1773,7 +1804,10 @@ namespace Impact {
   void Game::pause(void)
   {
     mPaused = true;
+    setState(State::Pausing);
     mLevelTimer.pause();
+    startBlurEffect();
+    mWindow.setMouseCursorVisible(true);
   }
 
 
@@ -1781,6 +1815,11 @@ namespace Impact {
   {
     mPaused = false;
     mLevelTimer.resume();
+    stopBlurEffect();
+    setCursorOnRacket();
+    setState(mLastState);
+    if (mState == State::Playing)
+      mWindow.setMouseCursorVisible(false);
   }
 
 
