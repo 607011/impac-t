@@ -64,7 +64,7 @@ namespace Impact {
       b2BodyDef bd;
       bd.type = b2_dynamicBody;
       bd.position = def.pos;
-      bd.fixedRotation = false;
+      bd.fixedRotation = true;
       bd.bullet = false;
       bd.userData = this;
       bd.gravityScale = def.gravityScale;
