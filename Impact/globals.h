@@ -24,6 +24,7 @@
 #include <string>
 #include <random>
 #include "Settings.h"
+#include "Level.h"
 
 namespace Impact {
 
@@ -38,6 +39,9 @@ namespace Impact {
   extern std::mt19937 gRNG;
 
   extern Settings gSettings;
+  extern std::vector<Level> gLevels;
+
+  extern void enumerateAllLevels(void);
   extern void warmupRNG(void);
 }
 

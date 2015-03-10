@@ -35,8 +35,6 @@ namespace Impact {
 
   const float32 Level::DefaultGravity = 9.81f;
 
-  std::vector<Level> Level::sLevels;
-
   Level::Level(void)
     : mBackgroundColor(sf::Color::Black)
     , mFirstGID(0)
@@ -479,22 +477,4 @@ namespace Impact {
     return mTiles.at(index);
   }
 
-
-  const std::vector<Level> &Level::enumerateAllLevels(void)
-  {
-    if (sLevels.empty()) {
-      Level level;
-      int l = 1;
-      bool loaded = false;
-      do {
-        loaded = level.set(l, true);
-#ifndef NDEBUG
-        std::cout << "Level " << l << " loaded: " << loaded << std::endl;
-#endif
-        ++l;
-      } while (loaded);
-      sLevels.push_back(level);
-    }
-    return sLevels;
-  }
 }

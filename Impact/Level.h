@@ -61,9 +61,6 @@ namespace Impact {
 
     static const float32 DefaultGravity;
 
-    static const std::vector<Level> &enumerateAllLevels(void);
-    static std::vector<Level> sLevels;
-
     void clear(void);
     bool set(int level, bool doLoad = true);
     bool gotoNext(void);

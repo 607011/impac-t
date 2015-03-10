@@ -30,6 +30,9 @@ namespace Impact {
   std::mt19937 gRNG;
 
   int gDetailLevel = 3; // 0..3
+
+  std::vector<Level> gLevels;
+
   void warmupRNG(void)
   {
 #ifndef NDEBUG
@@ -40,5 +43,22 @@ namespace Impact {
     std::generate_n(seed_data.data(), seed_data.size(), std::ref(r));
     std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
     gRNG.seed(seq);
+  }
+
+
+  void enumerateAllLevels(void)
+  {
+    if (gLevels.empty()) {
+#ifndef NDEBUG
+      std::cout << "enumerateAllLevels()" << std::endl;
+#endif
+      Level level;
+      int l = 1;
+      bool loaded = false;
+      do {
+        loaded = level.set(l++, true);
+      } while (loaded);
+      gLevels.push_back(level);
+    }
   }
 }
