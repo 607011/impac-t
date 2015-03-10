@@ -31,7 +31,6 @@ namespace Impact {
 
   int gDetailLevel = 3; // 0..3
 
-  std::vector<Level> gLevels;
 
   void warmupRNG(void)
   {
@@ -45,20 +44,4 @@ namespace Impact {
     gRNG.seed(seq);
   }
 
-
-  void enumerateAllLevels(void)
-  {
-    if (gLevels.empty()) {
-#ifndef NDEBUG
-      std::cout << "enumerateAllLevels()" << std::endl;
-#endif
-      Level level;
-      int l = 1;
-      bool loaded = false;
-      do {
-        loaded = level.set(l++, true);
-      } while (loaded);
-      gLevels.push_back(level);
-    }
-  }
 }

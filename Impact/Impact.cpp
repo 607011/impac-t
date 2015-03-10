@@ -24,6 +24,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/signals2.hpp>
 
+#include <zlib.h>
 
 #include <Shlwapi.h>
 #include <commdlg.h>
@@ -1854,5 +1855,21 @@ namespace Impact {
     }
   }
 
-}
 
+  void Game::enumerateAllLevels(void)
+  {
+#ifndef NDEBUG
+    std::cout << std::endl << "Game::enumerateAllLevels()" << std::endl << std::endl;
+#endif
+    if (mLevels.empty()) {
+      Level level;
+      int l = 1;
+      do {
+        level = Level(l++);
+        if (level.isAvailable())
+          mLevels.push_back(level);
+      } while (level.isAvailable());
+    }
+  }
+
+}

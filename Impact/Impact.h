@@ -295,6 +295,9 @@ namespace Impact {
     std::vector<sf::Time> mLastKillings;
     int mLastKillingsIndex;
 
+    std::vector<Level> mLevels;
+    void enumerateAllLevels(void);
+
     void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);
     void newBall(const b2Vec2 &pos = b2Vec2_zero);
