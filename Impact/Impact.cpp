@@ -109,6 +109,7 @@ namespace Impact {
     , mContactPointCount(0)
     , mScore(0)
     , mLives(3)
+    , mMouseButtonDown(false)
     , mAllLevelsEnumerated(false)
     , mPaused(false)
     , mState(State::Initialization)
@@ -361,7 +362,7 @@ namespace Impact {
     mMenuBackText = sf::Text(tr("Back"), mFixedFont, 32U);
     mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 224 + menuTop);
 
-    mLevelsRenderTexture.create(600, 70 /*210*/);
+    mLevelsRenderTexture.create(600, 210);
     mLevelsRenderView = mLevelsRenderTexture.getDefaultView();
 
     if (gSettings.useShaders) {
@@ -1131,29 +1132,6 @@ namespace Impact {
     static const int lineHeight = 20;
     static const float scrollSpeed = 64.f;
 
-    sf::Event event;
-    while (mWindow.pollEvent(event)) {
-      if (event.type == sf::Event::Closed) {
-        mWindow.close();
-      }
-      else if (event.type == sf::Event::MouseButtonPressed) {
-        if (event.mouseButton.button == sf::Mouse::Button::Left) {
-          if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
-            mBlockHitSound.play();
-            gotoWelcomeScreen();
-          }
-          return;
-        }
-      }
-      else if (event.type == sf::Event::MouseWheelMoved) {
-#ifndef NDEBUG
-        std::cout << event.mouseWheel.delta << std::endl;
-#endif
-        if ((event.mouseWheel.delta < 0 && mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y > 0.f) || (event.mouseWheel.delta > 0 && mLevelsRenderView.getCenter().y + .5f * mLevelsRenderView.getSize().y < float(marginTop + marginBottom + lineHeight * mLevels.size())))
-          mLevelsRenderView.move(0.f, 62.f * (event.mouseWheel.delta));
-      }
-    }
-
     mWindow.clear(sf::Color(31, 31, 47));
     mWindow.draw(mBackgroundSprite);
 
@@ -1176,8 +1154,10 @@ namespace Impact {
 
     sf::FloatRect top = levelSprite.getGlobalBounds();
     top.height *= .1f;
+    top.width -= 10.f;
     sf::FloatRect bottom = levelSprite.getGlobalBounds();
     bottom.height *= .1f;
+    bottom.width -= 10.f;
     bottom.top += .9f * levelSprite.getGlobalBounds().height;
 
     const float totalHeight = float(marginTop + marginBottom + lineHeight * mLevels.size());
@@ -1199,10 +1179,11 @@ namespace Impact {
     const float scrollbarHeight = scrollAreaHeight * scrollAreaHeight / totalHeight;
     const float scrollbarTop = scrollTop + (scrollAreaHeight - scrollbarHeight) * scrollRatio;
 
-    const sf::FloatRect scrollbarRect(scrollbarLeft, scrollbarTop, scrollbarWidth, scrollbarHeight);
+    sf::FloatRect scrollbarRect(scrollbarLeft + levelSprite.getPosition().x, scrollbarTop + mDefaultView.getCenter().y - 40, scrollbarWidth, scrollbarHeight);
 
     mScrollbarSprite.setPosition(scrollbarLeft, scrollbarTop);
     mScrollbarSprite.setScale(scrollbarWidth, scrollbarHeight);
+    mScrollbarSprite.setColor(sf::Color(255, 255, 255, scrollbarRect.contains(mousePos) ? 255 : 192));
 
     auto displayLevels = [this](void) {
       mLevelsRenderTexture.setView(mLevelsRenderView);
@@ -1232,14 +1213,51 @@ namespace Impact {
       }
     }
 
-    levelSprite.setTexture(mLevelsRenderTexture.getTexture());
-    mWindow.draw(levelSprite);
-
     const float menuTop = std::floor(mDefaultView.getCenter().y - 45.5f);
 
     mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
     mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 224 + menuTop);
     mWindow.draw(mMenuBackText);
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) {
+        mWindow.close();
+      }
+      else if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
+            mBlockHitSound.play();
+            gotoWelcomeScreen();
+            return;
+          }
+          else if (scrollbarRect.contains(mousePos)) {
+            mMouseButtonDown = true;
+            mLastMousePos = mousePos;
+          }
+        }
+      }
+      else if (event.type == sf::Event::MouseButtonReleased) {
+        mMouseButtonDown = false;
+      }
+      else if (event.type == sf::Event::MouseMoved) {
+        if (mMouseButtonDown) {
+#ifndef NDEBUG
+          const sf::Vector2f &mousePos = sf::Vector2f(float(event.mouseMove.x), float(event.mouseMove.y));
+          const sf::Vector2f &d = mousePos - mLastMousePos;
+          mLevelsRenderView.move(0.f, d.y * (scrollAreaHeight / totalHeight));
+          mLastMousePos = mousePos;
+#endif
+        }
+      }
+      else if (event.type == sf::Event::MouseWheelMoved) {
+        if ((event.mouseWheel.delta < 0 && mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y > 0.f) || (event.mouseWheel.delta > 0 && mLevelsRenderView.getCenter().y + .5f * mLevelsRenderView.getSize().y < float(marginTop + marginBottom + lineHeight * mLevels.size())))
+          mLevelsRenderView.move(0.f, 62.f * (event.mouseWheel.delta));
+      }
+    }
+
+    levelSprite.setTexture(mLevelsRenderTexture.getTexture());
+    mWindow.draw(levelSprite);
 
   }
 

@@ -220,6 +220,8 @@ namespace Impact {
     sf::View mLevelsRenderView;
     sf::Texture mScrollbarTexture;
     sf::Sprite mScrollbarSprite;
+    sf::Vector2f mLastMousePos;
+    bool mMouseButtonDown;
     sf::Clock mClock;
     sf::Clock mWallClock;
     sf::Clock mScoreClock;
