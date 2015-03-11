@@ -31,6 +31,8 @@
 #include <Shlwapi.h>
 #include <memory.h>
 
+#define NDEBUG 1
+
 namespace Impact {
 
   const float32 Level::DefaultGravity = 9.81f;
@@ -289,23 +291,30 @@ namespace Impact {
       uLong compressedSize = 0UL;
       base64_decode(mapDataB64, compressed, compressedSize);
       if (compressed != nullptr && compressedSize > 0) {
-        static const size_t CHUNKSIZE = sizeof(uint32_t) * 12800ULL;
-        uint32_t *mapData = new uint32_t[CHUNKSIZE];
+        const size_t CHUNKSIZE = 128 * 1024;
+        uint32_t *mapData = new uint32_t[CHUNKSIZE / sizeof(uint32_t)];
         if (mapData != nullptr) {
-          uLongf mapDataSize = (uLongf)CHUNKSIZE;
-          int rc = uncompress((Bytef*)mapData, &mapDataSize, (Bytef*)compressed, compressedSize);
+          uLongf mapDataSize = CHUNKSIZE;
+          int rc = uncompress(reinterpret_cast<Bytef*>(mapData), &mapDataSize, reinterpret_cast<Bytef*>(compressed), compressedSize);
           if (rc == Z_OK) {
             for (uLongf i = 0; i < mapDataSize; ++i) {
               mMapData.push_back(*(mapData + i));
             }
-            delete[] mapData;
+            delete [] mapData;
 #ifndef NDEBUG
             std::cout << "map data contains " << mMapData.size() << " elements." << std::endl;
 #endif
           }
           else {
-            std::cerr << "Inflating map data failed with code " << rc << std::endl;
             ok = false;
+            if (rc == Z_DATA_ERROR)
+              std::cerr << "Inflating map data failed: Z_DATA_ERROR" << std::endl;
+            else if (rc == Z_MEM_ERROR)
+              std::cerr << "Inflating map data failed: Z_MEM_ERROR" << std::endl;
+            else if (rc == Z_BUF_ERROR)
+              std::cerr << "Inflating map data failed: Z_BUF_ERROR " << std::endl;
+            else
+              std::cerr << "Inflating map data failed with error code " << rc << std::endl;
           }
         }
         delete[] compressed;
@@ -317,10 +326,7 @@ namespace Impact {
       const std::string &backgroundTextureFilename = levelPath + "/" + pt.get<std::string>("map.imagelayer.image.<xmlattr>.source");
       mBackgroundTexture.loadFromFile(backgroundTextureFilename);
       mBackgroundSprite.setTexture(mBackgroundTexture);
-      try {
-        mBackgroundImageOpacity = pt.get<float>("map.imagelayer.<xmlattr>.opacity");
-      }
-      catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
+      mBackgroundImageOpacity = pt.get<float>("map.imagelayer.<xmlattr>.opacity", 1.f);
       mBackgroundSprite.setColor(sf::Color(255, 255, 255, sf::Uint8(mBackgroundImageOpacity * 0xff)));
 
       mBoundary = Boundary();
@@ -441,10 +447,21 @@ namespace Impact {
       ok = false;
     }
 
-#ifndef NDEBUG
-    std::cout << "Level loaded." << std::endl;
-#endif
     mSuccessfullyLoaded = ok;
+#ifndef NDEBUG
+    std::cout << "Level " << (mSuccessfullyLoaded ? "loaded." : "NOT loaded.") << std::endl;
+    if (mSuccessfullyLoaded)
+      std::cout <<
+      "            _\n"
+      "           /(|\n"
+      "          (  :\n"
+      "         __\\  \\  _____\n"
+      "       (____)  `|\n"
+      "      (____)|   |\n"
+      "       (____).__|\n"
+      "        (___)__.|_____\n"
+      << std::endl;
+#endif
   }
 
 
