@@ -306,6 +306,7 @@ namespace Impact {
     bool enumerateAllLevels(void);
     std::packaged_task<bool()> mEnumerateTask;
     std::future<bool> mEnumerateFuture;
+    bool mAllLevelsEnumerated;
 
     void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);

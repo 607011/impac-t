@@ -109,6 +109,7 @@ namespace Impact {
     , mContactPointCount(0)
     , mScore(0)
     , mLives(3)
+    , mAllLevelsEnumerated(false)
     , mPaused(false)
     , mState(State::Initialization)
     , mLastState(State::NoState)
@@ -1132,13 +1133,22 @@ namespace Impact {
       mWindow.draw(mTitleText);
     }
 
+    auto displayLevels = [this](void) {
+      if (!mAllLevelsEnumerated)
+        std::cout << mLevels.size() << " " << std::flush;
+    };
+
     if (mEnumerateFuture.valid()) {
       std::future_status status = mEnumerateFuture.wait_for(std::chrono::milliseconds(0));
       if (status == std::future_status::ready) {
-        std::cout << "ready." << std::endl;
+        displayLevels();
+        if (!mAllLevelsEnumerated) {
+          mAllLevelsEnumerated = true;
+          std::cout << "ready." << std::endl;
+        }
       }
       else if (status == std::future_status::timeout) {
-        std::cout << mLevels.size() << " " << std::flush;
+        displayLevels();
       }
       else if (status == std::future_status::deferred) {
         std::cout << "deferred." << std::endl;
