@@ -40,10 +40,11 @@ A Breakout/Bolo clone, augmented with a physics engine
    - leaderboard for campaigns
    - stats
    - achievements, e.g.:
-	 - 2, 4, 8, 16 ... killing sprees in one level
+	 - 1, 2, 4, 8, 16 ... killing sprees in one level
 	 - uninterrupted play for 15, 30, 60, 90 ... minutes
-	 - 1, 2, 4, 8, 16 hours total play time
-	 - no ball lost in 1, 2, 4, 8, 16 levels
+	 - 1, 2, 4, 8, 16 ... hours total play time
+	 - no ball lost in 1, 2, 4, 8, 16 ... levels
+     - no score deduction in 1, 2, 4, 8, 16 ... levels
  - use custom cursor instead of OS's default (https://github.com/LaurentGomila/SFML/wiki/Tutorial:-Change-Cursor)
 
 ## License
