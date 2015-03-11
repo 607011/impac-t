@@ -495,6 +495,8 @@ namespace Impact {
     std::cout << "Game::setState(" << StateNames[state] << "), lastState = " << StateNames[mLastState] << std::endl;
 #endif
     mState = state;
+    if (mState == State::Playing)
+      mWindow.setMouseCursorVisible(false);
   }
 
 
@@ -1882,9 +1884,8 @@ namespace Impact {
     mLevelTimer.resume();
     stopBlurEffect();
     setCursorOnRacket();
-    setState(mLastState);
-    if (mState == State::Playing)
-      mWindow.setMouseCursorVisible(false);
+    if (mState == State::Pausing)
+      setState(State::Playing);
   }
 
 
