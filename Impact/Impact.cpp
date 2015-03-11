@@ -719,9 +719,9 @@ namespace Impact {
     }
     if (t > 670) {
       mWindow.draw(mProgramInfoMsg);
-      if (mWelcomeLevel == 4) {
+      if (mWelcomeLevel == 3) {
         mExplosionSound.play();
-        mWelcomeLevel = 5;
+        mWelcomeLevel = 4;
         ExplosionDef pd(this, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y));
         pd.texture = mParticleTexture;
         pd.count = gSettings.particlesPerExplosion;
@@ -729,6 +729,10 @@ namespace Impact {
       }
     }
 
+    if (mWelcomeLevel == 4) {
+      mWelcomeLevel = 5;
+      enumerateAllLevels();
+    }
   }
 
 
@@ -1105,9 +1109,6 @@ namespace Impact {
     mWindow.setMouseCursorVisible(true);
     mWindow.setVerticalSyncEnabled(true);
     mRacketHitSound.play();
-    std::packaged_task<bool()> task([this]{ return this->enumerateAllLevels(); });
-    mEnumerateFuture = task.get_future();
-    std::thread(std::move(task)).detach();
     mWallClock.restart();
   }
 
@@ -1972,22 +1973,27 @@ namespace Impact {
   }
 
 
-  bool Game::enumerateAllLevels(void)
+  void Game::enumerateAllLevels(void)
   {
 #ifndef NDEBUG
     std::cout << std::endl << "Game::enumerateAllLevels()" << std::endl << std::endl;
 #endif
-    if (mLevels.empty()) {
-      Level level;
-      int l = 1;
-      do {
-        level = Level(l++);
-        mEnumerateMutex.lock();
-        if (level.isAvailable())
-          mLevels.push_back(level);
-        mEnumerateMutex.unlock();
-      } while (level.isAvailable());
-    }
-    return true;
+    std::packaged_task<bool()> task([this]{ 
+      if (mLevels.empty()) {
+        Level level;
+        int l = 1;
+        do {
+          level = Level(l++);
+          if (level.isAvailable()) {
+            mEnumerateMutex.lock();
+            mLevels.push_back(level);
+            mEnumerateMutex.unlock();
+          }
+        } while (level.isAvailable());
+      }
+      return true;
+    });
+    mEnumerateFuture = task.get_future();
+    std::thread(std::move(task)).detach();
   }
 }
