@@ -216,6 +216,10 @@ namespace Impact {
     sf::Clock mAberrationClock;
     sf::Time mAberrationDuration;
     float32 mAberrationIntensity;
+    sf::RenderTexture mLevelsRenderTexture;
+    sf::View mLevelsRenderView;
+    sf::Texture mScrollbarTexture;
+    sf::Sprite mScrollbarSprite;
     sf::Clock mClock;
     sf::Clock mWallClock;
     sf::Clock mScoreClock;
