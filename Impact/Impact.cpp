@@ -1862,6 +1862,9 @@ namespace Impact {
 
   void Game::pause(void)
   {
+#ifndef NDEBUG
+    std::cout << "pause()" << std::endl;
+#endif
     mPaused = true;
     setState(State::Pausing);
     mLevelTimer.pause();
@@ -1872,6 +1875,9 @@ namespace Impact {
 
   void Game::resume(void)
   {
+#ifndef NDEBUG
+    std::cout << "resume()" << std::endl;
+#endif
     mPaused = false;
     mLevelTimer.resume();
     stopBlurEffect();
