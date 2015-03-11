@@ -5,11 +5,16 @@ A Breakout/Bolo clone, augmented with a physics engine
 
 ## System requirements
 
- - Windows 7 or newer
- - 4 GByte RAM
- - 5 MByte free disk space
- - an OpenGL 3.x capable graphics card and driver
- - for best visual experience: support for GLSL
+ - General
+   - Windows 7 or newer
+   - 4 GByte RAM
+   - an OpenGL 3.x capable graphics card and driver
+ - Minimum
+   - 5 MByte free disk space
+   - dual-core CPU @ 1,8 GHz
+ - Optimum
+   - quad-core CPU @ 2,4 GHz
+   - support for GLSL
 
 
 ## TODO
