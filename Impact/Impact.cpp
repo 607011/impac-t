@@ -91,6 +91,15 @@ namespace Impact {
   const sf::Time Game::DefaultEarthquakeDuration = sf::milliseconds(10 * 1000);
   const sf::Time Game::DefaultOverlayDuration = sf::milliseconds(300);
 
+#ifndef NDEBUG
+  const char* Game::StateNames[State::LastState] = {
+    "NoState", "Initialization", "WelcomeScreen", "CampaignScreen",
+    "CreditsScreen", "OptionsScreen", "AchievementsScreen", "Playing",
+    "LevelCompleted", "SelectLevelScreen", "Pausing", "PlayerWon",
+    "GameOver"
+  };
+#endif
+
   Game::Game(void)
     : mWorld(nullptr)
     , mBallHasBeenLost(false)
@@ -483,7 +492,7 @@ namespace Impact {
   {
     mLastState = mState;
 #ifndef NDEBUG
-    std::cout << "Game::setState(" << int(state) << "), lastState = " << mLastState << std::endl;
+    std::cout << "Game::setState(" << StateNames[state] << "), lastState = " << StateNames[mLastState] << std::endl;
 #endif
     mState = state;
   }

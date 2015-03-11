@@ -105,6 +105,10 @@ namespace Impact {
       LastState
     } State;
 
+#ifndef NDEBUG
+    static const char* StateNames[State::LastState];
+#endif
+
 
   public:
     static const int Scale = 16;
