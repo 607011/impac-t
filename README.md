@@ -21,6 +21,7 @@ A Breakout/Bolo clone, augmented with a physics engine
 
 ### Essential
 
+ - [WORK IN PROGRESS] let the user select a certain level from the campaign
  - integrate 3rd party sources/libraries into Visual Studio solution
 
 ### Nice to have

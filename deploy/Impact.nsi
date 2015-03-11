@@ -1,9 +1,9 @@
 !define VERSIONMAJOR "1"
 !define VERSIONMINOR "0"
-!define VERSION "${VERSIONMAJOR}.${VERSIONMINOR}-BETA16"
+!define VERSION "${VERSIONMAJOR}.${VERSIONMINOR}-BETA17"
 !define GUID "{95E41A25-7E41-45CA-A1F6-0FFAB66A1B2F}"
 !define APP "Impact"
-!define PUBLISHER "Heise Medien GmbH - Redaktion c't"
+!define PUBLISHER "Heise Medien GmbH & Co. KG - Redaktion c't"
 
 !include "LogicLib.nsh"
 !include "FileFunc.nsh"
