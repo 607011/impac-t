@@ -26,6 +26,7 @@
 
 #include <Shlwapi.h>
 #include <commdlg.h>
+#include <Windows.h>
 
 namespace Impact {
 
@@ -591,8 +592,11 @@ namespace Impact {
     ofn.nMaxFileTitle = 0;
     ofn.lpstrInitialDir = gSettings.lastOpenDir.c_str();
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    char szCwd[MAX_PATH];
+    GetCurrentDirectory(MAX_PATH, szCwd);
     BOOL ok = GetOpenFileName(&ofn);
     if (ok == TRUE) {
+      SetCurrentDirectory(szCwd); // GetOpenFileName() changed current directory, so restore it afterwards
       std::string zipFilename = ofn.lpstrFile;
       PathRemoveFileSpec(ofn.lpstrFile);
       gSettings.lastOpenDir = ofn.lpstrFile;
