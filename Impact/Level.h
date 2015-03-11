@@ -63,7 +63,7 @@ namespace Impact {
     static const float32 DefaultGravity;
 
     void clear(void);
-    bool set(int level, bool doLoad = true);
+    bool set(int level, bool doLoad);
     bool gotoNext(void);
 
     const sf::Texture &texture(const std::string &name) const;

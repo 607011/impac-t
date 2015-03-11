@@ -103,7 +103,7 @@ namespace Impact {
 
   bool Level::gotoNext(void)
   {
-    return set(mLevelNum + 1);
+    return set(mLevelNum + 1, true);
   }
 
 
