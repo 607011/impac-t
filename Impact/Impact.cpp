@@ -1199,7 +1199,7 @@ namespace Impact {
         sf::Text levelText("Level " + std::to_string(i + 1) + ": " + (levelName.empty() ? "<unnamed>" : levelName), mFixedFont, 16U);
         const float levelTextTop = float(marginTop + lineHeight * i);
         levelText.setPosition(10.f, levelTextTop);
-        sf::FloatRect levelTextRect(10.f, mDefaultView.getCenter().y - 40 + levelTextTop - scrollTop, levelText.getLocalBounds().width, lineHeight);
+        sf::FloatRect levelTextRect(10.f, mDefaultView.getCenter().y - 40 + levelTextTop - scrollTop, levelText.getLocalBounds().width, float(lineHeight));
         levelText.setColor(sf::Color(255, 255, 255, levelTextRect.contains(mousePos) ? 255 : 160));
         if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && levelTextRect.contains(mousePos)) {
           mLevel.set(i + 1, true);
