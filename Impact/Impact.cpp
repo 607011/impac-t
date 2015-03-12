@@ -1269,22 +1269,22 @@ namespace Impact {
     levelSprite.setScale(1.f, -1.f);
     levelSprite.setPosition(20.f, menuTop + mLevelsRenderTexture.getSize().y);
 
-    sf::FloatRect top = levelSprite.getGlobalBounds();
-    top.height *= .1f;
-    top.width -= 10.f;
-    sf::FloatRect bottom = levelSprite.getGlobalBounds();
-    bottom.height *= .1f;
-    bottom.width -= 10.f;
-    bottom.top += .9f * levelSprite.getGlobalBounds().height;
+    sf::FloatRect topSection = levelSprite.getGlobalBounds();
+    topSection.height *= .1f;
+    topSection.width -= 10.f;
+    sf::FloatRect bottomSection = levelSprite.getGlobalBounds();
+    bottomSection.height *= .1f;
+    bottomSection.width -= 10.f;
+    bottomSection.top += .9f * levelSprite.getGlobalBounds().height;
 
     const float totalHeight = float(marginTop + marginBottom + lineHeight * mLevels.size());
     const float scrollAreaHeight = mLevelsRenderView.getSize().y;
 
-    if (top.contains(mousePos)) {
+    if (topSection.contains(mousePos)) {
       if (mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y > 0.f)
         mLevelsRenderView.move(0.f, -scrollSpeed * elapsed.asSeconds());
     }
-    else if (bottom.contains(mousePos)) {
+    else if (bottomSection.contains(mousePos)) {
       if (mLevelsRenderView.getCenter().y + .5f * mLevelsRenderView.getSize().y < totalHeight)
         mLevelsRenderView.move(0.f, +scrollSpeed * elapsed.asSeconds());
     }
