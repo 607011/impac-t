@@ -185,7 +185,7 @@ namespace Impact {
     sf::Text mTitleText;
     sf::Texture mTitleTexture;
     sf::Sprite mTitleSprite;
-    sf::Text mMenuInstantPlayText;
+    sf::Text mMenuSingleLevel;
     sf::Text mMenuLoadLevelText;
     sf::Text mMenuExitText;
     sf::Text mMenuBackText;

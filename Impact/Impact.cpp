@@ -333,11 +333,11 @@ namespace Impact {
     const float menuTop = std::floor(mDefaultView.getCenter().y - 45.5f);
 
     // main menu
-    mMenuInstantPlayText = sf::Text(tr("Instant Play"), mFixedFont, 32U);
-    mMenuInstantPlayText.setPosition(.5f * (mDefaultView.getSize().x - mMenuInstantPlayText.getLocalBounds().width), menuTop);
-
     mMenuCampaignText = sf::Text(tr("Campaign"), mFixedFont, 32U);
-    mMenuCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuCampaignText.getLocalBounds().width), 32 + menuTop);
+    mMenuCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuCampaignText.getLocalBounds().width), 0 + menuTop);
+
+    mMenuSingleLevel = sf::Text(tr("Single level"), mFixedFont, 32U);
+    mMenuSingleLevel.setPosition(.5f * (mDefaultView.getSize().x - mMenuSingleLevel.getLocalBounds().width), 32 + menuTop);
 
     mMenuLoadLevelText = sf::Text(tr("Load level"), mFixedFont, 32U);
     mMenuLoadLevelText.setPosition(.5f * (mDefaultView.getSize().x - mMenuLoadLevelText.getLocalBounds().width), 64 + menuTop);
@@ -355,7 +355,6 @@ namespace Impact {
     mMenuExitText.setPosition(.5f * (mDefaultView.getSize().x - mMenuExitText.getLocalBounds().width), 192 + menuTop);
 
     mMenuResumeCampaignText = sf::Text(tr("Resume Campaign"), mFixedFont, 32U);
-    mMenuResumeCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuResumeCampaignText.getLocalBounds().width), 0 + menuTop);
 
     mMenuRestartCampaignText = sf::Text(tr("Restart Campaign"), mFixedFont, 32U);
     mMenuRestartCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuRestartCampaignText.getLocalBounds().width), 32 + menuTop);
@@ -653,7 +652,7 @@ namespace Impact {
       }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
-          if (mMenuInstantPlayText.getGlobalBounds().contains(mousePos)) {
+          if (mMenuSingleLevel.getGlobalBounds().contains(mousePos)) {
             gotoSelectLevelScreen();
           }
           else if (mMenuLoadLevelText.getGlobalBounds().contains(mousePos)) {
@@ -707,8 +706,8 @@ namespace Impact {
     }
 
     if (t > 350) {
-      mMenuInstantPlayText.setColor(sf::Color(255, 255, 255, mMenuInstantPlayText.getGlobalBounds().contains(mousePos) ? 255 : 192));
-      mWindow.draw(mMenuInstantPlayText);
+      mMenuSingleLevel.setColor(sf::Color(255, 255, 255, mMenuSingleLevel.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mWindow.draw(mMenuSingleLevel);
       mMenuCampaignText.setColor(sf::Color(255, 255, 255, mMenuCampaignText.getGlobalBounds().contains(mousePos) ? 255 : 192));
       mWindow.draw(mMenuCampaignText);
       mMenuLoadLevelText.setColor(sf::Color(255, 255, 255, mMenuLoadLevelText.getGlobalBounds().contains(mousePos) ? 255 : 192));
@@ -1137,15 +1136,6 @@ namespace Impact {
       mWindow.draw(mTitleText);
     }
 
-    if (mWelcomeLevel == 0) {
-      ExplosionDef pd(this, InvScale * b2Vec2(mousePos.x, mousePos.y));
-      pd.ballCollisionEnabled = false;
-      pd.count = gSettings.particlesPerExplosion;
-      pd.texture = mParticleTexture;
-      addBody(new Explosion(pd));
-      mWelcomeLevel = 1;
-    }
-
     const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
 
     mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
@@ -1427,6 +1417,8 @@ namespace Impact {
 
     const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
     const sf::Vector2f &mousePos = sf::Vector2f(float(mousePosI.x), float(mousePosI.y));
+
+    mMenuResumeCampaignText.setString(gSettings.lastCampaignLevel > 1 ? tr("Resume Campaign") : tr("Start Campaign"));
 
     sf::Event event;
     while (mWindow.pollEvent(event)) {
