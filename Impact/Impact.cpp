@@ -1189,7 +1189,7 @@ namespace Impact {
     mScrollbarSprite.setScale(scrollbarWidth, scrollbarHeight);
     mScrollbarSprite.setColor(sf::Color(255, 255, 255, scrollbarRect.contains(mousePos) ? 255 : 192));
 
-    auto displayLevels = [this](void) {
+    auto displayLevels = [this, &mousePos, &scrollTop](void) {
       mLevelsRenderTexture.setView(mLevelsRenderView);
       mLevelsRenderTexture.clear(sf::Color(0, 0, 0, 32));
       mLevelsRenderTexture.draw(mScrollbarSprite);
@@ -1197,8 +1197,14 @@ namespace Impact {
       for (std::vector<Level>::size_type i = 0; i < mLevels.size(); ++i) {
         const std::string &levelName = mLevels.at(i).name();
         sf::Text levelText("Level " + std::to_string(i + 1) + ": " + (levelName.empty() ? "<unnamed>" : levelName), mFixedFont, 16U);
-        levelText.setColor(sf::Color::White);
-        levelText.setPosition(10.f, float(marginTop + lineHeight * i));
+        const float levelTextTop = float(marginTop + lineHeight * i);
+        levelText.setPosition(10.f, levelTextTop);
+        sf::FloatRect levelTextRect(10.f, mDefaultView.getCenter().y - 40 + levelTextTop - scrollTop, levelText.getLocalBounds().width, lineHeight);
+        levelText.setColor(sf::Color(255, 255, 255, levelTextRect.contains(mousePos) ? 255 : 160));
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && levelTextRect.contains(mousePos)) {
+          mLevel.set(i + 1, true);
+          gotoCurrentLevel();
+        }
         mLevelsRenderTexture.draw(levelText);
       }
       mEnumerateMutex.unlock();
