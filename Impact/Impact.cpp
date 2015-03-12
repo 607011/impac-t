@@ -365,6 +365,18 @@ namespace Impact {
     mMenuSelectLevelText = sf::Text(tr("Select level"), mFixedFont, 32U);
     mMenuSelectLevelText.setColor(sf::Color::White);
 
+    mCreditsTitleText = sf::Text(tr("Credits"), mFixedFont, 32U);
+    mCreditsTitleText.setColor(sf::Color::White);
+    mCreditsText = sf::Text(tr("Impac't: Copyright (c) Oliver Lau, Heise Medien GmbH & Co. KG\n"
+      "SFML: Copyright (c) Laurent Gomila\n"
+      "Box2D: Copyright (c) Erin Catto\n"
+      "boost: see http://opensource.org/licenses/bsl1.0.html\n"
+      "zlib: Copyright (c) Jean-loup Gailly and Mark Adler\n"
+      "GLEW: Copyright (c)  Milan Ikits, Marcelo Magallon et al.\n"
+      "easings: https://github.com/jesusgollonet/ofpennereasing\n"
+      "\n"), mFixedFont, 16U);
+    mCreditsText.setColor(sf::Color::White);
+
     mLevelsRenderTexture.create(600, 170);
     mLevelsRenderView = mLevelsRenderTexture.getDefaultView();
 
@@ -657,9 +669,9 @@ namespace Impact {
           //else if (mMenuOptionsText.getGlobalBounds().contains(mousePos)) {
           //  gotoOptionsScreen();
           //}
-          //else if (mMenuCreditsText.getGlobalBounds().contains(mousePos)) {
-          //  gotoCreditsScreen();
-          //}
+          else if (mMenuCreditsText.getGlobalBounds().contains(mousePos)) {
+            gotoCreditsScreen();
+          }
           else if (mMenuExitText.getGlobalBounds().contains(mousePos)) {
             mWindow.close();
           }
@@ -705,7 +717,7 @@ namespace Impact {
       mWindow.draw(mMenuAchievementsText);
       mMenuOptionsText.setColor(sf::Color(255, 255, 255, mMenuOptionsText.getGlobalBounds().contains(mousePos) ? 32 : 32));
       mWindow.draw(mMenuOptionsText);
-      mMenuCreditsText.setColor(sf::Color(255, 255, 255, mMenuCreditsText.getGlobalBounds().contains(mousePos) ? 32 : 32));
+      mMenuCreditsText.setColor(sf::Color(255, 255, 255, mMenuCreditsText.getGlobalBounds().contains(mousePos) ? 255 : 192));
       mWindow.draw(mMenuCreditsText);
       mMenuExitText.setColor(sf::Color(255, 255, 255, mMenuExitText.getGlobalBounds().contains(mousePos) ? 255 : 192));
       mWindow.draw(mMenuExitText);
@@ -1092,13 +1104,66 @@ namespace Impact {
 
   void Game::gotoCreditsScreen(void)
   {
-    // TODO: implement gotoCreditsScreen()
+    clearWorld();
+    setState(State::CreditsScreen);
+    mWindow.setView(mDefaultView);
+    mWindow.setMouseCursorVisible(true);
+    mWindow.setVerticalSyncEnabled(true);
+    mRacketHitSound.play();
+    mWallClock.restart();
+
   }
 
 
   void Game::onCreditsScreen(void)
   {
-    // TODO: implement onCreditsScreen()
+    const sf::Time &elapsed = mClock.restart();
+
+    const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
+    const sf::Vector2f &mousePos = sf::Vector2f(float(mousePosI.x), float(mousePosI.y));
+
+    const float t = mWallClock.getElapsedTime().asSeconds();
+
+    mWindow.clear(sf::Color(31, 31, 47));
+    mWindow.draw(mBackgroundSprite);
+
+    if (gSettings.useShaders) {
+      sf::RenderStates states;
+      states.shader = &mTitleShader;
+      mTitleShader.setParameter("uT", t);
+      mWindow.draw(mTitleSprite, states);
+    }
+    else {
+      mWindow.draw(mTitleText);
+    }
+
+    const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
+
+    mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), mLevelsRenderTexture.getSize().y + menuTop);
+    mWindow.draw(mMenuBackText);
+
+    mCreditsTitleText.setPosition(.5f * (mDefaultView.getSize().x - mCreditsTitleText.getLocalBounds().width), menuTop - 40);
+    mWindow.draw(mCreditsTitleText);
+
+    mCreditsText.setPosition(.5f * (mDefaultView.getSize().x - mCreditsText.getLocalBounds().width), menuTop);
+    mWindow.draw(mCreditsText);
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) {
+        mWindow.close();
+      }
+      else if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
+            mBlockHitSound.play();
+            gotoWelcomeScreen();
+            return;
+          }
+        }
+      }
+    }
   }
 
 

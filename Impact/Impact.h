@@ -196,6 +196,8 @@ namespace Impact {
     sf::Text mMenuAchievementsText;
     sf::Text mMenuOptionsText;
     sf::Text mMenuCreditsText;
+    sf::Text mCreditsTitleText;
+    sf::Text mCreditsText;
     sf::Texture mLogoTexture;
     sf::Sprite mLogoSprite;
     sf::Text mOverlayText1;
