@@ -27,11 +27,12 @@
 #include <zlib.h>
 
 #include "../zip-utils/unzip.h"
+#include "sha1.h"
 
 #include <Shlwapi.h>
 #include <memory.h>
 
-#define NDEBUG 1
+// #define NDEBUG 1
 
 namespace Impact {
 
@@ -150,22 +151,43 @@ namespace Impact {
     std::cout << "LEVEL NAME: " << mName << std::endl;
 #endif
     HZIP hz = OpenZip(zipFilename.c_str(), nullptr);
-    levelPath = gSettings.levelsDir + "/" + mName;
-    SetUnzipBaseDir(hz, levelPath.c_str());
-    ZIPENTRY ze;
-    GetZipItem(hz, -1, &ze);
-    int nItems = ze.index;
-    for (int i = 0; i < nItems; ++i) {
-      GetZipItem(hz, i, &ze);
-      UnzipItem(hz, i, ze.name);
-      std::string currentItemName = ze.name;
-      if (boost::algorithm::ends_with(currentItemName, ".tmx"))
-        levelFilename = levelPath + "/" + currentItemName;
+    if (hz) {
+      levelPath = gSettings.levelsDir + "/" + mName;
+      SetUnzipBaseDir(hz, levelPath.c_str());
+      ZIPENTRY ze;
+      GetZipItem(hz, -1, &ze);
+      int nItems = ze.index;
+      for (int i = 0; i < nItems; ++i) {
+        GetZipItem(hz, i, &ze);
+        UnzipItem(hz, i, ze.name);
+        std::string currentItemName = ze.name;
+        if (boost::algorithm::ends_with(currentItemName, ".tmx"))
+          levelFilename = levelPath + "/" + currentItemName;
 #ifndef NDEBUG
-      std::cout << "Unzipping " << ze.name << " ..." << std::endl;
+        std::cout << "Unzipping " << ze.name << " ..." << std::endl;
+#endif
+      }
+      CloseZip(hz);
+#ifndef NDEBUG
+      std::ifstream is;
+      is.open(zipFilename, std::ios::binary);
+      if (is.is_open()) {
+        is.seekg(0, std::ios::end);
+        int nBytes = is.tellg();
+        is.seekg(0, std::ios::beg);
+        char *buf = new char[nBytes];
+        is.read(buf, nBytes);
+        is.close();
+        unsigned char hash[20];
+        sha1::calc(buf, nBytes, hash);
+        std::cout << "SHA1: ";
+        for (int i = 0; i < 20; ++i)
+          std::cout << std::hex << std::setw(2) << std::setfill('0') << short(hash[i]);
+        std::cout << std::endl << std::dec;
+        delete[] buf;
+      }
 #endif
     }
-    CloseZip(hz);
 
 #ifndef NDEBUG
     std::cout << "Level::load() " << levelFilename << " ..." << std::endl;
