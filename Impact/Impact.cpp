@@ -361,9 +361,11 @@ namespace Impact {
     mMenuRestartCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuRestartCampaignText.getLocalBounds().width), 32 + menuTop);
 
     mMenuBackText = sf::Text(tr("Back"), mFixedFont, 32U);
-    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 224 + menuTop);
 
-    mLevelsRenderTexture.create(600, 210);
+    mMenuSelectLevelText = sf::Text(tr("Select level"), mFixedFont, 32U);
+    mMenuSelectLevelText.setColor(sf::Color::White);
+
+    mLevelsRenderTexture.create(600, 170);
     mLevelsRenderView = mLevelsRenderTexture.getDefaultView();
 
     if (gSettings.useShaders) {
@@ -1136,6 +1138,8 @@ namespace Impact {
     static const int lineHeight = 20;
     static const float scrollSpeed = 64.f;
 
+    const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
+
     mWindow.clear(sf::Color(31, 31, 47));
     mWindow.draw(mBackgroundSprite);
 
@@ -1154,7 +1158,7 @@ namespace Impact {
     sf::Sprite levelSprite;
     levelSprite.setTexture(mLevelsRenderTexture.getTexture());
     levelSprite.setScale(1.f, -1.f);
-    levelSprite.setPosition(20.f, mDefaultView.getCenter().y + mLevelsRenderTexture.getSize().y - 40);
+    levelSprite.setPosition(20.f, menuTop + mLevelsRenderTexture.getSize().y);
 
     sf::FloatRect top = levelSprite.getGlobalBounds();
     top.height *= .1f;
@@ -1183,15 +1187,15 @@ namespace Impact {
     const float scrollbarHeight = scrollAreaHeight * scrollAreaHeight / totalHeight;
     const float scrollbarTop = scrollTop + (scrollAreaHeight - scrollbarHeight) * scrollRatio;
 
-    sf::FloatRect scrollbarRect(scrollbarLeft + levelSprite.getPosition().x, scrollbarTop + mDefaultView.getCenter().y - 40, scrollbarWidth, scrollbarHeight);
+    sf::FloatRect scrollbarRect(scrollbarLeft + levelSprite.getPosition().x, scrollbarTop + menuTop, scrollbarWidth, scrollbarHeight);
 
     mScrollbarSprite.setPosition(scrollbarLeft, scrollbarTop);
     mScrollbarSprite.setScale(scrollbarWidth, scrollbarHeight);
     mScrollbarSprite.setColor(sf::Color(255, 255, 255, scrollbarRect.contains(mousePos) ? 255 : 192));
 
-    auto displayLevels = [this, &mousePos, &scrollTop](void) {
+    auto displayLevels = [this, &mousePos, &scrollTop, &menuTop](void) {
       mLevelsRenderTexture.setView(mLevelsRenderView);
-      mLevelsRenderTexture.clear(sf::Color(0, 0, 0, 32));
+      mLevelsRenderTexture.clear(sf::Color(0, 0, 0, 40));
       mLevelsRenderTexture.draw(mScrollbarSprite);
       mEnumerateMutex.lock();
       for (std::vector<Level>::size_type i = 0; i < mLevels.size(); ++i) {
@@ -1199,7 +1203,7 @@ namespace Impact {
         sf::Text levelText("Level " + std::to_string(i + 1) + ": " + (levelName.empty() ? "<unnamed>" : levelName), mFixedFont, 16U);
         const float levelTextTop = float(marginTop + lineHeight * i);
         levelText.setPosition(10.f, levelTextTop);
-        sf::FloatRect levelTextRect(10.f, mDefaultView.getCenter().y - 40 + levelTextTop - scrollTop, levelText.getLocalBounds().width, float(lineHeight));
+        sf::FloatRect levelTextRect(10.f, menuTop + levelTextTop - scrollTop, levelText.getLocalBounds().width, float(lineHeight));
         levelText.setColor(sf::Color(255, 255, 255, levelTextRect.contains(mousePos) ? 255 : 160));
         if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && levelTextRect.contains(mousePos)) {
           mLevel.set(i + 1, true);
@@ -1223,11 +1227,12 @@ namespace Impact {
       }
     }
 
-    const float menuTop = std::floor(mDefaultView.getCenter().y - 45.5f);
-
     mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
-    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 224 + menuTop);
+    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), mLevelsRenderTexture.getSize().y + menuTop);
     mWindow.draw(mMenuBackText);
+
+    mMenuSelectLevelText.setPosition(.5f * (mDefaultView.getSize().x - mMenuSelectLevelText.getLocalBounds().width), menuTop - mMenuBackText.getLocalBounds().height - 30);
+    mWindow.draw(mMenuSelectLevelText);
 
     sf::Event event;
     while (mWindow.pollEvent(event)) {

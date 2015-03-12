@@ -21,8 +21,9 @@ A Breakout/Bolo clone, augmented with a physics engine
 
 ### Essential
 
- - [WORK IN PROGRESS] let the user select a certain level from the campaign
+ - total score not reset when restarting campaign
  - integrate 3rd party sources/libraries into Visual Studio solution
+ - repair scrollbar in "select level" menu
 
 ### Nice to have
 
@@ -96,4 +97,3 @@ und ist nicht für den produktiven Einsatz vorgesehen. Der Autor und der
 Heise Zeitschriften Verlag haften nicht für eventuelle Schäden, die aus
 der Nutzung der Software entstehen, und übernehmen keine Gewähr für ihre
 Vollständigkeit, Fehlerfreiheit und Eignung für einen bestimmten Zweck.__
-

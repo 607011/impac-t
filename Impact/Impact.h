@@ -189,6 +189,7 @@ namespace Impact {
     sf::Text mMenuLoadLevelText;
     sf::Text mMenuExitText;
     sf::Text mMenuBackText;
+    sf::Text mMenuSelectLevelText;
     sf::Text mMenuCampaignText;
     sf::Text mMenuRestartCampaignText;
     sf::Text mMenuResumeCampaignText;
