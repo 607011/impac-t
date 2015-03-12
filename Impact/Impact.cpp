@@ -26,6 +26,7 @@
 
 #include <Shlwapi.h>
 #include <commdlg.h>
+#include <Objbase.h>
 #include <Windows.h>
 
 namespace Impact {
@@ -590,7 +591,18 @@ namespace Impact {
 
       if (!mScreenshotCreated && !mLevelZipFilename.empty()) {
         if (mDisplayCount++ > 10) {
-          mWindow.capture().saveToFile(gSettings.appData + "/screenshot.png");
+          GUID guid;
+          HRESULT hCreateGuid = CoCreateGuid(&guid);
+          std::stringstream fnBuf;
+          fnBuf << std::hex << std::setw(8) << std::setfill('0')
+            << guid.Data1 << "-" << guid.Data2 << "-" << guid.Data3 << "-";
+          for (int i = 0; i < 2; ++i)
+            fnBuf << std::hex << std::setw(2) << std::setfill('0') << short(guid.Data4[i]);
+          fnBuf << "-";
+          for (int i = 2; i < 8; ++i)
+            fnBuf << std::hex << std::setw(2) << std::setfill('0') << short(guid.Data4[i]);
+          fnBuf << ".png";
+          mWindow.capture().saveToFile(gSettings.appData + "/" + fnBuf.str());
           mScreenshotCreated = true;
           mWindow.close();
         }
