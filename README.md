@@ -21,7 +21,7 @@ A Breakout/Bolo clone, augmented with a physics engine
 
 ### Essential
 
- - load level given as command line parameter
+ - display copyright/author/credits before the level can be played
  - add Options screen
  - integrate 3rd party sources/libraries into Visual Studio solution
  - activate scrollbar in "select level" menu
