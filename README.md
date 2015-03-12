@@ -21,9 +21,10 @@ A Breakout/Bolo clone, augmented with a physics engine
 
 ### Essential
 
- - implement Options screen
+ - load level given as command line parameter
+ - add Options screen
  - integrate 3rd party sources/libraries into Visual Studio solution
- - repair scrollbar in "select level" menu
+ - activate scrollbar in "select level" menu
 
 ### Nice to have
 
