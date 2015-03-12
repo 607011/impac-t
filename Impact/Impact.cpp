@@ -104,7 +104,6 @@ namespace Impact {
 
   Game::Game(void)
     : mWorld(nullptr)
-    , mScreenshotCreated(false)
     , mDisplayCount(0)
     , mBallHasBeenLost(false)
     , mBall(nullptr)
@@ -589,7 +588,7 @@ namespace Impact {
 
       mWindow.display();
 
-      if (!mScreenshotCreated && !mLevelZipFilename.empty()) {
+      if (!mLevelZipFilename.empty()) {
         if (mDisplayCount++ > 10) {
           GUID guid;
           HRESULT hCreateGuid = CoCreateGuid(&guid);
@@ -603,7 +602,6 @@ namespace Impact {
             fnBuf << std::hex << std::setw(2) << std::setfill('0') << short(guid.Data4[i]);
           fnBuf << ".png";
           mWindow.capture().saveToFile(gSettings.appData + "/" + fnBuf.str());
-          mScreenshotCreated = true;
           mWindow.close();
         }
       }

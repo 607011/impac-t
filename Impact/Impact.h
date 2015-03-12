@@ -312,7 +312,6 @@ namespace Impact {
     int mLastKillingsIndex;
 
     std::string mLevelZipFilename;
-    bool mScreenshotCreated;
     int mDisplayCount;
 
     std::vector<Level> mLevels;
