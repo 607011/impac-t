@@ -1311,6 +1311,8 @@ namespace Impact {
           }
           else if (mMenuRestartCampaignText.getGlobalBounds().contains(mousePos) && gSettings.lastCampaignLevel > 1) {
             mPlaymode = Campaign;
+            mScore = 0;
+            mTotalScore = 0;
             mLevel.set(0, false);
             gotoNextLevel();
           }

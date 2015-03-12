@@ -21,7 +21,6 @@ A Breakout/Bolo clone, augmented with a physics engine
 
 ### Essential
 
- - total score not reset when restarting campaign
  - integrate 3rd party sources/libraries into Visual Studio solution
  - repair scrollbar in "select level" menu
 
