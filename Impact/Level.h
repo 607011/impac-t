@@ -158,7 +158,7 @@ namespace Impact {
     }
 
     void load(void);
-    void load(const std::string &zipFilename);
+    void loadZip(const std::string &zipFilename);
 
   private:
     bool mSuccessfullyLoaded;

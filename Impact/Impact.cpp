@@ -613,7 +613,7 @@ namespace Impact {
       std::string zipFilename = ofn.lpstrFile;
       PathRemoveFileSpec(ofn.lpstrFile);
       gSettings.lastOpenDir = ofn.lpstrFile;
-      mLevel.load(zipFilename);
+      mLevel.loadZip(zipFilename);
       if (mLevel.isAvailable())
         gotoCurrentLevel();
     }

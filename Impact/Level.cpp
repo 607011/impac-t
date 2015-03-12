@@ -128,12 +128,12 @@ namespace Impact {
 #ifndef NDEBUG
     std::cout << "Level ZIP filename: " << levelFilename << "." << std::endl;
 #endif
-    load(levelFilename);
+    loadZip(levelFilename);
   }
 
 
 #pragma warning(disable : 4503)
-  void Level::load(const std::string &zipFilename)
+  void Level::loadZip(const std::string &zipFilename)
   {
     mSuccessfullyLoaded = false;
     bool ok = true;
