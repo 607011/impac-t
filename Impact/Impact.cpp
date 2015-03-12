@@ -599,7 +599,7 @@ namespace Impact {
     ofn.hwndOwner = NULL;
     ofn.lpstrFile = szFile;
     ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = "Zip\0*.zip\0";
+    ofn.lpstrFilter = "Zipped level\0*.zip\0";
     ofn.nFilterIndex = 0;
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
@@ -625,7 +625,7 @@ namespace Impact {
     clearWorld();
     stopAllMusic();
     mStartupSound.play();
-    mStartMsg.setString("Click to start");
+    mStartMsg.setString(tr("Click to start"));
     setState(State::WelcomeScreen);
     mWindow.setView(mDefaultView);
     if (gSettings.useShaders) {
@@ -712,10 +712,10 @@ namespace Impact {
       mWindow.draw(mMenuCampaignText);
       mMenuLoadLevelText.setColor(sf::Color(255, 255, 255, mMenuLoadLevelText.getGlobalBounds().contains(mousePos) ? 255 : 192));
       mWindow.draw(mMenuLoadLevelText);
-      //mMenuAchievementsText.setColor(sf::Color(255, 255, 255, mMenuAchievementsText.getGlobalBounds().contains(mousePos) ? 32 : 32));
-      //mWindow.draw(mMenuAchievementsText);
-      //mMenuOptionsText.setColor(sf::Color(255, 255, 255, mMenuOptionsText.getGlobalBounds().contains(mousePos) ? 255 : 192));
-      //mWindow.draw(mMenuOptionsText);
+      mMenuAchievementsText.setColor(sf::Color(255, 255, 255, mMenuAchievementsText.getGlobalBounds().contains(mousePos) ? 16 : 16));
+      mWindow.draw(mMenuAchievementsText);
+      mMenuOptionsText.setColor(sf::Color(255, 255, 255, mMenuOptionsText.getGlobalBounds().contains(mousePos) ? 16 : 16));
+      mWindow.draw(mMenuOptionsText);
       mMenuCreditsText.setColor(sf::Color(255, 255, 255, mMenuCreditsText.getGlobalBounds().contains(mousePos) ? 255 : 192));
       mWindow.draw(mMenuCreditsText);
       mMenuExitText.setColor(sf::Color(255, 255, 255, mMenuExitText.getGlobalBounds().contains(mousePos) ? 255 : 192));
