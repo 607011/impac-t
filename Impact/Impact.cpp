@@ -103,6 +103,8 @@ namespace Impact {
 
   Game::Game(void)
     : mWorld(nullptr)
+    , mScreenshotCreated(false)
+    , mDisplayCount(0)
     , mBallHasBeenLost(false)
     , mBall(nullptr)
     , mRacket(nullptr)
@@ -522,8 +524,17 @@ namespace Impact {
   }
 
 
+  void Game::setLevelZip(const char *zipFilename)
+  {
+    mLevelZipFilename = zipFilename;
+  }
+
+
   void Game::enterLoop(void)
   {
+    if (!mLevelZipFilename.empty())
+      loadLevelFromZip(mLevelZipFilename);
+
     while (mWindow.isOpen()) {
 
       switch (mState) {
@@ -576,6 +587,14 @@ namespace Impact {
       }
 
       mWindow.display();
+
+      if (!mScreenshotCreated && !mLevelZipFilename.empty()) {
+        if (mDisplayCount++ > 10) {
+          mWindow.capture().saveToFile(gSettings.appData + "/screenshot.png");
+          mScreenshotCreated = true;
+          mWindow.close();
+        }
+      }
     }
   }
 
@@ -586,10 +605,21 @@ namespace Impact {
   }
 
 
-  void Game::loadLevelFromZip(void)
+  void Game::loadLevelFromZip(const std::string &zipFilename)
   {
 #ifndef NDEBUG
-    std::cout << "loadLevelFromZip()" << std::endl;
+    std::cout << "loadLevelFromZip(\"" << zipFilename << "\")" << std::endl;
+#endif
+    mLevel.loadZip(zipFilename);
+    if (mLevel.isAvailable())
+      gotoCurrentLevel();
+  }
+
+
+  void Game::openLevelZip(void)
+  {
+#ifndef NDEBUG
+    std::cout << "openLevelZip()" << std::endl;
 #endif
     char szFile[MAX_PATH];
     ZeroMemory(szFile, sizeof(szFile));
@@ -613,9 +643,7 @@ namespace Impact {
       std::string zipFilename = ofn.lpstrFile;
       PathRemoveFileSpec(ofn.lpstrFile);
       gSettings.lastOpenDir = ofn.lpstrFile;
-      mLevel.loadZip(zipFilename);
-      if (mLevel.isAvailable())
-        gotoCurrentLevel();
+      loadLevelFromZip(zipFilename);
     }
   }
 
@@ -657,7 +685,7 @@ namespace Impact {
           }
           else if (mMenuLoadLevelText.getGlobalBounds().contains(mousePos)) {
             mPlaymode = SingleLevel;
-            loadLevelFromZip();
+            openLevelZip();
           }
           else if (mMenuCampaignText.getGlobalBounds().contains(mousePos)) {
             gotoCampaignScreen();

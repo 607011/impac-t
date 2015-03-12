@@ -135,6 +135,7 @@ namespace Impact {
 
     Game(void);
     ~Game();
+    void setLevelZip(const char *zipFilename);
     void enterLoop(void);
     void addBody(Body *body);
 
@@ -310,6 +311,10 @@ namespace Impact {
     std::vector<sf::Time> mLastKillings;
     int mLastKillingsIndex;
 
+    std::string mLevelZipFilename;
+    bool mScreenshotCreated;
+    int mDisplayCount;
+
     std::vector<Level> mLevels;
     std::mutex mEnumerateMutex;
     void enumerateAllLevels(void);
@@ -384,7 +389,8 @@ namespace Impact {
     void gotoPausing(void);
     void onPausing(void);
 
-    void loadLevelFromZip(void);
+    void openLevelZip(void);
+    void loadLevelFromZip(const std::string &zipFilename);
   };
 
 }
