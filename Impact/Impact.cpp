@@ -713,10 +713,10 @@ namespace Impact {
       mWindow.draw(mMenuCampaignText);
       mMenuLoadLevelText.setColor(sf::Color(255, 255, 255, mMenuLoadLevelText.getGlobalBounds().contains(mousePos) ? 255 : 192));
       mWindow.draw(mMenuLoadLevelText);
-      mMenuAchievementsText.setColor(sf::Color(255, 255, 255, mMenuAchievementsText.getGlobalBounds().contains(mousePos) ? 32 : 32));
-      mWindow.draw(mMenuAchievementsText);
-      mMenuOptionsText.setColor(sf::Color(255, 255, 255, mMenuOptionsText.getGlobalBounds().contains(mousePos) ? 32 : 32));
-      mWindow.draw(mMenuOptionsText);
+      //mMenuAchievementsText.setColor(sf::Color(255, 255, 255, mMenuAchievementsText.getGlobalBounds().contains(mousePos) ? 32 : 32));
+      //mWindow.draw(mMenuAchievementsText);
+      //mMenuOptionsText.setColor(sf::Color(255, 255, 255, mMenuOptionsText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      //mWindow.draw(mMenuOptionsText);
       mMenuCreditsText.setColor(sf::Color(255, 255, 255, mMenuCreditsText.getGlobalBounds().contains(mousePos) ? 255 : 192));
       mWindow.draw(mMenuCreditsText);
       mMenuExitText.setColor(sf::Color(255, 255, 255, mMenuExitText.getGlobalBounds().contains(mousePos) ? 255 : 192));
@@ -1111,7 +1111,7 @@ namespace Impact {
     mWindow.setVerticalSyncEnabled(true);
     mRacketHitSound.play();
     mWallClock.restart();
-
+    mWelcomeLevel = 0;
   }
 
 
@@ -1135,6 +1135,15 @@ namespace Impact {
     }
     else {
       mWindow.draw(mTitleText);
+    }
+
+    if (mWelcomeLevel == 0) {
+      ExplosionDef pd(this, InvScale * b2Vec2(mousePos.x, mousePos.y));
+      pd.ballCollisionEnabled = false;
+      pd.count = gSettings.particlesPerExplosion;
+      pd.texture = mParticleTexture;
+      addBody(new Explosion(pd));
+      mWelcomeLevel = 1;
     }
 
     const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
@@ -1164,18 +1173,62 @@ namespace Impact {
         }
       }
     }
+
+    if (mWelcomeLevel == 0) {
+      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f));
+      pd.ballCollisionEnabled = false;
+      pd.count = gSettings.particlesPerExplosion;
+      pd.texture = mParticleTexture;
+      addBody(new Explosion(pd));
+      mWelcomeLevel = 1;
+    }
+
+    update(elapsed);
+    drawWorld(mWindow.getDefaultView());
   }
 
 
   void Game::gotoOptionsScreen(void)
   {
     // TODO: implement gotoOptionsScreen()
+    mWelcomeLevel = 0;
   }
 
 
   void Game::onOptionsScreen(void)
   {
     // TODO: implement onOptionsScreen()
+    const sf::Time &elapsed = mClock.restart();
+
+    const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
+    const sf::Vector2f &mousePos = sf::Vector2f(float(mousePosI.x), float(mousePosI.y));
+
+    const float t = mWallClock.getElapsedTime().asSeconds();
+
+    mWindow.clear(sf::Color(31, 31, 47));
+    mWindow.draw(mBackgroundSprite);
+
+    if (gSettings.useShaders) {
+      sf::RenderStates states;
+      states.shader = &mTitleShader;
+      mTitleShader.setParameter("uT", t);
+      mWindow.draw(mTitleSprite, states);
+    }
+    else {
+      mWindow.draw(mTitleText);
+    }
+
+    if (mWelcomeLevel == 0) {
+      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f));
+      pd.ballCollisionEnabled = false;
+      pd.count = gSettings.particlesPerExplosion;
+      pd.texture = mParticleTexture;
+      addBody(new Explosion(pd));
+      mWelcomeLevel = 1;
+    }
+
+    update(elapsed);
+    drawWorld(mWindow.getDefaultView());
   }
 
 
@@ -1188,6 +1241,7 @@ namespace Impact {
     mWindow.setVerticalSyncEnabled(true);
     mRacketHitSound.play();
     mWallClock.restart();
+    mWelcomeLevel = 0;
   }
 
 
@@ -1290,6 +1344,7 @@ namespace Impact {
       else if (status == std::future_status::timeout) {
         displayLevels();
       }
+
     }
 
     mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
@@ -1339,6 +1394,17 @@ namespace Impact {
     levelSprite.setTexture(mLevelsRenderTexture.getTexture());
     mWindow.draw(levelSprite);
 
+    if (mWelcomeLevel == 0) {
+      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f));
+      pd.ballCollisionEnabled = false;
+      pd.count = gSettings.particlesPerExplosion;
+      pd.texture = mParticleTexture;
+      addBody(new Explosion(pd));
+      mWelcomeLevel = 1;
+    }
+
+    update(elapsed);
+    drawWorld(mWindow.getDefaultView());
   }
 
 
