@@ -180,10 +180,10 @@ namespace Impact {
         is.close();
         unsigned char hash[20];
         sha1::calc(buf, nBytes, hash);
-        std::cout << "SHA1: ";
+        std::stringstream strBuf;
         for (int i = 0; i < 20; ++i)
-          std::cout << std::hex << std::setw(2) << std::setfill('0') << short(hash[i]);
-        std::cout << std::endl << std::dec;
+          strBuf << std::hex << std::setw(2) << std::setfill('0') << short(hash[i]);
+        mSHA1 = strBuf.str();
         delete[] buf;
       }
 #endif

@@ -590,18 +590,26 @@ namespace Impact {
 
       if (!mLevelZipFilename.empty()) {
         if (mDisplayCount++ > 10) {
-          GUID guid;
-          HRESULT hCreateGuid = CoCreateGuid(&guid);
-          std::stringstream fnBuf;
-          fnBuf << std::hex << std::setw(8) << std::setfill('0')
-            << guid.Data1 << "-" << guid.Data2 << "-" << guid.Data3 << "-";
-          for (int i = 0; i < 2; ++i)
-            fnBuf << std::hex << std::setw(2) << std::setfill('0') << short(guid.Data4[i]);
-          fnBuf << "-";
-          for (int i = 2; i < 8; ++i)
-            fnBuf << std::hex << std::setw(2) << std::setfill('0') << short(guid.Data4[i]);
-          fnBuf << ".png";
-          mWindow.capture().saveToFile(gSettings.appData + "/" + fnBuf.str());
+          char szPath[MAX_PATH];
+          strcpy_s(szPath, MAX_PATH, mLevelZipFilename.c_str());
+          PathRemoveFileSpec(szPath);
+          std::string fname = std::string(szPath) + "/" + mLevel.hash();
+          mWindow.capture().saveToFile(fname + ".png");
+          std::string newZipFilename = fname + ".zip";
+          MoveFile(mLevelZipFilename.c_str(), newZipFilename.c_str());
+          boost::property_tree::ptree pt;
+          pt.put("level.name", mLevel.name());
+          pt.put("level.credits", mLevel.credits());
+          pt.put("level.copyright", mLevel.copyright());
+          pt.put("level.author", mLevel.author());
+          pt.put("level.sha1", mLevel.hash());
+          std::string infoFile = fname + ".xml";
+          try {
+            boost::property_tree::xml_parser::write_xml(infoFile, pt);
+          }
+          catch (const boost::property_tree::xml_parser::xml_parser_error &ex) {
+            std::cerr << "XML parser error: " << ex.what() << " (line " << ex.line() << ")" << std::endl;
+          }
           mWindow.close();
         }
       }

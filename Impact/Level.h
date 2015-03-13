@@ -156,12 +156,17 @@ namespace Impact {
     {
       return mName;
     }
+    inline const std::string &hash(void) const
+    {
+      return mSHA1;
+    }
 
     void load(void);
     void loadZip(const std::string &zipFilename);
 
   private:
     bool mSuccessfullyLoaded;
+    std::string mSHA1;
     float mBackgroundImageOpacity;
     sf::Color mBackgroundColor;
     sf::Texture mBackgroundTexture;
