@@ -16,6 +16,27 @@ A Breakout/Bolo clone, augmented with a physics engine
    - quad-core CPU @ 2,4 GHz
    - support for GLSL
 
+## Known problems
+
+### Strange graphics with Windows drivers
+
+If graphics are missing or are looking weird, try upgrading your graphics card driver.
+Always use the latest version from the graphics card manufacturer, not the one delivered
+with Windows. Check system requirements!
+
+
+### Sticky graphics, low refresh rate
+
+If the objects are moving smoothly, your CPU is too slow (check system requirements!) or your
+graphics card lacks performance. In the latter case, try disabling the use of shaders by setting the
+value `<use-shaders>` from `true` to `false` in settings.xml.
+This file is installed in your Windows profile directory. Just type "%APPDATA%\Impact"
+into the address field of an Explorer window and you're there. settings.xml can be edited with notepad.exe
+or any other plain text editor.
+
+Try to reduce the `<particles-per-explosion>` value in case the display is sticking
+when a block is going to explode.
+
 
 ## TODO
 
