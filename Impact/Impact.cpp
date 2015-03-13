@@ -593,23 +593,26 @@ namespace Impact {
           char szPath[MAX_PATH];
           strcpy_s(szPath, MAX_PATH, mLevelZipFilename.c_str());
           PathRemoveFileSpec(szPath);
-          std::string fname = std::string(szPath) + "/" + mLevel.hash();
+          const std::string &cwd = std::string(szPath);
+          const std::string &fname = cwd + "/" + mLevel.hash();
           mWindow.capture().saveToFile(fname + ".png");
-          std::string newZipFilename = fname + ".zip";
+          const std::string &newZipFilename = fname + ".zip";
           MoveFile(mLevelZipFilename.c_str(), newZipFilename.c_str());
-          boost::property_tree::ptree pt;
-          pt.put("level.name", mLevel.name());
-          pt.put("level.credits", mLevel.credits());
-          pt.put("level.copyright", mLevel.copyright());
-          pt.put("level.author", mLevel.author());
-          pt.put("level.sha1", mLevel.hash());
-          std::string infoFile = fname + ".xml";
-          try {
-            boost::property_tree::xml_parser::write_xml(infoFile, pt);
-          }
-          catch (const boost::property_tree::xml_parser::xml_parser_error &ex) {
-            std::cerr << "XML parser error: " << ex.what() << " (line " << ex.line() << ")" << std::endl;
-          }
+          std::stringstream metadata;
+          metadata << std::endl << std::endl
+            << "## " << mLevel.name() << std::endl << std::endl
+            << "[[" << mLevel.hash() << ".png" << "]]" << std::endl << std::endl;
+          if (!mLevel.author().empty())
+            metadata << "Autor: " << mLevel.author() << std::endl << std::endl;
+          if (!mLevel.credits().empty())
+            metadata << mLevel.credits() << std::endl << std::endl;
+          if (!mLevel.copyright().empty())
+            metadata << mLevel.copyright() << std::endl << std::endl;
+          metadata << "[Download level](" << mLevel.hash() << ".zip)" << std::endl << std::endl;
+          std::ofstream mdOut;
+          mdOut.open(cwd + "/UserContributedLevels.md", std::ios_base::app);
+          mdOut << metadata.str() << std::endl;
+          mdOut.close();
           mWindow.close();
         }
       }
