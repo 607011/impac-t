@@ -600,15 +600,19 @@ namespace Impact {
           MoveFile(mLevelZipFilename.c_str(), newZipFilename.c_str());
           std::stringstream metadata;
           metadata << std::endl << std::endl
-            << "## " << mLevel.name() << std::endl << std::endl
-            << "[[" << mLevel.hash() << ".png" << "]]" << std::endl << std::endl;
+            << "[[" << mLevel.hash() << ".jpg" << "]]" << std::endl << std::endl;
+          if (!mLevel.name().empty())
+            metadata << "**" << mLevel.name() << "**" << std::endl << std::endl;
           if (!mLevel.author().empty())
             metadata << "Autor: " << mLevel.author() << std::endl << std::endl;
+          if (!mLevel.info().empty())
+            metadata << mLevel.info() << std::endl << std::endl;
           if (!mLevel.credits().empty())
-            metadata << mLevel.credits() << std::endl << std::endl;
+            metadata << "Credits: " << mLevel.credits() << std::endl << std::endl;
           if (!mLevel.copyright().empty())
             metadata << mLevel.copyright() << std::endl << std::endl;
-          metadata << "[Download level](" << mLevel.hash() << ".zip)" << std::endl << std::endl;
+          metadata << "[Level herunterladen](" << mLevel.hash() << ".zip)"
+            << std::endl << std::endl << std::endl;
           std::ofstream mdOut;
           mdOut.open(cwd + "/UserContributedLevels.md", std::ios_base::app);
           mdOut << metadata.str() << std::endl;
