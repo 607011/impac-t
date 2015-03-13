@@ -542,6 +542,10 @@ namespace Impact {
         onPlaying();
         break;
 
+      case State::SplashScreenBeforePlaying:
+        onSplashScreen();
+        break;
+
       case State::WelcomeScreen:
         onWelcomeScreen();
         break;
@@ -979,7 +983,34 @@ namespace Impact {
         }
       }
     }
+  }
 
+
+  void Game::gotoSplashScreen(void)
+  {
+    setState(State::SplashScreenBeforePlaying);
+    mStartMsg.setString(tr("Click to continue"));
+  }
+
+
+  void Game::onSplashScreen(void)
+  {
+    const sf::Time &elapsed = mClock.restart();
+    drawPlayground(elapsed);
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          setState(State::Playing);
+          mWallClock.restart();
+          mClock.restart();
+          mLevelTimer.resume();
+        }
+      }
+    }
+
+    drawStartMessage();
   }
 
 
@@ -1002,13 +1033,13 @@ namespace Impact {
       if (mPlaymode == Campaign)
         gSettings.lastCampaignLevel = mLevel.num();
       buildLevel();
-      mClock.restart();
       stopBlurEffect();
       mFadeEffectsActive = 0;
       mEarthquakeDuration = sf::Time::Zero;
       mEarthquakeIntensity = 0.f;
       mAberrationDuration = sf::Time::Zero;
       mAberrationIntensity = 0.f;
+      mClock.restart();
       mLevelTimer.resume();
       setState(State::Playing);
     }
