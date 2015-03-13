@@ -20,6 +20,7 @@
 
 #include "stdafx.h"
 
+
 namespace Impact {
 
   // from http://www.adp-gmbh.ch/cpp/common/base64.html
@@ -46,7 +47,6 @@ namespace Impact {
     struct stat buffer;
     return stat(filename.c_str(), &buffer) == 0;
   }
-
 
 
   bool base64_decode(std::string base64, uint8_t *&buf, unsigned long &sz) {

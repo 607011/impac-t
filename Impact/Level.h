@@ -156,6 +156,14 @@ namespace Impact {
     {
       return mName;
     }
+    inline const std::string &base62name(void) const
+    {
+      return mBase62Name;
+    }
+    inline const std::string &info(void) const
+    {
+      return mInfo;
+    }
     inline const std::string &hash(void) const
     {
       return mSHA1;
@@ -184,12 +192,16 @@ namespace Impact {
     int mKillingsPerKillingSpree;
     int mKillingSpreeBonus;
     sf::Time mKillingSpreeInterval;
+    std::string mBase62Name;
     std::string mName;
+    std::string mInfo;
     std::string mCredits;
     std::string mAuthor;
     std::string mCopyright;
 
     std::vector<TileParam> mTiles;
+
+    bool calcSHA1(const std::string &filename);
   };
 
 }

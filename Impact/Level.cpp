@@ -119,6 +119,35 @@ namespace Impact {
   }
 
 
+  bool Level::calcSHA1(const std::string &filename)
+  {
+    std::ifstream is;
+    is.open(filename, std::ios::binary);
+    if (is.is_open()) {
+      is.seekg(0, std::ios::end);
+      int nBytes = int(is.tellg());
+      is.seekg(0, std::ios::beg);
+      char *buf = new char[nBytes];
+      is.read(buf, nBytes);
+      is.close();
+      unsigned char hash[20];
+      sha1::calc(buf, nBytes, hash);
+      std::stringstream strBuf;
+      for (int i = 0; i < 20; ++i)
+        strBuf << std::hex << std::setw(2) << std::setfill('0') << short(hash[i]);
+      mSHA1 = strBuf.str();
+      delete[] buf;
+      mBase62Name = base62_encode<boost::multiprecision::uint256_t>(reinterpret_cast<uint8_t*>(hash), sizeof(hash));
+#ifndef NDEBUG
+      std::cout << "SHA1: " << mSHA1 << std::endl;
+      std::cout << "Base62: " << mBase62Name << std::endl;
+#endif
+      return true;
+    }
+    return false;
+  }
+
+
   void Level::load(void)
   {
     std::string levelFilename;
@@ -168,25 +197,7 @@ namespace Impact {
 #endif
       }
       CloseZip(hz);
-#ifndef NDEBUG
-      std::ifstream is;
-      is.open(zipFilename, std::ios::binary);
-      if (is.is_open()) {
-        is.seekg(0, std::ios::end);
-        int nBytes = is.tellg();
-        is.seekg(0, std::ios::beg);
-        char *buf = new char[nBytes];
-        is.read(buf, nBytes);
-        is.close();
-        unsigned char hash[20];
-        sha1::calc(buf, nBytes, hash);
-        std::stringstream strBuf;
-        for (int i = 0; i < 20; ++i)
-          strBuf << std::hex << std::setw(2) << std::setfill('0') << short(hash[i]);
-        mSHA1 = strBuf.str();
-        delete[] buf;
-      }
-#endif
+      calcSHA1(zipFilename);
     }
 
 #ifndef NDEBUG
@@ -220,7 +231,7 @@ namespace Impact {
       mCredits = std::string();
       mAuthor = std::string();
       mCopyright = std::string();
-      mName = std::string();
+      mInfo = std::string();
       mKillingsPerKillingSpree = Game::DefaultKillingsPerKillingSpree;
       mKillingSpreeBonus = Game::DefaultKillingSpreeBonus;
       mKillingSpreeInterval = Game::DefaultKillingSpreeInterval;

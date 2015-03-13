@@ -32,6 +32,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
 
 
 struct BoolTranslator
@@ -156,6 +157,22 @@ namespace Impact {
     T mValue;
   };
 
+
+  template <typename T>
+  std::string base62_encode(const uint8_t *const buf, int n) {
+    T x = 0;
+    for (int i = 0; i < n; ++i) {
+      x += buf[i];
+      x *= 256;
+    }
+    static const char a[62+1] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    std::stringstream base62;
+    while (x != 0) {
+      base62 << a[int(x % 62)];
+      x /= 62;
+    }
+    return base62.str();
+  };
 
   extern bool base64_decode(std::string, uint8_t *&, unsigned long &);
   extern bool fileExists(const std::string &);
