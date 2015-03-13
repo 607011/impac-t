@@ -42,10 +42,13 @@ when a block is going to explode.
 
 ### Essential
 
- - display copyright/author/credits before the level can be played
- - add Options screen
  - integrate 3rd party sources/libraries into Visual Studio solution
  - activate scrollbar in "select level" menu
+
+### Very nice to have
+
+ - display copyright/author/credits before the level can be played
+ - add Options screen
 
 ### Nice to have
 
@@ -78,7 +81,7 @@ when a block is going to explode.
 ## License
 
 Copyright (c) 2015 [Oliver Lau](mailto:ola@ct.de),
-<a href="http://www.heise.de/">Heise Zeitschriften Verlag</a>.
+<a href="http://www.heise.de/">Heise Medien GmbH & Co. KG</a>.
 
 
 This program is free software: you can redistribute it and/or modify
@@ -106,7 +109,7 @@ for a particular purpose.__
 ## Nutzungshinweise und Lizenz
 
 Copyright (c) 2015 [Oliver Lau](mailto:ola@ct.de),
-<a href="http://www.heise.de/">Heise Zeitschriften Verlag</a>.
+<a href="http://www.heise.de/">Heise Medien GmbH & Co. KG</a>.
 
 Dieses Programm ist freie Software. Sie können es unter den Bedingungen der
 <a href="http://www.gnu.org/licenses/gpl-3.0">GNU General Public License</a>,
