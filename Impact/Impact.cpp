@@ -616,7 +616,9 @@ namespace Impact {
           if (!mLevel.copyright().empty())
             metadata << mLevel.copyright() << std::endl << std::endl;
           metadata << "[Level herunterladen](" << mLevel.hash() << ".zip)"
-            << std::endl << std::endl << std::endl;
+            << std::endl << std::endl
+            << "***"
+            << std::endl << std::endl;
           std::ofstream mdOut;
           mdOut.open(cwd + "/UserContributedLevels.md", std::ios_base::app);
           mdOut << metadata.str() << std::endl;
