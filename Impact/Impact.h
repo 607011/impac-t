@@ -200,6 +200,9 @@ namespace Impact {
     sf::Text mMenuCreditsText;
     sf::Text mCreditsTitleText;
     sf::Text mCreditsText;
+    sf::Text mLevelNameText;
+    sf::Text mLevelAuthorText;
+    sf::Text mFPSText;
     sf::Texture mLogoTexture;
     sf::Sprite mLogoSprite;
     sf::Text mOverlayText1;

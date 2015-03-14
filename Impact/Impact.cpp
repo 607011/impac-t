@@ -93,11 +93,22 @@ namespace Impact {
   const sf::Time Game::DefaultEarthquakeDuration = sf::milliseconds(10 * 1000);
   const sf::Time Game::DefaultOverlayDuration = sf::milliseconds(300);
 
+
 #ifndef NDEBUG
   const char* Game::StateNames[State::LastState] = {
-    "NoState", "Initialization", "WelcomeScreen", "CampaignScreen",
-    "CreditsScreen", "OptionsScreen", "AchievementsScreen", "Playing",
-    "LevelCompleted", "SelectLevelScreen", "Pausing", "PlayerWon",
+    "NoState",
+    "Initialization",
+    "WelcomeScreen",
+    "CampaignScreen",
+    "CreditsScreen",
+    "OptionsScreen",
+    "AchievementsScreen",
+    "SplashScreenBeforePlaying",
+    "Playing",
+    "LevelCompleted",
+    "SelectLevelScreen",
+    "Pausing",
+    "PlayerWon",
     "GameOver"
   };
 #endif
@@ -262,12 +273,12 @@ namespace Impact {
     mLevelCompletedMsg.setString("Level complete");
     mLevelCompletedMsg.setFont(mFixedFont);
     mLevelCompletedMsg.setCharacterSize(64U);
-    mLevelCompletedMsg.setColor(sf::Color(255, 255, 255));
+    mLevelCompletedMsg.setColor(sf::Color::White);
 
     mGameOverMsg.setString("Game over");
     mGameOverMsg.setFont(mFixedFont);
     mGameOverMsg.setCharacterSize(64U);
-    mGameOverMsg.setColor(sf::Color(255, 255, 255));
+    mGameOverMsg.setColor(sf::Color::White);
 
     mPlayerWonMsg.setString("You won");
     mPlayerWonMsg.setFont(mFixedFont);
@@ -277,7 +288,7 @@ namespace Impact {
     mYourScoreMsg.setString("Your score");
     mYourScoreMsg.setFont(mFixedFont);
     mYourScoreMsg.setCharacterSize(32U);
-    mYourScoreMsg.setColor(sf::Color(255, 255, 255));
+    mYourScoreMsg.setColor(sf::Color::White);
 
     mStartMsg.setFont(mFixedFont);
     mStartMsg.setCharacterSize(16U);
@@ -289,19 +300,32 @@ namespace Impact {
 
     mScoreMsg.setFont(mFixedFont);
     mScoreMsg.setCharacterSize(16U);
-    mScoreMsg.setColor(sf::Color(255, 255, 255, 200));
+    mScoreMsg.setColor(sf::Color::White);
 
     mTotalScoreMsg.setFont(mFixedFont);
     mTotalScoreMsg.setCharacterSize(64U);
-    mTotalScoreMsg.setColor(sf::Color(255, 255, 255));
+    mTotalScoreMsg.setColor(sf::Color::White);
 
     mTotalScorePointsMsg.setFont(mFixedFont);
     mTotalScorePointsMsg.setCharacterSize(64U);
-    mTotalScorePointsMsg.setColor(sf::Color(255, 255, 255));
+    mTotalScorePointsMsg.setColor(sf::Color::White);
 
     mLevelMsg.setFont(mFixedFont);
     mLevelMsg.setCharacterSize(16U);
-    mLevelMsg.setColor(sf::Color(255, 255, 255, 200));
+    mLevelMsg.setColor(sf::Color::White);
+    mLevelMsg.setPosition(4, 4);
+
+    mLevelNameText.setFont(mFixedFont);
+    mLevelNameText.setCharacterSize(8U);
+    mLevelNameText.setColor(sf::Color::White);
+
+    mLevelAuthorText.setFont(mFixedFont);
+    mLevelAuthorText.setCharacterSize(8U);
+    mLevelAuthorText.setColor(sf::Color::White);
+
+    mFPSText.setFont(mFixedFont);
+    mFPSText.setCharacterSize(8U);
+    mFPSText.setColor(sf::Color::White);
 
     mProgramInfoMsg.setString("Impac't v" + std::string(IMPACT_VERSION) + " (" + __TIMESTAMP__ + ")" 
       + " - "
@@ -1819,8 +1843,14 @@ namespace Impact {
 
     mWindow.setView(mStatsView);
     mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
-    mLevelMsg.setPosition(4, 4);
     mWindow.draw(mLevelMsg);
+
+    mFPSText.setString(std::to_string(mFPS) + " fps");
+    mFPSText.setPosition(mStatsView.getSize().x - mFPSText.getGlobalBounds().width - 4, mStatsView.getSize().y - 4 - mFPSText.getGlobalBounds().height);
+    mWindow.draw(mFPSText);
+
+    mWindow.draw(mLevelNameText);
+    mWindow.draw(mLevelAuthorText);
 
     if (mState == State::Playing) {
       int penalty = 5 * mLevelTimer.accumulatedMilliseconds() / 1000;
@@ -2128,6 +2158,11 @@ namespace Impact {
       }
     }
 
+    mLevelNameText.setString(">> " + mLevel.name() + " <<");
+    mLevelNameText.setPosition(4, 52);
+    mLevelAuthorText.setString(mLevel.author());
+    mLevelAuthorText.setPosition(4, 62);
+
     // place mouse cursor on racket position
     const b2Vec2 &racketPos = float32(Game::Scale) * mRacket->position();
     sf::Mouse::setPosition(sf::Vector2i(int(racketPos.x), int(racketPos.y)), mWindow);
@@ -2295,7 +2330,9 @@ namespace Impact {
 #ifndef NDEBUG
     std::cout << std::endl << "Game::enumerateAllLevels()" << std::endl << std::endl;
 #endif
-    std::packaged_task<bool()> task([this]{ 
+    std::packaged_task<bool()> task([this]{
+      int prio = GetThreadPriority(GetCurrentThread());
+      SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_BELOW_NORMAL);
       if (mLevels.empty()) {
         Level level;
         int l = 1;
@@ -2308,6 +2345,7 @@ namespace Impact {
           }
         } while (level.isAvailable());
       }
+      SetThreadPriority(GetCurrentThread(), prio);
       return true;
     });
     mEnumerateFuture = task.get_future();
