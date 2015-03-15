@@ -263,22 +263,18 @@ namespace Impact {
     mLevelCompletedMsg.setString("Level complete");
     mLevelCompletedMsg.setFont(mFixedFont);
     mLevelCompletedMsg.setCharacterSize(64U);
-    mLevelCompletedMsg.setColor(sf::Color::White);
 
     mGameOverMsg.setString("Game over");
     mGameOverMsg.setFont(mFixedFont);
     mGameOverMsg.setCharacterSize(64U);
-    mGameOverMsg.setColor(sf::Color::White);
 
     mPlayerWonMsg.setString("You won");
     mPlayerWonMsg.setFont(mFixedFont);
     mPlayerWonMsg.setCharacterSize(64U);
-    mPlayerWonMsg.setColor(sf::Color::White);
 
     mYourScoreMsg.setString("Your score");
     mYourScoreMsg.setFont(mFixedFont);
     mYourScoreMsg.setCharacterSize(32U);
-    mYourScoreMsg.setColor(sf::Color::White);
 
     mStartMsg.setFont(mFixedFont);
     mStartMsg.setCharacterSize(16U);
@@ -290,32 +286,25 @@ namespace Impact {
 
     mScoreMsg.setFont(mFixedFont);
     mScoreMsg.setCharacterSize(16U);
-    mScoreMsg.setColor(sf::Color::White);
 
     mTotalScoreMsg.setFont(mFixedFont);
     mTotalScoreMsg.setCharacterSize(64U);
-    mTotalScoreMsg.setColor(sf::Color::White);
 
     mTotalScorePointsMsg.setFont(mFixedFont);
     mTotalScorePointsMsg.setCharacterSize(64U);
-    mTotalScorePointsMsg.setColor(sf::Color::White);
 
     mLevelMsg.setFont(mFixedFont);
     mLevelMsg.setCharacterSize(16U);
-    mLevelMsg.setColor(sf::Color::White);
     mLevelMsg.setPosition(4, 4);
 
     mLevelNameText.setFont(mFixedFont);
     mLevelNameText.setCharacterSize(8U);
-    mLevelNameText.setColor(sf::Color::White);
 
     mLevelAuthorText.setFont(mFixedFont);
     mLevelAuthorText.setCharacterSize(8U);
-    mLevelAuthorText.setColor(sf::Color::White);
 
     mFPSText.setFont(mFixedFont);
     mFPSText.setCharacterSize(8U);
-    mFPSText.setColor(sf::Color::White);
 
     mProgramInfoMsg.setString("Impac't v" + std::string(IMPACT_VERSION) + " (" + __TIMESTAMP__ + ")" 
       + " - "
@@ -329,7 +318,6 @@ namespace Impact {
       + ", GLSL " + std::string(reinterpret_cast<const char*>(mGLShadingLanguageVersion))
       );
     mProgramInfoMsg.setFont(mFixedFont);
-    mProgramInfoMsg.setColor(sf::Color::White);
     mProgramInfoMsg.setCharacterSize(8U);
     mProgramInfoMsg.setPosition(8.f, mDefaultView.getSize().y - mProgramInfoMsg.getLocalBounds().height - 8.f);
 
@@ -694,6 +682,7 @@ namespace Impact {
     ofn.lpstrInitialDir = gSettings.lastOpenDir.c_str();
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
     char szCwd[MAX_PATH];
+    ZeroMemory(&szCwd, sizeof(szCwd));
     GetCurrentDirectory(MAX_PATH, szCwd);
     BOOL ok = GetOpenFileName(&ofn);
     if (ok == TRUE) {
@@ -978,7 +967,6 @@ namespace Impact {
     mWindow.setView(mPlaygroundView);
     sf::Text pausingText(tr(">>> Pausing <<<"), mFixedFont, 64U);
     pausingText.setPosition(mPlaygroundView.getCenter().x - 0.5f * pausingText.getLocalBounds().width, -20 + mPlaygroundView.getCenter().y - pausingText.getLocalBounds().height);
-    pausingText.setColor(sf::Color::White);
     mWindow.draw(pausingText);
 
     const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
@@ -1093,8 +1081,6 @@ namespace Impact {
   {
     const sf::Time &elapsed = mClock.restart();
 
-    update(elapsed);
-
     sf::Event event;
     while (mWindow.pollEvent(event)) {
       switch (event.type)
@@ -1171,10 +1157,10 @@ namespace Impact {
       const float32 w = aabb.upperBound.x - aabb.lowerBound.x;
       const float32 h = aabb.upperBound.y - aabb.lowerBound.y;
       if (mousePos.x < 0) {
-        mousePos.x = static_cast<int>(Scale * w);
+        mousePos.x = int(Scale * w);
       }
-      if (mousePos.x > static_cast<int>(mWindow.getSize().x)) {
-        mousePos.x = mWindow.getSize().x - static_cast<int>(Scale * w);
+      if (mousePos.x > int(mWindow.getSize().x)) {
+        mousePos.x = int(mWindow.getSize().x) - int(Scale * w);
       }
       sf::Mouse::setPosition(mousePos, mWindow);
       mRacket->moveTo(InvScale * b2Vec2(float32(mousePos.x), float32(mousePos.y)));
@@ -1198,6 +1184,7 @@ namespace Impact {
 #endif
     }
 
+    update(elapsed);
     drawPlayground(elapsed);
   }
 

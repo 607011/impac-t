@@ -33,7 +33,7 @@ namespace Impact {
 
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
-    bd.position.Set(std::ceil(def.pos.x - 0.5f * Game::InvScale * mSprite.getGlobalBounds().width), std::ceil(def.pos.y - 0.5f * Game::InvScale * mSprite.getGlobalBounds().height));
+    bd.position.Set(def.pos.x - .5f * Game::InvScale * mSprite.getGlobalBounds().width, def.pos.y - .5f * Game::InvScale * mSprite.getGlobalBounds().height);
     bd.gravityScale = -1.f;
     bd.fixedRotation = true;
     mBody = mGame->world()->CreateBody(&bd);
