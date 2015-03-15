@@ -384,7 +384,7 @@ namespace Impact {
     void stopBlurEffect(void);
     void startEarthquake(float32 intensity, const sf::Time &duration);
     void startFadeEffect(bool darken = false, const sf::Time &duration = DefaultFadeEffectDuration);
-    void startAberrationEffect(float32 gravityScale, const sf::Time &duration = DefaultAberrationEffectDuration);
+    void startAberrationEffect(float32 gravityScale, const sf::Time &duration = DefaultAberrationEffectDuration, const sf::Vector2f &pos = sf::Vector2f(.5f, .5f));
     void setKillingsPerKillingSpree(int);
     void executeAberration(sf::RenderTexture &out, sf::RenderTexture &in);
     void executeCopy(sf::RenderTexture &out, sf::RenderTexture &in);

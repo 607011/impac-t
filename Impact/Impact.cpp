@@ -406,6 +406,7 @@ namespace Impact {
       ok = mAberrationShader.loadFromFile(ShadersDir + "/aberration.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/aberration.fs" << " failed to load/compile." << std::endl;
+      mAberrationShader.setParameter("uCenter", sf::Vector2f(.5f, .5f));
       ok = mMixShader.loadFromFile(ShadersDir + "/mix.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/mix.fs" << " failed to load/compile." << std::endl;
@@ -432,6 +433,7 @@ namespace Impact {
     }
 
     mKeyMapping[Action::PauseAction] = sf::Keyboard::Escape;
+    mKeyMapping[Action::NewBall] = sf::Keyboard::N;
 
     restart();
   }
@@ -1095,6 +1097,8 @@ namespace Impact {
   {
     const sf::Time &elapsed = mClock.restart();
 
+    sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
+
     sf::Event event;
     while (mWindow.pollEvent(event)) {
       switch (event.type)
@@ -1108,6 +1112,11 @@ namespace Impact {
       case sf::Event::GainedFocus:
         resume();
         break;
+      case sf::Event::MouseMoved:
+        if (mScaleGravityEnabled && mScaleGravityClock.getElapsedTime() > mScaleGravityDuration) {
+          mAberrationShader.setParameter("uCenter", sf::Vector2f(float(event.mouseMove.x) / mDefaultView.getSize().x, float(event.mouseMove.y) / mDefaultView.getSize().y));
+        }
+        break;
       case sf::Event::MouseButtonPressed:
         if (mBall == nullptr)
           newBall();
@@ -1120,7 +1129,7 @@ namespace Impact {
             resume();
         }
         else if (event.key.code == mKeyMapping[Action::NewBall] || event.key.code == sf::Keyboard::Space) {
-          if (mBall) {
+          if (mBall != nullptr) {
             const b2Vec2 &padPos = mRacket->position();
             mBall->setPosition(padPos.x, padPos.y - 3.5f);
             showScore(-500, mBall->position());
@@ -1166,7 +1175,6 @@ namespace Impact {
       else if (racketX > mLevel.width())
         mRacket->setPosition(mLevel.width() - 1.5f, racketY);
 
-      sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
       const b2AABB &aabb = mRacket->aabb();
       const float32 w = aabb.upperBound.x - aabb.lowerBound.x;
       const float32 h = aabb.upperBound.y - aabb.lowerBound.y;
@@ -1709,8 +1717,11 @@ namespace Impact {
   }
 
 
-  void Game::startAberrationEffect(float32 gravityScale, const sf::Time &duration)
+  void Game::startAberrationEffect(float32 gravityScale, const sf::Time &duration, const sf::Vector2f &center)
   {
+#ifndef NDEBUG
+    std::cout << "startAberrationEffect(" << gravityScale << ", " << duration.asSeconds() << ")" << std::endl;
+#endif
     if (!gSettings.useShaders)
       return;
     const sf::Time &elapsed = mAberrationClock.restart();
@@ -1723,6 +1734,7 @@ namespace Impact {
     mAberrationIntensity += .02f * gravityScale;
     mAberrationShader.setParameter("uMaxT", mAberrationDuration.asSeconds());
     mAberrationShader.setParameter("uDistort", mAberrationIntensity);
+    mAberrationShader.setParameter("uCenter", center);
   }
 
 
