@@ -199,6 +199,7 @@ namespace Impact {
     sf::Text mMenuOptionsText;
     sf::Text mMenuCreditsText;
     sf::Text mMenuUseShadersText;
+    sf::Text mMenuUseShadersForExplosionsText;
     sf::Text mMenuParticlesPerExplosionText;
     sf::Text mMenuAntialiasingLevelText;
     sf::Text mOptionsTitleText;
@@ -329,6 +330,7 @@ namespace Impact {
     std::future<bool> mEnumerateFuture;
     bool mAllLevelsEnumerated;
 
+    void createMainWindow(void);
     void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);
     void newBall(const b2Vec2 &pos = b2Vec2_zero);

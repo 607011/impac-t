@@ -156,17 +156,7 @@ namespace Impact {
 
     warmupRNG();
 
-    sf::ContextSettings requestedContextSettings(24U, 0U, 16U, 3U, 0U);
-    requestedContextSettings.antialiasingLevel = gSettings.antialiasingLevel;
-    mWindow.create(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Impac't", sf::Style::Titlebar, requestedContextSettings);
-
-#ifndef NDEBUG
-    sf::ContextSettings settings = mWindow.getSettings();
-    std::cout << "depth bits: " << settings.depthBits << std::endl;
-    std::cout << "stencil bits: " << settings.stencilBits << std::endl;
-    std::cout << "antialiasing level: " << settings.antialiasingLevel << std::endl;
-    std::cout << "OpenGL version: " << settings.majorVersion << "." << settings.minorVersion << std::endl;
-#endif
+    createMainWindow();
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glDisable(GL_DEPTH_TEST);
@@ -388,10 +378,9 @@ namespace Impact {
     mMenuBackText = sf::Text(tr("Back"), mFixedFont, 32U);
 
     mMenuSelectLevelText = sf::Text(tr("Select level"), mFixedFont, 32U);
-    mMenuSelectLevelText.setColor(sf::Color::White);
 
     mCreditsTitleText = sf::Text(tr("Credits"), mFixedFont, 32U);
-    mCreditsTitleText.setColor(sf::Color::White);
+
     mCreditsText = sf::Text(tr("Impac't: Copyright (c) Oliver Lau, Heise Medien GmbH & Co. KG\n"
       "SFML: Copyright (c) Laurent Gomila\n"
       "Box2D: Copyright (c) Erin Catto\n"
@@ -400,63 +389,59 @@ namespace Impact {
       "GLEW: Copyright (c)  Milan Ikits, Marcelo Magallon et al.\n"
       "easings: https://github.com/jesusgollonet/ofpennereasing\n"
       "\n"), mFixedFont, 16U);
-    mCreditsText.setColor(sf::Color::White);
 
     mOptionsTitleText = sf::Text(tr("Options"), mFixedFont, 32U);
     mOptionsTitleText.setPosition(mDefaultView.getCenter().x - .5f * mOptionsTitleText.getLocalBounds().width, menuTop);
-    mMenuUseShadersText = sf::Text(tr("Use shaders "), mFixedFont, 16U);
-    mMenuUseShadersText.setColor(sf::Color::White);
-    mMenuUseShadersText.setPosition(20.f, mOptionsTitleText.getPosition().y + 64);
-    mMenuParticlesPerExplosionText = sf::Text(tr("Particles per explosion "), mFixedFont, 16U);
-    mMenuParticlesPerExplosionText.setColor(sf::Color::White);
-    mMenuParticlesPerExplosionText.setPosition(20.f, mOptionsTitleText.getPosition().y + 96);
-    mMenuAntialiasingLevelText = sf::Text(tr("Antialiasing level "), mFixedFont, 16U);
-    mMenuAntialiasingLevelText.setColor(sf::Color::White);
+    if (sf::Shader::isAvailable()) {
+      mMenuUseShadersText = sf::Text(tr("Use shaders"), mFixedFont, 16U);
+      mMenuUseShadersText.setPosition(20.f, mOptionsTitleText.getPosition().y + 80);
+      mMenuUseShadersForExplosionsText = sf::Text(tr("Use shaders for explosions"), mFixedFont, 16U);
+      mMenuUseShadersForExplosionsText.setPosition(20.f, mOptionsTitleText.getPosition().y + 96);
+    }
+    mMenuParticlesPerExplosionText = sf::Text(tr("Particles per explosion"), mFixedFont, 16U);
+    mMenuParticlesPerExplosionText.setPosition(20.f, mOptionsTitleText.getPosition().y + 112);
+    mMenuAntialiasingLevelText = sf::Text(tr("Antialiasing level"), mFixedFont, 16U);
     mMenuAntialiasingLevelText.setPosition(20.f, mOptionsTitleText.getPosition().y + 128);
 
     mLevelsRenderTexture.create(600, 170);
     mLevelsRenderView = mLevelsRenderTexture.getDefaultView();
 
-    mRenderTexture0.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
-    mRenderTexture1.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
-    sf::RenderTexture titleRenderTexture;
-    titleRenderTexture.create(unsigned int(mDefaultView.getSize().x), unsigned int(mDefaultView.getSize().y));
-    titleRenderTexture.draw(mTitleText);
-    mTitleTexture = titleRenderTexture.getTexture();
-    mTitleTexture.setSmooth(true);
-    mTitleSprite.setTexture(mTitleTexture);
-    ok = mAberrationShader.loadFromFile(ShadersDir + "/aberration.fs", sf::Shader::Fragment);
-    if (!ok)
-      std::cerr << ShadersDir + "/aberration.fs" << " failed to load/compile." << std::endl;
-
-    ok = mMixShader.loadFromFile(ShadersDir + "/mix.fs", sf::Shader::Fragment);
-    if (!ok)
-      std::cerr << ShadersDir + "/mix.fs" << " failed to load/compile." << std::endl;
-
-    ok = mVBlurShader.loadFromFile(ShadersDir + "/vblur.fs", sf::Shader::Fragment);
-    if (!ok)
-      std::cerr << ShadersDir + "/vblur.fs" << " failed to load/compile." << std::endl;
-    mVBlurShader.setParameter("uBlur", 4.f);
-    mVBlurShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
-
-    ok = mHBlurShader.loadFromFile(ShadersDir + "/hblur.fs", sf::Shader::Fragment);
-    if (!ok)
-      std::cerr << ShadersDir + "/hblur.fs" << " failed to load/compile." << std::endl;
-    mHBlurShader.setParameter("uBlur", 4.f);
-    mHBlurShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
-
-    ok = mTitleShader.loadFromFile(ShadersDir + "/title.fs", sf::Shader::Fragment);
-    if (!ok)
-      std::cerr << ShadersDir + "/title.fs" << " failed to load/compile." << std::endl;
-    mTitleShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
-
-    ok = mEarthquakeShader.loadFromFile(ShadersDir + "/earthquake.fs", sf::Shader::Fragment);
-    if (!ok)
-      std::cerr << ShadersDir + "/earthquake.fs" << " failed to load/compile." << std::endl;
-
-    ok = mOverlayShader.loadFromFile(ShadersDir + "/approachingoverlay.fs", sf::Shader::Fragment);
-    if (!ok)
-      std::cerr << ShadersDir + "/approachingoverlay.fs" << " failed to load/compile." << std::endl;
+    if (sf::Shader::isAvailable()) {
+      mRenderTexture0.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
+      mRenderTexture1.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
+      sf::RenderTexture titleRenderTexture;
+      titleRenderTexture.create(unsigned int(mDefaultView.getSize().x), unsigned int(mDefaultView.getSize().y));
+      titleRenderTexture.draw(mTitleText);
+      mTitleTexture = titleRenderTexture.getTexture();
+      mTitleTexture.setSmooth(true);
+      mTitleSprite.setTexture(mTitleTexture);
+      ok = mAberrationShader.loadFromFile(ShadersDir + "/aberration.fs", sf::Shader::Fragment);
+      if (!ok)
+        std::cerr << ShadersDir + "/aberration.fs" << " failed to load/compile." << std::endl;
+      ok = mMixShader.loadFromFile(ShadersDir + "/mix.fs", sf::Shader::Fragment);
+      if (!ok)
+        std::cerr << ShadersDir + "/mix.fs" << " failed to load/compile." << std::endl;
+      ok = mVBlurShader.loadFromFile(ShadersDir + "/vblur.fs", sf::Shader::Fragment);
+      if (!ok)
+        std::cerr << ShadersDir + "/vblur.fs" << " failed to load/compile." << std::endl;
+      mVBlurShader.setParameter("uBlur", 4.f);
+      mVBlurShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
+      ok = mHBlurShader.loadFromFile(ShadersDir + "/hblur.fs", sf::Shader::Fragment);
+      if (!ok)
+        std::cerr << ShadersDir + "/hblur.fs" << " failed to load/compile." << std::endl;
+      mHBlurShader.setParameter("uBlur", 4.f);
+      mHBlurShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
+      ok = mTitleShader.loadFromFile(ShadersDir + "/title.fs", sf::Shader::Fragment);
+      if (!ok)
+        std::cerr << ShadersDir + "/title.fs" << " failed to load/compile." << std::endl;
+      mTitleShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
+      ok = mEarthquakeShader.loadFromFile(ShadersDir + "/earthquake.fs", sf::Shader::Fragment);
+      if (!ok)
+        std::cerr << ShadersDir + "/earthquake.fs" << " failed to load/compile." << std::endl;
+      ok = mOverlayShader.loadFromFile(ShadersDir + "/approachingoverlay.fs", sf::Shader::Fragment);
+      if (!ok)
+        std::cerr << ShadersDir + "/approachingoverlay.fs" << " failed to load/compile." << std::endl;
+    }
 
     mKeyMapping[Action::PauseAction] = sf::Keyboard::Escape;
 
@@ -470,6 +455,20 @@ namespace Impact {
     clearWorld();
   }
 
+
+  void Game::createMainWindow(void)
+  {
+    sf::ContextSettings requestedContextSettings(24U, 0U, 16U, 3U, 0U);
+    requestedContextSettings.antialiasingLevel = gSettings.antialiasingLevel;
+    mWindow.create(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Impac't", sf::Style::Titlebar, requestedContextSettings);
+#ifndef NDEBUG
+    sf::ContextSettings settings = mWindow.getSettings();
+    std::cout << "depth bits: " << settings.depthBits << std::endl;
+    std::cout << "stencil bits: " << settings.stencilBits << std::endl;
+    std::cout << "antialiasing level: " << settings.antialiasingLevel << std::endl;
+    std::cout << "OpenGL version: " << settings.majorVersion << "." << settings.minorVersion << std::endl;
+#endif
+  }
 
   void Game::stopAllMusic(void)
   {
@@ -1345,14 +1344,24 @@ namespace Impact {
           }
           else if (mMenuUseShadersText.getGlobalBounds().contains(mousePos)) {
             gSettings.useShaders = !gSettings.useShaders;
+            createMainWindow();
             gSettings.save();
+          }
+          else if (mMenuUseShadersForExplosionsText.getGlobalBounds().contains(mousePos)) {
+            if (gSettings.useShaders) {
+              gSettings.useShadersForExplosions = !gSettings.useShadersForExplosions;
+              ExplosionDef pd(this, InvScale * b2Vec2(mousePos.x, mousePos.y));
+              pd.count = gSettings.particlesPerExplosion;
+              pd.texture = mParticleTexture;
+              addBody(new Explosion(pd));
+              gSettings.save();
+            }
           }
           else if (mMenuParticlesPerExplosionText.getGlobalBounds().contains(mousePos)) {
             gSettings.particlesPerExplosion += 10U;
             if (gSettings.particlesPerExplosion > 200U)
               gSettings.particlesPerExplosion = 10U;
-            ExplosionDef pd(this, Game::InvScale * b2Vec2(mousePos.x, mousePos.y));
-            pd.ballCollisionEnabled = false;
+            ExplosionDef pd(this, InvScale * b2Vec2(mousePos.x, mousePos.y));
             pd.count = gSettings.particlesPerExplosion;
             pd.texture = mParticleTexture;
             addBody(new Explosion(pd));
@@ -1368,6 +1377,7 @@ namespace Impact {
             else {
               gSettings.antialiasingLevel *= 2;
             }
+            createMainWindow();
             gSettings.save();
           }
         }
@@ -1390,6 +1400,14 @@ namespace Impact {
     sf::Text useShadersText(gSettings.useShaders ? tr("on") : tr("off"), mFixedFont, 16U);
     useShadersText.setPosition(mDefaultView.getCenter().x + 160, mMenuUseShadersText.getPosition().y);
     mWindow.draw(useShadersText);
+
+    if (gSettings.useShaders) {
+      mMenuUseShadersForExplosionsText.setColor(sf::Color(255U, 255U, 255U, mMenuUseShadersForExplosionsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+      sf::Text useShadersForExplosionsText(gSettings.useShadersForExplosions ? tr("on") : tr("off"), mFixedFont, 16U);
+      useShadersForExplosionsText.setPosition(mDefaultView.getCenter().x + 160, mMenuUseShadersForExplosionsText.getPosition().y);
+      mWindow.draw(mMenuUseShadersForExplosionsText);
+      mWindow.draw(useShadersForExplosionsText);
+    }
 
     sf::Text particlesPerExplosionText(std::to_string(gSettings.particlesPerExplosion), mFixedFont, 16U);
     particlesPerExplosionText.setPosition(mDefaultView.getCenter().x + 160, mMenuParticlesPerExplosionText.getPosition().y);

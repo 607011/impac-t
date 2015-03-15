@@ -34,6 +34,7 @@ namespace Impact {
     bool load(void);
 
     bool useShaders;
+    bool useShadersForExplosions;
     bool verticalSync;
     unsigned int antialiasingLevel;
     unsigned int particlesPerExplosion;

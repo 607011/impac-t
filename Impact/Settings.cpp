@@ -55,6 +55,7 @@ namespace Impact {
 #endif
     boost::property_tree::ptree pt;
     pt.put("impact.use-shaders", this->useShaders);
+    pt.put("impact.use-shaders-for-explosions", this->useShadersForExplosions);
     pt.put("impact.vertical-sync", this->verticalSync);
     pt.put("impact.particles-per-explosion", this->particlesPerExplosion);
     pt.put("impact.antialiasing-level", this->antialiasingLevel);
@@ -90,6 +91,7 @@ namespace Impact {
 
     try {
       this->useShaders = pt.get<bool>("impact.use-shaders", true);
+      this->useShadersForExplosions = pt.get<bool>("impact.use-shaders-for-explosions", true);
       this->verticalSync = pt.get<bool>("impact.vertical-sync", false);
       this->particlesPerExplosion = pt.get<unsigned int>("impact.particles-per-explosion", 50U);
       this->antialiasingLevel = pt.get<unsigned int>("impact.antialiasing-level", 0U);
@@ -105,6 +107,7 @@ namespace Impact {
 
 #ifndef NDEBUG
     std::cout << "use-shaders: " << this->useShaders << std::endl;
+    std::cout << "use-shaders-for-explosions: " << this->useShadersForExplosions << std::endl;
     std::cout << "vertical-sync: " << this->verticalSync << std::endl;
     std::cout << "particles-per-explosion: " << this->particlesPerExplosion << std::endl;
     std::cout << "antialiasing-level: " << this->antialiasingLevel << std::endl;
@@ -113,6 +116,7 @@ namespace Impact {
 #endif
 
     this->useShaders &= sf::Shader::isAvailable();
+    this->useShadersForExplosions &= this->useShaders;
 
     return ok;
   }
