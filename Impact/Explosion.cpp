@@ -51,6 +51,7 @@ namespace Impact {
     boost::random::uniform_int_distribution<sf::Int32> randomLifetime(def.minLifetime.asMilliseconds(), def.maxLifetime.asMilliseconds());
     boost::random::uniform_real_distribution<float32> randomSpeed(def.minSpeed * Game::Scale, def.maxSpeed * Game::Scale);
     boost::random::uniform_real_distribution<float32> randomAngle(0.f, 2 * b2_pi);
+    boost::random::uniform_real_distribution<float32> randomOffset(Game::InvScale * -5.f, Game::InvScale * +5.f);
 
     b2World *world = mGame->world();
     const int N = mParticles.size();
@@ -65,13 +66,14 @@ namespace Impact {
 
       b2BodyDef bd;
       bd.type = b2_dynamicBody;
-      bd.position = def.pos;
+      bd.position = def.pos + b2Vec2(randomOffset(gRNG), randomOffset(gRNG));
 #ifdef EXPLOSION_PARTICLES_CANNOT_ROTATE
       bd.fixedRotation = true;
 #else
       bd.fixedRotation = false;
 #endif
       bd.bullet = false;
+      bd.allowSleep = true;
       bd.userData = this;
       bd.gravityScale = def.gravityScale;
       bd.linearDamping = def.linearDamping;
