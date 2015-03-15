@@ -28,14 +28,10 @@ with Windows. Also check system requirements!
 ### Sticky graphics, low refresh rate
 
 If the objects are not moving smoothly, your CPU is too slow (again, check system requirements!) or your
-graphics card lacks performance. In the latter case, try disabling the use of shaders by setting the
-value `<use-shaders>` from `true` to `false` in settings.xml.
-This file is installed in your Windows profile directory. Just type "%APPDATA%\Impact"
-into the address field of an Explorer window and you're there. settings.xml can be edited with notepad.exe
-or any other plain text editor.
+graphics card lacks performance. In the latter case, try disabling the use of shaders in the options screen.
 
-In cases  where the display is sticking when a block is going to explode,
-try to reduce the `<particles-per-explosion>` value .
+In cases where the display is sticking when a block is going to explode,
+try to reduce the number of particles per explosion.
 
 
 ## TODO
