@@ -232,6 +232,7 @@ namespace Impact {
       mAuthor = std::string();
       mCopyright = std::string();
       mInfo = std::string();
+      mBackgroundColor = sf::Color::Black;
       mKillingsPerKillingSpree = Game::DefaultKillingsPerKillingSpree;
       mKillingSpreeBonus = Game::DefaultKillingSpreeBonus;
       mKillingSpreeInterval = Game::DefaultKillingSpreeInterval;
@@ -314,6 +315,7 @@ namespace Impact {
           r = hexDigit2Int(bgColor[1]) << 8 | hexDigit2Int(bgColor[2]);
           g = hexDigit2Int(bgColor[3]) << 8 | hexDigit2Int(bgColor[4]);
           b = hexDigit2Int(bgColor[5]) << 8 | hexDigit2Int(bgColor[6]);
+          mBackgroundColor = sf::Color(r, g, b, 255);
         }
       } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
 
