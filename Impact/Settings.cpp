@@ -74,8 +74,7 @@ namespace Impact {
 #pragma warning(disable : 4503)
   bool Settings::load(void)
   {
-    bool ok;
-    ok = fileExists(settingsFile);
+    bool ok = fileExists(settingsFile);
     if (!ok)
       return true;
     boost::property_tree::ptree pt;
@@ -86,7 +85,6 @@ namespace Impact {
       std::cerr << "XML parser error: " << ex.what() << " (line " << ex.line() << ")" << std::endl;
       ok = false;
     }
-
     if (!ok)
       return false;
 
@@ -106,17 +104,17 @@ namespace Impact {
     }
 
 #ifndef NDEBUG
-    std::cout << "use-shaders: " << useShaders << std::endl;
-    std::cout << "vertical-sync: " << verticalSync << std::endl;
-    std::cout << "particles-per-explosion: " << particlesPerExplosion << std::endl;
-    std::cout << "antialiasing-level: " << antialiasingLevel << std::endl;
-    std::cout << "last-open-dir: " << lastOpenDir << std::endl;
-    std::cout << "campaign.last-level: " << lastCampaignLevel << std::endl;
+    std::cout << "use-shaders: " << this->useShaders << std::endl;
+    std::cout << "vertical-sync: " << this->verticalSync << std::endl;
+    std::cout << "particles-per-explosion: " << this->particlesPerExplosion << std::endl;
+    std::cout << "antialiasing-level: " << this->antialiasingLevel << std::endl;
+    std::cout << "last-open-dir: " << this->lastOpenDir << std::endl;
+    std::cout << "campaign.last-level: " << this->lastCampaignLevel << std::endl;
 #endif
 
     this->useShaders &= sf::Shader::isAvailable();
 
-    return true;
+    return ok;
   }
 
 }
