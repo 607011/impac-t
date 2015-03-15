@@ -28,10 +28,12 @@ int main(int argc, char *argv[])
 {
   if (argc == 2) {
     char szPath[MAX_PATH];
-    _fullpath(szPath, argv[1], MAX_PATH);
-    DWORD dwAttrib = GetFileAttributes(szPath);
-    if (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY))
-      breakout.setLevelZip(szPath);
+    char *res = _fullpath(szPath, argv[1], MAX_PATH);
+    if (res != NULL) {
+      DWORD dwAttrib = GetFileAttributes(szPath);
+      if (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY))
+        breakout.setLevelZip(szPath);
+    }
   }
   breakout.enterLoop();
   return EXIT_SUCCESS;
