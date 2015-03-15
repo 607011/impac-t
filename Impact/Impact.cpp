@@ -444,6 +444,20 @@ namespace Impact {
   }
 
 
+  void Game::createStatsViewRectangle(void)
+  {
+    mStatsViewRectangle = sf::VertexArray(sf::Quads, 4);
+    mStatsViewRectangle[0].position = sf::Vector2f(0.f, 0.f);
+    mStatsViewRectangle[0].color = mStatsColor;
+    mStatsViewRectangle[1].position = sf::Vector2f(0.f, mStatsView.getSize().y);
+    mStatsViewRectangle[1].color = sf::Color::Black;
+    mStatsViewRectangle[2].position = sf::Vector2f(mStatsView.getSize().x, mStatsView.getSize().y);
+    mStatsViewRectangle[2].color = sf::Color::Black;
+    mStatsViewRectangle[3].position = sf::Vector2f(mStatsView.getSize().x, 0.f);
+    mStatsViewRectangle[3].color = mStatsColor;
+  }
+
+
   void Game::createMainWindow(void)
   {
     sf::ContextSettings requestedContextSettings(24U, 0U, 16U, 3U, 0U);
@@ -1922,14 +1936,7 @@ namespace Impact {
 
     mWindow.setView(mStatsView);
 
-    const sf::Vertex rectangle[4] =
-    {
-      sf::Vertex(sf::Vector2f(0.f, 0.f), mStatsColor),
-      sf::Vertex(sf::Vector2f(0.f, mStatsView.getSize().y), sf::Color::Black),
-      sf::Vertex(sf::Vector2f(mStatsView.getSize().x, mStatsView.getSize().y), sf::Color::Black),
-      sf::Vertex(sf::Vector2f(mStatsView.getSize().x, 0.f), mStatsColor)
-    };
-    mWindow.draw(rectangle, 4, sf::Quads);
+    mWindow.draw(mStatsViewRectangle);
 
     mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
     mWindow.draw(mLevelMsg);
@@ -2196,6 +2203,8 @@ namespace Impact {
     else {
       mStatsColor = sf::Color::Black;
     }
+
+    createStatsViewRectangle();
 
     // create level elements
     mBlockCount = 0;

@@ -170,6 +170,7 @@ namespace Impact {
     sf::View mPlaygroundView;
     sf::View mStatsView;
     sf::Color mStatsColor;
+    sf::VertexArray mStatsViewRectangle;
     sf::RenderTexture mRenderTexture0;
     sf::RenderTexture mRenderTexture1;
     sf::Shader mMixShader;
@@ -330,6 +331,7 @@ namespace Impact {
     std::future<bool> mEnumerateFuture;
     bool mAllLevelsEnumerated;
 
+    void createStatsViewRectangle(void);
     void createMainWindow(void);
     void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);
