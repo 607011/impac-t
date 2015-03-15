@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 
-#define ENABLE_SHADERS (true)
+#define ENABLE_SHADERS (false)
 
 namespace Impact {
 
