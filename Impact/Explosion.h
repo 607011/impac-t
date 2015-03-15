@@ -48,7 +48,7 @@ namespace Impact {
       : game(game)
       , pos(pos)
       , ballCollisionEnabled(false)
-      , count(100)
+      , count(50)
       , minLifetime(sf::milliseconds(500))
       , maxLifetime(sf::milliseconds(1000))
       , minSpeed(2.f)
