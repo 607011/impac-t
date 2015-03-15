@@ -283,7 +283,7 @@ namespace Impact {
     mPlayerWonMsg.setString("You won");
     mPlayerWonMsg.setFont(mFixedFont);
     mPlayerWonMsg.setCharacterSize(64U);
-    mPlayerWonMsg.setColor(sf::Color(255, 255, 255));
+    mPlayerWonMsg.setColor(sf::Color::White);
 
     mYourScoreMsg.setString("Your score");
     mYourScoreMsg.setFont(mFixedFont);
@@ -296,7 +296,7 @@ namespace Impact {
 
     mStatMsg.setFont(mFixedFont);
     mStatMsg.setCharacterSize(8U);
-    mStatMsg.setColor(sf::Color(255, 255, 63));
+    mStatMsg.setColor(sf::Color(255U, 255U, 63U));
 
     mScoreMsg.setFont(mFixedFont);
     mScoreMsg.setCharacterSize(16U);
@@ -656,7 +656,7 @@ namespace Impact {
 
   inline void Game::clearWindow(void)
   {
-    mWindow.clear(mStatsColor);
+    mWindow.clear(mLevel.backgroundColor());
   }
 
 
@@ -1842,6 +1842,16 @@ namespace Impact {
     }
 
     mWindow.setView(mStatsView);
+
+    const sf::Vertex rectangle[4] =
+    {
+      sf::Vertex(sf::Vector2f(0.f, 0.f), mStatsColor),
+      sf::Vertex(sf::Vector2f(0.f, mStatsView.getSize().y), sf::Color::Black),
+      sf::Vertex(sf::Vector2f(mStatsView.getSize().x, mStatsView.getSize().y), sf::Color::Black),
+      sf::Vertex(sf::Vector2f(mStatsView.getSize().x, 0.f), mStatsColor)
+    };
+    mWindow.draw(rectangle, 4, sf::Quads);
+
     mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
     mWindow.draw(mLevelMsg);
 
@@ -2089,10 +2099,10 @@ namespace Impact {
     mGround->setPosition(0, g < 0.f ? 0 : mLevel.height());
     addBody(mGround);
 
-    {
-      const sf::Texture *bgTex = mLevel.backgroundSprite().getTexture();
-      sf::Image bg = bgTex->copyToImage();
-      unsigned int nPixels = bg.getSize().x * bg.getSize().y;
+    const sf::Texture *bgTex = mLevel.backgroundSprite().getTexture();
+    sf::Image bg = bgTex->copyToImage();
+    unsigned int nPixels = bg.getSize().x * bg.getSize().y;
+    if (nPixels > 0) {
       const sf::Uint8 *pixels = bg.getPixelsPtr();
       const sf::Uint8 *pixelsEnd = pixels + (4 * nPixels);
       sf::Vector3i color;
@@ -2103,6 +2113,9 @@ namespace Impact {
         pixels += 4;
       }
       mStatsColor = sf::Color(sf::Uint8(color.x / nPixels), sf::Uint8(color.y / nPixels), sf::Uint8(color.z / nPixels), 255U);
+    }
+    else {
+      mStatsColor = sf::Color::Black;
     }
 
     // create level elements
