@@ -39,6 +39,31 @@ namespace Impact {
 
   class Game;
 
+  struct SpecialEffect {
+    SpecialEffect(void)
+      : clock(nullptr)
+    { /* ... */ }
+    SpecialEffect(const sf::Time &d, sf::Clock *clk, const sf::Texture &tex)
+      : duration(d)
+      , clock(clk)
+      , texture(tex)
+    {
+      sprite.setTexture(texture);
+      sprite.setOrigin(float(texture.getSize().x), float(texture.getSize().y));
+    }
+    SpecialEffect(const SpecialEffect &other)
+      : SpecialEffect(other.duration, other.clock, other.texture)
+    { /* ... */ }
+    inline bool isActive(void) const
+    {
+      return clock->getElapsedTime() < duration;
+    }
+    sf::Time duration;
+    sf::Sprite sprite;
+    sf::Texture texture;
+    sf::Clock *clock;
+  };
+
   struct ContactPoint {
     b2Fixture *fixtureA;
     b2Fixture *fixtureB;
@@ -320,6 +345,7 @@ namespace Impact {
     LevelTimer mLevelTimer;
     std::vector<sf::Time> mLastKillings;
     int mLastKillingsIndex;
+    std::vector<SpecialEffect> mSpecialEffects;
 
     std::string mLevelZipFilename;
     int mDisplayCount;
@@ -332,6 +358,7 @@ namespace Impact {
     bool mAllLevelsEnumerated;
 
     void createStatsViewRectangle(void);
+    void addSpecialEffect(const SpecialEffect &);
     void createMainWindow(void);
     void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);

@@ -1961,6 +1961,29 @@ namespace Impact {
         mWindow.draw(lifeSprite);
       }
     }
+
+    { // draw special effect hints
+      std::vector<std::vector<SpecialEffect>::iterator > expiredEffects;
+      sf::Vector2f pos(mStatsView.getSize().x - 4, mStatsView.getSize().y - 16);
+      for (std::vector<SpecialEffect>::iterator i = mSpecialEffects.begin(); i != mSpecialEffects.end(); ++i) {
+        if (i->isActive()) {
+          const sf::Uint8 alpha = 255U - sf::Uint8(255U * i->clock->getElapsedTime().asMilliseconds() / i->duration.asMilliseconds());
+          i->sprite.setPosition(pos);
+          i->sprite.setColor(sf::Color(255U, 255U, 255U, alpha));
+          mWindow.draw(i->sprite);
+          pos.x -= i->texture.getSize().x;
+        }
+        else {
+          expiredEffects.push_back(i);
+        }
+      }
+      for (std::vector<std::vector<SpecialEffect>::iterator >::const_iterator i = expiredEffects.cbegin(); i != expiredEffects.cend(); ++i) {
+#ifndef NDEBUG
+        std::cout << "Expired effect 0x" << std::hex << std::setfill('0') << std::setw(8) << (*i)->clock << std::endl;
+#endif
+        mSpecialEffects.erase(*i);
+      }
+    }
   }
 
 
@@ -2367,6 +2390,20 @@ namespace Impact {
   }
 
 
+  void Game::addSpecialEffect(const SpecialEffect &effect)
+  {
+    std::vector<SpecialEffect>::iterator i;
+    for (i = mSpecialEffects.begin(); i != mSpecialEffects.end(); ++i) {
+      if (i->clock == effect.clock) {
+        i->duration = effect.duration;
+        break;
+      }
+    }
+    if (i == mSpecialEffects.cend())
+      mSpecialEffects.push_back(effect);
+  }
+
+
   void Game::onBodyKilled(Body *killedBody)
   {
     if (killedBody->type() == Body::BodyType::Block) {
@@ -2391,6 +2428,7 @@ namespace Impact {
       const TileParam &tileParam = killedBody->tileParam();
       if (tileParam.earthquakeDuration > sf::Time::Zero && tileParam.earthquakeIntensity > 0.f) {
         startEarthquake(tileParam.earthquakeIntensity, tileParam.earthquakeDuration);
+        addSpecialEffect(SpecialEffect(mEarthquakeDuration, &mEarthquakeClock, killedBody->texture()));
       }
       if (tileParam.scaleGravityDuration > sf::Time::Zero) {
         mWorld->SetGravity(tileParam.scaleGravityBy * mWorld->GetGravity());
@@ -2402,6 +2440,7 @@ namespace Impact {
         od.line1 = std::string("G*") + std::to_string(static_cast<int>(tileParam.scaleGravityBy));
         od.line2 = std::string("for ") + std::to_string(tileParam.scaleGravityDuration.asMilliseconds() / 1000) + "s";
         startOverlay(od);
+        addSpecialEffect(SpecialEffect(mScaleGravityDuration, &mScaleGravityClock, killedBody->texture()));
       }
       if (tileParam.scaleBallDensityDuration > sf::Time::Zero) {
         mBall->setDensity(tileParam.scaleBallDensityBy * mBall->tileParam().density.get());
