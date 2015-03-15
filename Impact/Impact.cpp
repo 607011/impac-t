@@ -478,6 +478,8 @@ namespace Impact {
   {
     for (std::vector<sf::Music*>::iterator m = mMusic.begin(); m != mMusic.end(); ++m)
       (*m)->stop();
+    if (mLevel.music() != nullptr)
+      mLevel.music()->stop();
   }
 
 
@@ -788,7 +790,7 @@ namespace Impact {
     }
 
     if (mWelcomeLevel == 0) {
-      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f));
+      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f)); // TODO: parametrize
       pd.ballCollisionEnabled = false;
       pd.count = gSettings.particlesPerExplosion;
       pd.texture = mParticleTexture;
@@ -858,6 +860,8 @@ namespace Impact {
     mStartMsg.setString(tr("Click to continue"));
     startBlurEffect();
     setState(State::LevelCompleted);
+    if (mLevel.music() != nullptr)
+      mLevel.music()->stop();
   }
 
 
@@ -877,7 +881,7 @@ namespace Impact {
     }
 
     mWindow.setView(mPlaygroundView);
-    mLevelCompletedMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mLevelCompletedMsg.getLocalBounds().width, 20.f);
+    mLevelCompletedMsg.setPosition(mPlaygroundView.getCenter().x - .5f * mLevelCompletedMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mLevelCompletedMsg);
     
     drawStartMessage();
@@ -890,6 +894,8 @@ namespace Impact {
     setState(State::PlayerWon);
     startBlurEffect();
     mTotalScore = mScore - mLevelTimer.accumulatedSeconds();
+    if (mLevel.music() != nullptr)
+      mLevel.music()->stop();
   }
 
 
@@ -910,17 +916,17 @@ namespace Impact {
 
     mWindow.setView(mPlaygroundView);
 
-    mPlayerWonMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mPlayerWonMsg.getLocalBounds().width, 20.f);
+    mPlayerWonMsg.setPosition(mPlaygroundView.getCenter().x - .5f * mPlayerWonMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mPlayerWonMsg);
 
-    mYourScoreMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mYourScoreMsg.getLocalBounds().width, mPlaygroundView.getCenter().y);
+    mYourScoreMsg.setPosition(mPlaygroundView.getCenter().x - .5f * mYourScoreMsg.getLocalBounds().width, mPlaygroundView.getCenter().y);
     mWindow.draw(mYourScoreMsg);
 
-    mTotalScoreMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mTotalScoreMsg.getLocalBounds().width, mPlaygroundView.getCenter().y - mTotalScoreMsg.getLocalBounds().height - 32);
+    mTotalScoreMsg.setPosition(mPlaygroundView.getCenter().x - .5f * mTotalScoreMsg.getLocalBounds().width, mPlaygroundView.getCenter().y - mTotalScoreMsg.getLocalBounds().height - 32);
     mWindow.draw(mTotalScoreMsg);
 
     mTotalScorePointsMsg.setString(std::to_string(mTotalScore));
-    mTotalScorePointsMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mTotalScorePointsMsg.getLocalBounds().width, mPlaygroundView.getCenter().y - mTotalScorePointsMsg.getLocalBounds().height + 64);
+    mTotalScorePointsMsg.setPosition(mPlaygroundView.getCenter().x - .5f * mTotalScorePointsMsg.getLocalBounds().width, mPlaygroundView.getCenter().y - mTotalScorePointsMsg.getLocalBounds().height + 64);
     mWindow.draw(mTotalScorePointsMsg);
 
     drawStartMessage();
@@ -955,14 +961,14 @@ namespace Impact {
     }
 
     mWindow.setView(mPlaygroundView);
-    mGameOverMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
+    mGameOverMsg.setPosition(mPlaygroundView.getCenter().x - .5f * mGameOverMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mGameOverMsg);
 
-    mYourScoreMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mYourScoreMsg.getLocalBounds().width, mPlaygroundView.getCenter().y);
+    mYourScoreMsg.setPosition(mPlaygroundView.getCenter().x - .5f * mYourScoreMsg.getLocalBounds().width, mPlaygroundView.getCenter().y);
     mWindow.draw(mYourScoreMsg);
 
     mTotalScorePointsMsg.setString(std::to_string(mTotalScore));
-    mTotalScorePointsMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mTotalScorePointsMsg.getLocalBounds().width, mPlaygroundView.getCenter().y - mTotalScorePointsMsg.getLocalBounds().height + 64);
+    mTotalScorePointsMsg.setPosition(mPlaygroundView.getCenter().x - .5f * mTotalScorePointsMsg.getLocalBounds().width, mPlaygroundView.getCenter().y - mTotalScorePointsMsg.getLocalBounds().height + 64);
     mWindow.draw(mTotalScorePointsMsg);
 
     drawStartMessage();
@@ -982,19 +988,19 @@ namespace Impact {
 
     mWindow.setView(mPlaygroundView);
     sf::Text pausingText(tr(">>> Pausing <<<"), mFixedFont, 64U);
-    pausingText.setPosition(mPlaygroundView.getCenter().x - 0.5f * pausingText.getLocalBounds().width, -20 + mPlaygroundView.getCenter().y - pausingText.getLocalBounds().height);
+    pausingText.setPosition(mPlaygroundView.getCenter().x - .5f * pausingText.getLocalBounds().width, -20 + mPlaygroundView.getCenter().y - pausingText.getLocalBounds().height);
     mWindow.draw(pausingText);
 
     const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
     const sf::Vector2f &mousePos = sf::Vector2f(float(mousePosI.x), float(mousePosI.y));
 
     sf::Text resumeText(tr("Resume playing"), mFixedFont, 32U);
-    resumeText.setPosition(mPlaygroundView.getCenter().x - 0.5f * resumeText.getLocalBounds().width, 32 + mPlaygroundView.getCenter().y);
+    resumeText.setPosition(mPlaygroundView.getCenter().x - .5f * resumeText.getLocalBounds().width, 32 + mPlaygroundView.getCenter().y);
     resumeText.setColor(sf::Color(255, 255, 255, resumeText.getGlobalBounds().contains(mousePos) ? 255 : 192));
     mWindow.draw(resumeText);
 
     sf::Text mainMenuText(tr("Go to main menu"), mFixedFont, 32U);
-    mainMenuText.setPosition(mPlaygroundView.getCenter().x - 0.5f * mainMenuText.getLocalBounds().width, 64 + mPlaygroundView.getCenter().y);
+    mainMenuText.setPosition(mPlaygroundView.getCenter().x - .5f * mainMenuText.getLocalBounds().width, 64 + mPlaygroundView.getCenter().y);
     mainMenuText.setColor(sf::Color(255, 255, 255, mainMenuText.getGlobalBounds().contains(mousePos) ? 255 : 192));
     mWindow.draw(mainMenuText);
 
@@ -1074,7 +1080,12 @@ namespace Impact {
       mAberrationIntensity = 0.f;
       mClock.restart();
       mLevelTimer.resume();
+      if (mLevel.music() != nullptr) {
+        mLevel.music()->play();
+        mLevel.music()->setVolume(gSettings.musicVolume);
+      }
       setState(State::Playing);
+      // mLevelTimer.restart();
     }
     else {
       gotoPlayerWon();
@@ -1287,7 +1298,7 @@ namespace Impact {
     }
 
     if (mWelcomeLevel == 0) {
-      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f));
+      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f)); // TODO: parametrize
       pd.ballCollisionEnabled = false;
       pd.count = gSettings.particlesPerExplosion;
       pd.texture = mParticleTexture;
@@ -1331,7 +1342,7 @@ namespace Impact {
     }
 
     if (mWelcomeLevel == 0) {
-      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f));
+      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f)); // TODO: parametrize
       pd.ballCollisionEnabled = false;
       pd.count = gSettings.particlesPerExplosion;
       pd.texture = mParticleTexture;
@@ -1596,7 +1607,7 @@ namespace Impact {
     mWindow.draw(levelSprite);
 
     if (mWelcomeLevel == 0) {
-      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f));
+      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f)); // TODO: parametrize
       pd.ballCollisionEnabled = false;
       pd.count = gSettings.particlesPerExplosion;
       pd.texture = mParticleTexture;
@@ -1946,35 +1957,36 @@ namespace Impact {
       }
     }
 
-    mWindow.setView(mStatsView);
+    if (true /* TODO: call the stats block only every 1/60th seconds for better overall performance */) {
+      mWindow.setView(mStatsView);
 
-    mWindow.draw(mStatsViewRectangle);
+      mWindow.draw(mStatsViewRectangle);
 
-    mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
-    mWindow.draw(mLevelMsg);
+      mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
+      mWindow.draw(mLevelMsg);
 
-    mFPSText.setString(std::to_string(mFPS) + " fps");
-    mFPSText.setPosition(mStatsView.getSize().x - mFPSText.getGlobalBounds().width - 4, mStatsView.getSize().y - 4 - mFPSText.getGlobalBounds().height);
-    mWindow.draw(mFPSText);
+      mFPSText.setString(std::to_string(mFPS) + " fps");
+      mFPSText.setPosition(mStatsView.getSize().x - mFPSText.getGlobalBounds().width - 4, mStatsView.getSize().y - 4 - mFPSText.getGlobalBounds().height);
+      mWindow.draw(mFPSText);
 
-    mWindow.draw(mLevelNameText);
-    mWindow.draw(mLevelAuthorText);
+      mWindow.draw(mLevelNameText);
+      mWindow.draw(mLevelAuthorText);
 
-    if (mState == State::Playing) {
-      int penalty = 5 * mLevelTimer.accumulatedMilliseconds() / 1000;
-      mScoreMsg.setString(std::to_string(b2Max(0, mScore - penalty)));
-      mScoreMsg.setPosition(mStatsView.getSize().x - mScoreMsg.getLocalBounds().width - 4, 4);
-      mWindow.draw(mScoreMsg);
-      for (int life = 0; life < mLives; ++life) {
-        const sf::Texture &ballTexture = mLevel.texture(Ball::Name);
-        sf::Sprite lifeSprite(ballTexture);
-        lifeSprite.setOrigin(0.f, 0.f);
-        lifeSprite.setPosition(4 + (ballTexture.getSize().x * 1.5f) * life, 26.f);
-        mWindow.draw(lifeSprite);
+      if (mState == State::Playing) {
+        int penalty = 5 * mLevelTimer.accumulatedMilliseconds() / 1000;
+        mScoreMsg.setString(std::to_string(b2Max(0, mScore - penalty)));
+        mScoreMsg.setPosition(mStatsView.getSize().x - mScoreMsg.getLocalBounds().width - 4, 4);
+        mWindow.draw(mScoreMsg);
+        for (int life = 0; life < mLives; ++life) {
+          const sf::Texture &ballTexture = mLevel.texture(Ball::Name);
+          sf::Sprite lifeSprite(ballTexture);
+          lifeSprite.setOrigin(0.f, 0.f);
+          lifeSprite.setPosition(4 + (ballTexture.getSize().x * 1.5f) * life, 26.f);
+          mWindow.draw(lifeSprite);
+        }
       }
-    }
 
-    { // draw special effect hints
+      // draw special effect hints
       std::vector<std::vector<SpecialEffect>::iterator > expiredEffects;
       sf::Vector2f pos(mStatsView.getSize().x - 4, mStatsView.getSize().y - 16);
       for (std::vector<SpecialEffect>::iterator i = mSpecialEffects.begin(); i != mSpecialEffects.end(); ++i) {
@@ -2371,6 +2383,8 @@ namespace Impact {
     mLevelTimer.pause();
     startBlurEffect();
     mWindow.setMouseCursorVisible(true);
+    if (mLevel.music() != nullptr)
+      mLevel.music()->pause();
   }
 
 
@@ -2385,6 +2399,8 @@ namespace Impact {
     setCursorOnRacket();
     if (mState == State::Pausing)
       setState(State::Playing);
+    if (mLevel.music() != nullptr)
+      mLevel.music()->play();
   }
 
 
@@ -2483,17 +2499,18 @@ namespace Impact {
     std::cout << std::endl << "Game::enumerateAllLevels()" << std::endl << std::endl;
 #endif
     std::packaged_task<bool()> task([this]{
-      int prio = GetThreadPriority(GetCurrentThread());
-      SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_BELOW_NORMAL);
+      const int prio = GetThreadPriority(GetCurrentThread());
+      SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
       if (mLevels.empty()) {
         Level level;
         int l = 1;
         do {
-          level = Level(l++);
+          level = Level(l);
           if (level.isAvailable()) {
             mEnumerateMutex.lock();
             mLevels.push_back(level);
             mEnumerateMutex.unlock();
+            ++l;
           }
         } while (level.isAvailable());
       }

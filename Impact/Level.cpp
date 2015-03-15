@@ -52,6 +52,7 @@ namespace Impact {
     , mKillingSpreeBonus(Game::DefaultKillingSpreeBonus)
     , mKillingSpreeInterval(Game::DefaultKillingSpreeInterval)
     , mSuccessfullyLoaded(false)
+    , mMusic(nullptr)
   {
     // ...
   }
@@ -83,6 +84,7 @@ namespace Impact {
     , mCredits(other.mCredits)
     , mAuthor(other.mAuthor)
     , mCopyright(other.mCopyright)
+    , mMusic(nullptr)
   {
     // ...
   }
@@ -171,6 +173,8 @@ namespace Impact {
     std::string levelPath;
     std::string levelFilename;
 
+    safeDelete(mMusic);
+
     char szPath[MAX_PATH];
     strcpy_s(szPath, MAX_PATH, zipFilename.c_str());
     PathStripPath(szPath);
@@ -190,8 +194,19 @@ namespace Impact {
         GetZipItem(hz, i, &ze);
         UnzipItem(hz, i, ze.name);
         std::string currentItemName = ze.name;
-        if (boost::algorithm::ends_with(currentItemName, ".tmx"))
+        if (boost::algorithm::ends_with(currentItemName, ".tmx")) {
           levelFilename = levelPath + "/" + currentItemName;
+        }
+        else if (boost::algorithm::ends_with(currentItemName, ".ogg")) {
+          mMusic = new sf::Music;
+          if (mMusic != nullptr) {
+            bool musicLoaded = mMusic->openFromFile(levelPath + "/" + currentItemName);
+            if (musicLoaded) {
+              mMusic->setLoop(true);
+              mMusic->setVolume(gSettings.musicVolume);
+            }
+          }
+        }
 #ifndef NDEBUG
         std::cout << "Unzipping " << ze.name << " ..." << std::endl;
 #endif

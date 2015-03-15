@@ -32,6 +32,8 @@ namespace Impact {
     , antialiasingLevel(16U)
     , particlesPerExplosion(50)
     , lastCampaignLevel(1)
+    , musicVolume(50)
+    , soundfxVolume(100)
   {
     TCHAR szPath[MAX_PATH];
     if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, szPath))) {
@@ -61,6 +63,8 @@ namespace Impact {
     pt.put("impact.antialiasing-level", this->antialiasingLevel);
     pt.put("impact.last-open-dir", this->lastOpenDir);
     pt.put("impact.campaign.last-level", this->lastCampaignLevel);
+    pt.put("impact.music-volume", this->musicVolume);
+    pt.put("impact.soundfx-volume", this->soundfxVolume);
     try {
       boost::property_tree::xml_parser::write_xml(settingsFile, pt);
     }
@@ -99,6 +103,8 @@ namespace Impact {
       this->lastCampaignLevel = pt.get<int>("impact.campaign.last-level", 1);
       if (this->lastCampaignLevel < 1)
         this->lastCampaignLevel = 1;
+      this->soundfxVolume = b2Clamp(pt.get<float>("impact.soundfx-volume", 100), 0.f, 100.f);
+      this->musicVolume = b2Clamp(pt.get<float>("impact.music-volume", 50), 0.f, 100.f);
     }
     catch (const boost::property_tree::xml_parser::xml_parser_error &ex) {
       std::cerr << "XML parser error: " << ex.what() << " (line " << ex.line() << ")" << std::endl;
@@ -113,6 +119,8 @@ namespace Impact {
     std::cout << "antialiasing-level: " << this->antialiasingLevel << std::endl;
     std::cout << "last-open-dir: " << this->lastOpenDir << std::endl;
     std::cout << "campaign.last-level: " << this->lastCampaignLevel << std::endl;
+    std::cout << "impact.soundfx-volume: " << this->soundfxVolume << std::endl;
+    std::cout << "impact.music-volume: " << this->musicVolume << std::endl;
 #endif
 
     this->useShaders &= sf::Shader::isAvailable();

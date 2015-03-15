@@ -40,6 +40,8 @@ namespace Impact {
     unsigned int particlesPerExplosion;
     std::string lastOpenDir;
     int lastCampaignLevel;
+    float musicVolume;
+    float soundfxVolume;
 
     std::string appData;
     std::string settingsFile;

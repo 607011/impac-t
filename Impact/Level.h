@@ -168,6 +168,10 @@ namespace Impact {
     {
       return mSHA1;
     }
+    inline sf::Music *music(void)
+    {
+      return mMusic;
+    }
 
     void load(void);
     void loadZip(const std::string &zipFilename);
@@ -198,6 +202,7 @@ namespace Impact {
     std::string mCredits;
     std::string mAuthor;
     std::string mCopyright;
+    sf::Music *mMusic;
 
     std::vector<TileParam> mTiles;
 
