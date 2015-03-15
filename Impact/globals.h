@@ -27,7 +27,7 @@
 
 namespace Impact {
 
-#define IMPACT_VERSION "1.0-BETA17"
+#define IMPACT_VERSION "1.0-BETA18"
 
 #define ResourcesDir std::string("resources")
 #define SoundFXDir ResourcesDir + "/soundfx"
