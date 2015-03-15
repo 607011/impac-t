@@ -64,7 +64,6 @@ namespace Impact {
     bd.awake = false;
     bd.fixedRotation = false;
     bd.bullet = false;
-    bd.active = true;
     bd.userData = this;
     mBody = game->world()->CreateBody(&bd);
 
