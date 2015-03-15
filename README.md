@@ -1,6 +1,6 @@
 # Impac't
 
-A Breakout/Bolo clone, augmented with a physics engine
+A Breakout/Bolo clone, augmented with a physics engine.
 
 
 ## System requirements
@@ -40,16 +40,6 @@ try to reduce the `<particles-per-explosion>` value .
 
 ## TODO
 
-### Essential
-
- - integrate 3rd party sources/libraries into Visual Studio solution
- - activate scrollbar in "select level" menu
-
-### Very nice to have
-
- - display copyright/author/credits before the level can be played
- - add Options screen
-
 ### Nice to have
 
  - allow resizing of screen + fullscreen mode
@@ -78,11 +68,10 @@ try to reduce the `<particles-per-explosion>` value .
      - no score deduction in 1, 2, 4, 8, 16 ... levels
  - use custom cursor instead of OS's default (https://github.com/LaurentGomila/SFML/wiki/Tutorial:-Change-Cursor)
 
-## License
 
-Copyright (c) 2015 [Oliver Lau](mailto:ola@ct.de),
-<a href="http://www.heise.de/">Heise Medien GmbH & Co. KG</a>.
+ ## License
 
+Copyright (c) 2015 [Oliver Lau](mailto:ola@ct.de), <a href="http://www.heise.de/">Heise Medien GmbH & Co. KG</a>.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -104,21 +93,3 @@ and is not intended for production use. The author and Heise Zeitschriften
 Verlag shall not be liable for any damage arising from the use of this program,
 and do not accept responsibility for its completeness, correctness and fitness
 for a particular purpose.__
-
-
-## Nutzungshinweise und Lizenz
-
-Copyright (c) 2015 [Oliver Lau](mailto:ola@ct.de),
-<a href="http://www.heise.de/">Heise Medien GmbH & Co. KG</a>.
-
-Dieses Programm ist freie Software. Sie können es unter den Bedingungen der
-<a href="http://www.gnu.org/licenses/gpl-3.0">GNU General Public License</a>,
-wie von der Free Software Foundation veröffentlicht, weitergeben und/oder
-modifizieren, entweder gemäß Version 3 der Lizenz oder (nach Ihrer Wahl)
-jeder späteren Version.
-
-__Diese Software wurde zu Lehr- und Demonstrationszwecken programmiert
-und ist nicht für den produktiven Einsatz vorgesehen. Der Autor und der
-Heise Zeitschriften Verlag haften nicht für eventuelle Schäden, die aus
-der Nutzung der Software entstehen, und übernehmen keine Gewähr für ihre
-Vollständigkeit, Fehlerfreiheit und Eignung für einen bestimmten Zweck.__
