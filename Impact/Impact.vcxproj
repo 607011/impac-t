@@ -244,6 +244,7 @@
     <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="LICENSE.md" />
     <None Include="packages.config" />
     <None Include="resources\shaders\approachingoverlay.fs" />
     <None Include="resources\shaders\fade.fs" />
