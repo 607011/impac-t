@@ -20,9 +20,27 @@
 
 #include "stdafx.h"
 
+#include <array>
+#ifndef NDEBUG
+#include <iostream>
+#endif
+
 namespace Impact {
 
-  boost::random::mt19937 gRNG;
-
   int gDetailLevel = 3; // 0..3
+
+  std::mt19937 gRNG;
+
+  void warmupRNG(void)
+  {
+#ifndef NDEBUG
+    std::cout << "warmupRNG()" << std::endl;
+#endif
+    std::array<int, std::mt19937::state_size> seed_data;
+    std::random_device r;
+    std::generate_n(seed_data.data(), seed_data.size(), std::ref(r));
+    std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
+    gRNG.seed(seq);
+  }
+
 }

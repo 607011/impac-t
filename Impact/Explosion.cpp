@@ -20,7 +20,14 @@
 
 #include "stdafx.h"
 
+#include <boost/random.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
+
+
 namespace Impact {
+
+#define EXPLOSION_PARTICLES_CANNOT_ROTATE
 
   std::vector<sf::Shader*>::size_type Explosion::sCurrentShaderIndex = 0;
   std::vector<sf::Shader*> Explosion::sShaders;
@@ -35,7 +42,7 @@ namespace Impact {
     setLifetime(def.maxLifetime);
     mTexture = def.texture;
 
-    if (sf::Shader::isAvailable() && gDetailLevel > 2) {
+    if (gSettings.useShaders && gSettings.useShadersForExplosions) {
       mShader = ShaderPool::getNext();
       mShader->setParameter("uTexture", sf::Shader::CurrentTexture);
       mShader->setParameter("uMaxAge", def.maxLifetime.asSeconds());
@@ -44,6 +51,7 @@ namespace Impact {
     boost::random::uniform_int_distribution<sf::Int32> randomLifetime(def.minLifetime.asMilliseconds(), def.maxLifetime.asMilliseconds());
     boost::random::uniform_real_distribution<float32> randomSpeed(def.minSpeed * Game::Scale, def.maxSpeed * Game::Scale);
     boost::random::uniform_real_distribution<float32> randomAngle(0.f, 2 * b2_pi);
+    boost::random::uniform_real_distribution<float32> randomOffset(Game::InvScale * -5.f, Game::InvScale * +5.f);
 
     b2World *world = mGame->world();
     const int N = mParticles.size();
@@ -58,9 +66,14 @@ namespace Impact {
 
       b2BodyDef bd;
       bd.type = b2_dynamicBody;
-      bd.position = def.pos;
+      bd.position = def.pos + b2Vec2(randomOffset(gRNG), randomOffset(gRNG));
+#ifdef EXPLOSION_PARTICLES_CANNOT_ROTATE
+      bd.fixedRotation = true;
+#else
       bd.fixedRotation = false;
+#endif
       bd.bullet = false;
+      bd.allowSleep = true;
       bd.userData = this;
       bd.gravityScale = def.gravityScale;
       bd.linearDamping = def.linearDamping;
@@ -99,7 +112,7 @@ namespace Impact {
   {
     bool allDead = true;
     const int N = mParticles.size();
-#pragma omp parallel for reduction(&:allDead)
+// #pragma omp parallel for reduction(&:allDead)
     for (int i = 0; i < N; ++i) {
       SimpleParticle &p = mParticles[i];
       if (age() > p.lifeTime && !p.dead) {
@@ -107,9 +120,17 @@ namespace Impact {
         mGame->world()->DestroyBody(p.body);
       }
       else {
+#ifdef EXPLOSION_PARTICLES_CANNOT_ROTATE
+        p.sprite.setPosition(float(Game::Scale) * sf::Vector2f(p.body->GetPosition().x, p.body->GetPosition().y));
+#else
         const b2Transform &tx = p.body->GetTransform();
-        p.sprite.setPosition(static_cast<float>(Game::Scale) * sf::Vector2f(tx.p.x, tx.p.y));
+        p.sprite.setPosition(float(Game::Scale) * sf::Vector2f(tx.p.x, tx.p.y));
         p.sprite.setRotation(rad2deg(tx.q.GetAngle()));
+#endif
+        if (mShader == nullptr) {
+          const float alpha = Easing<float>::quadEaseIn(age().asSeconds(), 0U, 255U, p.lifeTime.asSeconds());
+          p.sprite.setColor(sf::Color(255U, 255U, 255U, 255U - sf::Uint8(alpha)));
+        }
       }
       allDead &= p.dead;
     }

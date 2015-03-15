@@ -1,12 +1,12 @@
-!define VERSION "1.0.0-BETA13"
+!define VERSIONMAJOR "1"
+!define VERSIONMINOR "0"
+!define VERSION "${VERSIONMAJOR}.${VERSIONMINOR}-BETA19"
+!define GUID "{95E41A25-7E41-45CA-A1F6-0FFAB66A1B2F}"
 !define APP "Impact"
-!define PUBLISHER "c't"
-!define SFMLPATH "D:\Developer\SFML-2.2"
-!define GLEWPATH "D:\Developer\glew-1.12.0\bin\Release\Win32"
-!define STEAMSDKPATH "D:\Developer\steamworks-sdk"
-!define ZLIBPATH "..\zlib"
+!define PUBLISHER "Heise Medien GmbH & Co. KG - Redaktion c't"
 
-!include LogicLib.nsh
+!include "LogicLib.nsh"
+!include "FileFunc.nsh"
 
 Name "${APP} ${VERSION}"
 OutFile "${APP}-${VERSION}-setup.exe"
@@ -40,39 +40,46 @@ SectionEnd
 Section "${APP}"
   SetOutPath "$INSTDIR"
   CreateDirectory "$INSTDIR\resources"
-  CreateDirectory "$INSTDIR\resources\backgrounds"
   CreateDirectory "$INSTDIR\resources\fonts"
   CreateDirectory "$INSTDIR\resources\images"
-  CreateDirectory "$INSTDIR\resources\levels"
   CreateDirectory "$INSTDIR\resources\music"
   CreateDirectory "$INSTDIR\resources\shaders"
   CreateDirectory "$INSTDIR\resources\soundfx"
+  CreateDirectory "$APPDATA\${APP}"
+  CreateDirectory "$APPDATA\${APP}\levels"
   File "..\Release\${APP}.exe"
   File "..\${APP}\LICENSE"
+  File "..\${APP}\app-icon.ico"
   File "..\README.md"
-  File "${ZLIBPATH}\zlib1.dll"
-  File "${SFMLPATH}\bin\libsndfile-1.dll"
-  File "${SFMLPATH}\bin\openal32.dll"
-  File "${SFMLPATH}\bin\sfml-audio-2.dll"
-  File "${SFMLPATH}\bin\sfml-graphics-2.dll"
-  File "${SFMLPATH}\bin\sfml-system-2.dll"
-  File "${SFMLPATH}\bin\sfml-window-2.dll"
-  File "${SFMLPATH}\bin\sfml-network-2.dll"
-  File "${GLEWPATH}\glew32.dll"
-  File "${STEAMSDKPATH}\redistributable_bin\steam_api.dll"
+  File "..\packages\rxd_glew.redist.1.10.0.1\build\native\bin\Win32\v120\dynamic\glew32.dll"
+  File "..\packages\zlib.redist.1.2.8.7\build\native\bin\v120\Win32\Release\dynamic\cdecl\zlib.dll"
+  File "..\packages\sfml-audio.redist.2.2.0.1\build\native\bin\Win32\libsndfile-1.dll"
+  File "..\packages\sfml-audio.redist.2.2.0.1\build\native\bin\Win32\openal32.dll"
+  File "..\packages\sfml-audio.redist.2.2.0.1\build\native\bin\Win32\v120\Release\dynamic\sfml-audio-2.dll"
+  File "..\packages\sfml-graphics.redist.2.2.0.1\build\native\bin\Win32\v120\Release\dynamic\sfml-graphics-2.dll"
+  File "..\packages\sfml-system.redist.2.2.0.1\build\native\bin\Win32\v120\Release\dynamic\sfml-system-2.dll"
+  File "..\packages\sfml-window.redist.2.2.0.1\build\native\bin\Win32\v120\Release\dynamic\sfml-window-2.dll"
+  ; File "..\packages\sfml-network.redist.2.2.0.1\build\native\bin\Win32\v120\Release\dynamic\sfml-network-2.dll"
   WriteUninstaller "$INSTDIR\uninstall.exe"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "DisplayName" "${APP}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "DisplayVersion" "${VERSION}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "DisplayIcon" "$INSTDIR\app-icon.ico"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "Publisher" "${PUBLISHER}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "NoModify" 1
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "NoRepair" 1
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "VersionMajor" "${VERSIONMAJOR}"
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "VersionMinor" "${VERSIONMINOR}"
 
-  SetOutPath "$INSTDIR\resources\backgrounds"
-  File /a /r "..\${APP}\resources\backgrounds\"
+  ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
+  IntFmt $0 "0x%08X" $0
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "EstimatedSize" "$0"
 
   SetOutPath "$INSTDIR\resources\fonts"
   File /a /r "..\${APP}\resources\fonts\"
 
   SetOutPath "$INSTDIR\resources\images"
   File /a /r "..\${APP}\resources\images\"
-
-  SetOutPath "$INSTDIR\resources\levels"
-  File /a /r "..\${APP}\resources\levels\"
 
 ;  SetOutPath "$INSTDIR\resources\music"
 ;  File /a /r "..\${APP}\resources\music\"
@@ -82,6 +89,12 @@ Section "${APP}"
 
   SetOutPath "$INSTDIR\resources\soundfx"
   File /a /r "..\${APP}\resources\soundfx\*.ogg"
+
+  SetOutPath "$APPDATA\${APP}\levels"
+  File /a /r "..\${APP}\resources\levels\"
+
+  SetOutPath "$APPDATA\${APP}"
+  File "..\${APP}\settings.xml"
 
   SetOutPath "$INSTDIR"
 
@@ -96,13 +109,13 @@ SectionEnd
 
 
 Section "Uninstall"
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP}"
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}"
   DeleteRegKey HKLM "SOFTWARE\${APP}"
 
   Delete "$INSTDIR\README.md"
   Delete "$INSTDIR\LICENSE"
   Delete "$INSTDIR\glew32.dll"
-  Delete "$INSTDIR\zlib1.dll"
+  Delete "$INSTDIR\zlib.dll"
   Delete "$INSTDIR\libsndfile-1.dll"
   Delete "$INSTDIR\openal32.dll"
   Delete "$INSTDIR\sfml-audio-2.dll"
@@ -110,6 +123,7 @@ Section "Uninstall"
   Delete "$INSTDIR\sfml-system-2.dll"
   Delete "$INSTDIR\sfml-window-2.dll"
   Delete "$INSTDIR\sfml-network-2.dll"
+  Delete "$INSTDIR\app-icon.ico"
   Delete "$INSTDIR\${APP}.exe"
   Delete "$INSTDIR\uninstall.exe"
 

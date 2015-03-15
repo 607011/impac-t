@@ -48,7 +48,7 @@ namespace Impact {
       : game(game)
       , pos(pos)
       , ballCollisionEnabled(false)
-      , count(100)
+      , count(50)
       , minLifetime(sf::milliseconds(500))
       , maxLifetime(sf::milliseconds(1000))
       , minSpeed(2.f)
@@ -96,26 +96,36 @@ namespace Impact {
 
     static std::vector<sf::Shader*> sShaders;
     static std::vector<sf::Shader*>::size_type sCurrentShaderIndex;
+
     struct ShaderPool {
-      static const std::vector<sf::Shader*>::size_type N = 20; // maximum number of concurrent explosions
+      static const std::vector<sf::Shader*>::size_type N = 8; // maximum number of concurrent explosions
       ShaderPool(void)
       {
-        if (!sf::Shader::isAvailable())
-          return;
-        std::ifstream inFile;
-        inFile.open(ShadersDir + "/explosion.fs");
-        std::stringstream strStream;
-        strStream << inFile.rdbuf();
-        std::string fragmentShaderCode = strStream.str();
-        for (std::vector<sf::Shader*>::size_type i = 0; i < N; ++i) {
-          sf::Shader *shader = new sf::Shader;
-          shader->loadFromMemory(fragmentShaderCode, sf::Shader::Fragment);
-          sShaders.push_back(shader);
+#ifndef NDEBUG
+        std::cout << "ShaderPool()" << std::flush;
+#endif
+        if (sf::Shader::isAvailable()) {
+#ifndef NDEBUG
+          std::cout << " initialiazing shaders" << std::flush;
+#endif
+          std::ifstream inFile;
+          inFile.open(ShadersDir + "/explosion.fs");
+          std::stringstream strStream;
+          strStream << inFile.rdbuf();
+          std::string fragmentShaderCode = strStream.str();
+          for (std::vector<sf::Shader*>::size_type i = 0; i < N; ++i) {
+            sf::Shader *shader = new sf::Shader;
+            shader->loadFromMemory(fragmentShaderCode, sf::Shader::Fragment);
+            sShaders.push_back(shader);
+          }
         }
+#ifndef NDEBUG
+        std::cout << std::endl;
+#endif
       }
       inline static sf::Shader *getNext(void)
       {
-        if (!sf::Shader::isAvailable() || gDetailLevel < 3)
+        if (!gSettings.useShaders)
           return nullptr;
         sf::Shader *next = sShaders.at(sCurrentShaderIndex);
         if (++sCurrentShaderIndex >= sShaders.size())

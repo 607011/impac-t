@@ -21,10 +21,10 @@ uniform sampler2D uTexture;
 uniform float uT;
 uniform float uMaxT;
 uniform float uDistort;
-
+uniform vec2 uCenter;
 
 vec2 barrelDistortion(vec2 coord, float amt) {
-  vec2 cc = coord - vec2(0.5, 0.5);
+  vec2 cc = coord - uCenter;
   float dist = dot(cc, cc);
   return coord + cc * dist * amt;
 }

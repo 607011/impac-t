@@ -47,6 +47,7 @@ namespace Impact {
     bd.angularDamping = .21f;
     bd.gravityScale = 1.f;
     bd.bullet = true;
+    bd.allowSleep = true;
     bd.userData = this;
     mBody = game->world()->CreateBody(&bd);
 

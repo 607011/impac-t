@@ -19,45 +19,20 @@
 
 
 #include "stdafx.h"
-#include <boost/algorithm/string/predicate.hpp>
 
-struct BoolTranslator
-{
-  typedef std::string internal_type;
-  typedef bool external_type;
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/algorithm/string.hpp>
 
-  // Converts a string to bool
-  boost::optional<external_type> get_value(const internal_type& str)
-  {
-    if (!str.empty()) {
-      if (boost::algorithm::iequals(str, "true") || boost::algorithm::iequals(str, "yes") || boost::algorithm::iequals(str, "enabled") || str == "1")
-        return boost::optional<external_type>(true);
-      else
-        return boost::optional<external_type>(false);
-    }
-    else
-      return boost::optional<external_type>(boost::none);
-  }
+#include <zlib.h>
 
-  // Converts a bool to string
-  boost::optional<internal_type> put_value(const external_type& b)
-  {
-    return boost::optional<internal_type>(b ? "true" : "false");
-  }
-};
+#include "../zip-utils/unzip.h"
+#include "sha1.h"
 
-// Specialize translator_between so that it uses our custom translator for
-// bool value types. Specialization must be in boost::property_tree namespace.
-namespace boost {
-  namespace property_tree {
-    template<typename Ch, typename Traits, typename Alloc> 
-    struct translator_between<std::basic_string< Ch, Traits, Alloc >, bool>
-    {
-      typedef BoolTranslator type;
-    };
-  }
-}
+#include <Shlwapi.h>
+#include <memory.h>
 
+// #define NDEBUG 1
 
 namespace Impact {
 
@@ -66,11 +41,10 @@ namespace Impact {
   Level::Level(void)
     : mBackgroundColor(sf::Color::Black)
     , mFirstGID(0)
-    , mMapData(nullptr)
-    , mNumTilesX(0)
-    , mNumTilesY(0)
-    , mTileWidth(0)
-    , mTileHeight(0)
+    , mNumTilesX(40)
+    , mNumTilesY(25)
+    , mTileWidth(16)
+    , mTileHeight(16)
     , mLevelNum(0)
     , mGravity(DefaultGravity)
     , mExplosionParticlesCollideWithBall(false)
@@ -83,32 +57,56 @@ namespace Impact {
   }
 
 
+  Level::Level(int num)
+    : Level()
+  {
+    set(num, true);
+  }
+
+
+  Level::Level(const Level &other)
+    : mBackgroundColor(other.mBackgroundColor)
+    , mFirstGID(other.mFirstGID)
+    , mMapData(other.mMapData)
+    , mNumTilesX(other.mNumTilesX)
+    , mNumTilesY(other.mNumTilesY)
+    , mTileWidth(other.mTileWidth)
+    , mTileHeight(other.mTileHeight)
+    , mLevelNum(other.mLevelNum)
+    , mGravity(other.mGravity)
+    , mExplosionParticlesCollideWithBall(other.mExplosionParticlesCollideWithBall)
+    , mKillingsPerKillingSpree(other.mKillingsPerKillingSpree)
+    , mKillingSpreeBonus(other.mKillingSpreeBonus)
+    , mKillingSpreeInterval(other.mKillingSpreeInterval)
+    , mSuccessfullyLoaded(other.mSuccessfullyLoaded)
+    , mName(other.mName)
+    , mCredits(other.mCredits)
+    , mAuthor(other.mAuthor)
+    , mCopyright(other.mCopyright)
+  {
+    // ...
+  }
+
+
   Level::~Level()
   {
     clear();
   }
 
 
-  bool Level::set(int level)
+  bool Level::set(int level, bool doLoad)
   {
     mSuccessfullyLoaded = false;
     mLevelNum = level;
-    if (mLevelNum > 0)
-      mSuccessfullyLoaded = load();
+    if (mLevelNum > 0 && doLoad)
+      load();
     return mSuccessfullyLoaded;
   }
 
 
   bool Level::gotoNext(void)
   {
-    return set(mLevelNum + 1);
-  }
-
-
-  static bool fileExists(const std::string &filename)
-  {
-    struct stat buffer;
-    return stat(filename.c_str(), &buffer) == 0;
+    return set(mLevelNum + 1, true);
   }
 
 
@@ -121,30 +119,103 @@ namespace Impact {
   }
 
 
-#pragma warning(disable : 4503)
-  bool Level::load(void)
+  bool Level::calcSHA1(const std::string &filename)
   {
+    std::ifstream is;
+    is.open(filename, std::ios::binary);
+    if (is.is_open()) {
+      is.seekg(0, std::ios::end);
+      int nBytes = int(is.tellg());
+      is.seekg(0, std::ios::beg);
+      char *buf = new char[nBytes];
+      is.read(buf, nBytes);
+      is.close();
+      unsigned char hash[20];
+      sha1::calc(buf, nBytes, hash);
+      std::stringstream strBuf;
+      for (int i = 0; i < 20; ++i)
+        strBuf << std::hex << std::setw(2) << std::setfill('0') << short(hash[i]);
+      mSHA1 = strBuf.str();
+      delete[] buf;
+      mBase62Name = base62_encode<boost::multiprecision::uint256_t>(reinterpret_cast<uint8_t*>(hash), sizeof(hash));
+#ifndef NDEBUG
+      std::cout << "SHA1: " << mSHA1 << std::endl;
+      std::cout << "Base62: " << mBase62Name << std::endl;
+#endif
+      return true;
+    }
+    return false;
+  }
+
+
+  void Level::load(void)
+  {
+    std::string levelFilename;
+    std::ostringstream levelStrBuf;
+    levelStrBuf << std::setw(4) << std::setfill('0') << mLevelNum;
+    const std::string levelStr = levelStrBuf.str();
+    levelFilename = gSettings.levelsDir + "/" + levelStr + ".zip";
+#ifndef NDEBUG
+    std::cout << "Level ZIP filename: " << levelFilename << "." << std::endl;
+#endif
+    loadZip(levelFilename);
+  }
+
+
+#pragma warning(disable : 4503)
+  void Level::loadZip(const std::string &zipFilename)
+  {
+    mSuccessfullyLoaded = false;
     bool ok = true;
-    safeFree(mMapData);
-    mBackgroundImageOpacity = 1.f;
 
-    std::ostringstream buf;
+    std::string levelPath;
+    std::string levelFilename;
+
+    char szPath[MAX_PATH];
+    strcpy_s(szPath, MAX_PATH, zipFilename.c_str());
+    PathStripPath(szPath);
+    PathRemoveExtension(szPath);
+    mName = szPath;
 #ifndef NDEBUG
-    // mLevelNum = 10;
+    std::cout << "LEVEL NAME: " << mName << std::endl;
 #endif
-    buf << LevelsDir << "/" << std::setw(4) << std::setfill('0') << mLevelNum << ".tmx";
-    const std::string &filename = buf.str();
+    HZIP hz = OpenZip(zipFilename.c_str(), nullptr);
+    if (hz) {
+      levelPath = gSettings.levelsDir + "/" + mName;
+      SetUnzipBaseDir(hz, levelPath.c_str());
+      ZIPENTRY ze;
+      GetZipItem(hz, -1, &ze);
+      int nItems = ze.index;
+      for (int i = 0; i < nItems; ++i) {
+        GetZipItem(hz, i, &ze);
+        UnzipItem(hz, i, ze.name);
+        std::string currentItemName = ze.name;
+        if (boost::algorithm::ends_with(currentItemName, ".tmx"))
+          levelFilename = levelPath + "/" + currentItemName;
+#ifndef NDEBUG
+        std::cout << "Unzipping " << ze.name << " ..." << std::endl;
+#endif
+      }
+      CloseZip(hz);
+      calcSHA1(zipFilename);
+    }
 
-    ok = fileExists(filename.c_str());
+#ifndef NDEBUG
+    std::cout << "Level::load() " << levelFilename << " ..." << std::endl;
+#endif
+
+    ok = fileExists(levelFilename);
     if (!ok)
-      return false;
+      return;
 
 #ifndef NDEBUG
-    std::cout << "Loading level " << filename << " ..." << std::endl;
+    std::cout << "Opening " << levelFilename << "..." << std::endl;
 #endif
+
+    mBackgroundImageOpacity = 1.f;
     boost::property_tree::ptree pt;
     try {
-      boost::property_tree::xml_parser::read_xml(filename, pt);
+      boost::property_tree::xml_parser::read_xml(levelFilename, pt);
     }
     catch (const boost::property_tree::xml_parser::xml_parser_error &ex) {
       std::cerr << "XML parser error: " << ex.what() << " (line " << ex.line() << ")" << std::endl;
@@ -152,10 +223,16 @@ namespace Impact {
     }
 
     if (!ok)
-      return false;
+      return;
 
     try { // evaluate level properties
+      mMapData.clear();
       mGravity = DefaultGravity;
+      mCredits = std::string();
+      mAuthor = std::string();
+      mCopyright = std::string();
+      mInfo = std::string();
+      mBackgroundColor = sf::Color::Black;
       mKillingsPerKillingSpree = Game::DefaultKillingsPerKillingSpree;
       mKillingSpreeBonus = Game::DefaultKillingSpreeBonus;
       mKillingSpreeInterval = Game::DefaultKillingSpreeInterval;
@@ -167,32 +244,56 @@ namespace Impact {
         if (pi->first == "property") {
           std::string propName = property.get<std::string>("<xmlattr>.name");
           boost::algorithm::to_lower(propName);
-          if (propName == "gravity") {
-            mGravity = property.get<float32>("<xmlattr>.value");
+          if (propName == "credits") {
+            mCredits = property.get<std::string>("<xmlattr>.value", std::string());
+#ifndef NDEBUG
+            std::cout << "mCredits = " << mCredits << std::endl;
+#endif
+          }
+          else if (propName == "author") {
+            mAuthor = property.get<std::string>("<xmlattr>.value", std::string());
+#ifndef NDEBUG
+            std::cout << "mAuthor = " << mAuthor << std::endl;
+#endif
+          }
+          else if (propName == "copyright") {
+            mCopyright = property.get<std::string>("<xmlattr>.value", std::string());
+#ifndef NDEBUG
+            std::cout << "mCopyright = " << mCopyright << std::endl;
+#endif
+          }
+          else if (propName == "name") {
+            mName = property.get<std::string>("<xmlattr>.value", std::string());
+#ifndef NDEBUG
+            std::cout << "mName = " << mName << std::endl;
+#endif
+          }
+          else if (propName == "gravity") {
+            mGravity = property.get<float32>("<xmlattr>.value", 9.81f);
 #ifndef NDEBUG
             std::cout << "mGravity = " << mGravity << std::endl;
 #endif
           }
           else if (propName == "explosionparticlescollidewithball") {
-            mExplosionParticlesCollideWithBall = property.get<int>("<xmlattr>.value") > 0;
+            mExplosionParticlesCollideWithBall = property.get<bool>("<xmlattr>.value", false);
 #ifndef NDEBUG
             std::cout << "mExplosionParticlesCollideWithBall = " << mExplosionParticlesCollideWithBall << std::endl;
 #endif
           }
           else if (propName == "killingspreebonus") {
-            mKillingSpreeBonus = property.get<int>("<xmlattr>.value");
+            mKillingSpreeBonus = property.get<int>("<xmlattr>.value", Game::DefaultKillingSpreeBonus);
 #ifndef NDEBUG
             std::cout << "mKillingSpreeBonus = " << mKillingSpreeBonus << std::endl;
 #endif
           }
           else if (propName == "killingspreeinterval") {
-            mKillingSpreeInterval = sf::milliseconds(property.get<int>("<xmlattr>.value"));
+            mKillingSpreeInterval = sf::milliseconds(property.get<int>("<xmlattr>.value", Game::DefaultKillingSpreeInterval.asMilliseconds()));
 #ifndef NDEBUG
             std::cout << "mKillingSpreeInterval = " << mKillingSpreeInterval.asMilliseconds() << std::endl;
 #endif
           }
           else if (propName == "killingsperkillingspree") {
-            mKillingsPerKillingSpree = property.get<int>("<xmlattr>.value");
+            mKillingsPerKillingSpree = property.get<int>("<xmlattr>.value", Game::DefaultKillingsPerKillingSpree);
 #ifndef NDEBUG
             std::cout << "mKillingsPerKillingSpree = " << mKillingsPerKillingSpree << std::endl;
 #endif
@@ -214,6 +315,7 @@ namespace Impact {
           r = hexDigit2Int(bgColor[1]) << 8 | hexDigit2Int(bgColor[2]);
           g = hexDigit2Int(bgColor[3]) << 8 | hexDigit2Int(bgColor[4]);
           b = hexDigit2Int(bgColor[5]) << 8 | hexDigit2Int(bgColor[6]);
+          mBackgroundColor = sf::Color(r, g, b, 255);
         }
       } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
 
@@ -224,45 +326,51 @@ namespace Impact {
       uLong compressedSize = 0UL;
       base64_decode(mapDataB64, compressed, compressedSize);
       if (compressed != nullptr && compressedSize > 0) {
-        static const int CHUNKSIZE = 1*1024*1024;
-        mMapData = (uint32_t*)std::malloc(CHUNKSIZE);
-        uLongf mapDataSize = CHUNKSIZE;
-        int rc = uncompress((Bytef*)mMapData, &mapDataSize, (Bytef*)compressed, compressedSize);
-        if (rc == Z_OK) {
-          mMapData = reinterpret_cast<uint32_t*>(std::realloc(mMapData, mapDataSize));
+        const size_t CHUNKSIZE = 128 * 1024;
+        uint32_t *mapData = new uint32_t[CHUNKSIZE / sizeof(uint32_t)];
+        if (mapData != nullptr) {
+          uLongf mapDataSize = CHUNKSIZE;
+          int rc = uncompress(reinterpret_cast<Bytef*>(mapData), &mapDataSize, reinterpret_cast<Bytef*>(compressed), compressedSize);
+          if (rc == Z_OK) {
+            for (uLongf i = 0; i < mapDataSize; ++i) {
+              mMapData.push_back(*(mapData + i));
+            }
+            delete [] mapData;
 #ifndef NDEBUG
-          std::cout << "map data contains " << (mapDataSize / sizeof(uint32_t)) << " elements." << std::endl;
+            std::cout << "map data contains " << mMapData.size() << " elements." << std::endl;
 #endif
+          }
+          else {
+            ok = false;
+            if (rc == Z_DATA_ERROR)
+              std::cerr << "Inflating map data failed: Z_DATA_ERROR" << std::endl;
+            else if (rc == Z_MEM_ERROR)
+              std::cerr << "Inflating map data failed: Z_MEM_ERROR" << std::endl;
+            else if (rc == Z_BUF_ERROR)
+              std::cerr << "Inflating map data failed: Z_BUF_ERROR " << std::endl;
+            else
+              std::cerr << "Inflating map data failed with error code " << rc << std::endl;
+          }
         }
-        else {
-          std::cerr << "Inflating map data failed with code " << rc << std::endl;
-          ok = false;
-        }
-        delete [] compressed;
+        delete[] compressed;
       }
 
       if (!ok)
-        return false;
+        return;
 
-      const std::string &backgroundTextureFilename = LevelsDir + "/" + pt.get<std::string>("map.imagelayer.image.<xmlattr>.source");
+      const std::string &backgroundTextureFilename = levelPath + "/" + pt.get<std::string>("map.imagelayer.image.<xmlattr>.source");
       mBackgroundTexture.loadFromFile(backgroundTextureFilename);
       mBackgroundSprite.setTexture(mBackgroundTexture);
-      try {
-        mBackgroundImageOpacity = pt.get<float>("map.imagelayer.<xmlattr>.opacity");
-      } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
+      mBackgroundImageOpacity = pt.get<float>("map.imagelayer.<xmlattr>.opacity", 1.f);
       mBackgroundSprite.setColor(sf::Color(255, 255, 255, sf::Uint8(mBackgroundImageOpacity * 0xff)));
 
       mBoundary = Boundary();
       try {
         const boost::property_tree::ptree &object = pt.get_child("map.objectgroup.object");
-        int x = object.get<int>("<xmlattr>.x");
-        int y = object.get<int>("<xmlattr>.y");
-        int w = object.get<int>("<xmlattr>.width");
-        int h = object.get<int>("<xmlattr>.height");
-        mBoundary.left = x;
-        mBoundary.top = y;
-        mBoundary.right = x + w;
-        mBoundary.bottom = y + h;
+        mBoundary.left = object.get<int>("<xmlattr>.x");
+        mBoundary.top = object.get<int>("<xmlattr>.y");
+        mBoundary.right = mBoundary.left + object.get<int>("<xmlattr>.width");
+        mBoundary.bottom = mBoundary.top + object.get<int>("<xmlattr>.height");
         mBoundary.valid = true;
       } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
 
@@ -276,10 +384,10 @@ namespace Impact {
           const int id = mFirstGID + tile.get<int>("<xmlattr>.id");
           mTiles.resize(id + 1);
           TileParam tileParam;
-          const std::string &filename = LevelsDir + "/" + tile.get<std::string>("image.<xmlattr>.source");
+          const std::string &filename = levelPath + "/" + tile.get<std::string>("image.<xmlattr>.source");
           ok = tileParam.texture.loadFromFile(filename);
           if (!ok)
-            return false;
+            return;
           const boost::property_tree::ptree &tileProperties = tile.get_child("properties");
           boost::property_tree::ptree::const_iterator pi;
           for (pi = tileProperties.begin(); pi != tileProperties.end(); ++pi) {
@@ -373,14 +481,28 @@ namespace Impact {
       std::cerr << "Error parsing TMX file: " << e.what() << std::endl;
       ok = false;
     }
-    return ok;
+
+    mSuccessfullyLoaded = ok;
+#ifndef NDEBUG
+    std::cout << "Level " << (mSuccessfullyLoaded ? "loaded." : "NOT loaded.") << std::endl;
+    if (mSuccessfullyLoaded)
+      std::cout <<
+      "            _\n"
+      "           /(|\n"
+      "          (  :\n"
+      "         __\\  \\  _____\n"
+      "       (____)  `|\n"
+      "      (____)|   |\n"
+      "       (____).__|\n"
+      "        (___)__.|_____\n"
+      << std::endl;
+#endif
   }
 
 
   void Level::clear(void)
   {
     mTiles.clear();
-    safeFree(mMapData);
   }
 
 
@@ -396,22 +518,16 @@ namespace Impact {
 
   const sf::Texture &Level::texture(const std::string &name) const
   {
-    int index = bodyIndexByTextureName(name);
+    const int index = bodyIndexByTextureName(name);
     if (index < 0)
       throw "Bad texture name: '" + name + "'";
     return mTiles.at(index).texture;
   }
 
 
-  inline uint32_t *const Level::mapDataScanLine(int y) const
+  uint32_t *const Level::mapDataScanLine(int y)
   {
-    return mMapData + y * mNumTilesX;
-  }
-
-
-  uint32_t Level::mapData(int x, int y) const
-  {
-    return mapDataScanLine(y)[x];
+    return mMapData.data() + y * mNumTilesX;
   }
 
 

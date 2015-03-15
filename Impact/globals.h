@@ -21,21 +21,24 @@
 #ifndef __GLOBALS_H_
 #define __GLOBALS_H_
 
-#include <boost/random/mersenne_twister.hpp>
+#include <string>
+#include <random>
+#include "Settings.h"
 
 namespace Impact {
 
+#define IMPACT_VERSION "1.0-BETA19"
+
 #define ResourcesDir std::string("resources")
-#define LevelsDir ResourcesDir + "/levels"
 #define SoundFXDir ResourcesDir + "/soundfx"
 #define ImagesDir ResourcesDir + "/images"
-#define BackgroundsDir ResourcesDir + "/backgrounds"
 #define FontsDir ResourcesDir + "/fonts"
 #define ShadersDir ResourcesDir + "/shaders"
 
-  extern boost::random::mt19937 gRNG;
+  extern std::mt19937 gRNG;
+  extern void warmupRNG(void);
 
-  extern int gDetailLevel;
+  extern Settings gSettings;
 }
 
 

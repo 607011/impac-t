@@ -20,21 +20,49 @@
 #ifndef __GAME_H_
 #define __GAME_H_
 
-#define IMPACT_VERSION "1.0.0-BETA13"
-
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/OpenGL.hpp>
 
+#include "globals.h"
+#include "Settings.h"
+#include "Level.h"
 #include "BodyBall.h"
 #include "BodyRacket.h"
 #include "BodyGround.h"
 
+#include <future>
+
 namespace Impact {
 
   class Game;
+
+  struct SpecialEffect {
+    SpecialEffect(void)
+      : clock(nullptr)
+    { /* ... */ }
+    SpecialEffect(const sf::Time &d, sf::Clock *clk, const sf::Texture &tex)
+      : duration(d)
+      , clock(clk)
+      , texture(tex)
+    {
+      sprite.setTexture(texture);
+      sprite.setOrigin(float(texture.getSize().x), float(texture.getSize().y));
+    }
+    SpecialEffect(const SpecialEffect &other)
+      : SpecialEffect(other.duration, other.clock, other.texture)
+    { /* ... */ }
+    inline bool isActive(void) const
+    {
+      return clock->getElapsedTime() < duration;
+    }
+    sf::Time duration;
+    sf::Sprite sprite;
+    sf::Texture texture;
+    sf::Clock *clock;
+  };
 
   struct ContactPoint {
     b2Fixture *fixtureA;
@@ -45,6 +73,28 @@ namespace Impact {
     float32 normalImpulse;
     float32 tangentImpulse;
     float32 separation;
+  };
+
+
+  struct OverlayDef {
+    OverlayDef(void)
+      : duration(sf::milliseconds(1000))
+      , minScale(.2f)
+      , maxScale(2.5f)
+    { /* ... */ }
+    OverlayDef(const OverlayDef &other)
+      : duration(other.duration)
+      , minScale(other.minScale)
+      , maxScale(other.maxScale)
+      , line1(other.line1)
+      , line2(other.line2)
+    { /* ... */
+    }
+    sf::Time duration;
+    float minScale;
+    float maxScale;
+    std::string line1;
+    std::string line2;
   };
 
 
@@ -59,35 +109,43 @@ namespace Impact {
     typedef enum _Actions {
       NoAction,
       PauseAction,
-      BackAction,
       NewBall,
-      Restart,
-      ContinueAction,
       LastAction
     } Action;
 
     typedef enum _State {
+      NoState,
       Initialization,
       WelcomeScreen,
+      CampaignScreen,
+      CreditsScreen,
+      OptionsScreen,
+      AchievementsScreen,
+      SplashScreenBeforePlaying,
       Playing,
       LevelCompleted,
+      SelectLevelScreen,
       Pausing,
       PlayerWon,
       GameOver,
       LastState
     } State;
 
+#ifndef NDEBUG
+    static const char* StateNames[State::LastState];
+#endif
+
 
   public:
     static const int Scale = 16;
     static const float32 InvScale;
-    static const int DefaultPlaygroundWidth = 640;
-    static const int DefaultPlaygroundHeight = 400;
-    static const int DefaultStatsWidth = DefaultPlaygroundWidth;
-    static const int DefaultStatsHeight = 80;
-    static const int DefaultWindowWidth = DefaultPlaygroundWidth;
-    static const int DefaultWindowHeight = DefaultPlaygroundHeight + DefaultStatsHeight;
-    static const int ColorDepth = 32;
+    static const unsigned int DefaultPlaygroundWidth = 640;
+    static const unsigned int DefaultPlaygroundHeight = 400;
+    static const unsigned int DefaultStatsWidth = DefaultPlaygroundWidth;
+    static const unsigned int DefaultStatsHeight = 80;
+    static const unsigned int DefaultWindowWidth = DefaultPlaygroundWidth;
+    static const unsigned int DefaultWindowHeight = DefaultPlaygroundHeight + DefaultStatsHeight;
+    static const unsigned int ColorDepth = 32;
     static const int DefaultLives;
     static const int DefaultPenalty;
     static const int NewLiveAfterSoManyPointsDefault;
@@ -96,12 +154,14 @@ namespace Impact {
     static const sf::Time DefaultFadeEffectDuration;
     static const sf::Time DefaultAberrationEffectDuration;
     static const sf::Time DefaultEarthquakeDuration;
+    static const sf::Time DefaultOverlayDuration;
     static const int DefaultKillingsPerKillingSpree = 5;
     static const int DefaultKillingSpreeBonus = 1000;
     static const sf::Time DefaultKillingSpreeInterval;
 
     Game(void);
     ~Game();
+    void setLevelZip(const char *zipFilename);
     void enterLoop(void);
     void addBody(Body *body);
 
@@ -128,11 +188,14 @@ namespace Impact {
     int mGLVersionMinor;
     const GLubyte *mGLShadingLanguageVersion;
 
+
     // SFML
     sf::RenderWindow mWindow;
     sf::View mDefaultView;
     sf::View mPlaygroundView;
     sf::View mStatsView;
+    sf::Color mStatsColor;
+    sf::VertexArray mStatsViewRectangle;
     sf::RenderTexture mRenderTexture0;
     sf::RenderTexture mRenderTexture1;
     sf::Shader mMixShader;
@@ -147,13 +210,40 @@ namespace Impact {
     sf::Texture mBackgroundTexture;
     sf::Sprite mBackgroundSprite;
     sf::Shader mTitleShader;
+    sf::Text mTitleText;
     sf::Texture mTitleTexture;
     sf::Sprite mTitleSprite;
+    sf::Text mMenuSingleLevel;
+    sf::Text mMenuLoadLevelText;
+    sf::Text mMenuExitText;
+    sf::Text mMenuBackText;
+    sf::Text mMenuSelectLevelText;
+    sf::Text mMenuCampaignText;
+    sf::Text mMenuRestartCampaignText;
+    sf::Text mMenuResumeCampaignText;
+    sf::Text mMenuAchievementsText;
+    sf::Text mMenuOptionsText;
+    sf::Text mMenuCreditsText;
+    sf::Text mMenuUseShadersText;
+    sf::Text mMenuUseShadersForExplosionsText;
+    sf::Text mMenuParticlesPerExplosionText;
+    sf::Text mMenuAntialiasingLevelText;
+    sf::Text mOptionsTitleText;
+    sf::Text mCreditsTitleText;
+    sf::Text mCreditsText;
+    sf::Text mLevelNameText;
+    sf::Text mLevelAuthorText;
+    sf::Text mFPSText;
     sf::Texture mLogoTexture;
     sf::Sprite mLogoSprite;
-    sf::RenderTexture mOverlayRenderTexture;
+    sf::Text mOverlayText1;
+    sf::Text mOverlayText2;
     sf::Texture mOverlayTexture;
     sf::Sprite mOverlaySprite;
+    sf::Shader mOverlayShader;
+    sf::Time mOverlayDuration;
+    sf::Clock mOverlayClock;
+    std::vector<OverlayDef> mOverlayQueue;
     sf::Texture mParticleTexture;
     sf::Texture mSoftParticleTexture;
     std::string mFadeShaderCode;
@@ -165,6 +255,12 @@ namespace Impact {
     sf::Clock mAberrationClock;
     sf::Time mAberrationDuration;
     float32 mAberrationIntensity;
+    sf::RenderTexture mLevelsRenderTexture;
+    sf::View mLevelsRenderView;
+    sf::Texture mScrollbarTexture;
+    sf::Sprite mScrollbarSprite;
+    sf::Vector2f mLastMousePos;
+    bool mMouseButtonDown;
     sf::Clock mClock;
     sf::Clock mWallClock;
     sf::Clock mScoreClock;
@@ -222,43 +318,32 @@ namespace Impact {
     std::string mUserDataFolder;
 
     // Box2D
-    static const int32 VelocityIterations = 30;
-    static const int32 PositionIterations = 20;
+    static const int32 VelocityIterations = 50;
+    static const int32 PositionIterations = 25;
     b2World *mWorld;
     Ground *mGround;
     ContactPoint mPoints[MaxContactPoints];
     int32 mContactPointCount;
 
     // b2ContactListener interface
-    virtual void PreSolve(b2Contact *contact, const b2Manifold *oldManifold)
-    {
-      B2_NOT_USED(contact);
-      B2_NOT_USED(oldManifold);
-    }
-    virtual void BeginContact(b2Contact *contact)
-    {
-      B2_NOT_USED(contact);
-    }
-    virtual void EndContact(b2Contact *contact)
-    {
-      B2_NOT_USED(contact);
-    }
-    virtual void PostSolve(b2Contact *contact, const b2ContactImpulse *impulse);
+    void PreSolve(b2Contact *contact, const b2Manifold *oldManifold);
+    void BeginContact(b2Contact *contact);
+    void EndContact(b2Contact *contact);
+    void PostSolve(b2Contact *contact, const b2ContactImpulse *impulse);
 
     // game logic
     std::vector<sf::Keyboard::Key> mKeyMapping;
+    bool mPaused;
     State mState;
+    State mLastState;
     Playmode mPlaymode;
     int mScore;
     int mTotalScore;
     int mLives;
-    bool mPaused;
     BodyList mBodies;
     int mBlockCount;
     int mWelcomeLevel;
     int mExtraLifeIndex;
-    sf::Vector2i mMousePos;
-    sf::Vector2i mLastMousePos;
     bool mBallHasBeenLost;
     Ball *mBall;
     Racket *mRacket;
@@ -266,10 +351,25 @@ namespace Impact {
     LevelTimer mLevelTimer;
     std::vector<sf::Time> mLastKillings;
     int mLastKillingsIndex;
+    std::vector<SpecialEffect> mSpecialEffects;
 
+    std::string mLevelZipFilename;
+    int mDisplayCount;
+
+    std::vector<Level> mLevels;
+    std::mutex mEnumerateMutex;
+    void enumerateAllLevels(void);
+    std::packaged_task<bool()> mEnumerateTask;
+    std::future<bool> mEnumerateFuture;
+    bool mAllLevelsEnumerated;
+
+    void createStatsViewRectangle(void);
+    void addSpecialEffect(const SpecialEffect &);
+    void createMainWindow(void);
     void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);
     void newBall(const b2Vec2 &pos = b2Vec2_zero);
+    void setCursorOnRacket(void);
     void extraBall(void);
     void setState(State state);
     void clearWorld(void);
@@ -283,13 +383,14 @@ namespace Impact {
     void pause(void);
     void resume(void);
     void buildLevel(void);
-    void handlePlayerInteraction(const sf::Time &elapsed);
     void update(const sf::Time &elapsed);
     void evaluateCollisions(void);
-    void handleEvents(void);
+    void startOverlay(const OverlayDef &);
+    void startBlurEffect(void);
+    void stopBlurEffect(void);
     void startEarthquake(float32 intensity, const sf::Time &duration);
     void startFadeEffect(bool darken = false, const sf::Time &duration = DefaultFadeEffectDuration);
-    void startAberrationEffect(float32 gravityScale, const sf::Time &duration = DefaultAberrationEffectDuration);
+    void startAberrationEffect(float32 gravityScale, const sf::Time &duration = DefaultAberrationEffectDuration, const sf::Vector2f &pos = sf::Vector2f(.5f, .5f));
     void setKillingsPerKillingSpree(int);
     void executeAberration(sf::RenderTexture &out, sf::RenderTexture &in);
     void executeCopy(sf::RenderTexture &out, sf::RenderTexture &in);
@@ -299,6 +400,11 @@ namespace Impact {
 
     void gotoWelcomeScreen(void);
     void onWelcomeScreen(void);
+
+    void gotoSplashScreen(void);
+    void onSplashScreen(void);
+
+    void gotoCurrentLevel(void);
 
     void gotoNextLevel(void);
     void onPlaying(void);
@@ -312,7 +418,26 @@ namespace Impact {
     void gotoPlayerWon(void);
     void onPlayerWon(void);
 
+    void gotoAchievementsScreen(void);
+    void onAchievementsScreen(void);
+
+    void gotoCreditsScreen(void);
+    void onCreditsScreen(void);
+    
+    void gotoOptionsScreen(void);
+    void onOptionsScreen(void);
+
+    void gotoSelectLevelScreen(void);
+    void onSelectLevelScreen(void);
+
+    void gotoCampaignScreen(void);
+    void onCampaignScreen(void);
+
+    void gotoPausing(void);
     void onPausing(void);
+
+    void openLevelZip(void);
+    void loadLevelFromZip(const std::string &zipFilename);
   };
 
 }

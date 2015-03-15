@@ -32,11 +32,8 @@ namespace Impact {
   class Racket : public Body
   {
   public:
-    Racket(Game *game, const b2Vec2 &pos);
+    Racket(Game *game, const b2Vec2 &pos, b2Body *ground);
 
-    void moveLeft(void);
-    void moveRight(void);
-    void stopMotion(void);
     void kickLeft(void);
     void kickRight(void);
     void stopKick(void);
@@ -47,9 +44,10 @@ namespace Impact {
     virtual void setPosition(float32 x, float32 y);
     virtual void setPosition(const b2Vec2 &pos);
     virtual const b2Vec2 &position(void) const;
-    virtual void applyLinearVelocity(const b2Vec2 &v);
+    virtual void moveTo(const b2Vec2 &pos);
     void setXAxisConstraint(float32 y);
     virtual b2Body *body(void);
+    const b2AABB &aabb(void) const;
 
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);
@@ -64,6 +62,8 @@ namespace Impact {
   private:
     b2RevoluteJoint *mJoint;
     b2Body *mTeetingBody;
+    b2MouseJoint *mMouseJoint;
+    mutable b2AABB mAABB;
   };
 
 }

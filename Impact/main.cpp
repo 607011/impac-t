@@ -19,11 +19,22 @@
 
 
 #include "stdafx.h"
+#include <Windows.h>
+
+Impact::Game breakout;
 
 
 int main(int argc, char *argv[])
 {
-  Impact::Game breakout;
+  if (argc == 2) {
+    char szPath[MAX_PATH];
+    char *res = _fullpath(szPath, argv[1], MAX_PATH);
+    if (res != NULL) {
+      DWORD dwAttrib = GetFileAttributes(szPath);
+      if (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY))
+        breakout.setLevelZip(szPath);
+    }
+  }
   breakout.enterLoop();
-  return 0;
+  return EXIT_SUCCESS;
 }

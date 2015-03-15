@@ -25,8 +25,58 @@
 #include <cstdint>
 #include <cassert>
 
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#pragma warning(disable : 4503)
+#include <boost/optional.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
+
+
+struct BoolTranslator
+{
+  typedef std::string internal_type;
+  typedef bool external_type;
+
+  // Converts a string to bool
+  boost::optional<external_type> get_value(const internal_type& str)
+  {
+    if (!str.empty()) {
+      if (boost::algorithm::iequals(str, "true") || boost::algorithm::iequals(str, "yes") || boost::algorithm::iequals(str, "enabled") || str == "1")
+        return boost::optional<external_type>(true);
+      else
+        return boost::optional<external_type>(false);
+    }
+    else
+      return boost::optional<external_type>(boost::none);
+  }
+
+  // Converts a bool to string
+  boost::optional<internal_type> put_value(const external_type& b)
+  {
+    return boost::optional<internal_type>(b ? "true" : "false");
+  }
+};
+
+// Specialize translator_between so that it uses our custom translator for
+// bool value types. Specialization must be in boost::property_tree namespace.
+namespace boost {
+  namespace property_tree {
+    template<typename Ch, typename Traits, typename Alloc>
+    struct translator_between<std::basic_string< Ch, Traits, Alloc >, bool>
+    {
+      typedef BoolTranslator type;
+    };
+  }
+}
+#pragma warning(pop)
+
+
 #define UNUSED(x) (void)(x)
 #define tr(x) std::string(x)
+
 
 namespace Impact {
 
@@ -108,7 +158,24 @@ namespace Impact {
   };
 
 
+  template <typename T>
+  std::string base62_encode(const uint8_t *const buf, int n) {
+    T x = 0;
+    for (int i = 0; i < n; ++i) {
+      x += buf[i];
+      x *= 256;
+    }
+    static const char a[62+1] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    std::stringstream base62;
+    while (x != 0) {
+      base62 << a[int(x % 62)];
+      x /= 62;
+    }
+    return base62.str();
+  };
+
   extern bool base64_decode(std::string, uint8_t *&, unsigned long &);
+  extern bool fileExists(const std::string &);
 
 }
 

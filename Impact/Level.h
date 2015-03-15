@@ -27,6 +27,8 @@
 #include "globals.h"
 #include "TileParam.h"
 
+#include "../zip-utils/unzip.h"
+
 namespace Impact {
 
   struct Boundary {
@@ -54,18 +56,19 @@ namespace Impact {
   class Level {
   public:
     Level(void);
+    Level(int num);
+    Level(const Level &);
     ~Level();
 
     static const float32 DefaultGravity;
 
     void clear(void);
-    bool set(int level);
+    bool set(int level, bool doLoad);
     bool gotoNext(void);
 
     const sf::Texture &texture(const std::string &name) const;
     int bodyIndexByTextureName(const std::string &name) const;
-    uint32_t mapData(int x, int y) const;
-    uint32_t *const mapDataScanLine(int y) const;
+    uint32_t *const mapDataScanLine(int y);
     const TileParam &tileParam(int index) const;
     inline bool isAvailable(void) const
     {
@@ -92,6 +95,14 @@ namespace Impact {
     {
       return mLevelNum;
     }
+    inline int tileWidth(void) const
+    {
+      return mTileWidth;
+    }
+    inline int tileHeight(void) const
+    {
+      return mTileHeight;
+    }
     /// number of tiles in horizontal direction
     inline int width(void) const
     {
@@ -103,7 +114,7 @@ namespace Impact {
       return mNumTilesY;
     }
     inline b2Vec2 size(void) const {
-      return b2Vec2(static_cast<float32>(mNumTilesX), static_cast<float32>(mNumTilesY));
+      return b2Vec2(float32(mNumTilesX), float32(mNumTilesY));
     }
     inline const Boundary &boundary(void) const
     {
@@ -129,17 +140,47 @@ namespace Impact {
     {
       return mKillingSpreeInterval;
     }
+    inline const std::string &credits(void) const
+    {
+      return mCredits;
+    }
+    inline const std::string &author(void) const
+    {
+      return mAuthor;
+    }
+    inline const std::string &copyright(void) const
+    {
+      return mCopyright;
+    }
+    inline const std::string &name(void) const
+    {
+      return mName;
+    }
+    inline const std::string &base62name(void) const
+    {
+      return mBase62Name;
+    }
+    inline const std::string &info(void) const
+    {
+      return mInfo;
+    }
+    inline const std::string &hash(void) const
+    {
+      return mSHA1;
+    }
+
+    void load(void);
+    void loadZip(const std::string &zipFilename);
 
   private:
-    bool load(void);
-
     bool mSuccessfullyLoaded;
+    std::string mSHA1;
     float mBackgroundImageOpacity;
     sf::Color mBackgroundColor;
     sf::Texture mBackgroundTexture;
     sf::Sprite mBackgroundSprite;
     int mLevelNum;
-    uint32_t *mMapData;
+    std::vector<uint32_t> mMapData;
     int mNumTilesX;
     int mNumTilesY;
     int mTileWidth;
@@ -151,9 +192,16 @@ namespace Impact {
     int mKillingsPerKillingSpree;
     int mKillingSpreeBonus;
     sf::Time mKillingSpreeInterval;
+    std::string mBase62Name;
+    std::string mName;
+    std::string mInfo;
+    std::string mCredits;
+    std::string mAuthor;
+    std::string mCopyright;
 
     std::vector<TileParam> mTiles;
-    sf::Texture load(const std::string &filename);
+
+    bool calcSHA1(const std::string &filename);
   };
 
 }

@@ -17,13 +17,69 @@
 
 */
 
-
 #include "stdafx.h"
-#include <intrin.h>
-#include <mmintrin.h>
 
+#include <boost/random/uniform_real_distribution.hpp>
+#include <boost/algorithm/string.hpp>
+
+#include <zlib.h>
+
+#include <Shlwapi.h>
+#include <commdlg.h>
+#include <Objbase.h>
+#include <Windows.h>
 
 namespace Impact {
+
+
+  class LeftBoundary : public Body
+  {
+  public:
+    LeftBoundary(Game *game)
+      : Body(Body::BodyType::LeftBoundary, game)
+    { /* ... */
+    }
+    BodyType type(void) const { return Body::BodyType::LeftBoundary; }
+    virtual void onUpdate(float elapsedSeconds) { UNUSED(elapsedSeconds); }
+    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const  { UNUSED(target); UNUSED(states); };
+  };
+
+  class RightBoundary : public Body
+  {
+  public:
+    RightBoundary(Game *game)
+      : Body(Body::BodyType::RightBoundary, game)
+    { /* ... */
+    }
+    BodyType type(void) const { return Body::BodyType::RightBoundary; }
+    virtual void onUpdate(float elapsedSeconds) { UNUSED(elapsedSeconds); }
+    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const  { UNUSED(target); UNUSED(states); };
+  };
+
+  class TopBoundary : public Body
+  {
+  public:
+    TopBoundary(Game *game)
+      : Body(Body::BodyType::TopBoundary, game)
+    { /* ... */
+    }
+    BodyType type(void) const { return Body::BodyType::TopBoundary; }
+    virtual void onUpdate(float elapsedSeconds) { UNUSED(elapsedSeconds); }
+    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const  { UNUSED(target); UNUSED(states); };
+  };
+
+  class BottomBoundary : public Body
+  {
+  public:
+    BottomBoundary(Game *game)
+      : Body(Body::BodyType::BottomBoundary, game)
+    { /* ... */
+    }
+    BodyType type(void) const { return Body::BodyType::BottomBoundary; }
+    virtual void onUpdate(float elapsedSeconds) { UNUSED(elapsedSeconds); }
+    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const  { UNUSED(target); UNUSED(states); };
+  };
+
 
   const float32 Game::InvScale = 1.f / Game::Scale;
   const int Game::DefaultLives = 3;
@@ -35,18 +91,43 @@ namespace Impact {
   const sf::Time Game::DefaultFadeEffectDuration = sf::milliseconds(150);
   const sf::Time Game::DefaultAberrationEffectDuration = sf::milliseconds(250);
   const sf::Time Game::DefaultEarthquakeDuration = sf::milliseconds(10 * 1000);
+  const sf::Time Game::DefaultOverlayDuration = sf::milliseconds(300);
+
+
+#ifndef NDEBUG
+  const char* Game::StateNames[State::LastState] = {
+    "NoState",
+    "Initialization",
+    "WelcomeScreen",
+    "CampaignScreen",
+    "CreditsScreen",
+    "OptionsScreen",
+    "AchievementsScreen",
+    "SplashScreenBeforePlaying",
+    "Playing",
+    "LevelCompleted",
+    "SelectLevelScreen",
+    "Pausing",
+    "PlayerWon",
+    "GameOver"
+  };
+#endif
 
   Game::Game(void)
-    : mWindow(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Impac't", sf::Style::Titlebar | sf::Style::Close)
-    , mWorld(nullptr)
+    : mWorld(nullptr)
+    , mDisplayCount(0)
     , mBallHasBeenLost(false)
     , mBall(nullptr)
+    , mRacket(nullptr)
     , mGround(nullptr)
     , mContactPointCount(0)
     , mScore(0)
     , mLives(3)
+    , mMouseButtonDown(false)
+    , mAllLevelsEnumerated(false)
     , mPaused(false)
     , mState(State::Initialization)
+    , mLastState(State::NoState)
     , mPlaymode(Playmode::Campaign)
     , mKeyMapping(Action::LastAction)
     , mBlockCount(0)
@@ -59,6 +140,7 @@ namespace Impact {
     , mScaleBallDensityEnabled(false)
     , mAberrationIntensity(0.f)
     , mBlurPlayground(false)
+    , mOverlayDuration(DefaultOverlayDuration)
     , mLastKillingsIndex(0)
     , mFPSArray(20, 0)
     , mFPS(0)
@@ -110,18 +192,19 @@ namespace Impact {
     glewInit();
     glGetIntegerv(GL_MAJOR_VERSION, &mGLVersionMajor);
     glGetIntegerv(GL_MINOR_VERSION, &mGLVersionMinor);
+
     mGLShadingLanguageVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+    warmupRNG();
+
+    createMainWindow();
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
-    mWindow.setActive();
-    mWindow.setVerticalSyncEnabled(true);
-    resize();
 
-    mRenderTexture0.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
-    mRenderTexture1.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
-    mOverlayRenderTexture.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
+    mWindow.setActive();
+    resize();
 
     sf::Image icon;
     icon.loadFromFile(ImagesDir + "/app-icon.png");
@@ -215,25 +298,24 @@ namespace Impact {
     mParticleTexture.loadFromFile(ImagesDir + "/particle.png");
     mSoftParticleTexture.loadFromFile(ImagesDir + "/smooth-dot-12x12.png");
 
+    mScrollbarTexture.loadFromFile(ImagesDir + "/white-pixel.png");
+    mScrollbarSprite.setTexture(mScrollbarTexture);
+
     mLevelCompletedMsg.setString("Level complete");
     mLevelCompletedMsg.setFont(mFixedFont);
     mLevelCompletedMsg.setCharacterSize(64U);
-    mLevelCompletedMsg.setColor(sf::Color(255, 255, 255));
 
     mGameOverMsg.setString("Game over");
     mGameOverMsg.setFont(mFixedFont);
     mGameOverMsg.setCharacterSize(64U);
-    mGameOverMsg.setColor(sf::Color(255, 255, 255));
 
     mPlayerWonMsg.setString("You won");
     mPlayerWonMsg.setFont(mFixedFont);
     mPlayerWonMsg.setCharacterSize(64U);
-    mPlayerWonMsg.setColor(sf::Color(255, 255, 255));
 
     mYourScoreMsg.setString("Your score");
     mYourScoreMsg.setFont(mFixedFont);
     mYourScoreMsg.setCharacterSize(32U);
-    mYourScoreMsg.setColor(sf::Color(255, 255, 255));
 
     mStartMsg.setFont(mFixedFont);
     mStartMsg.setCharacterSize(16U);
@@ -241,95 +323,159 @@ namespace Impact {
 
     mStatMsg.setFont(mFixedFont);
     mStatMsg.setCharacterSize(8U);
-    mStatMsg.setColor(sf::Color(255, 255, 63));
+    mStatMsg.setColor(sf::Color(255U, 255U, 63U));
 
     mScoreMsg.setFont(mFixedFont);
     mScoreMsg.setCharacterSize(16U);
-    mScoreMsg.setColor(sf::Color(255, 255, 255, 200));
 
     mTotalScoreMsg.setFont(mFixedFont);
     mTotalScoreMsg.setCharacterSize(64U);
-    mTotalScoreMsg.setColor(sf::Color(255, 255, 255));
 
     mTotalScorePointsMsg.setFont(mFixedFont);
     mTotalScorePointsMsg.setCharacterSize(64U);
-    mTotalScorePointsMsg.setColor(sf::Color(255, 255, 255));
 
     mLevelMsg.setFont(mFixedFont);
     mLevelMsg.setCharacterSize(16U);
-    mLevelMsg.setColor(sf::Color(255, 255, 255, 200));
+    mLevelMsg.setPosition(4, 4);
+
+    mLevelNameText.setFont(mFixedFont);
+    mLevelNameText.setCharacterSize(8U);
+
+    mLevelAuthorText.setFont(mFixedFont);
+    mLevelAuthorText.setCharacterSize(8U);
+
+    mFPSText.setFont(mFixedFont);
+    mFPSText.setCharacterSize(8U);
 
     mProgramInfoMsg.setString("Impac't v" + std::string(IMPACT_VERSION) + " (" + __TIMESTAMP__ + ")" 
       + " - "
       + "Copyright (c) 2015 Oliver Lau <ola@ct.de>"
       + "\n"
-      + tr("Built with") + ": SFML " + std::to_string(SFML_VERSION_MAJOR) + "." + std::to_string(SFML_VERSION_MINOR) + ", "
-      + "Box2D " + std::to_string(b2_version.major) + "." + std::to_string(b2_version.minor) + "." + std::to_string(b2_version.revision) + ", "
-      + "glew " + std::to_string(GLEW_VERSION) + "." + std::to_string(GLEW_VERSION_MAJOR) + "." + std::to_string(GLEW_VERSION_MINOR)
-      + " - "
-      + "OpenGL " + std::to_string(mGLVersionMajor) + "." + std::to_string(mGLVersionMinor) + ", "
-      + "GLSL " + std::string(reinterpret_cast<const char*>(mGLShadingLanguageVersion))
+      + tr("Built with") + ": SFML " + std::to_string(SFML_VERSION_MAJOR) + "." + std::to_string(SFML_VERSION_MINOR)
+      + ", Box2D " + std::to_string(b2_version.major) + "." + std::to_string(b2_version.minor) + "." + std::to_string(b2_version.revision)
+      + ", glew " + std::to_string(GLEW_VERSION) + "." + std::to_string(GLEW_VERSION_MAJOR) + "." + std::to_string(GLEW_VERSION_MINOR)
+      + ", zlib " + zlibVersion()
+      + " - " + "OpenGL " + std::to_string(mGLVersionMajor) + "." + std::to_string(mGLVersionMinor)
+      + ", GLSL " + std::string(reinterpret_cast<const char*>(mGLShadingLanguageVersion))
       + ", Your Steam persona: " + mPlayerName
       );
     mProgramInfoMsg.setFont(mFixedFont);
-    mProgramInfoMsg.setColor(sf::Color::White);
     mProgramInfoMsg.setCharacterSize(8U);
     mProgramInfoMsg.setPosition(8.f, mDefaultView.getSize().y - mProgramInfoMsg.getLocalBounds().height - 8.f);
 
-    mBackgroundTexture.loadFromFile(BackgroundsDir + "/abstract05.jpg");
+    mBackgroundTexture.loadFromFile(ImagesDir + "/welcome-background.jpg");
     mBackgroundSprite.setTexture(mBackgroundTexture);
     mBackgroundSprite.setPosition(0.f, 0.f);
-    mBackgroundSprite.setScale(static_cast<float>(mDefaultView.getSize().x) / static_cast<float>(mBackgroundTexture.getSize().x), static_cast<float>(mDefaultView.getSize().y) / static_cast<float>(mBackgroundTexture.getSize().y));
+    mBackgroundSprite.setScale(float(mDefaultView.getSize().x) / float(mBackgroundTexture.getSize().x), float(mDefaultView.getSize().y) / float(mBackgroundTexture.getSize().y));
 
     mLogoTexture.loadFromFile(ImagesDir + "/ct_logo.png");
     mLogoSprite.setTexture(mLogoTexture);
-    mLogoSprite.setOrigin(static_cast<float>(mLogoTexture.getSize().x), static_cast<float>(mLogoTexture.getSize().y));
+    mLogoSprite.setOrigin(float(mLogoTexture.getSize().x), float(mLogoTexture.getSize().y));
     mLogoSprite.setPosition(mDefaultView.getSize().x - 8.f, mDefaultView.getSize().y - 8.f);
 
-    sf::Text titleText("Impac't", mTitleFont, 120U);
-    titleText.setPosition(.5f * (mDefaultView.getSize().x - titleText.getLocalBounds().width), .25f * (mDefaultView.getSize().y - titleText.getLocalBounds().height));
-    sf::RenderTexture titleRenderTexture;
-    titleRenderTexture.create(unsigned int(mDefaultView.getSize().x), unsigned int(mDefaultView.getSize().y));
-    titleRenderTexture.draw(titleText);
-    mTitleTexture = titleRenderTexture.getTexture();
-    mTitleTexture.setSmooth(true);
-    mTitleSprite.setTexture(mTitleTexture);
+    mTitleText = sf::Text("Impac't", mTitleFont, 120U);
+    mTitleText.setPosition(.5f * (mDefaultView.getSize().x - mTitleText.getLocalBounds().width), .11f * (mDefaultView.getSize().y - mTitleText.getLocalBounds().height));
+
+    const float menuTop = std::floor(mDefaultView.getCenter().y - 45.5f);
+
+    // main menu
+    mMenuCampaignText = sf::Text(tr("Campaign"), mFixedFont, 32U);
+    mMenuCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuCampaignText.getLocalBounds().width), 0 + menuTop);
+
+    mMenuSingleLevel = sf::Text(tr("Single level"), mFixedFont, 32U);
+    mMenuSingleLevel.setPosition(.5f * (mDefaultView.getSize().x - mMenuSingleLevel.getLocalBounds().width), 32 + menuTop);
+
+    mMenuLoadLevelText = sf::Text(tr("Load level"), mFixedFont, 32U);
+    mMenuLoadLevelText.setPosition(.5f * (mDefaultView.getSize().x - mMenuLoadLevelText.getLocalBounds().width), 64 + menuTop);
+
+    mMenuAchievementsText = sf::Text(tr("Achievements"), mFixedFont, 32U);
+    mMenuAchievementsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuAchievementsText.getLocalBounds().width), 96 + menuTop);
+
+    mMenuOptionsText = sf::Text(tr("Options"), mFixedFont, 32U);
+    mMenuOptionsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuOptionsText.getLocalBounds().width), 128 + menuTop);
+
+    mMenuCreditsText = sf::Text(tr("Credits"), mFixedFont, 32U);
+    mMenuCreditsText.setPosition(.5f * (mDefaultView.getSize().x - mMenuCreditsText.getLocalBounds().width), 160 + menuTop);
+
+    mMenuExitText = sf::Text(tr("Exit"), mFixedFont, 32U);
+    mMenuExitText.setPosition(.5f * (mDefaultView.getSize().x - mMenuExitText.getLocalBounds().width), 192 + menuTop);
+
+    mMenuResumeCampaignText = sf::Text(tr("Resume Campaign"), mFixedFont, 32U);
+
+    mMenuRestartCampaignText = sf::Text(tr("Restart Campaign"), mFixedFont, 32U);
+    mMenuRestartCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuRestartCampaignText.getLocalBounds().width), 32 + menuTop);
+
+    mMenuBackText = sf::Text(tr("Back"), mFixedFont, 32U);
+
+    mMenuSelectLevelText = sf::Text(tr("Select level"), mFixedFont, 32U);
+
+    mCreditsTitleText = sf::Text(tr("Credits"), mFixedFont, 32U);
+
+    mCreditsText = sf::Text(tr("Impac't: Copyright (c) Oliver Lau, Heise Medien GmbH & Co. KG\n"
+      "SFML: Copyright (c) Laurent Gomila\n"
+      "Box2D: Copyright (c) Erin Catto\n"
+      "boost: see http://opensource.org/licenses/bsl1.0.html\n"
+      "zlib: Copyright (c) Jean-loup Gailly and Mark Adler\n"
+      "GLEW: Copyright (c)  Milan Ikits, Marcelo Magallon et al.\n"
+      "easings: https://github.com/jesusgollonet/ofpennereasing\n"
+      "\n"), mFixedFont, 16U);
+
+    mOptionsTitleText = sf::Text(tr("Options"), mFixedFont, 32U);
+    mOptionsTitleText.setPosition(mDefaultView.getCenter().x - .5f * mOptionsTitleText.getLocalBounds().width, menuTop);
+    if (sf::Shader::isAvailable()) {
+      mMenuUseShadersText = sf::Text(tr("Use shaders"), mFixedFont, 16U);
+      mMenuUseShadersText.setPosition(20.f, mOptionsTitleText.getPosition().y + 80);
+      mMenuUseShadersForExplosionsText = sf::Text(tr("Use shaders for explosions"), mFixedFont, 16U);
+      mMenuUseShadersForExplosionsText.setPosition(20.f, mOptionsTitleText.getPosition().y + 96);
+    }
+    mMenuParticlesPerExplosionText = sf::Text(tr("Particles per explosion"), mFixedFont, 16U);
+    mMenuParticlesPerExplosionText.setPosition(20.f, mOptionsTitleText.getPosition().y + 112);
+    mMenuAntialiasingLevelText = sf::Text(tr("Antialiasing level"), mFixedFont, 16U);
+    mMenuAntialiasingLevelText.setPosition(20.f, mOptionsTitleText.getPosition().y + 128);
+
+    mLevelsRenderTexture.create(600, 170);
+    mLevelsRenderView = mLevelsRenderTexture.getDefaultView();
 
     if (sf::Shader::isAvailable()) {
+      mRenderTexture0.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
+      mRenderTexture1.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
+      sf::RenderTexture titleRenderTexture;
+      titleRenderTexture.create(unsigned int(mDefaultView.getSize().x), unsigned int(mDefaultView.getSize().y));
+      titleRenderTexture.draw(mTitleText);
+      mTitleTexture = titleRenderTexture.getTexture();
+      mTitleTexture.setSmooth(true);
+      mTitleSprite.setTexture(mTitleTexture);
       ok = mAberrationShader.loadFromFile(ShadersDir + "/aberration.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/aberration.fs" << " failed to load/compile." << std::endl;
-
-      mMixShader.loadFromFile(ShadersDir + "/mix.fs", sf::Shader::Fragment);
+      mAberrationShader.setParameter("uCenter", sf::Vector2f(.5f, .5f));
+      ok = mMixShader.loadFromFile(ShadersDir + "/mix.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/mix.fs" << " failed to load/compile." << std::endl;
-
-      mVBlurShader.loadFromFile(ShadersDir + "/vblur.fs", sf::Shader::Fragment);
+      ok = mVBlurShader.loadFromFile(ShadersDir + "/vblur.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/vblur.fs" << " failed to load/compile." << std::endl;
       mVBlurShader.setParameter("uBlur", 4.f);
-      mVBlurShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(mWindow.getSize().x), static_cast<float>(mWindow.getSize().y)));
-
-      mHBlurShader.loadFromFile(ShadersDir + "/hblur.fs", sf::Shader::Fragment);
+      mVBlurShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
+      ok = mHBlurShader.loadFromFile(ShadersDir + "/hblur.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/hblur.fs" << " failed to load/compile." << std::endl;
       mHBlurShader.setParameter("uBlur", 4.f);
-      mHBlurShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(mWindow.getSize().x), static_cast<float>(mWindow.getSize().y)));
-
-      mTitleShader.loadFromFile(ShadersDir + "/title.fs", sf::Shader::Fragment);
+      mHBlurShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
+      ok = mTitleShader.loadFromFile(ShadersDir + "/title.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/title.fs" << " failed to load/compile." << std::endl;
-      mTitleShader.setParameter("uResolution", sf::Vector2f(static_cast<float>(mWindow.getSize().x), static_cast<float>(mWindow.getSize().y)));
-
-      mEarthquakeShader.loadFromFile(ShadersDir + "/earthquake.fs", sf::Shader::Fragment);
+      mTitleShader.setParameter("uResolution", sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y)));
+      ok = mEarthquakeShader.loadFromFile(ShadersDir + "/earthquake.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/earthquake.fs" << " failed to load/compile." << std::endl;
+      ok = mOverlayShader.loadFromFile(ShadersDir + "/approachingoverlay.fs", sf::Shader::Fragment);
+      if (!ok)
+        std::cerr << ShadersDir + "/approachingoverlay.fs" << " failed to load/compile." << std::endl;
     }
 
-    mKeyMapping[Action::PauseAction] = sf::Keyboard::Pause;
-    mKeyMapping[Action::BackAction] = sf::Keyboard::Escape;
-    mKeyMapping[Action::Restart] = sf::Keyboard::Delete;
-    mKeyMapping[Action::ContinueAction] = sf::Keyboard::Space;
+    mKeyMapping[Action::PauseAction] = sf::Keyboard::Escape;
+    mKeyMapping[Action::NewBall] = sf::Keyboard::N;
 
     restart();
   }
@@ -337,11 +483,40 @@ namespace Impact {
 
   Game::~Game(void)
   {
+    gSettings.save();
     clearWorld();
     if (mSteamInitialized)
       SteamAPI_Shutdown();
   }
 
+
+  void Game::createStatsViewRectangle(void)
+  {
+    mStatsViewRectangle = sf::VertexArray(sf::Quads, 4);
+    mStatsViewRectangle[0].position = sf::Vector2f(0.f, 0.f);
+    mStatsViewRectangle[0].color = mStatsColor;
+    mStatsViewRectangle[1].position = sf::Vector2f(0.f, mStatsView.getSize().y);
+    mStatsViewRectangle[1].color = sf::Color::Black;
+    mStatsViewRectangle[2].position = sf::Vector2f(mStatsView.getSize().x, mStatsView.getSize().y);
+    mStatsViewRectangle[2].color = sf::Color::Black;
+    mStatsViewRectangle[3].position = sf::Vector2f(mStatsView.getSize().x, 0.f);
+    mStatsViewRectangle[3].color = mStatsColor;
+  }
+
+
+  void Game::createMainWindow(void)
+  {
+    sf::ContextSettings requestedContextSettings(24U, 0U, 16U, 3U, 0U);
+    requestedContextSettings.antialiasingLevel = gSettings.antialiasingLevel;
+    mWindow.create(sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth), "Impac't", sf::Style::Titlebar, requestedContextSettings);
+#ifndef NDEBUG
+    sf::ContextSettings settings = mWindow.getSettings();
+    std::cout << "depth bits: " << settings.depthBits << std::endl;
+    std::cout << "stencil bits: " << settings.stencilBits << std::endl;
+    std::cout << "antialiasing level: " << settings.antialiasingLevel << std::endl;
+    std::cout << "OpenGL version: " << settings.majorVersion << "." << settings.minorVersion << std::endl;
+#endif
+  }
 
   void Game::stopAllMusic(void)
   {
@@ -352,8 +527,6 @@ namespace Impact {
 
   void Game::restart(void)
   {
-
-    pause();
     clearWorld();
 
     safeRenew(mWorld, new b2World(b2Vec2(0.f, DefaultGravity)));
@@ -367,21 +540,22 @@ namespace Impact {
     mLives = DefaultLives;
     mScore = 0;
     mBallHasBeenLost = false;
-    mLevel.set(0);
+    mLevel.set(0, false);
 
     mContactPointCount = 0;
 
-    if (sf::Shader::isAvailable()) {
+    if (gSettings.useShaders) {
       mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
       mMixShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
       mMixShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
     }
 
+    resume();
     gotoWelcomeScreen();
-
     resetKillingSpree();
 
-    resume();
+    if (mGLVersionMajor < 3) // TODO: exit more nicely, i.e. inform user about reason
+      mWindow.close();
   }
 
 
@@ -402,33 +576,49 @@ namespace Impact {
 
   void Game::resize(void)
   {
-    mDefaultView.reset(sf::FloatRect(0.f, 0.f, static_cast<float>(DefaultWindowWidth), static_cast<float>(DefaultWindowHeight)));
-    mDefaultView.setCenter(.5f * sf::Vector2f(static_cast<float>(DefaultWindowWidth), static_cast<float>(DefaultWindowHeight)));
-    mPlaygroundView.reset(sf::FloatRect(0.f, 0.f, static_cast<float>(DefaultPlaygroundWidth), static_cast<float>(DefaultPlaygroundHeight)));
-    mPlaygroundView.setCenter(.5f * sf::Vector2f(static_cast<float>(DefaultPlaygroundWidth), static_cast<float>(DefaultPlaygroundHeight)));
-    mPlaygroundView.setViewport(sf::FloatRect(0.f, 0.f, 1.f, static_cast<float>(DefaultPlaygroundHeight) / static_cast<float>(DefaultWindowHeight)));
-    mStatsView.reset(sf::FloatRect(0.f, static_cast<float>(DefaultPlaygroundHeight), static_cast<float>(DefaultStatsWidth), static_cast<float>(DefaultStatsHeight)));
+    mDefaultView.reset(sf::FloatRect(0.f, 0.f, float(DefaultWindowWidth), float(DefaultWindowHeight)));
+    mDefaultView.setCenter(.5f * sf::Vector2f(float(DefaultWindowWidth), float(DefaultWindowHeight)));
+    mPlaygroundView.reset(sf::FloatRect(0.f, 0.f, float(DefaultPlaygroundWidth), float(DefaultPlaygroundHeight)));
+    mPlaygroundView.setCenter(.5f * sf::Vector2f(float(DefaultPlaygroundWidth), float(DefaultPlaygroundHeight)));
+    mPlaygroundView.setViewport(sf::FloatRect(0.f, 0.f, 1.f, float(DefaultPlaygroundHeight) / float(DefaultWindowHeight)));
+    mStatsView.reset(sf::FloatRect(0.f, float(DefaultPlaygroundHeight), float(DefaultStatsWidth), float(DefaultStatsHeight)));
     mStatsView.setCenter(sf::Vector2f(.5f * DefaultStatsWidth, .5f * DefaultStatsHeight));
-    mStatsView.setViewport(sf::FloatRect(0.f, static_cast<float>(DefaultWindowHeight - DefaultStatsHeight) / static_cast<float>(DefaultWindowHeight), 1.f, static_cast<float>(DefaultStatsHeight) / static_cast<float>(DefaultWindowHeight)));
+    mStatsView.setViewport(sf::FloatRect(0.f, float(DefaultWindowHeight - DefaultStatsHeight) / float(DefaultWindowHeight), 1.f, float(DefaultStatsHeight) / float(DefaultWindowHeight)));
   }
 
 
   void Game::setState(State state)
   {
+    mLastState = mState;
 #ifndef NDEBUG
-    std::cout  << "Game::setState(" << int(state) << ")" << std::endl;
+    std::cout << "Game::setState(" << StateNames[state] << "), lastState = " << StateNames[mLastState] << std::endl;
 #endif
     mState = state;
+    if (mState == State::Playing)
+      mWindow.setMouseCursorVisible(false);
+  }
+
+
+  void Game::setLevelZip(const char *zipFilename)
+  {
+    mLevelZipFilename = zipFilename;
   }
 
 
   void Game::enterLoop(void)
   {
+    if (!mLevelZipFilename.empty())
+      loadLevelFromZip(mLevelZipFilename);
+
     while (mWindow.isOpen()) {
 
       switch (mState) {
       case State::Playing:
         onPlaying();
+        break;
+
+      case State::SplashScreenBeforePlaying:
+        onSplashScreen();
         break;
 
       case State::WelcomeScreen:
@@ -451,104 +641,116 @@ namespace Impact {
         onPlayerWon();
         break;
 
+      case State::AchievementsScreen:
+        onAchievementsScreen();
+        break;
+
+      case State::CreditsScreen:
+        onCreditsScreen();
+        break;
+
+      case State::OptionsScreen:
+        onOptionsScreen();
+        break;
+
+      case State::SelectLevelScreen:
+        onSelectLevelScreen();
+        break;
+
+      case State::CampaignScreen:
+        onCampaignScreen();
+        break;
+
       default:
         break;
       }
 
       mWindow.display();
+
+      if (!mLevelZipFilename.empty()) {
+        if (mDisplayCount++ > 10) {
+          char szPath[MAX_PATH];
+          strcpy_s(szPath, MAX_PATH, mLevelZipFilename.c_str());
+          PathRemoveFileSpec(szPath);
+          const std::string &cwd = std::string(szPath);
+          const std::string &fname = cwd + "/" + mLevel.hash();
+          mWindow.capture().saveToFile(fname + ".png");
+          const std::string &newZipFilename = fname + ".zip";
+          MoveFile(mLevelZipFilename.c_str(), newZipFilename.c_str());
+          std::stringstream metadata;
+          metadata << std::endl << std::endl
+            << "[[" << mLevel.hash() << ".jpg" << "]]" << std::endl << std::endl;
+          if (!mLevel.name().empty())
+            metadata << "**" << mLevel.name() << "**" << std::endl << std::endl;
+          if (!mLevel.author().empty())
+            metadata << "Autor: " << mLevel.author() << std::endl << std::endl;
+          if (!mLevel.info().empty())
+            metadata << mLevel.info() << std::endl << std::endl;
+          if (!mLevel.credits().empty())
+            metadata << "Credits: " << mLevel.credits() << std::endl << std::endl;
+          if (!mLevel.copyright().empty())
+            metadata << mLevel.copyright() << std::endl << std::endl;
+          metadata << "[Level herunterladen](" << mLevel.hash() << ".zip)"
+            << std::endl << std::endl
+            << "***"
+            << std::endl << std::endl;
+          std::ofstream mdOut;
+          mdOut.open(cwd + "/UserContributedLevels.md", std::ios_base::app);
+          mdOut << metadata.str() << std::endl;
+          mdOut.close();
+          mWindow.close();
+        }
+      }
     }
   }
 
 
   inline void Game::clearWindow(void)
   {
-    mWindow.clear(sf::Color(42, 52, 54, 255));
+    mWindow.clear(mLevel.backgroundColor());
   }
 
 
-  void Game::handleEvents(void)
+  void Game::loadLevelFromZip(const std::string &zipFilename)
   {
-    sf::Event event;
-    while (mWindow.pollEvent(event)) {
-      switch (event.type)
-      {
-      case sf::Event::Closed:
-        mWindow.close();
-        break;
-      case sf::Event::LostFocus:
-        pause();
-        break;
-      case sf::Event::GainedFocus:
-        resume();
-        break;
-      case sf::Event::MouseButtonPressed:
-        if (mState == State::Playing) {
-          if (mBall == nullptr)
-            newBall();
-        }
-        else if (mState == State::LevelCompleted) {
-          gotoNextLevel();
-        }
-        else if (mState == State::GameOver) {
-          restart();
-        }
-        break;
-      case sf::Event::KeyPressed:
-        if (event.key.code == mKeyMapping[Action::BackAction]) {
-          mWindow.close();
-        }
-        else if (event.key.code == mKeyMapping[Action::PauseAction]) {
-          if (mPaused)
-            resume();
-          else
-            pause();
-        }
-        else if (event.key.code == mKeyMapping[Action::NewBall] || event.key.code == sf::Keyboard::Space) {
-          if (mState == State::Playing) {
-            if (mBall) {
-              const b2Vec2 &padPos = mRacket->position();
-              mBall->setPosition(padPos.x, padPos.y - 3.5f);
-              showScore(-500, mBall->position());
-            }
-            else {
-              newBall();
-            }
-          }
-          else if (mState == State::LevelCompleted) {
-            gotoNextLevel();
-          }
-          else if (mState == State::GameOver) {
-            restart();
-          }
-        }
-        break;
-      }
-    }
+#ifndef NDEBUG
+    std::cout << "loadLevelFromZip(\"" << zipFilename << "\")" << std::endl;
+#endif
+    mLevel.loadZip(zipFilename);
+    if (mLevel.isAvailable())
+      gotoCurrentLevel();
   }
 
 
-  inline void Game::handlePlayerInteraction(const sf::Time &elapsed)
+  void Game::openLevelZip(void)
   {
-    if (mRacket != nullptr) {
-      mMousePos = sf::Mouse::getPosition(mWindow);
-      if (mMousePos.x < 0 || mMousePos.x > int(mWindow.getSize().x) || mMousePos.y < 0 || mMousePos.y > int(mWindow.getSize().y)) {
-        mMousePos = sf::Vector2i(int(Game::Scale * mRacket->position().x), int(Game::Scale * mRacket->position().y));
-        mLastMousePos = mMousePos;
-        sf::Mouse::setPosition(mMousePos, mWindow);
-      }
-      const sf::Vector2i &d = mMousePos - mLastMousePos;
-      const b2Vec2 &v = Game::InvScale / elapsed.asSeconds() * b2Vec2(static_cast<float32>(d.x), static_cast<float32>(d.y));
-      mRacket->applyLinearVelocity(v);
-      mLastMousePos = mMousePos;
-      if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-        mRacket->kickLeft();
-      }
-      else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
-        mRacket->kickRight();
-      }
-      else {
-        mRacket->stopKick();
-      }
+#ifndef NDEBUG
+    std::cout << "openLevelZip()" << std::endl;
+#endif
+    char szFile[MAX_PATH];
+    ZeroMemory(szFile, sizeof(szFile));
+    OPENFILENAME ofn;
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = "Zipped level\0*.zip\0";
+    ofn.nFilterIndex = 0;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = gSettings.lastOpenDir.c_str();
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    char szCwd[MAX_PATH];
+    ZeroMemory(&szCwd, sizeof(szCwd));
+    GetCurrentDirectory(MAX_PATH, szCwd);
+    BOOL ok = GetOpenFileName(&ofn);
+    if (ok == TRUE) {
+      SetCurrentDirectory(szCwd); // GetOpenFileName() changed current directory, so restore it afterwards
+      std::string zipFilename = ofn.lpstrFile;
+      PathRemoveFileSpec(ofn.lpstrFile);
+      gSettings.lastOpenDir = ofn.lpstrFile;
+      loadLevelFromZip(zipFilename);
     }
   }
 
@@ -558,21 +760,26 @@ namespace Impact {
     clearWorld();
     stopAllMusic();
     mStartupSound.play();
-    mStartMsg.setString("Click to start");
+    mStartMsg.setString(tr("Click to start"));
     setState(State::WelcomeScreen);
     mWindow.setView(mDefaultView);
-    if (sf::Shader::isAvailable()) {
+    if (gSettings.useShaders) {
       mTitleShader.setParameter("uMaxT", 1.f);
     }
     mWelcomeLevel = 0;
     mWallClock.restart();
     mWindow.setMouseCursorVisible(true);
+    mWindow.setVerticalSyncEnabled(true);
   }
 
 
   void Game::onWelcomeScreen(void)
   {
     sf::Time elapsed = mClock.restart();
+
+    const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
+    const sf::Vector2f &mousePos = sf::Vector2f(float(mousePosI.x), float(mousePosI.y));
+
     sf::Event event;
     while (mWindow.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
@@ -580,13 +787,28 @@ namespace Impact {
       }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
-          gotoNextLevel();
-          return;
-        }
-      }
-      else if (event.type == sf::Event::KeyPressed) {
-        if (event.key.code == mKeyMapping[Action::BackAction]) {
-          mWindow.close();
+          if (mMenuSingleLevel.getGlobalBounds().contains(mousePos)) {
+            gotoSelectLevelScreen();
+          }
+          else if (mMenuLoadLevelText.getGlobalBounds().contains(mousePos)) {
+            mPlaymode = SingleLevel;
+            openLevelZip();
+          }
+          else if (mMenuCampaignText.getGlobalBounds().contains(mousePos)) {
+            gotoCampaignScreen();
+          }
+          //else if (mMenuAchievementsText.getGlobalBounds().contains(mousePos)) {
+          //  gotoAchievementsScreen();
+          //}
+          else if (mMenuOptionsText.getGlobalBounds().contains(mousePos)) {
+            gotoOptionsScreen();
+          }
+          else if (mMenuCreditsText.getGlobalBounds().contains(mousePos)) {
+            gotoCreditsScreen();
+          }
+          else if (mMenuExitText.getGlobalBounds().contains(mousePos)) {
+            mWindow.close();
+          }
           return;
         }
       }
@@ -597,16 +819,16 @@ namespace Impact {
     update(elapsed);
     drawWorld(mWindow.getDefaultView());
 
-    const float t = mWallClock.getElapsedTime().asSeconds();
+    const sf::Int32 t = mWallClock.getElapsedTime().asMilliseconds();
 
-    if (sf::Shader::isAvailable()) {
+    if (gSettings.useShaders) {
       sf::RenderStates states;
       states.shader = &mTitleShader;
-      mTitleShader.setParameter("uT", t);
+      mTitleShader.setParameter("uT", 1e-3f * t);
       mWindow.draw(mTitleSprite, states);
     }
     else {
-      mWindow.draw(mTitleSprite);
+      mWindow.draw(mTitleText);
     }
 
     sf::Sprite avatar;
@@ -616,44 +838,63 @@ namespace Impact {
     if (mWelcomeLevel == 0) {
       ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f));
       pd.ballCollisionEnabled = false;
-      pd.count = gDetailLevel * 40;
+      pd.count = gSettings.particlesPerExplosion;
       pd.texture = mParticleTexture;
       addBody(new Explosion(pd));
       mWelcomeLevel = 1;
     }
 
-    if (t > 0.5f) {
-      drawStartMessage();
+    if (t > 350) {
+      mMenuSingleLevel.setColor(sf::Color(255, 255, 255, mMenuSingleLevel.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mWindow.draw(mMenuSingleLevel);
+      mMenuCampaignText.setColor(sf::Color(255, 255, 255, mMenuCampaignText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mWindow.draw(mMenuCampaignText);
+      mMenuLoadLevelText.setColor(sf::Color(255, 255, 255, mMenuLoadLevelText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mWindow.draw(mMenuLoadLevelText);
+      mMenuAchievementsText.setColor(sf::Color(255, 255, 255, mMenuAchievementsText.getGlobalBounds().contains(mousePos) ? 16 : 16));
+      mWindow.draw(mMenuAchievementsText);
+      mMenuOptionsText.setColor(sf::Color(255, 255, 255, mMenuOptionsText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mWindow.draw(mMenuOptionsText);
+      mMenuCreditsText.setColor(sf::Color(255, 255, 255, mMenuCreditsText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mWindow.draw(mMenuCreditsText);
+      mMenuExitText.setColor(sf::Color(255, 255, 255, mMenuExitText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mWindow.draw(mMenuExitText);
+
       if (mWelcomeLevel == 1) {
         mExplosionSound.play();
         mWelcomeLevel = 2;
         ExplosionDef pd(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y));
-        pd.count = gDetailLevel * 30;
+        pd.count = gSettings.particlesPerExplosion;
         pd.texture = mParticleTexture;
         addBody(new Explosion(pd));
       }
     }
-    if (t > 0.6f) {
+    if (t > 550) {
       mWindow.draw(mLogoSprite);
       if (mWelcomeLevel == 2) {
         mExplosionSound.play();
         mWelcomeLevel = 3;
         ExplosionDef pd(this, Game::InvScale * b2Vec2(mLogoSprite.getPosition().x, mLogoSprite.getPosition().y));
-        pd.count = gDetailLevel * 30;
+        pd.count = gSettings.particlesPerExplosion;
         pd.texture = mParticleTexture;
         addBody(new Explosion(pd));
       }
     }
-    if (t > 0.7f) {
+    if (t > 670) {
       mWindow.draw(mProgramInfoMsg);
-      if (mWelcomeLevel == 4) {
+      if (mWelcomeLevel == 3) {
         mExplosionSound.play();
-        mWelcomeLevel = 5;
+        mWelcomeLevel = 4;
         ExplosionDef pd(this, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y));
         pd.texture = mParticleTexture;
-        pd.count = gDetailLevel * 30;
+        pd.count = gSettings.particlesPerExplosion;
         addBody(new Explosion(pd));
       }
+    }
+
+    if (mWelcomeLevel == 4) {
+      mWelcomeLevel = 5;
+      enumerateAllLevels();
     }
   }
 
@@ -663,9 +904,7 @@ namespace Impact {
     mLevelTimer.pause();
     mLevelCompleteSound.play();
     mStartMsg.setString(tr("Click to continue"));
-    mBlurClock.restart();
-    mBlurPlayground = true;
-    mRacket->applyLinearVelocity(b2Vec2_zero);
+    startBlurEffect();
     setState(State::LevelCompleted);
   }
 
@@ -673,10 +912,17 @@ namespace Impact {
   void Game::onLevelCompleted(void)
   {
     const sf::Time &elapsed = mClock.restart();
-
     update(elapsed);
-
     drawPlayground(elapsed);
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          gotoNextLevel();
+        }
+      }
+    }
 
     mWindow.setView(mPlaygroundView);
     mLevelCompletedMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mLevelCompletedMsg.getLocalBounds().width, 20.f);
@@ -690,8 +936,7 @@ namespace Impact {
   {
     mStartMsg.setString(tr("Click to start over"));
     setState(State::PlayerWon);
-    mBlurClock.restart();
-    mBlurPlayground = true;
+    startBlurEffect();
     mTotalScore = mScore - mLevelTimer.accumulatedSeconds();
   }
 
@@ -699,14 +944,21 @@ namespace Impact {
   void Game::onPlayerWon(void)
   {
     const sf::Time &elapsed = mClock.restart();
-
     update(elapsed);
-
     drawPlayground(elapsed);
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          restart();
+        }
+      }
+    }
 
     mWindow.setView(mPlaygroundView);
 
-    mPlayerWonMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
+    mPlayerWonMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mPlayerWonMsg.getLocalBounds().width, 20.f);
     mWindow.draw(mPlayerWonMsg);
 
     mYourScoreMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mYourScoreMsg.getLocalBounds().width, mPlaygroundView.getCenter().y);
@@ -727,9 +979,8 @@ namespace Impact {
   {
     mStartMsg.setString(tr("Click to continue"));
     setState(State::GameOver);
-    mBlurClock.restart();
-    mBlurPlayground = true;
-    if (sf::Shader::isAvailable()) {
+    startBlurEffect();
+    if (gSettings.useShaders) {
       mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 220));
     }
     mTotalScore = b2Max(0, mScore - mLevelTimer.accumulatedSeconds());
@@ -739,10 +990,17 @@ namespace Impact {
   void Game::onGameOver(void)
   {
     const sf::Time &elapsed = mClock.restart();
-
     update(elapsed);
-
     drawPlayground(elapsed);
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          restart();
+        }
+      }
+    }
 
     mWindow.setView(mPlaygroundView);
     mGameOverMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mGameOverMsg.getLocalBounds().width, 20.f);
@@ -759,36 +1017,110 @@ namespace Impact {
   }
 
 
-  void Game::onPausing(void)
+  void Game::gotoPausing(void)
   {
-    onPlaying();
+    pause();
   }
 
 
-  void Game::gotoNextLevel(void)
+  void Game::onPausing(void)
+  {
+    const sf::Time &elapsed = mClock.restart();
+    drawPlayground(elapsed);
+
+    mWindow.setView(mPlaygroundView);
+    sf::Text pausingText(tr(">>> Pausing <<<"), mFixedFont, 64U);
+    pausingText.setPosition(mPlaygroundView.getCenter().x - 0.5f * pausingText.getLocalBounds().width, -20 + mPlaygroundView.getCenter().y - pausingText.getLocalBounds().height);
+    mWindow.draw(pausingText);
+
+    const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
+    const sf::Vector2f &mousePos = sf::Vector2f(float(mousePosI.x), float(mousePosI.y));
+
+    sf::Text resumeText(tr("Resume playing"), mFixedFont, 32U);
+    resumeText.setPosition(mPlaygroundView.getCenter().x - 0.5f * resumeText.getLocalBounds().width, 32 + mPlaygroundView.getCenter().y);
+    resumeText.setColor(sf::Color(255, 255, 255, resumeText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mWindow.draw(resumeText);
+
+    sf::Text mainMenuText(tr("Go to main menu"), mFixedFont, 32U);
+    mainMenuText.setPosition(mPlaygroundView.getCenter().x - 0.5f * mainMenuText.getLocalBounds().width, 64 + mPlaygroundView.getCenter().y);
+    mainMenuText.setColor(sf::Color(255, 255, 255, mainMenuText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mWindow.draw(mainMenuText);
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) {
+        mWindow.close();
+      }
+      else if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          if (resumeText.getGlobalBounds().contains(mousePos)) {
+            resume();
+          }
+          else if (mainMenuText.getGlobalBounds().contains(mousePos)) {
+            mBlockHitSound.play();
+            gotoWelcomeScreen();
+          }
+          return;
+        }
+      }
+    }
+  }
+
+
+  void Game::gotoSplashScreen(void)
+  {
+    setState(State::SplashScreenBeforePlaying);
+    mStartMsg.setString(tr("Click to continue"));
+  }
+
+
+  void Game::onSplashScreen(void)
+  {
+    const sf::Time &elapsed = mClock.restart();
+    drawPlayground(elapsed);
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          setState(State::Playing);
+          mWallClock.restart();
+          mClock.restart();
+          mLevelTimer.resume();
+        }
+      }
+    }
+
+    drawStartMessage();
+  }
+
+
+  void Game::gotoCurrentLevel(void)
   {
 #ifndef NDEBUG
-    std::cout << "Game::gotoNextLevel()" << std::endl;
+    std::cout << "Game::gotoCurrentLevel(), level = " << mLevel.num() << std::endl;
 #endif
     stopAllMusic();
     clearWorld();
     mBallHasBeenLost = false;
     mWindow.setMouseCursorVisible(false);
-    if (sf::Shader::isAvailable()) {
+    if (gSettings.useShaders) {
       mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
     }
     mScaleGravityEnabled = false;
     mScaleBallDensityEnabled = false;
-    bool levelAvailable = mPlaymode == Playmode::Campaign ? mLevel.gotoNext() : mLevel.isAvailable();
-    if (levelAvailable) {
+    if (mLevel.isAvailable()) {
+      mWindow.setVerticalSyncEnabled(gSettings.verticalSync);
+      if (mPlaymode == Campaign)
+        gSettings.lastCampaignLevel = mLevel.num();
       buildLevel();
-      mClock.restart();
-      mBlurPlayground = false;
+      stopBlurEffect();
       mFadeEffectsActive = 0;
       mEarthquakeDuration = sf::Time::Zero;
       mEarthquakeIntensity = 0.f;
       mAberrationDuration = sf::Time::Zero;
       mAberrationIntensity = 0.f;
+      mClock.restart();
       mLevelTimer.resume();
       setState(State::Playing);
     }
@@ -798,54 +1130,628 @@ namespace Impact {
   }
 
 
+  void Game::gotoNextLevel(void)
+  {
+#ifndef NDEBUG
+    std::cout << "Game::gotoNextLevel()" << std::endl;
+#endif
+    if (mPlaymode == Campaign)
+      mLevel.gotoNext();
+    gotoCurrentLevel();
+  }
+
+
   void Game::onPlaying(void)
   {
     const sf::Time &elapsed = mClock.restart();
-    if (!mPaused) {
-      handlePlayerInteraction(elapsed);
-      update(elapsed);
-      if (mState == State::Playing) {
-        if (mBall != nullptr) { // check if ball has been kicked out of the screen
-          const float ballX = mBall->position().x;
-          const float ballY = mBall->position().y;
-          if (0 > ballX || ballX > static_cast<float>(mLevel.width()) || 0 > ballY) {
-            mBall->kill();
-          }
-          else if (ballY > mLevel.height()) {
-            mBall->lethalHit();
-            mBall->kill();
-          }
-        }
 
-        if (mRacket != nullptr) { // check if pad has been kicked out of the screen
-          const float racketX = mRacket->position().x;
-          const float racketY = mRacket->position().y;
-          if (racketY > mLevel.height())
-            mRacket->setPosition(racketX, mLevel.height() - .5f);
-          if (racketX < 0.f)
-            mRacket->setPosition(1.f, racketY);
-          else if (racketX > mLevel.width())
-            mRacket->setPosition(mLevel.width() - 1.f, racketY);
+    sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      switch (event.type)
+      {
+      case sf::Event::Closed:
+        mWindow.close();
+        break;
+      case sf::Event::LostFocus:
+        gotoPausing();
+        break;
+      case sf::Event::GainedFocus:
+        resume();
+        break;
+      case sf::Event::MouseMoved:
+        if (mScaleGravityEnabled && mScaleGravityClock.getElapsedTime() > mScaleGravityDuration) {
+          mAberrationShader.setParameter("uCenter", sf::Vector2f(float(event.mouseMove.x) / mDefaultView.getSize().x, float(event.mouseMove.y) / mDefaultView.getSize().y));
         }
+        break;
+      case sf::Event::MouseButtonPressed:
+        if (mBall == nullptr)
+          newBall();
+        break;
+      case sf::Event::KeyPressed:
+        if (event.key.code == mKeyMapping[Action::PauseAction]) {
+          if (!mPaused)
+            gotoPausing();
+          else
+            resume();
+        }
+        else if (event.key.code == mKeyMapping[Action::NewBall] || event.key.code == sf::Keyboard::Space) {
+          if (mBall != nullptr) {
+            const b2Vec2 &padPos = mRacket->position();
+            mBall->setPosition(padPos.x, padPos.y - 3.5f);
+            showScore(-500, mBall->position());
+          }
+          else {
+            newBall();
+          }
+        }
+        break;
       }
     }
+
+    if (mBall != nullptr) { // check if ball has been kicked out of the screen
+      const float ballX = mBall->position().x;
+      const float ballY = mBall->position().y;
+      if (0 > ballX || ballX > float(mLevel.width()) || 0 > ballY) {
+        mBall->kill();
+      }
+      else if (ballY > mLevel.height()) {
+        mBall->lethalHit();
+        mBall->kill();
+      }
+    }
+
+    if (mRacket != nullptr) {
+      if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+        mRacket->kickLeft();
+      }
+      else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+        mRacket->kickRight();
+      }
+      else {
+        mRacket->stopKick();
+      }
+
+      // check if pad has been kicked out of the screen
+      const float racketX = mRacket->position().x;
+      const float racketY = mRacket->position().y;
+      if (racketY > mLevel.height())
+        mRacket->setPosition(racketX, mLevel.height() - .5f);
+      if (racketX < 0.f)
+        mRacket->setPosition(1.5f, racketY);
+      else if (racketX > mLevel.width())
+        mRacket->setPosition(mLevel.width() - 1.5f, racketY);
+
+      const b2AABB &aabb = mRacket->aabb();
+      const float32 w = aabb.upperBound.x - aabb.lowerBound.x;
+      const float32 h = aabb.upperBound.y - aabb.lowerBound.y;
+      if (mousePos.x < 0) {
+        mousePos.x = int(Scale * w);
+      }
+      if (mousePos.x > int(mWindow.getSize().x)) {
+        mousePos.x = int(mWindow.getSize().x) - int(Scale * w);
+      }
+      sf::Mouse::setPosition(mousePos, mWindow);
+      mRacket->moveTo(InvScale * b2Vec2(float32(mousePos.x), float32(mousePos.y)));
+    }
+
     if (mScaleGravityEnabled && mScaleGravityClock.getElapsedTime() > mScaleGravityDuration) {
-        mWorld->SetGravity(b2Vec2(0.f, mLevel.gravity()));
-        mScaleGravityEnabled = false;
+      mWorld->SetGravity(b2Vec2(0.f, mLevel.gravity()));
+      mScaleGravityEnabled = false;
 #ifndef NDEBUG
-        std::cout << "Gravity back to normal." << std::endl;
+      std::cout << "Gravity back to normal." << std::endl;
 #endif
     }
+
     if (mScaleBallDensityEnabled && mScaleBallDensityClock.getElapsedTime() > mScaleBallDensityDuration) {
       if (mBall && mBall->isAlive()) {
         mBall->setDensity(mBall->tileParam().density.get());
       }
       mScaleBallDensityEnabled = false;
 #ifndef NDEBUG
-        std::cout << "Ball density back to normal." << std::endl;
+      std::cout << "Ball density back to normal." << std::endl;
 #endif
     }
+
+    update(elapsed);
     drawPlayground(elapsed);
+  }
+
+
+  void Game::gotoAchievementsScreen(void)
+  {
+    // TODO: implement gotoAchievementsScreen()
+  }
+
+
+  void Game::onAchievementsScreen(void)
+  {
+    // TODO: implement onAchievementsScreen()
+  }
+
+
+  void Game::gotoCreditsScreen(void)
+  {
+    clearWorld();
+    setState(State::CreditsScreen);
+    mWindow.setView(mDefaultView);
+    mWindow.setMouseCursorVisible(true);
+    mWindow.setVerticalSyncEnabled(true);
+    mRacketHitSound.play();
+    mWallClock.restart();
+    mWelcomeLevel = 0;
+  }
+
+
+  void Game::onCreditsScreen(void)
+  {
+    const sf::Time &elapsed = mClock.restart();
+
+    const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
+    const sf::Vector2f &mousePos = sf::Vector2f(float(mousePosI.x), float(mousePosI.y));
+
+    const float t = mWallClock.getElapsedTime().asSeconds();
+
+    mWindow.clear(sf::Color(31, 31, 47));
+    mWindow.draw(mBackgroundSprite);
+
+    if (gSettings.useShaders) {
+      sf::RenderStates states;
+      states.shader = &mTitleShader;
+      mTitleShader.setParameter("uT", t);
+      mWindow.draw(mTitleSprite, states);
+    }
+    else {
+      mWindow.draw(mTitleText);
+    }
+
+    const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
+
+    mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), mLevelsRenderTexture.getSize().y + menuTop);
+    mWindow.draw(mMenuBackText);
+
+    mCreditsTitleText.setPosition(.5f * (mDefaultView.getSize().x - mCreditsTitleText.getLocalBounds().width), menuTop - 40);
+    mWindow.draw(mCreditsTitleText);
+
+    mCreditsText.setPosition(.5f * (mDefaultView.getSize().x - mCreditsText.getLocalBounds().width), menuTop);
+    mWindow.draw(mCreditsText);
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) {
+        mWindow.close();
+      }
+      else if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
+            mBlockHitSound.play();
+            gotoWelcomeScreen();
+            return;
+          }
+        }
+      }
+    }
+
+    if (mWelcomeLevel == 0) {
+      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f));
+      pd.ballCollisionEnabled = false;
+      pd.count = gSettings.particlesPerExplosion;
+      pd.texture = mParticleTexture;
+      addBody(new Explosion(pd));
+      mWelcomeLevel = 1;
+    }
+
+    update(elapsed);
+    drawWorld(mWindow.getDefaultView());
+  }
+
+
+  void Game::gotoOptionsScreen(void)
+  {
+    mWelcomeLevel = 0;
+    mWallClock.restart();
+    setState(State::OptionsScreen);
+  }
+
+
+  void Game::onOptionsScreen(void)
+  {
+    const sf::Time &elapsed = mClock.restart();
+
+    const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
+    const sf::Vector2f &mousePos = sf::Vector2f(float(mousePosI.x), float(mousePosI.y));
+
+    const float t = mWallClock.getElapsedTime().asSeconds();
+
+    mWindow.clear(sf::Color(31, 31, 47));
+    mWindow.draw(mBackgroundSprite);
+
+    if (gSettings.useShaders) {
+      sf::RenderStates states;
+      states.shader = &mTitleShader;
+      mTitleShader.setParameter("uT", t);
+      mWindow.draw(mTitleSprite, states);
+    }
+    else {
+      mWindow.draw(mTitleText);
+    }
+
+    if (mWelcomeLevel == 0) {
+      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f));
+      pd.ballCollisionEnabled = false;
+      pd.count = gSettings.particlesPerExplosion;
+      pd.texture = mParticleTexture;
+      addBody(new Explosion(pd));
+      mWelcomeLevel = 1;
+    }
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) {
+        mWindow.close();
+      }
+      else if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
+            mBlockHitSound.play();
+            gotoWelcomeScreen();
+            return;
+          }
+          else if (mMenuUseShadersText.getGlobalBounds().contains(mousePos)) {
+            gSettings.useShaders = !gSettings.useShaders;
+            createMainWindow();
+            gSettings.save();
+          }
+          else if (mMenuUseShadersForExplosionsText.getGlobalBounds().contains(mousePos)) {
+            if (gSettings.useShaders) {
+              gSettings.useShadersForExplosions = !gSettings.useShadersForExplosions;
+              ExplosionDef pd(this, InvScale * b2Vec2(mousePos.x, mousePos.y));
+              pd.count = gSettings.particlesPerExplosion;
+              pd.texture = mParticleTexture;
+              addBody(new Explosion(pd));
+              gSettings.save();
+            }
+          }
+          else if (mMenuParticlesPerExplosionText.getGlobalBounds().contains(mousePos)) {
+            gSettings.particlesPerExplosion += 10U;
+            if (gSettings.particlesPerExplosion > 200U)
+              gSettings.particlesPerExplosion = 10U;
+            ExplosionDef pd(this, InvScale * b2Vec2(mousePos.x, mousePos.y));
+            pd.count = gSettings.particlesPerExplosion;
+            pd.texture = mParticleTexture;
+            addBody(new Explosion(pd));
+            gSettings.save();
+          }
+          else if (mMenuAntialiasingLevelText.getGlobalBounds().contains(mousePos)) {
+            if (gSettings.antialiasingLevel == 16) {
+              gSettings.antialiasingLevel = 0;
+            }
+            else if (gSettings.antialiasingLevel == 0) {
+              gSettings.antialiasingLevel = 1;
+            }
+            else {
+              gSettings.antialiasingLevel *= 2;
+            }
+            createMainWindow();
+            gSettings.save();
+          }
+        }
+      }
+    }
+
+    update(elapsed);
+    drawWorld(mWindow.getDefaultView());
+
+    mWindow.draw(mOptionsTitleText);
+
+    mMenuUseShadersText.setColor(sf::Color(255U, 255U, 255U, mMenuUseShadersText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+    mMenuParticlesPerExplosionText.setColor(sf::Color(255U, 255U, 255U, mMenuParticlesPerExplosionText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+    mMenuAntialiasingLevelText.setColor(sf::Color(255U, 255U, 255U, mMenuAntialiasingLevelText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+
+    mWindow.draw(mMenuUseShadersText);
+    mWindow.draw(mMenuParticlesPerExplosionText);
+    mWindow.draw(mMenuAntialiasingLevelText);
+
+    sf::Text useShadersText(gSettings.useShaders ? tr("on") : tr("off"), mFixedFont, 16U);
+    useShadersText.setPosition(mDefaultView.getCenter().x + 160, mMenuUseShadersText.getPosition().y);
+    mWindow.draw(useShadersText);
+
+    if (gSettings.useShaders) {
+      mMenuUseShadersForExplosionsText.setColor(sf::Color(255U, 255U, 255U, mMenuUseShadersForExplosionsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+      sf::Text useShadersForExplosionsText(gSettings.useShadersForExplosions ? tr("on") : tr("off"), mFixedFont, 16U);
+      useShadersForExplosionsText.setPosition(mDefaultView.getCenter().x + 160, mMenuUseShadersForExplosionsText.getPosition().y);
+      mWindow.draw(mMenuUseShadersForExplosionsText);
+      mWindow.draw(useShadersForExplosionsText);
+    }
+
+    sf::Text particlesPerExplosionText(std::to_string(gSettings.particlesPerExplosion), mFixedFont, 16U);
+    particlesPerExplosionText.setPosition(mDefaultView.getCenter().x + 160, mMenuParticlesPerExplosionText.getPosition().y);
+    mWindow.draw(particlesPerExplosionText);
+
+    sf::Text antialiasingLevelText(std::to_string(gSettings.antialiasingLevel), mFixedFont, 16U);
+    antialiasingLevelText.setPosition(mDefaultView.getCenter().x + 160, mMenuAntialiasingLevelText.getPosition().y);
+    mWindow.draw(antialiasingLevelText);
+
+    const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
+    mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), mLevelsRenderTexture.getSize().y + menuTop);
+    mWindow.draw(mMenuBackText);
+  }
+
+
+  void Game::gotoSelectLevelScreen(void)
+  {
+    clearWorld();
+    setState(State::SelectLevelScreen);
+    mWindow.setView(mDefaultView);
+    mWindow.setMouseCursorVisible(true);
+    mWindow.setVerticalSyncEnabled(true);
+    mRacketHitSound.play();
+    mWallClock.restart();
+    mWelcomeLevel = 0;
+  }
+
+
+  void Game::onSelectLevelScreen(void)
+  {
+    const sf::Time &elapsed = mClock.restart();
+
+    const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
+    const sf::Vector2f &mousePos = sf::Vector2f(float(mousePosI.x), float(mousePosI.y));
+
+    static const int marginTop = 10;
+    static const int marginBottom = 10;
+    static const int lineHeight = 20;
+    static const float scrollSpeed = 64.f;
+
+    const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
+
+    mWindow.clear(sf::Color(31, 31, 47));
+    mWindow.draw(mBackgroundSprite);
+
+    const float t = mWallClock.getElapsedTime().asSeconds();
+
+    if (gSettings.useShaders) {
+      sf::RenderStates states;
+      states.shader = &mTitleShader;
+      mTitleShader.setParameter("uT", t);
+      mWindow.draw(mTitleSprite, states);
+    }
+    else {
+      mWindow.draw(mTitleText);
+    }
+
+    sf::Sprite levelSprite;
+    levelSprite.setTexture(mLevelsRenderTexture.getTexture());
+    levelSprite.setScale(1.f, -1.f);
+    levelSprite.setPosition(20.f, menuTop + mLevelsRenderTexture.getSize().y);
+
+    sf::FloatRect topSection = levelSprite.getGlobalBounds();
+    topSection.height *= .1f;
+    topSection.width -= 10.f;
+    sf::FloatRect bottomSection = levelSprite.getGlobalBounds();
+    bottomSection.height *= .1f;
+    bottomSection.width -= 10.f;
+    bottomSection.top += .9f * levelSprite.getGlobalBounds().height;
+
+    const float totalHeight = float(marginTop + marginBottom + lineHeight * mLevels.size());
+    const float scrollAreaHeight = mLevelsRenderView.getSize().y;
+
+    if (topSection.contains(mousePos)) {
+      if (mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y > 0.f)
+        mLevelsRenderView.move(0.f, -scrollSpeed * elapsed.asSeconds());
+    }
+    else if (bottomSection.contains(mousePos)) {
+      if (mLevelsRenderView.getCenter().y + .5f * mLevelsRenderView.getSize().y < totalHeight)
+        mLevelsRenderView.move(0.f, +scrollSpeed * elapsed.asSeconds());
+    }
+
+    const float scrollTop = mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y;
+    const float scrollRatio = 1.f - (totalHeight - scrollTop - scrollAreaHeight) / (totalHeight - scrollAreaHeight);
+    const float scrollbarWidth = 8.f;
+    const float scrollbarLeft = mLevelsRenderView.getCenter().x + .5f * mLevelsRenderView.getSize().x - scrollbarWidth;
+    const float scrollbarHeight = scrollAreaHeight * scrollAreaHeight / totalHeight;
+    const float scrollbarTop = scrollTop + (scrollAreaHeight - scrollbarHeight) * scrollRatio;
+
+    sf::FloatRect scrollbarRect(scrollbarLeft + levelSprite.getPosition().x, scrollbarTop + menuTop, scrollbarWidth, scrollbarHeight);
+
+    mScrollbarSprite.setPosition(scrollbarLeft, scrollbarTop);
+    mScrollbarSprite.setScale(scrollbarWidth, scrollbarHeight);
+    mScrollbarSprite.setColor(sf::Color(255, 255, 255, scrollbarRect.contains(mousePos) ? 255 : 192));
+
+    auto displayLevels = [this, &mousePos, &scrollTop, &menuTop](void) {
+      mLevelsRenderTexture.setView(mLevelsRenderView);
+      mLevelsRenderTexture.clear(sf::Color(0, 0, 0, 40));
+      mLevelsRenderTexture.draw(mScrollbarSprite);
+      mEnumerateMutex.lock();
+      for (std::vector<Level>::size_type i = 0; i < mLevels.size(); ++i) {
+        const std::string &levelName = mLevels.at(i).name();
+        sf::Text levelText("Level " + std::to_string(i + 1) + ": " + (levelName.empty() ? "<unnamed>" : levelName), mFixedFont, 16U);
+        const float levelTextTop = float(marginTop + lineHeight * i);
+        levelText.setPosition(10.f, levelTextTop);
+        sf::FloatRect levelTextRect(10.f, menuTop + levelTextTop - scrollTop, levelText.getLocalBounds().width, float(lineHeight));
+        levelText.setColor(sf::Color(255, 255, 255, levelTextRect.contains(mousePos) ? 255 : 160));
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && levelTextRect.contains(mousePos)) {
+          mLevel.set(i + 1, true);
+          gotoCurrentLevel();
+        }
+        mLevelsRenderTexture.draw(levelText);
+      }
+      mEnumerateMutex.unlock();
+    };
+
+    if (mEnumerateFuture.valid()) {
+      std::future_status status = mEnumerateFuture.wait_for(std::chrono::milliseconds(0));
+      if (status == std::future_status::ready) {
+        displayLevels();
+        if (!mAllLevelsEnumerated) {
+          mAllLevelsEnumerated = true;
+        }
+      }
+      else if (status == std::future_status::timeout) {
+        displayLevels();
+      }
+
+    }
+
+    mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), mLevelsRenderTexture.getSize().y + menuTop);
+    mWindow.draw(mMenuBackText);
+
+    mMenuSelectLevelText.setPosition(.5f * (mDefaultView.getSize().x - mMenuSelectLevelText.getLocalBounds().width), menuTop - mMenuBackText.getLocalBounds().height - 30);
+    mWindow.draw(mMenuSelectLevelText);
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) {
+        mWindow.close();
+      }
+      else if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
+            mBlockHitSound.play();
+            gotoWelcomeScreen();
+            return;
+          }
+          else if (scrollbarRect.contains(mousePos)) {
+            mMouseButtonDown = true;
+            mLastMousePos = mousePos;
+          }
+        }
+      }
+      else if (event.type == sf::Event::MouseButtonReleased) {
+        mMouseButtonDown = false;
+      }
+      else if (event.type == sf::Event::MouseMoved) {
+        if (mMouseButtonDown) {
+#ifndef NDEBUG
+          const sf::Vector2f &mousePos = sf::Vector2f(float(event.mouseMove.x), float(event.mouseMove.y));
+          const sf::Vector2f &d = mousePos - mLastMousePos;
+          mLevelsRenderView.move(0.f, d.y * (scrollAreaHeight / totalHeight));
+          mLastMousePos = mousePos;
+#endif
+        }
+      }
+      else if (event.type == sf::Event::MouseWheelMoved) {
+        if ((event.mouseWheel.delta < 0 && mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y > 0.f) || (event.mouseWheel.delta > 0 && mLevelsRenderView.getCenter().y + .5f * mLevelsRenderView.getSize().y < float(marginTop + marginBottom + lineHeight * mLevels.size())))
+          mLevelsRenderView.move(0.f, 62.f * (event.mouseWheel.delta));
+      }
+    }
+
+    levelSprite.setTexture(mLevelsRenderTexture.getTexture());
+    mWindow.draw(levelSprite);
+
+    if (mWelcomeLevel == 0) {
+      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f));
+      pd.ballCollisionEnabled = false;
+      pd.count = gSettings.particlesPerExplosion;
+      pd.texture = mParticleTexture;
+      addBody(new Explosion(pd));
+      mWelcomeLevel = 1;
+    }
+
+    update(elapsed);
+    drawWorld(mWindow.getDefaultView());
+  }
+
+
+  void Game::gotoCampaignScreen(void)
+  {
+    clearWorld();
+    setState(State::CampaignScreen);
+    mWindow.setView(mDefaultView);
+    mWindow.setMouseCursorVisible(true);
+    mWindow.setVerticalSyncEnabled(true);
+    mRacketHitSound.play();
+    mWelcomeLevel = 0;
+    mWallClock.restart();
+  }
+
+
+  void Game::onCampaignScreen(void)
+  {
+    sf::Time elapsed = mClock.restart();
+
+    const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
+    const sf::Vector2f &mousePos = sf::Vector2f(float(mousePosI.x), float(mousePosI.y));
+
+    mMenuResumeCampaignText.setString(gSettings.lastCampaignLevel > 1 ? tr("Resume Campaign") : tr("Start Campaign"));
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) {
+        mWindow.close();
+      }
+      else if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          if (mMenuResumeCampaignText.getGlobalBounds().contains(mousePos)) {
+            mPlaymode = Campaign;
+            mLevel.set(gSettings.lastCampaignLevel - 1, false);
+            gotoNextLevel();
+          }
+          else if (mMenuRestartCampaignText.getGlobalBounds().contains(mousePos) && gSettings.lastCampaignLevel > 1) {
+            mPlaymode = Campaign;
+            mScore = 0;
+            mTotalScore = 0;
+            mLevel.set(0, false);
+            gotoNextLevel();
+          }
+          else if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
+            mBlockHitSound.play();
+            gotoWelcomeScreen();
+          }
+          return;
+        }
+      }
+    }
+    mWindow.clear(sf::Color(31, 31, 47));
+    mWindow.draw(mBackgroundSprite);
+
+    const float t = mWallClock.getElapsedTime().asSeconds();
+
+    if (gSettings.useShaders) {
+      sf::RenderStates states;
+      states.shader = &mTitleShader;
+      mTitleShader.setParameter("uT", t);
+      mWindow.draw(mTitleSprite, states);
+    }
+    else {
+      mWindow.draw(mTitleText);
+    }
+
+    const float menuTop = std::floor(mDefaultView.getCenter().y - 45.5f);
+
+    sf::Text campaignLevelText = sf::Text(tr(">>> Campaign @ Level ") + std::to_string(gSettings.lastCampaignLevel) + " <<<", mFixedFont, 32U);
+    campaignLevelText.setPosition(.5f * (mDefaultView.getSize().x - campaignLevelText.getLocalBounds().width), 0 + menuTop);
+    mWindow.draw(campaignLevelText);
+
+    mMenuResumeCampaignText.setColor(sf::Color(255, 255, 255, mMenuResumeCampaignText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mMenuResumeCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuResumeCampaignText.getLocalBounds().width), 64 + menuTop);
+    mWindow.draw(mMenuResumeCampaignText);
+
+    if (gSettings.lastCampaignLevel > 1) {
+      mMenuRestartCampaignText.setColor(sf::Color(255, 255, 255, mMenuRestartCampaignText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mMenuRestartCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuRestartCampaignText.getLocalBounds().width), 96 + menuTop);
+      mWindow.draw(mMenuRestartCampaignText);
+    }
+
+    mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 224 + menuTop);
+    mWindow.draw(mMenuBackText);
+
+    if (mWelcomeLevel == 0) {
+      ExplosionDef pd(this, InvScale * b2Vec2(mousePos.x, mousePos.y));
+      pd.ballCollisionEnabled = false;
+      pd.count = gSettings.particlesPerExplosion;
+      pd.texture = mParticleTexture;
+      addBody(new Explosion(pd));
+      mWelcomeLevel = 1;
+    }
+
+    update(elapsed);
+    drawWorld(mWindow.getDefaultView());
   }
 
 
@@ -859,9 +1765,12 @@ namespace Impact {
   }
 
 
-  void Game::startAberrationEffect(float32 gravityScale, const sf::Time &duration)
+  void Game::startAberrationEffect(float32 gravityScale, const sf::Time &duration, const sf::Vector2f &center)
   {
-    if (!sf::Shader::isAvailable())
+#ifndef NDEBUG
+    std::cout << "startAberrationEffect(" << gravityScale << ", " << duration.asSeconds() << ")" << std::endl;
+#endif
+    if (!gSettings.useShaders)
       return;
     const sf::Time &elapsed = mAberrationClock.restart();
     if (mAberrationDuration > sf::Time::Zero) {
@@ -873,29 +1782,43 @@ namespace Impact {
     mAberrationIntensity += .02f * gravityScale;
     mAberrationShader.setParameter("uMaxT", mAberrationDuration.asSeconds());
     mAberrationShader.setParameter("uDistort", mAberrationIntensity);
+    mAberrationShader.setParameter("uCenter", center);
   }
 
 
   inline void Game::executeBlur(sf::RenderTexture &out, sf::RenderTexture &in)
   {
-    sf::RenderStates states0;
-    sf::Sprite sprite0;
-    sf::RenderStates states1;
-    sf::Sprite sprite1;
-    if (sf::Shader::isAvailable()) {
+    if (gSettings.useShaders) {
+      sf::RenderStates states0;
       states0.shader = &mHBlurShader;
+      sf::Sprite sprite0;
+      sf::RenderStates states1;
       states1.shader = &mVBlurShader;
-    }
-    const float blur = b2Min(4.f, 1.f + mBlurClock.getElapsedTime().asSeconds());
-    for (int i = 1; i < 4; ++i) {
-      sprite1.setTexture(in.getTexture());
-      mVBlurShader.setParameter("uBlur", blur * i);
-      out.draw(sprite1, states1);
-      sprite0.setTexture(out.getTexture());
-      mHBlurShader.setParameter("uBlur", blur * i);
-      in.draw(sprite0, states0);
+      sf::Sprite sprite1;
+      const float blur = b2Min(4.f, 1.f + mBlurClock.getElapsedTime().asSeconds());
+      for (int i = 1; i < 4; ++i) {
+        sprite1.setTexture(in.getTexture());
+        mVBlurShader.setParameter("uBlur", blur * i);
+        out.draw(sprite1, states1);
+        sprite0.setTexture(out.getTexture());
+        mHBlurShader.setParameter("uBlur", blur * i);
+        in.draw(sprite0, states0);
+      }
     }
     executeCopy(out, in);
+  }
+
+
+  void Game::startBlurEffect(void)
+  {
+    mBlurClock.restart();
+    mBlurPlayground = true;
+  }
+
+
+  void Game::stopBlurEffect(void)
+  {
+    mBlurPlayground = false;
   }
 
 
@@ -916,7 +1839,7 @@ namespace Impact {
 
   void Game::startEarthquake(float32 intensity, const sf::Time &duration)
   {
-    if (!sf::Shader::isAvailable())
+    if (!gSettings.useShaders)
       return;
     if (mEarthquakeIntensity > 0.f) {
       mEarthquakeDuration += duration;
@@ -928,7 +1851,42 @@ namespace Impact {
       mEarthquakeClock.restart();
     }
     mEarthquakeShader.setParameter("uMaxT", mEarthquakeDuration.asSeconds());
+    OverlayDef od;
+    od.line1 = std::string("Shake ") + std::to_string(static_cast<int>(10 * mEarthquakeIntensity));
+    od.line2 = std::string("for ") + std::to_string(mEarthquakeDuration.asMilliseconds() / 1000) + "s";
+    startOverlay(od);
   }
+
+
+  void Game::startOverlay(const OverlayDef &od)
+  {
+    mOverlayDuration = od.duration;
+
+    mOverlayText1 = sf::Text(od.line1, mTitleFont, 80U);
+    mOverlayText1.setPosition(.5f * (mDefaultView.getSize().x - mOverlayText1.getLocalBounds().width), .16f * (mDefaultView.getSize().y - mOverlayText1.getLocalBounds().height));
+    mOverlayText2 = sf::Text(od.line2, mTitleFont, 80U);
+    mOverlayText2.setPosition(.5f * (mDefaultView.getSize().x - mOverlayText2.getLocalBounds().width), .32f * (mDefaultView.getSize().y - mOverlayText2.getLocalBounds().height));
+    if (gSettings.useShaders) {
+      mOverlayShader.setParameter("uMinScale", od.minScale);
+      mOverlayShader.setParameter("uMaxScale", od.maxScale);
+      mOverlayShader.setParameter("uMaxT", od.duration.asSeconds());
+      mOverlayShader.setParameter("uResolution", sf::Vector2f(float(DefaultWindowWidth), float(DefaultWindowHeight)));
+      sf::RenderTexture overlayRenderTexture;
+      overlayRenderTexture.create(unsigned int(mDefaultView.getSize().x), unsigned int(mDefaultView.getSize().y));
+      overlayRenderTexture.draw(mOverlayText1);
+      overlayRenderTexture.draw(mOverlayText2);
+      mOverlayTexture = overlayRenderTexture.getTexture();
+      mOverlayTexture.setSmooth(true);
+      mOverlaySprite.setTexture(mOverlayTexture);
+    }
+    else {
+      mOverlayText1.setColor(sf::Color(255, 255, 255, 128));
+      mOverlayText2.setColor(sf::Color(255, 255, 255, 128));
+    }
+
+    mOverlayClock.restart();
+  }
+
 
 
   inline void Game::executeCopy(sf::RenderTexture &out, sf::RenderTexture &in)
@@ -940,79 +1898,115 @@ namespace Impact {
 
   void Game::drawPlayground(const sf::Time &elapsed)
   {
-    handleEvents();
-
     mWindow.setView(mPlaygroundView);
     clearWindow();
-
-    mRenderTexture0.clear(mLevel.backgroundColor());
-    mRenderTexture0.draw(mLevel.backgroundSprite());
-
-    for (BodyList::const_iterator b = mBodies.cbegin(); b != mBodies.cend(); ++b) {
-      const Body *body = *b;
-      if (body->isAlive())
-        mRenderTexture0.draw(*body);
-    }
-
-    if (mBlurPlayground && sf::Shader::isAvailable()) {
-      executeBlur(mRenderTexture1, mRenderTexture0);
-      executeCopy(mRenderTexture0, mRenderTexture1);
-    }
     
-    if (mAberrationDuration > sf::Time::Zero && sf::Shader::isAvailable()) {
-      if (mAberrationClock.getElapsedTime() < mAberrationDuration) {
-        executeAberration(mRenderTexture1, mRenderTexture0);
+    if (gSettings.useShaders) {
+      mRenderTexture0.clear(mLevel.backgroundColor());
+      mRenderTexture0.draw(mLevel.backgroundSprite());
+
+      for (BodyList::const_iterator b = mBodies.cbegin(); b != mBodies.cend(); ++b) {
+        const Body *body = *b;
+        if (body->isAlive())
+          mRenderTexture0.draw(*body);
+      }
+
+      if (mBlurPlayground && gSettings.useShaders) {
+        executeBlur(mRenderTexture1, mRenderTexture0);
+        executeCopy(mRenderTexture0, mRenderTexture1);
+      }
+
+      if (mAberrationDuration > sf::Time::Zero && gSettings.useShaders) {
+        if (mAberrationClock.getElapsedTime() < mAberrationDuration) {
+          executeAberration(mRenderTexture1, mRenderTexture0);
+          executeCopy(mRenderTexture0, mRenderTexture1);
+        }
+        else {
+          mAberrationDuration = sf::Time::Zero;
+          mAberrationIntensity = 0.f;
+        }
+      }
+
+      if (mEarthquakeIntensity > 0.f && mEarthquakeClock.getElapsedTime() < mEarthquakeDuration && gSettings.useShaders) {
+        executeEarthquake(mRenderTexture1, mRenderTexture0);
         executeCopy(mRenderTexture0, mRenderTexture1);
       }
       else {
-        mAberrationDuration = sf::Time::Zero;
-        mAberrationIntensity = 0.f;
+        if (mEarthquakeClock.getElapsedTime() > mEarthquakeDuration)
+          mEarthquakeIntensity = 0.f;
       }
-    }
 
-    if (mEarthquakeIntensity > 0.f && mEarthquakeClock.getElapsedTime() < mEarthquakeDuration && sf::Shader::isAvailable()) {
-      // TODO: display hint what's going on ...
-      executeEarthquake(mRenderTexture1, mRenderTexture0);
-      executeCopy(mRenderTexture0, mRenderTexture1);
-    }
-    else {
-      if (mEarthquakeClock.getElapsedTime() > mEarthquakeDuration)
-        mEarthquakeIntensity = 0.f;
-    }
-
-    if (sf::Shader::isAvailable()) {
-      if (mFadeEffectsActive > 0) {
-        sf::Uint8 c;
-        if (mFadeEffectTimer.getElapsedTime() < mFadeEffectDuration) {
-          c = sf::Uint8(Easing<float>::quadEaseInForthAndBack(mFadeEffectTimer.getElapsedTime().asSeconds(), 0.f, 255.f, mFadeEffectDuration.asSeconds()));
+      if (gSettings.useShaders) {
+        if (mFadeEffectsActive > 0 && gSettings.useShaders) {
+          sf::Uint8 c;
+          if (mFadeEffectTimer.getElapsedTime() < mFadeEffectDuration) {
+            c = sf::Uint8(Easing<float>::quadEaseInForthAndBack(mFadeEffectTimer.getElapsedTime().asSeconds(), 0.f, 255.f, mFadeEffectDuration.asSeconds()));
+          }
+          else {
+            c = 0;
+            mFadeEffectsActive = 0;
+          }
+          if (mFadeEffectsDarken)
+            mMixShader.setParameter("uColorSub", sf::Color(c, c, c, 0));
+          else
+            mMixShader.setParameter("uColorAdd", sf::Color(c, c, c, 0));
         }
         else {
-          c = 0;
-          mFadeEffectsActive = 0;
+          mMixShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
+          mMixShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
         }
-        if (mFadeEffectsDarken)
-          mMixShader.setParameter("uColorSub", sf::Color(c, c, c, 0));
-        else
-          mMixShader.setParameter("uColorAdd", sf::Color(c, c, c, 0));
+        sf::Sprite sprite(mRenderTexture0.getTexture());
+        sf::RenderStates states;
+        states.shader = &mMixShader;
+        mWindow.draw(sprite, states);
       }
       else {
-        mMixShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
-        mMixShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
+        sf::Sprite sprite(mRenderTexture0.getTexture());
+        mWindow.draw(sprite);
       }
-      sf::Sprite sprite(mRenderTexture0.getTexture());
-      sf::RenderStates states;
-      states.shader = &mMixShader;
-      mWindow.draw(sprite, states);
+
     }
-    else {
-      sf::Sprite sprite(mRenderTexture0.getTexture());
-      mWindow.draw(sprite);
+    else { // !gSettings.useShaders
+      mWindow.clear(mLevel.backgroundColor());
+      mWindow.draw(mLevel.backgroundSprite());
+      for (BodyList::const_iterator b = mBodies.cbegin(); b != mBodies.cend(); ++b) {
+        const Body *body = *b;
+        if (body->isAlive())
+          mWindow.draw(*body);
+      }
+    }
+
+    if (mOverlayDuration > sf::Time::Zero) {
+      if (mOverlayClock.getElapsedTime() < mOverlayDuration) {
+        mWindow.setView(mDefaultView);
+        if (gSettings.useShaders) {
+          sf::RenderStates states;
+          states.shader = &mOverlayShader;
+          mOverlayShader.setParameter("uT", mOverlayClock.getElapsedTime().asSeconds());
+          mWindow.draw(mOverlaySprite, states);
+        }
+        else {
+          mWindow.draw(mOverlayText1);
+        }
+      }
+      else {
+        mOverlayDuration = sf::Time::Zero;
+      }
     }
 
     mWindow.setView(mStatsView);
+
+    mWindow.draw(mStatsViewRectangle);
+
     mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
-    mLevelMsg.setPosition(4, 4);
     mWindow.draw(mLevelMsg);
+
+    mFPSText.setString(std::to_string(mFPS) + " fps");
+    mFPSText.setPosition(mStatsView.getSize().x - mFPSText.getGlobalBounds().width - 4, mStatsView.getSize().y - 4 - mFPSText.getGlobalBounds().height);
+    mWindow.draw(mFPSText);
+
+    mWindow.draw(mLevelNameText);
+    mWindow.draw(mLevelAuthorText);
 
     if (mState == State::Playing) {
       int penalty = 5 * mLevelTimer.accumulatedMilliseconds() / 1000;
@@ -1025,6 +2019,29 @@ namespace Impact {
         lifeSprite.setOrigin(0.f, 0.f);
         lifeSprite.setPosition(4 + (ballTexture.getSize().x * 1.5f) * life, 26.f);
         mWindow.draw(lifeSprite);
+      }
+    }
+
+    { // draw special effect hints
+      std::vector<std::vector<SpecialEffect>::iterator > expiredEffects;
+      sf::Vector2f pos(mStatsView.getSize().x - 4, mStatsView.getSize().y - 16);
+      for (std::vector<SpecialEffect>::iterator i = mSpecialEffects.begin(); i != mSpecialEffects.end(); ++i) {
+        if (i->isActive()) {
+          const sf::Uint8 alpha = 255U - sf::Uint8(255U * i->clock->getElapsedTime().asMilliseconds() / i->duration.asMilliseconds());
+          i->sprite.setPosition(pos);
+          i->sprite.setColor(sf::Color(255U, 255U, 255U, alpha));
+          mWindow.draw(i->sprite);
+          pos.x -= i->texture.getSize().x;
+        }
+        else {
+          expiredEffects.push_back(i);
+        }
+      }
+      for (std::vector<std::vector<SpecialEffect>::iterator >::const_iterator i = expiredEffects.cbegin(); i != expiredEffects.cend(); ++i) {
+#ifndef NDEBUG
+        std::cout << "Expired effect 0x" << std::hex << std::setfill('0') << std::setw(8) << (*i)->clock << std::endl;
+#endif
+        mSpecialEffects.erase(*i);
       }
     }
   }
@@ -1122,31 +2139,57 @@ namespace Impact {
   {
     float elapsedSeconds = 1e-6f * elapsed.asMicroseconds();
     
-    if (mState == State::Playing)
-      evaluateCollisions();
-
     BodyList remainingBodies;
     for (BodyList::iterator b = mBodies.begin(); b != mBodies.end(); ++b) {
       Body *body = *b;
-      if (body->isAlive()) {
-        body->update(elapsedSeconds);
-        remainingBodies.push_back(body);
-      }
-      else {
-        if (body->type() == Body::BodyType::Ball)
-          mBall = nullptr;
-        delete body;
+      if (body != nullptr) {
+        if (body->isAlive()) {
+          body->update(elapsedSeconds);
+          remainingBodies.push_back(body);
+        }
+        else {
+          if (body->type() == Body::BodyType::Ball)
+            mBall = nullptr;
+          delete body;
+        }
       }
     }
     mBodies = remainingBodies;
 
     mContactPointCount = 0;
     mWorld->Step(elapsedSeconds, VelocityIterations, PositionIterations);
+    /* Note from the Box2D manual: You should always process the
+     * contact points [collected in PostSolve()] immediately after
+     * the time step; otherwise some other client code might
+     * alter the physics world, invalidating the contact buffer.
+     */
+    if (mState == State::Playing)
+      evaluateCollisions();
+    mWorld->ClearForces();
 
     mFPSArray[mFPSIndex++] = int(1.f / elapsed.asSeconds());
     if (mFPSIndex >= mFPSArray.size())
       mFPSIndex = 0;
     mFPS = std::accumulate(mFPSArray.begin(), mFPSArray.end(), 0) / mFPSArray.size();
+  }
+
+
+  void Game::BeginContact(b2Contact *contact)
+  {
+    B2_NOT_USED(contact);
+  }
+
+
+  void Game::EndContact(b2Contact *contact)
+  {
+    B2_NOT_USED(contact);
+  }
+
+
+  void Game::PreSolve(b2Contact *contact, const b2Manifold *oldManifold)
+  {
+    B2_NOT_USED(contact);
+    B2_NOT_USED(oldManifold);
   }
 
 
@@ -1203,6 +2246,7 @@ namespace Impact {
     fdRight.restitution = 0.9f;
     fdRight.density = 0.f;
     fdRight.shape = &rightShape;
+    fdRight.userData = new RightBoundary(this);
     boundaries->CreateFixture(&fdRight);
     b2EdgeShape leftShape;
     leftShape.Set(b2Vec2(0, 0), b2Vec2(0, H));
@@ -1210,9 +2254,10 @@ namespace Impact {
     fdLeft.restitution = 0.9f;
     fdLeft.density = 0.f;
     fdLeft.shape = &leftShape;
+    fdLeft.userData = new LeftBoundary(this);
     boundaries->CreateFixture(&fdLeft);
     b2EdgeShape topShape;
-    topShape.Set(b2Vec2(0, g > 0.f ? 0.f : static_cast<float32>(mLevel.height())), b2Vec2(W, g > 0.f ? 0.f : static_cast<float32>(mLevel.height())));
+    topShape.Set(b2Vec2(0, g > 0.f ? 0.f : float32(mLevel.height())), b2Vec2(W, g > 0.f ? 0.f : float32(mLevel.height())));
     b2FixtureDef fdTop;
     fdTop.restitution = 0.9f;
     fdTop.density = 0.f;
@@ -1223,17 +2268,33 @@ namespace Impact {
     mGround->setPosition(0, g < 0.f ? 0 : mLevel.height());
     addBody(mGround);
 
-#ifdef BALL_TRACE
-    safeRenew(mBallTrace, new BallTrace(this));
-    addBody(mBallTrace);
-#endif
+    const sf::Texture *bgTex = mLevel.backgroundSprite().getTexture();
+    sf::Image bg = bgTex->copyToImage();
+    unsigned int nPixels = bg.getSize().x * bg.getSize().y;
+    if (nPixels > 0) {
+      const sf::Uint8 *pixels = bg.getPixelsPtr();
+      const sf::Uint8 *pixelsEnd = pixels + (4 * nPixels);
+      sf::Vector3i color;
+      while (pixels < pixelsEnd) {
+        color.x += *(pixels + 0);
+        color.y += *(pixels + 1);
+        color.z += *(pixels + 2);
+        pixels += 4;
+      }
+      mStatsColor = sf::Color(sf::Uint8(color.x / nPixels), sf::Uint8(color.y / nPixels), sf::Uint8(color.z / nPixels), 255U);
+    }
+    else {
+      mStatsColor = sf::Color::Black;
+    }
+
+    createStatsViewRectangle();
 
     // create level elements
     mBlockCount = 0;
     for (int y = 0; y < mLevel.height(); ++y) {
       const uint32_t *mapRow = mLevel.mapDataScanLine(y);
       for (int x = 0; x < mLevel.width(); ++x) {
-        const b2Vec2 &pos = b2Vec2(static_cast<float32>(x), static_cast<float32>(y));
+        const b2Vec2 &pos = b2Vec2(float32(x), float32(y));
         const uint32_t tileId = mapRow[x];
         if (tileId == 0)
           continue;
@@ -1248,7 +2309,7 @@ namespace Impact {
             mBall->setTileParam(tileParam);
           }
           else if (tileParam.textureName == Racket::Name) {
-            mRacket = new Racket(this, pos);
+            mRacket = new Racket(this, pos, mGround->body());
             mRacket->setSmooth(tileParam.smooth);
             // mRacket->setXAxisConstraint(mLevel.height() - .5f);
             addBody(mRacket);
@@ -1281,11 +2342,14 @@ namespace Impact {
       }
     }
 
+    mLevelNameText.setString(">> " + mLevel.name() + " <<");
+    mLevelNameText.setPosition(4, 52);
+    mLevelAuthorText.setString(mLevel.author());
+    mLevelAuthorText.setPosition(4, 62);
+
     // place mouse cursor on racket position
-    const b2Vec2 &racketPos = static_cast<float32>(Game::Scale) * mRacket->position();
-    mMousePos = sf::Vector2i(int(racketPos.x), int(racketPos.y));
-    mLastMousePos = mMousePos;
-    sf::Mouse::setPosition(mMousePos, mWindow);
+    const b2Vec2 &racketPos = float32(Game::Scale) * mRacket->position();
+    sf::Mouse::setPosition(sf::Vector2i(int(racketPos.x), int(racketPos.y)), mWindow);
   }
 
 
@@ -1316,6 +2380,13 @@ namespace Impact {
   }
 
 
+  void Game::setCursorOnRacket(void)
+  {
+    if (mRacket != nullptr)
+      sf::Mouse::setPosition(sf::Vector2i(static_cast<int>(Scale * mRacket->position().x), static_cast<int>(Scale * mRacket->position().y)), mWindow);
+  }
+
+
   void Game::extraBall(void)
   {
     ++mLives;
@@ -1340,15 +2411,28 @@ namespace Impact {
 
   void Game::pause(void)
   {
+#ifndef NDEBUG
+    std::cout << "pause()" << std::endl;
+#endif
     mPaused = true;
+    setState(State::Pausing);
     mLevelTimer.pause();
+    startBlurEffect();
+    mWindow.setMouseCursorVisible(true);
   }
 
 
   void Game::resume(void)
   {
+#ifndef NDEBUG
+    std::cout << "resume()" << std::endl;
+#endif
     mPaused = false;
     mLevelTimer.resume();
+    stopBlurEffect();
+    setCursorOnRacket();
+    if (mState == State::Pausing)
+      setState(State::Playing);
   }
 
 
@@ -1366,13 +2450,27 @@ namespace Impact {
   }
 
 
+  void Game::addSpecialEffect(const SpecialEffect &effect)
+  {
+    std::vector<SpecialEffect>::iterator i;
+    for (i = mSpecialEffects.begin(); i != mSpecialEffects.end(); ++i) {
+      if (i->clock == effect.clock) {
+        i->duration = effect.duration;
+        break;
+      }
+    }
+    if (i == mSpecialEffects.cend())
+      mSpecialEffects.push_back(effect);
+  }
+
+
   void Game::onBodyKilled(Body *killedBody)
   {
     if (killedBody->type() == Body::BodyType::Block) {
       mExplosionSound.play();
       ExplosionDef pd(this, killedBody->position());
       pd.ballCollisionEnabled = mLevel.explosionParticlesCollideWithBall();
-      pd.count = gDetailLevel * 20;
+      pd.count = gSettings.particlesPerExplosion;
       pd.texture = mParticleTexture;
       addBody(new Explosion(pd));
       {
@@ -1390,6 +2488,7 @@ namespace Impact {
       const TileParam &tileParam = killedBody->tileParam();
       if (tileParam.earthquakeDuration > sf::Time::Zero && tileParam.earthquakeIntensity > 0.f) {
         startEarthquake(tileParam.earthquakeIntensity, tileParam.earthquakeDuration);
+        addSpecialEffect(SpecialEffect(mEarthquakeDuration, &mEarthquakeClock, killedBody->texture()));
       }
       if (tileParam.scaleGravityDuration > sf::Time::Zero) {
         mWorld->SetGravity(tileParam.scaleGravityBy * mWorld->GetGravity());
@@ -1397,6 +2496,11 @@ namespace Impact {
         mScaleGravityClock.restart();
         mScaleGravityDuration = tileParam.scaleGravityDuration;
         startAberrationEffect(tileParam.scaleGravityBy, tileParam.scaleGravityDuration);
+        OverlayDef od;
+        od.line1 = std::string("G*") + std::to_string(static_cast<int>(tileParam.scaleGravityBy));
+        od.line2 = std::string("for ") + std::to_string(tileParam.scaleGravityDuration.asMilliseconds() / 1000) + "s";
+        startOverlay(od);
+        addSpecialEffect(SpecialEffect(mScaleGravityDuration, &mScaleGravityClock, killedBody->texture()));
       }
       if (tileParam.scaleBallDensityDuration > sf::Time::Zero) {
         mBall->setDensity(tileParam.scaleBallDensityBy * mBall->tileParam().density.get());
@@ -1420,5 +2524,31 @@ namespace Impact {
     }
   }
 
-}
 
+  void Game::enumerateAllLevels(void)
+  {
+#ifndef NDEBUG
+    std::cout << std::endl << "Game::enumerateAllLevels()" << std::endl << std::endl;
+#endif
+    std::packaged_task<bool()> task([this]{
+      int prio = GetThreadPriority(GetCurrentThread());
+      SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_BELOW_NORMAL);
+      if (mLevels.empty()) {
+        Level level;
+        int l = 1;
+        do {
+          level = Level(l++);
+          if (level.isAvailable()) {
+            mEnumerateMutex.lock();
+            mLevels.push_back(level);
+            mEnumerateMutex.unlock();
+          }
+        } while (level.isAvailable());
+      }
+      SetThreadPriority(GetCurrentThread(), prio);
+      return true;
+    });
+    mEnumerateFuture = task.get_future();
+    std::thread(std::move(task)).detach();
+  }
+}

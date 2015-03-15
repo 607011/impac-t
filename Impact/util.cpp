@@ -20,6 +20,7 @@
 
 #include "stdafx.h"
 
+
 namespace Impact {
 
   // from http://www.adp-gmbh.ch/cpp/common/base64.html
@@ -37,6 +38,14 @@ namespace Impact {
     s.erase(std::remove(s.begin(), s.end(), '\r'), s.end() );
     s.erase(std::remove(s.begin(), s.end(), ' '), s.end() );
     return s;
+  }
+
+
+
+  bool fileExists(const std::string &filename)
+  {
+    struct stat buffer;
+    return stat(filename.c_str(), &buffer) == 0;
   }
 
 

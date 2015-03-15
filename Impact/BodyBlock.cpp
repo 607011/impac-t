@@ -43,16 +43,16 @@ namespace Impact {
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(.5f * mTexture.getSize().x, .5f * mTexture.getSize().y);
 
-    if (sf::Shader::isAvailable() && gDetailLevel > 1) {
+    if (gSettings.useShaders) {
       mShader.loadFromFile(ShadersDir + "/fallingblock.fs", sf::Shader::Fragment);
       mShader.setParameter("uAge", 0.f);
       mShader.setParameter("uBlur", 0.f);
       mShader.setParameter("uColor", sf::Color(255, 255, 255, 255));
-      mShader.setParameter("uResolution", static_cast<float>(mTexture.getSize().x), static_cast<float>(mTexture.getSize().y));
+      mShader.setParameter("uResolution", float(mTexture.getSize().x), float(mTexture.getSize().y));
     }
 
-    const int W = texture.getSize().x;
-    const int H = texture.getSize().y;
+    const unsigned int W = texture.getSize().x;
+    const unsigned int H = texture.getSize().y;
 
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
@@ -64,7 +64,6 @@ namespace Impact {
     bd.awake = false;
     bd.fixedRotation = false;
     bd.bullet = false;
-    bd.active = true;
     bd.userData = this;
     mBody = game->world()->CreateBody(&bd);
 
@@ -113,14 +112,14 @@ namespace Impact {
     UNUSED(elapsedSeconds);
     mSprite.setPosition(Game::Scale * mBody->GetPosition().x, Game::Scale * mBody->GetPosition().y);
     mSprite.setRotation(rad2deg(mBody->GetAngle()));
-    if (mShader.isAvailable() && gDetailLevel > 1)
+    if (gSettings.useShaders)
       mShader.setParameter("uAge", age().asSeconds());
   }
 
 
   void Block::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
   {
-    if (mShader.isAvailable() && gDetailLevel > 1)
+    if (gSettings.useShaders)
       states.shader = &mShader;
     target.draw(mSprite, states);
   }
@@ -133,7 +132,7 @@ namespace Impact {
     if (!destroyed && v > mMinimumHitImpulse) {
       mBody->SetLinearDamping(0.f);
       mBody->SetGravityScale(mGravityScale);
-      if (mShader.isAvailable() && gDetailLevel > 1) {
+      if (gSettings.useShaders) {
         mShader.setParameter("uColor", sf::Color(sf::Color(255, 255, 255, 230)));
         mShader.setParameter("uBlur", 2.28f);
       }
@@ -147,7 +146,7 @@ namespace Impact {
 
   void Block::setPosition(const b2Vec2 &p)
   {
-    mBody->SetTransform(p + .5f * Game::InvScale * b2Vec2(static_cast<float32>(mTexture.getSize().x - 2 * TextureMargin), static_cast<float32>(mTexture.getSize().y - 2 * TextureMargin)), mBody->GetAngle());
+    mBody->SetTransform(p + .5f * Game::InvScale * b2Vec2(float32(mTexture.getSize().x - 2 * TextureMargin), float32(mTexture.getSize().y - 2 * TextureMargin)), mBody->GetAngle());
   }
 
 

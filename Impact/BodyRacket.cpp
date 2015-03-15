@@ -27,7 +27,7 @@ namespace Impact {
   const float32 Racket::DefaultFriction = .71f;
   const float32 Racket::DefaultRestitution = .1f;
 
-  Racket::Racket(Game *game, const b2Vec2 &pos)
+  Racket::Racket(Game *game, const b2Vec2 &pos, b2Body *ground)
     : Body(Body::BodyType::Racket, game)
   {
     mName = Name;
@@ -39,7 +39,7 @@ namespace Impact {
     bd.type = b2_dynamicBody;
     bd.gravityScale = 0.f;
     bd.bullet = true;
-    bd.allowSleep = false;
+    bd.allowSleep = true;
     mTeetingBody = mGame->world()->CreateBody(&bd);
 
     b2PolygonShape polygon;
@@ -91,15 +91,25 @@ namespace Impact {
     bdHinge.fixedRotation = true;
     mBody = mGame->world()->CreateBody(&bdHinge);
 
-    b2RevoluteJointDef jd;
-    jd.Initialize(mBody, mTeetingBody, b2Vec2_zero);
-    jd.enableMotor = true;
-    jd.maxMotorTorque = 20000.0f;
-    jd.enableLimit = true;
-    jd.motorSpeed = 0.f;
-    jd.lowerAngle = deg2rad(-17.5f);
-    jd.upperAngle = deg2rad(+17.5f);
-    mJoint = reinterpret_cast<b2RevoluteJoint*>(mGame->world()->CreateJoint(&jd));
+    b2RevoluteJointDef rjd;
+    rjd.Initialize(mBody, mTeetingBody, b2Vec2_zero);
+    rjd.enableMotor = true;
+    rjd.maxMotorTorque = 20000.0f;
+    rjd.enableLimit = true;
+    rjd.motorSpeed = 0.f;
+    rjd.lowerAngle = deg2rad(-17.5f);
+    rjd.upperAngle = deg2rad(+17.5f);
+    mJoint = reinterpret_cast<b2RevoluteJoint*>(mGame->world()->CreateJoint(&rjd));
+
+    b2MouseJointDef mjd;
+    mjd.bodyA = ground;
+    mjd.bodyB = mTeetingBody;
+    mjd.target = mBody->GetPosition();
+    mjd.collideConnected = true;
+    mjd.frequencyHz = 6.f;
+    mjd.dampingRatio = .9f;
+    mjd.maxForce = 1000.f * mTeetingBody->GetMass();
+    mMouseJoint = reinterpret_cast<b2MouseJoint*>(mGame->world()->CreateJoint(&mjd));
 
     setPosition(pos);
   }
@@ -141,18 +151,18 @@ namespace Impact {
   }
 
 
-  void Racket::applyLinearVelocity(const b2Vec2 &v)
+  void Racket::moveTo(const b2Vec2 &target)
   {
-    mTeetingBody->SetLinearVelocity(v);
-    mBody->SetLinearVelocity(v);
-    // mBody->ApplyLinearImpulse(0.5f * v, mBody->GetPosition(), true);
+    mBody->SetAwake(true);
+    mTeetingBody->SetAwake(true);
+    mMouseJoint->SetTarget(target);
   }
 
 
   void Racket::setXAxisConstraint(float32 y)
   {
-    const float32 W = static_cast<float32>(mTexture.getSize().x);
-    const float32 H = static_cast<float32>(mTexture.getSize().y);
+    const float32 W = float32(mTexture.getSize().x);
+    const float32 H = float32(mTexture.getSize().y);
     b2BodyDef bd;
     bd.position.Set(0.f, y);
     b2Body *xAxis = mGame->world()->CreateBody(&bd);
@@ -182,21 +192,27 @@ namespace Impact {
   }
 
 
-  void Racket::moveLeft(void)
+  const b2AABB &Racket::aabb(void) const
   {
-    applyLinearVelocity(b2Vec2(-25.f, 0.f));
-  }
-
-
-  void Racket::moveRight(void)
-  {
-    applyLinearVelocity(b2Vec2(+25.f, 0.f));
-  }
-
-
-  void Racket::stopMotion(void)
-  {
-    applyLinearVelocity(b2Vec2_zero);
+    b2Transform t;
+    t.SetIdentity();
+    mAABB.lowerBound = b2Vec2(FLT_MAX, FLT_MAX);
+    mAABB.upperBound = b2Vec2(-FLT_MAX, -FLT_MAX);
+    b2Fixture* fixture = mTeetingBody->GetFixtureList();
+    while (fixture != nullptr) {
+      const b2Shape *shape = fixture->GetShape();
+      const int childCount = shape->GetChildCount();
+      for (int child = 0; child < childCount; ++child) {
+        const b2Vec2 r(shape->m_radius, shape->m_radius);
+        b2AABB shapeAABB;
+        shape->ComputeAABB(&shapeAABB, t, child);
+        shapeAABB.lowerBound = shapeAABB.lowerBound + r;
+        shapeAABB.upperBound = shapeAABB.upperBound - r;
+        mAABB.Combine(shapeAABB);
+      }
+      fixture = fixture->GetNext();
+    }
+    return mAABB;
   }
 
 

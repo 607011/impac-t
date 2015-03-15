@@ -27,16 +27,9 @@
 
 #pragma warning(push)
 #pragma warning(disable : 4996)
-#pragma warning(disable : 4503)
 #include <boost/signals2.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
-#include <boost/random/uniform_real_distribution.hpp>
-// #include <boost/thread/mutex.hpp>
 #pragma warning(pop)
+
 
 #include <limits>
 #include <algorithm>
@@ -53,8 +46,9 @@
 #include <cassert>
 #include <sstream>
 #include <typeinfo>
+#include <thread>
 #include <future>
-#include <functional>
+#include <chrono>
 #include <sys/stat.h>
 
 #include <GL/glew.h>
@@ -76,6 +70,7 @@
 #pragma warning(pop)
 
 #include "util.h"
+#include "Settings.h"
 #include "globals.h"
 #include "Easings.h"
 #include "LevelTimer.h"

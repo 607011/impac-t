@@ -1,0 +1,51 @@
+/*
+
+Copyright (c) 2015 Oliver Lau <ola@ct.de>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
+#ifndef __SETTINGS_H_
+#define __SETTINGS_H_
+
+#include <string>
+
+#define ENABLE_SHADERS (false)
+
+namespace Impact {
+
+  class Settings {
+  public:
+    Settings(void);
+
+    bool save(void);
+    bool load(void);
+
+    bool useShaders;
+    bool useShadersForExplosions;
+    bool verticalSync;
+    unsigned int antialiasingLevel;
+    unsigned int particlesPerExplosion;
+    std::string lastOpenDir;
+    int lastCampaignLevel;
+
+    std::string appData;
+    std::string settingsFile;
+    std::string levelsDir;
+  };
+
+}
+
+#endif // __SETTINGS_H_
