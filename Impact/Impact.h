@@ -198,6 +198,9 @@ namespace Impact {
     sf::Text mMenuAchievementsText;
     sf::Text mMenuOptionsText;
     sf::Text mMenuCreditsText;
+    sf::Text mMenuUseShadersText;
+    sf::Text mMenuParticlesPerExplosionText;
+    sf::Text mMenuAntialiasingLevelText;
     sf::Text mCreditsTitleText;
     sf::Text mCreditsText;
     sf::Text mLevelNameText;

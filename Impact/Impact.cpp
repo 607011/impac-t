@@ -402,6 +402,16 @@ namespace Impact {
       "\n"), mFixedFont, 16U);
     mCreditsText.setColor(sf::Color::White);
 
+    mMenuUseShadersText = sf::Text(tr("Use shaders "), mFixedFont, 32U);
+    mMenuUseShadersText.setColor(sf::Color::White);
+    mMenuUseShadersText.setPosition(20.f, 0 + menuTop);
+    mMenuParticlesPerExplosionText = sf::Text(tr("Particles per explosion "), mFixedFont, 32U);
+    mMenuParticlesPerExplosionText.setColor(sf::Color::White);
+    mMenuParticlesPerExplosionText.setPosition(20.f, 32 + menuTop);
+    mMenuAntialiasingLevelText = sf::Text(tr("Antialiasing level "), mFixedFont, 32U);
+    mMenuAntialiasingLevelText.setColor(sf::Color::White);
+    mMenuAntialiasingLevelText.setPosition(20.f, 64 + menuTop);
+
     mLevelsRenderTexture.create(600, 170);
     mLevelsRenderView = mLevelsRenderTexture.getDefaultView();
 
@@ -748,9 +758,9 @@ namespace Impact {
           //else if (mMenuAchievementsText.getGlobalBounds().contains(mousePos)) {
           //  gotoAchievementsScreen();
           //}
-          //else if (mMenuOptionsText.getGlobalBounds().contains(mousePos)) {
-          //  gotoOptionsScreen();
-          //}
+          else if (mMenuOptionsText.getGlobalBounds().contains(mousePos)) {
+            gotoOptionsScreen();
+          }
           else if (mMenuCreditsText.getGlobalBounds().contains(mousePos)) {
             gotoCreditsScreen();
           }
@@ -797,7 +807,7 @@ namespace Impact {
       mWindow.draw(mMenuLoadLevelText);
       mMenuAchievementsText.setColor(sf::Color(255, 255, 255, mMenuAchievementsText.getGlobalBounds().contains(mousePos) ? 16 : 16));
       mWindow.draw(mMenuAchievementsText);
-      mMenuOptionsText.setColor(sf::Color(255, 255, 255, mMenuOptionsText.getGlobalBounds().contains(mousePos) ? 16 : 16));
+      mMenuOptionsText.setColor(sf::Color(255, 255, 255, mMenuOptionsText.getGlobalBounds().contains(mousePos) ? 255 : 192));
       mWindow.draw(mMenuOptionsText);
       mMenuCreditsText.setColor(sf::Color(255, 255, 255, mMenuCreditsText.getGlobalBounds().contains(mousePos) ? 255 : 192));
       mWindow.draw(mMenuCreditsText);
@@ -1290,14 +1300,14 @@ namespace Impact {
 
   void Game::gotoOptionsScreen(void)
   {
-    // TODO: implement gotoOptionsScreen()
     mWelcomeLevel = 0;
+    mWallClock.restart();
+    setState(State::OptionsScreen);
   }
 
 
   void Game::onOptionsScreen(void)
   {
-    // TODO: implement onOptionsScreen()
     const sf::Time &elapsed = mClock.restart();
 
     const sf::Vector2i &mousePosI = sf::Mouse::getPosition(mWindow);
@@ -1327,8 +1337,72 @@ namespace Impact {
       mWelcomeLevel = 1;
     }
 
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) {
+        mWindow.close();
+      }
+      else if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
+            mBlockHitSound.play();
+            gotoWelcomeScreen();
+            return;
+          }
+          else if (mMenuUseShadersText.getGlobalBounds().contains(mousePos)) {
+            gSettings.useShaders = !gSettings.useShaders;
+            return;
+          }
+          else if (mMenuParticlesPerExplosionText.getGlobalBounds().contains(mousePos)) {
+            gSettings.particlesPerExplosion += 10U;
+            if (gSettings.particlesPerExplosion > 200U)
+              gSettings.particlesPerExplosion = 10U;
+            return;
+          }
+          else if (mMenuAntialiasingLevelText.getGlobalBounds().contains(mousePos)) {
+            if (gSettings.antialiasingLevel == 16) {
+              gSettings.antialiasingLevel = 0;
+            }
+            else if (gSettings.antialiasingLevel == 0) {
+              gSettings.antialiasingLevel = 1;
+            }
+            else {
+              gSettings.antialiasingLevel *= 2;
+            }
+
+            return;
+          }
+        }
+      }
+    }
+
     update(elapsed);
     drawWorld(mWindow.getDefaultView());
+
+    mMenuUseShadersText.setColor(sf::Color(255U, 255U, 255U, mMenuUseShadersText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+    mMenuParticlesPerExplosionText.setColor(sf::Color(255U, 255U, 255U, mMenuParticlesPerExplosionText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+    mMenuAntialiasingLevelText.setColor(sf::Color(255U, 255U, 255U, mMenuAntialiasingLevelText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+
+    mWindow.draw(mMenuUseShadersText);
+    mWindow.draw(mMenuParticlesPerExplosionText);
+    mWindow.draw(mMenuAntialiasingLevelText);
+
+    sf::Text useShadersText(gSettings.useShaders ? tr("on") : tr("off"), mFixedFont, 32U);
+    useShadersText.setPosition(mDefaultView.getCenter().x + 160, mMenuUseShadersText.getPosition().y);
+    mWindow.draw(useShadersText);
+
+    sf::Text particlesPerExplosionText(std::to_string(gSettings.particlesPerExplosion), mFixedFont, 32U);
+    particlesPerExplosionText.setPosition(mDefaultView.getCenter().x + 160, mMenuParticlesPerExplosionText.getPosition().y);
+    mWindow.draw(particlesPerExplosionText);
+
+    sf::Text antialiasingLevelText(std::to_string(gSettings.antialiasingLevel), mFixedFont, 32U);
+    antialiasingLevelText.setPosition(mDefaultView.getCenter().x + 160, mMenuAntialiasingLevelText.getPosition().y);
+    mWindow.draw(antialiasingLevelText);
+
+    const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
+    mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), mLevelsRenderTexture.getSize().y + menuTop);
+    mWindow.draw(mMenuBackText);
   }
 
 
