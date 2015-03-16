@@ -2,7 +2,7 @@
 
 **A Breakout/Bolo clone, augmented with a physics engine**
 
-This game accompanies a series of articles to be published in c't magazine, issue 10/15.
+This game accompanies a series of articles to be published in [c't magazine](http://www.ct.de/), issue 10/15.
 
 __The software was programmed for teaching and demonstration purposes only
 and is not intended for production use. The author and Heise Zeitschriften
