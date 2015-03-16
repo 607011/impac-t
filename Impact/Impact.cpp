@@ -2012,12 +2012,6 @@ namespace Impact {
   }
 
 
-  int Game::deductPenalty(int score)
-  {
-    return b2Max(0, score - 5 * mLevelTimer.accumulatedMilliseconds() / 1000);
-  }
-
-
   void Game::drawStartMessage(void)
   {
     mStartMsg.setColor(sf::Color(255, 255, 255, 192 + sf::Uint8(63 * std::sin(14 * mWallClock.getElapsedTime().asSeconds()))));
@@ -2436,6 +2430,13 @@ namespace Impact {
     }
     if (i == mSpecialEffects.cend())
       mSpecialEffects.push_back(effect);
+  }
+
+
+
+  int Game::deductPenalty(int score) const
+  {
+    return b2Max(0, score - 5 * mLevelTimer.accumulatedMilliseconds() / 1000);
   }
 
 

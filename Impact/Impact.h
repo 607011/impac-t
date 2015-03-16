@@ -357,7 +357,7 @@ namespace Impact {
     std::future<bool> mEnumerateFuture;
     bool mAllLevelsEnumerated;
 
-    int deductPenalty(int score);
+    int deductPenalty(int score) const;
     void createStatsViewRectangle(void);
     void addSpecialEffect(const SpecialEffect &);
     void createMainWindow(void);
