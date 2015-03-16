@@ -5,8 +5,8 @@
 This game accompanies a series of articles to be published in [c't magazine](http://www.ct.de/), issue 10/15.
 
 __The software was programmed for teaching and demonstration purposes only
-and is not intended for production use. The author and Heise Zeitschriften
-Verlag shall not be liable for any damage arising from the use of this program,
+and is not intended for production use. The author and Heise Medien GmbH & Co. KG
+shall not be liable for any damage arising from the use of this program,
 and do not accept responsibility for its completeness, correctness and fitness
 for a particular purpose.__
 
