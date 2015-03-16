@@ -92,7 +92,7 @@ namespace Impact {
   const sf::Time Game::DefaultAberrationEffectDuration = sf::milliseconds(250);
   const sf::Time Game::DefaultEarthquakeDuration = sf::milliseconds(10 * 1000);
   const sf::Time Game::DefaultOverlayDuration = sf::milliseconds(300);
-
+  const sf::Time Game::DefaultPenaltyInterval = sf::milliseconds(100);
 
 #ifndef NDEBUG
   const char* Game::StateNames[State::LastState] = {
@@ -1088,6 +1088,7 @@ namespace Impact {
       }
       setState(State::Playing);
       mLevelTimer.restart();
+      mPenaltyClock.restart();
     }
     else {
       gotoPlayerWon();
@@ -2077,9 +2078,12 @@ namespace Impact {
             }
           }
           else {
-            showScore(-block->getScore(), block->position());
-            mPenaltySound.play();
-            startFadeEffect();
+            if (mPenaltyClock.getElapsedTime() > DefaultPenaltyInterval) {
+              showScore(-block->getScore(), block->position());
+              mPenaltySound.play();
+              startFadeEffect();
+              mPenaltyClock.restart();
+            }
           }
         }
       }

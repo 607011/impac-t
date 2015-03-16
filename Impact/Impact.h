@@ -155,6 +155,7 @@ namespace Impact {
     static const sf::Time DefaultAberrationEffectDuration;
     static const sf::Time DefaultEarthquakeDuration;
     static const sf::Time DefaultOverlayDuration;
+    static const sf::Time DefaultPenaltyInterval;
     static const int DefaultKillingsPerKillingSpree = 5;
     static const int DefaultKillingSpreeBonus = 1000;
     static const sf::Time DefaultKillingSpreeInterval;
@@ -343,6 +344,7 @@ namespace Impact {
     Racket *mRacket;
     Level mLevel;
     LevelTimer mLevelTimer;
+    sf::Clock mPenaltyClock;
     std::vector<sf::Time> mLastKillings;
     int mLastKillingsIndex;
     std::vector<SpecialEffect> mSpecialEffects;
