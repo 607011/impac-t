@@ -2,9 +2,9 @@
 
 **A Breakout/Bolo clone, improved with a physics engine**
 
-This game accompanies a series of articles to be published in [c't magazine](http://www.ct.de/), issue 10/15.
+"Impac't" accompanies a series of articles to be published in [c't magazine](http://www.ct.de/), issue 10/15.
 
-__It was programmed for teaching and demonstration purposes ONLY and is NOT intended for production use. The author and Heise Medien GmbH & Co. KG shall not be liable for any damage arising from the use of this program, and do not accept responsibility for its completeness, correctness and fitness for a particular purpose.__
+__This software was programmed for teaching and demonstration purposes ONLY and is NOT intended for production use. The author and Heise Medien GmbH & Co. KG shall not be liable for any damage arising from the use of this program, and do not accept responsibility for its completeness, correctness and fitness for a particular purpose.__
 
 
 ## System requirements
