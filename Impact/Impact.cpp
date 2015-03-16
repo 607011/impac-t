@@ -1987,7 +1987,7 @@ namespace Impact {
       }
 
       // draw special effect hints
-      std::vector<std::vector<SpecialEffect>::iterator > expiredEffects;
+      std::vector<std::vector<SpecialEffect>::iterator> expiredEffects;
       sf::Vector2f pos(mStatsView.getSize().x - 4, mStatsView.getSize().y - 16);
       for (std::vector<SpecialEffect>::iterator i = mSpecialEffects.begin(); i != mSpecialEffects.end(); ++i) {
         if (i->isActive()) {
@@ -2001,7 +2001,7 @@ namespace Impact {
           expiredEffects.push_back(i);
         }
       }
-      for (std::vector<std::vector<SpecialEffect>::iterator >::const_iterator i = expiredEffects.cbegin(); i != expiredEffects.cend(); ++i) {
+      for (std::vector<std::vector<SpecialEffect>::iterator>::const_iterator i = expiredEffects.cbegin(); i != expiredEffects.cend(); ++i) {
 #ifndef NDEBUG
         std::cout << "Expired effect 0x" << std::hex << std::setfill('0') << std::setw(8) << (*i)->clock << std::endl;
 #endif
