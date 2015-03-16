@@ -169,6 +169,7 @@
     </None>
     <None Include="packages.config" />
     <None Include="LICENSE.md" />
+    <None Include="TODO.md" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="settings.xml" />

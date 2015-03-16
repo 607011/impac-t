@@ -258,6 +258,7 @@
     <None Include="resources\shaders\explosion.fs" />
     <None Include="resources\shaders\title.fs" />
     <None Include="..\README.md" />
+    <None Include="TODO.md" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="settings.xml" />
