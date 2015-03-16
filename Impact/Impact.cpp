@@ -121,7 +121,7 @@ namespace Impact {
     , mRacket(nullptr)
     , mGround(nullptr)
     , mContactPointCount(0)
-    , mScore(0)
+    , mLevelScore(0)
     , mLives(3)
     , mMouseButtonDown(false)
     , mAllLevelsEnumerated(false)
@@ -496,7 +496,7 @@ namespace Impact {
 
     mExtraLifeIndex = 0;
     mLives = DefaultLives;
-    mScore = 0;
+    mLevelScore = 0;
     mBallHasBeenLost = false;
     mLevel.set(0, false);
 
@@ -855,13 +855,14 @@ namespace Impact {
 
   void Game::gotoLevelCompleted(void)
   {
-    mLevelTimer.pause();
+    mTotalScore = deductPenalty(mLevelScore);
     mLevelCompleteSound.play();
     mStartMsg.setString(tr("Click to continue"));
     startBlurEffect();
     setState(State::LevelCompleted);
     if (mLevel.music() != nullptr)
       mLevel.music()->stop();
+    mLevelTimer.restart();
   }
 
 
@@ -893,7 +894,7 @@ namespace Impact {
     mStartMsg.setString(tr("Click to start over"));
     setState(State::PlayerWon);
     startBlurEffect();
-    mTotalScore = mScore - mLevelTimer.accumulatedSeconds();
+    mTotalScore = deductPenalty(mLevelScore);
     if (mLevel.music() != nullptr)
       mLevel.music()->stop();
   }
@@ -941,7 +942,7 @@ namespace Impact {
     if (gSettings.useShaders) {
       mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 220));
     }
-    mTotalScore = b2Max(0, mScore - mLevelTimer.accumulatedSeconds());
+    mTotalScore = deductPenalty(mLevelScore);
   }
 
 
@@ -1079,13 +1080,12 @@ namespace Impact {
       mAberrationDuration = sf::Time::Zero;
       mAberrationIntensity = 0.f;
       mClock.restart();
-      mLevelTimer.resume();
       if (mLevel.music() != nullptr) {
         mLevel.music()->play();
         mLevel.music()->setVolume(gSettings.musicVolume);
       }
       setState(State::Playing);
-      // mLevelTimer.restart();
+      mLevelTimer.restart();
     }
     else {
       gotoPlayerWon();
@@ -1657,7 +1657,7 @@ namespace Impact {
           }
           else if (mMenuRestartCampaignText.getGlobalBounds().contains(mousePos) && gSettings.lastCampaignLevel > 1) {
             mPlaymode = Campaign;
-            mScore = 0;
+            mLevelScore = 0;
             mTotalScore = 0;
             mLevel.set(0, false);
             gotoNextLevel();
@@ -1974,8 +1974,8 @@ namespace Impact {
       mWindow.draw(mLevelAuthorText);
 
       if (mState == State::Playing) {
-        int penalty = 5 * mLevelTimer.accumulatedMilliseconds() / 1000;
-        mScoreMsg.setString(std::to_string(b2Max(0, mScore - penalty)));
+        const int score = deductPenalty(mLevelScore);
+        mScoreMsg.setString(std::to_string(b2Max(0, score)));
         mScoreMsg.setPosition(mStatsView.getSize().x - mScoreMsg.getLocalBounds().width - 4, 4);
         mWindow.draw(mScoreMsg);
         for (int life = 0; life < mLives; ++life) {
@@ -2009,6 +2009,12 @@ namespace Impact {
         mSpecialEffects.erase(*i);
       }
     }
+  }
+
+
+  int Game::deductPenalty(int score)
+  {
+    return b2Max(0, score - 5 * mLevelTimer.accumulatedMilliseconds() / 1000);
   }
 
 
@@ -2330,18 +2336,18 @@ namespace Impact {
 
   void Game::addToScore(int points)
   {
-    int newScore = mScore + points;
+    int newScore = mLevelScore + points;
     if (points > 0) {
       int threshold = NewLiveAfterSoManyPoints[mExtraLifeIndex];
       if (threshold > 0 && newScore > threshold) {
         ++mExtraLifeIndex;
         extraBall();
       }
-      else if ((mScore % NewLiveAfterSoManyPointsDefault) > (newScore % NewLiveAfterSoManyPointsDefault)) {
+      else if ((mLevelScore % NewLiveAfterSoManyPointsDefault) > (newScore % NewLiveAfterSoManyPointsDefault)) {
         extraBall();
       }
     }
-    mScore = b2Max(newScore, 0);
+    mLevelScore = b2Max(0, newScore);
   }
 
 

@@ -331,7 +331,7 @@ namespace Impact {
     State mState;
     State mLastState;
     Playmode mPlaymode;
-    int mScore;
+    int mLevelScore;
     int mTotalScore;
     int mLives;
     BodyList mBodies;
@@ -357,6 +357,7 @@ namespace Impact {
     std::future<bool> mEnumerateFuture;
     bool mAllLevelsEnumerated;
 
+    int deductPenalty(int score);
     void createStatsViewRectangle(void);
     void addSpecialEffect(const SpecialEffect &);
     void createMainWindow(void);
