@@ -358,7 +358,7 @@ namespace Impact {
     bool mAllLevelsEnumerated;
     std::vector<sf::Sound*> mSoundFX;
 
-    void setSoundFXVolume(int volume);
+    void setSoundFXVolume(float volume);
     int deductPenalty(int score) const;
     void createStatsViewRectangle(void);
     void addSpecialEffect(const SpecialEffect &);

@@ -2435,7 +2435,7 @@ namespace Impact {
   }
 
 
-  void Game::setSoundFXVolume(int volume)
+  void Game::setSoundFXVolume(float volume)
   {
     for (std::vector<sf::Sound*>::iterator sound = mSoundFX.begin(); sound != mSoundFX.end(); ++sound)
       (*sound)->setVolume(volume);
