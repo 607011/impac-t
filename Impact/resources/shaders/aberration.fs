@@ -117,9 +117,10 @@ vec4 lensDistort(vec2 uv, float distort)
 
 float quadEaseInOut(float t, float b, float c, float d)
 {
-  if ((t /= 0.5 * d) < 1.0)
-    return ((0.5 * c)*(t*t)) + b;
-  return -c / 2.0 * (((t - 2.0)*(--t)) - 1) + b;
+  t /= d/2;
+  if (t < 1) return c/2*t*t + b;
+  t--;
+  return -c/2 * (t*(t-2) - 1) + b;
 }
 
 
