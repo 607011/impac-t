@@ -1,22 +1,26 @@
 # Impac't
 
-A Breakout/Bolo clone, augmented with a physics engine.
+**A Breakout/Bolo clone, augmented with a physics engine**
+
+This game accompanies a series of articles to be published in c't magazine, issue 10/15.
+
+__The software was programmed for teaching and demonstration purposes only
+and is not intended for production use. The author and Heise Zeitschriften
+Verlag shall not be liable for any damage arising from the use of this program,
+and do not accept responsibility for its completeness, correctness and fitness
+for a particular purpose.__
 
 
 ## System requirements
 
- - General
-   - Windows 7 or newer
-   - 4 GByte RAM
-   - an OpenGL 3.x capable graphics card and driver
- - Minimum
-   - 5 MByte free disk space
-   - dual-core CPU @ 1,8 GHz
- - Optimum
-   - quad-core CPU @ 2,4 GHz
-   - support for GLSL
+ - Windows 7 or newer
+ - 4 GByte RAM
+ - 13 MByte free disk space
+ - an OpenGL 3.x capable graphics card and driver (optimum: support for GLSL)
+ - dual-core CPU @ 1,8 GHz (optimum: quad-core CPU @ 2,4 GHz)
 
-## Common problems
+
+## Solutions to common problems
 
 ### Strange graphics with Windows drivers
 
@@ -34,38 +38,7 @@ In cases where the display is sticking when a block is going to explode,
 try to reduce the number of particles per explosion.
 
 
-## TODO
-
-### Nice to have
-
- - allow resizing of screen + fullscreen mode
- - create multi size ICO file
- - display gravity vector as a visual aid for the player
- - nicer visual effect when the racket hits a block
- - nicer visual effect for killing spree bonus
- - special blocks that ...
-   - blur the screen
-   - make blocks semi-transparent
-   - distort the screen
-   - cause a kind of asteroid shower (or other dangerous things that fall from the sky and can severely harm the racket)
-   - increase inertia of racket
-   - speed up/slow down ball (friction?)
-   - remove gravity and friction, and set restitution of all objects to 1
- - place racket on level's default position in case it was caught in between wall segments or something like that
- - integrate with Steam:
-   - leaderboard for every level
-   - leaderboard for campaigns
-   - stats
-   - achievements, e.g.:
-	 - 1, 2, 4, 8, 16 ... killing sprees in one level
-	 - uninterrupted play for 15, 30, 60, 90 ... minutes
-	 - 1, 2, 4, 8, 16 ... hours total play time
-	 - no ball lost in 1, 2, 4, 8, 16 ... levels
-     - no score deduction in 1, 2, 4, 8, 16 ... levels
- - use custom cursor instead of OS's default (https://github.com/LaurentGomila/SFML/wiki/Tutorial:-Change-Cursor)
-
-
- ## License
+## License
 
 Copyright (c) 2015 [Oliver Lau](mailto:ola@ct.de), <a href="http://www.heise.de/">Heise Medien GmbH & Co. KG</a>.
 
@@ -82,10 +55,3 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see
 <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.
-
-
-__This software was programmed for teaching and demonstration purposes only
-and is not intended for production use. The author and Heise Zeitschriften
-Verlag shall not be liable for any damage arising from the use of this program,
-and do not accept responsibility for its completeness, correctness and fitness
-for a particular purpose.__
