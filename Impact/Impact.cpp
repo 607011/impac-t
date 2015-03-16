@@ -1124,8 +1124,9 @@ namespace Impact {
         resume();
         break;
       case sf::Event::MouseMoved:
-        if (mScaleGravityEnabled && mScaleGravityClock.getElapsedTime() > mScaleGravityDuration) {
-          mAberrationShader.setParameter("uCenter", sf::Vector2f(float(event.mouseMove.x) / mDefaultView.getSize().x, float(event.mouseMove.y) / mDefaultView.getSize().y));
+        if (mScaleGravityEnabled && mScaleGravityClock.getElapsedTime() < mScaleGravityDuration) {
+          const sf::Vector2f &center = sf::Vector2f(float(event.mouseMove.x) / mDefaultView.getSize().x, float(event.mouseMove.y) / mDefaultView.getSize().y);
+          mAberrationShader.setParameter("uCenter", center);
         }
         break;
       case sf::Event::MouseButtonPressed:
