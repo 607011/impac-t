@@ -356,7 +356,9 @@ namespace Impact {
     std::packaged_task<bool()> mEnumerateTask;
     std::future<bool> mEnumerateFuture;
     bool mAllLevelsEnumerated;
+    std::vector<sf::Sound*> mSoundFX;
 
+    void setSoundFXVolume(int volume);
     int deductPenalty(int score) const;
     void createStatsViewRectangle(void);
     void addSpecialEffect(const SpecialEffect &);

@@ -181,78 +181,80 @@ namespace Impact {
     if (!ok)
       std::cerr << SoundFXDir + "/startup.ogg failed to load." << std::endl;
     mStartupSound.setBuffer(mStartupBuffer);
-    mStartupSound.setVolume(100);
     mStartupSound.setLoop(false);
+    mSoundFX.push_back(&mStartupSound);
 
     ok = mNewBallBuffer.loadFromFile(SoundFXDir + "/new-ball.ogg");
     if (!ok)
       std::cerr << SoundFXDir + "/new-ball.ogg failed to load." << std::endl;
     mNewBallSound.setBuffer(mNewBallBuffer);
-    mNewBallSound.setVolume(100);
     mNewBallSound.setLoop(false);
+    mSoundFX.push_back(&mNewBallSound);
 
     ok = mNewLifeBuffer.loadFromFile(SoundFXDir + "/new-life.ogg");
     if (!ok)
       std::cerr << SoundFXDir + "/new-ball.ogg failed to load." << std::endl;
     mNewLifeSound.setBuffer(mNewLifeBuffer);
-    mNewLifeSound.setVolume(100);
     mNewLifeSound.setLoop(false);
+    mSoundFX.push_back(&mNewLifeSound);
 
     ok = mBallOutBuffer.loadFromFile(SoundFXDir + "/ball-out.ogg");
     if (!ok)
       std::cerr << SoundFXDir + "/ball-out.ogg failed to load." << std::endl;
     mBallOutSound.setBuffer(mBallOutBuffer);
-    mBallOutSound.setVolume(100);
     mBallOutSound.setLoop(false);
+    mSoundFX.push_back(&mBallOutSound);
 
     ok = mBlockHitBuffer.loadFromFile(SoundFXDir + "/block-hit.ogg");
     if (!ok)
       std::cerr << SoundFXDir + "/block-hit.ogg failed to load." << std::endl;
     mBlockHitSound.setBuffer(mBlockHitBuffer);
-    mBlockHitSound.setVolume(100);
     mBlockHitSound.setLoop(false);
+    mSoundFX.push_back(&mBlockHitSound);
 
     ok = mPenaltyBuffer.loadFromFile(SoundFXDir + "/penalty.ogg");
     if (!ok)
       std::cerr << SoundFXDir + "/penalty.ogg failed to load." << std::endl;
     mPenaltySound.setBuffer(mPenaltyBuffer);
-    mPenaltySound.setVolume(100);
     mPenaltySound.setLoop(false);
+    mSoundFX.push_back(&mPenaltySound);
 
     ok = mRacketHitBuffer.loadFromFile(SoundFXDir + "/racket-hit.ogg");
     if (!ok)
       std::cerr << SoundFXDir + "/racket-hit.ogg failed to load." << std::endl;
     mRacketHitSound.setBuffer(mRacketHitBuffer);
-    mRacketHitSound.setVolume(100);
     mRacketHitSound.setLoop(false);
+    mSoundFX.push_back(&mRacketHitSound);
 
     ok = mRacketHitBlockBuffer.loadFromFile(SoundFXDir + "/racket-hit-block.ogg");
     if (!ok)
       std::cerr << SoundFXDir + "/racket-hit-block.ogg failed to load." << std::endl;
     mRacketHitBlockSound.setBuffer(mRacketHitBlockBuffer);
-    mRacketHitBlockSound.setVolume(100);
     mRacketHitBlockSound.setLoop(false);
+    mSoundFX.push_back(&mRacketHitBlockSound);
 
     ok = mExplosionBuffer.loadFromFile(SoundFXDir + "/explosion.ogg");
     if (!ok)
       std::cerr << SoundFXDir + "/explosion.ogg failed to load." << std::endl;
     mExplosionSound.setBuffer(mExplosionBuffer);
-    mExplosionSound.setVolume(100);
     mExplosionSound.setLoop(false);
+    mSoundFX.push_back(&mExplosionSound);
 
     ok = mLevelCompleteBuffer.loadFromFile(SoundFXDir + "/level-complete.ogg");
     if (!ok)
       std::cerr << SoundFXDir + "/level-complete.ogg failed to load." << std::endl;
     mLevelCompleteSound.setBuffer(mLevelCompleteBuffer);
-    mLevelCompleteSound.setVolume(100);
     mLevelCompleteSound.setLoop(false);
+    mSoundFX.push_back(&mLevelCompleteSound);
 
     ok = mKillingSpreeSoundBuffer.loadFromFile(SoundFXDir + "/killing-spree.ogg");
     if (!ok)
       std::cerr << SoundFXDir + "/killing-spree.ogg failed to load." << std::endl;
     mKillingSpreeSound.setBuffer(mKillingSpreeSoundBuffer);
-    mKillingSpreeSound.setVolume(100);
     mKillingSpreeSound.setLoop(false);
+    mSoundFX.push_back(&mKillingSpreeSound);
+
+    setSoundFXVolume(gSettings.soundfxVolume);
 
     mParticleTexture.loadFromFile(ImagesDir + "/particle.png");
     mSoftParticleTexture.loadFromFile(ImagesDir + "/smooth-dot-12x12.png");
@@ -2432,6 +2434,12 @@ namespace Impact {
       mSpecialEffects.push_back(effect);
   }
 
+
+  void Game::setSoundFXVolume(int volume)
+  {
+    for (std::vector<sf::Sound*>::iterator sound = mSoundFX.begin(); sound != mSoundFX.end(); ++sound)
+      (*sound)->setVolume(volume);
+  }
 
 
   int Game::deductPenalty(int score) const
