@@ -29,4 +29,4 @@
  - use custom cursor instead of OS's default (https://github.com/LaurentGomila/SFML/wiki/Tutorial:-Change-Cursor)
 
 
- See [issue tracker](https://github.com/ola-ct/impac-t/issues) for bugs and further enhancements.
+See [issue tracker](https://github.com/ola-ct/impac-t/issues) for bugs and further to-dos.
