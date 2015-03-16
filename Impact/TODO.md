@@ -2,7 +2,6 @@
 
 ## Nice to have
 
- - allow resizing of screen + fullscreen mode
  - create multi size ICO file
  - display gravity vector as a visual aid for the player
  - nicer visual effect when the racket hits a block
@@ -27,6 +26,11 @@
 	 - no ball lost in 1, 2, 4, 8, 16 ... levels
      - no score deduction in 1, 2, 4, 8, 16 ... levels
  - use custom cursor instead of OS's default (https://github.com/LaurentGomila/SFML/wiki/Tutorial:-Change-Cursor)
+
+
+## Maybe
+
+ - allow resizing of screen + fullscreen mode
 
 
 See [issue tracker](https://github.com/ola-ct/impac-t/issues) for bugs and further to-dos.
