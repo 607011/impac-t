@@ -170,6 +170,9 @@
     <None Include="packages.config" />
     <None Include="LICENSE.md" />
     <None Include="TODO.md" />
+    <None Include="resources\shaders\toon.fs">
+      <Filter>Fragment Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="settings.xml" />
