@@ -173,6 +173,9 @@
     <None Include="resources\shaders\toon.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
+    <None Include="resources\shaders\keyhole.fs">
+      <Filter>Fragment Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="settings.xml" />
