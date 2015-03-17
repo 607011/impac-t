@@ -359,7 +359,6 @@ namespace Impact {
     void enumerateAllLevels(void);
     std::packaged_task<bool()> mEnumerateTask;
     std::future<bool> mEnumerateFuture;
-    bool mAllLevelsEnumerated;
     std::vector<sf::Sound*> mSoundFX;
 
     void setSoundFXVolume(float volume);

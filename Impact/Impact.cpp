@@ -124,7 +124,6 @@ namespace Impact {
     , mLevelScore(0)
     , mLives(3)
     , mMouseButtonDown(false)
-    , mAllLevelsEnumerated(false)
     , mPaused(false)
     , mState(State::Initialization)
     , mLastState(State::NoState)
@@ -1528,39 +1527,30 @@ namespace Impact {
     mScrollbarSprite.setScale(scrollbarWidth, scrollbarHeight);
     mScrollbarSprite.setColor(sf::Color(255, 255, 255, scrollbarRect.contains(mousePos) ? 255 : 192));
 
-    auto displayLevels = [this, &mousePos, &scrollTop, &menuTop](void) {
-      mLevelsRenderTexture.setView(mLevelsRenderView);
-      mLevelsRenderTexture.clear(sf::Color(0, 0, 0, 40));
-      mLevelsRenderTexture.draw(mScrollbarSprite);
-      mEnumerateMutex.lock();
-      for (std::vector<Level>::size_type i = 0; i < mLevels.size(); ++i) {
-        const std::string &levelName = mLevels.at(i).name();
-        sf::Text levelText("Level " + std::to_string(i + 1) + ": " + (levelName.empty() ? "<unnamed>" : levelName), mFixedFont, 16U);
-        const float levelTextTop = float(marginTop + lineHeight * i);
-        levelText.setPosition(10.f, levelTextTop);
-        sf::FloatRect levelTextRect(10.f, menuTop + levelTextTop - scrollTop, levelText.getLocalBounds().width, float(lineHeight));
-        levelText.setColor(sf::Color(255, 255, 255, levelTextRect.contains(mousePos) ? 255 : 160));
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && levelTextRect.contains(mousePos)) {
-          mLevel.set(i + 1, true);
-          gotoCurrentLevel();
-        }
-        mLevelsRenderTexture.draw(levelText);
-      }
-      mEnumerateMutex.unlock();
-    };
-
     if (mEnumerateFuture.valid()) {
-      std::future_status status = mEnumerateFuture.wait_for(std::chrono::milliseconds(0));
-      if (status == std::future_status::ready) {
-        displayLevels();
-        if (!mAllLevelsEnumerated) {
-          mAllLevelsEnumerated = true;
+      std::future_status status = mEnumerateFuture.wait_for(std::chrono::milliseconds(1));
+      if (status != std::future_status::deferred) {
+        mLevelsRenderTexture.setView(mLevelsRenderView);
+        mLevelsRenderTexture.clear(sf::Color(0, 0, 0, 40));
+        mLevelsRenderTexture.draw(mScrollbarSprite);
+        mEnumerateMutex.lock();
+        // TODO: optimize performance by drawing only visible lines
+        for (std::vector<Level>::size_type i = 0; i < mLevels.size(); ++i) {
+          const std::string &levelName = mLevels.at(i).name();
+          sf::Text levelText("Level " + std::to_string(i + 1) + ": " + (levelName.empty() ? "<unnamed>" : levelName), mFixedFont, 16U);
+          const float levelTextTop = float(marginTop + lineHeight * i);
+          levelText.setPosition(10.f, levelTextTop);
+          sf::FloatRect levelTextRect(10.f, menuTop + levelTextTop - scrollTop, levelText.getLocalBounds().width, float(lineHeight));
+          const bool mouseOver = levelTextRect.contains(mousePos);
+          levelText.setColor(sf::Color(255, 255, 255, mouseOver ? 255 : 160));
+          if (mouseOver && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+            mLevel.set(i + 1, true);
+            gotoCurrentLevel();
+          }
+          mLevelsRenderTexture.draw(levelText);
         }
+        mEnumerateMutex.unlock();
       }
-      else if (status == std::future_status::timeout) {
-        displayLevels();
-      }
-
     }
 
     mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
