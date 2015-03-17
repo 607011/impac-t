@@ -792,7 +792,7 @@ namespace Impact {
     }
 
     if (mWelcomeLevel == 0) {
-      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f)); // TODO: parametrize
+      ExplosionDef pd(this, b2Vec2(.5f * DefaultTilesHorizontally, .4f * DefaultTilesVertically));
       pd.ballCollisionEnabled = false;
       pd.count = gSettings.particlesPerExplosion;
       pd.texture = mParticleTexture;
@@ -1302,7 +1302,7 @@ namespace Impact {
     }
 
     if (mWelcomeLevel == 0) {
-      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f)); // TODO: parametrize
+      ExplosionDef pd(this, b2Vec2(.5f * DefaultTilesHorizontally, .4f * DefaultTilesVertically));
       pd.ballCollisionEnabled = false;
       pd.count = gSettings.particlesPerExplosion;
       pd.texture = mParticleTexture;
@@ -1346,7 +1346,7 @@ namespace Impact {
     }
 
     if (mWelcomeLevel == 0) {
-      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f)); // TODO: parametrize
+      ExplosionDef pd(this, b2Vec2(.5f * DefaultTilesHorizontally, .4f * DefaultTilesVertically));
       pd.ballCollisionEnabled = false;
       pd.count = gSettings.particlesPerExplosion;
       pd.texture = mParticleTexture;
@@ -1611,7 +1611,7 @@ namespace Impact {
     mWindow.draw(levelSprite);
 
     if (mWelcomeLevel == 0) {
-      ExplosionDef pd(this, b2Vec2(0.5f * 40.f, 0.4f * 25.f)); // TODO: parametrize
+      ExplosionDef pd(this, b2Vec2(.5f * DefaultTilesHorizontally, .4f * DefaultTilesVertically));
       pd.ballCollisionEnabled = false;
       pd.count = gSettings.particlesPerExplosion;
       pd.texture = mParticleTexture;

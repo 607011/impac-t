@@ -139,6 +139,8 @@ namespace Impact {
   public:
     static const int Scale = 16;
     static const float32 InvScale;
+    static const unsigned int DefaultTilesHorizontally = 40;
+    static const unsigned int DefaultTilesVertically = 25;
     static const unsigned int DefaultPlaygroundWidth = 640;
     static const unsigned int DefaultPlaygroundHeight = 400;
     static const unsigned int DefaultStatsWidth = DefaultPlaygroundWidth;
