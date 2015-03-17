@@ -7,13 +7,17 @@
  - nicer visual effect when the racket hits a block
  - nicer visual effect for killing spree bonus
  - special blocks that ...
+   - reduce illumination of the screen to a circular area around the racket/ball as if looking through a keyhole
    - blur the screen
-   - make blocks semi-transparent
+   - darken the screen
+   - lighten the screen
    - distort the screen
+   - make blocks semi-transparent
    - cause a kind of asteroid shower (or other dangerous things that fall from the sky and can severely harm the racket)
    - increase inertia of racket
    - speed up/slow down ball (friction?)
    - remove gravity and friction, and set restitution of all objects to 1
+ - add property to block which tells which shader to use for special effects when the block is destroyed
  - place racket on level's default position in case it was caught in between wall segments or something like that
  - integrate with Steam:
    - leaderboard for every level
