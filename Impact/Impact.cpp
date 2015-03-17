@@ -431,6 +431,12 @@ namespace Impact {
       ok = mOverlayShader.loadFromFile(ShadersDir + "/approachingoverlay.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/approachingoverlay.fs" << " failed to load/compile." << std::endl;
+      ok = mKeyholeShader.loadFromFile(ShadersDir + "/keyhole.fs", sf::Shader::Fragment);
+      if (!ok)
+        std::cerr << ShadersDir + "/keyhole.fs" << " failed to load/compile." << std::endl;
+      mKeyholeShader.setParameter("uStretch", 2.5f);
+      mKeyholeShader.setParameter("uAspect", mDefaultView.getSize().y / mDefaultView.getSize().x);
+      mKeyholeShader.setParameter("uCenter", sf::Vector2f(.5f, .5f));
     }
 
     mKeyMapping[Action::PauseAction] = sf::Keyboard::Escape;
@@ -543,6 +549,9 @@ namespace Impact {
     mStatsView.reset(sf::FloatRect(0.f, float(DefaultPlaygroundHeight), float(DefaultStatsWidth), float(DefaultStatsHeight)));
     mStatsView.setCenter(sf::Vector2f(.5f * DefaultStatsWidth, .5f * DefaultStatsHeight));
     mStatsView.setViewport(sf::FloatRect(0.f, float(DefaultWindowHeight - DefaultStatsHeight) / float(DefaultWindowHeight), 1.f, float(DefaultStatsHeight) / float(DefaultWindowHeight)));
+    if (sf::Shader::isAvailable()) {
+      mKeyholeShader.setParameter("uAspect", mDefaultView.getSize().y / mDefaultView.getSize().x);
+    }
   }
 
 
@@ -1712,10 +1721,21 @@ namespace Impact {
   }
 
 
-  inline void Game::executeAberration(sf::RenderTexture &out, sf::RenderTexture &in)
+  inline void Game::executeKeyhole(sf::RenderTexture &out, sf::RenderTexture &in, const b2Vec2 &center)
   {
     sf::RenderStates states;
 	  sf::Sprite sprite(in.getTexture());
+    states.shader = &mKeyholeShader;
+    const sf::Vector2f &pos = sf::Vector2f(center.x / DefaultTilesHorizontally, center.y / DefaultTilesVertically);
+    mKeyholeShader.setParameter("uCenter", pos);
+    out.draw(sprite, states);
+  }
+
+
+  inline void Game::executeAberration(sf::RenderTexture &out, sf::RenderTexture &in)
+  {
+    sf::RenderStates states;
+    sf::Sprite sprite(in.getTexture());
     states.shader = &mAberrationShader;
     mAberrationShader.setParameter("uT", mAberrationClock.getElapsedTime().asSeconds());
     out.draw(sprite, states);
@@ -1866,6 +1886,11 @@ namespace Impact {
         const Body *body = *b;
         if (body->isAlive())
           mRenderTexture0.draw(*body);
+      }
+
+      if (mBall != nullptr) {
+        executeKeyhole(mRenderTexture1, mRenderTexture0, mBall->position());
+        executeCopy(mRenderTexture0, mRenderTexture1);
       }
 
       if (mBlurPlayground && gSettings.useShaders) {
