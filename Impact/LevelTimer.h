@@ -60,15 +60,10 @@ class LevelTimer {
     {
       return mTime;
     }
-    inline int accumulatedSeconds(void) const
-    {
-      const sf::Time &accumulatedTime = mActive ? mClock.getElapsedTime() + mTime : mTime;
-      return accumulatedTime.asMilliseconds() / 1000;
-    }
     inline int accumulatedMilliseconds(void) const
     {
       const sf::Time &accumulatedTime = mActive ? mClock.getElapsedTime() + mTime : mTime;
-      return accumulatedTime.asMilliseconds();
+      return int(accumulatedTime.asMilliseconds());
     }
     inline bool isActive(void) const
     {
