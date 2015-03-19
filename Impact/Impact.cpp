@@ -1722,24 +1722,38 @@ namespace Impact {
   }
 
 
-  inline void Game::executeKeyhole(sf::RenderTexture &out, sf::RenderTexture &in, const b2Vec2 &center)
+  inline void Game::executeKeyhole(sf::RenderTexture &out, sf::RenderTexture &in, const b2Vec2 &center, bool copyBack)
   {
-    sf::RenderStates states;
-	  sf::Sprite sprite(in.getTexture());
-    states.shader = &mKeyholeShader;
-    const sf::Vector2f &pos = sf::Vector2f(center.x / DefaultTilesHorizontally, center.y / DefaultTilesVertically);
-    mKeyholeShader.setParameter("uCenter", pos);
-    out.draw(sprite, states);
+    if (gSettings.useShaders) {
+      sf::RenderStates states;
+      sf::Sprite sprite(in.getTexture());
+      states.shader = &mKeyholeShader;
+      const sf::Vector2f &pos = sf::Vector2f(center.x / DefaultTilesHorizontally, center.y / DefaultTilesVertically);
+      mKeyholeShader.setParameter("uCenter", pos);
+      out.draw(sprite, states);
+      if (copyBack)
+        executeCopy(in, out);
+    }
+    else {
+      executeCopy(out, in);
+    }
   }
 
 
-  inline void Game::executeAberration(sf::RenderTexture &out, sf::RenderTexture &in)
+  inline void Game::executeAberration(sf::RenderTexture &out, sf::RenderTexture &in, bool copyBack)
   {
-    sf::RenderStates states;
-    sf::Sprite sprite(in.getTexture());
-    states.shader = &mAberrationShader;
-    mAberrationShader.setParameter("uT", mAberrationClock.getElapsedTime().asSeconds());
-    out.draw(sprite, states);
+    if (gSettings.useShaders) {
+      sf::RenderStates states;
+      sf::Sprite sprite(in.getTexture());
+      states.shader = &mAberrationShader;
+      mAberrationShader.setParameter("uT", mAberrationClock.getElapsedTime().asSeconds());
+      out.draw(sprite, states);
+      if (copyBack)
+        executeCopy(in, out);
+    }
+    else {
+      executeCopy(out, in);
+    }
   }
 
 
@@ -1764,7 +1778,7 @@ namespace Impact {
   }
 
 
-  inline void Game::executeBlur(sf::RenderTexture &out, sf::RenderTexture &in)
+  inline void Game::executeBlur(sf::RenderTexture &out, sf::RenderTexture &in, bool copyBack)
   {
     if (gSettings.useShaders) {
       sf::RenderStates states0;
@@ -1773,17 +1787,20 @@ namespace Impact {
       sf::RenderStates states1;
       states1.shader = &mVBlurShader;
       sf::Sprite sprite1;
-      const float blur = b2Min(4.f, 1.f + mBlurClock.getElapsedTime().asSeconds());
-      for (int i = 1; i < 4; ++i) {
+      const float blur = b2Min(1.f, 8.f * mBlurClock.getElapsedTime().asSeconds());
+      for (int i = 1; i < 5; ++i) {
+        mVBlurShader.setParameter("uBlur", 3 * i * blur);
+        mHBlurShader.setParameter("uBlur", 3 * i * blur);
         sprite1.setTexture(in.getTexture());
-        mVBlurShader.setParameter("uBlur", blur * i);
         out.draw(sprite1, states1);
         sprite0.setTexture(out.getTexture());
-        mHBlurShader.setParameter("uBlur", blur * i);
         in.draw(sprite0, states0);
       }
+      executeCopy(in, out);
     }
-    executeCopy(out, in);
+    else {
+      executeCopy(out, in);
+    }
   }
 
 
@@ -1800,18 +1817,25 @@ namespace Impact {
   }
 
 
-  inline void Game::executeEarthquake(sf::RenderTexture &out, sf::RenderTexture &in)
+  inline void Game::executeEarthquake(sf::RenderTexture &out, sf::RenderTexture &in, bool copyBack)
   {
-    sf::Sprite sprite(in.getTexture());
-    sf::RenderStates states;
-    states.shader = &mEarthquakeShader;
-    const float32 maxIntensity = mEarthquakeIntensity * InvScale;
-    boost::random::uniform_real_distribution<float32> randomShift(-maxIntensity, maxIntensity);
-    mEarthquakeShader.setParameter("uT", mEarthquakeClock.getElapsedTime().asSeconds());
-    mEarthquakeShader.setParameter("uRShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
-    mEarthquakeShader.setParameter("uGShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
-    mEarthquakeShader.setParameter("uBShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
-    out.draw(sprite, states);
+    if (gSettings.useShaders) {
+      sf::Sprite sprite(in.getTexture());
+      sf::RenderStates states;
+      states.shader = &mEarthquakeShader;
+      const float32 maxIntensity = mEarthquakeIntensity * InvScale;
+      boost::random::uniform_real_distribution<float32> randomShift(-maxIntensity, maxIntensity);
+      mEarthquakeShader.setParameter("uT", mEarthquakeClock.getElapsedTime().asSeconds());
+      mEarthquakeShader.setParameter("uRShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
+      mEarthquakeShader.setParameter("uGShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
+      mEarthquakeShader.setParameter("uBShift", sf::Vector2f(randomShift(gRNG), randomShift(gRNG)));
+      out.draw(sprite, states);
+      if (copyBack)
+        executeCopy(in, out);
+    }
+    else {
+      executeCopy(out, in);
+    }
   }
 
 
@@ -1895,14 +1919,12 @@ namespace Impact {
       //}
 
       if (mBlurPlayground && gSettings.useShaders) {
-        executeBlur(mRenderTexture1, mRenderTexture0);
-        executeCopy(mRenderTexture0, mRenderTexture1);
+        executeBlur(mRenderTexture1, mRenderTexture0, true);
       }
 
       if (mAberrationDuration > sf::Time::Zero && gSettings.useShaders) {
         if (mAberrationClock.getElapsedTime() < mAberrationDuration) {
-          executeAberration(mRenderTexture1, mRenderTexture0);
-          executeCopy(mRenderTexture0, mRenderTexture1);
+          executeAberration(mRenderTexture1, mRenderTexture0, true);
         }
         else {
           mAberrationDuration = sf::Time::Zero;
@@ -1911,8 +1933,7 @@ namespace Impact {
       }
 
       if (mEarthquakeIntensity > 0.f && mEarthquakeClock.getElapsedTime() < mEarthquakeDuration && gSettings.useShaders) {
-        executeEarthquake(mRenderTexture1, mRenderTexture0);
-        executeCopy(mRenderTexture0, mRenderTexture1);
+        executeEarthquake(mRenderTexture1, mRenderTexture0, true);
       }
       else {
         if (mEarthquakeClock.getElapsedTime() > mEarthquakeDuration)
