@@ -431,12 +431,13 @@ namespace Impact {
       ok = mOverlayShader.loadFromFile(ShadersDir + "/approachingoverlay.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/approachingoverlay.fs" << " failed to load/compile." << std::endl;
-      ok = mKeyholeShader.loadFromFile(ShadersDir + "/keyhole.fs", sf::Shader::Fragment);
-      if (!ok)
-        std::cerr << ShadersDir + "/keyhole.fs" << " failed to load/compile." << std::endl;
-      mKeyholeShader.setParameter("uStretch", 2.5f);
-      mKeyholeShader.setParameter("uAspect", mDefaultView.getSize().y / mDefaultView.getSize().x);
-      mKeyholeShader.setParameter("uCenter", sf::Vector2f(.5f, .5f));
+      //TODO: uncomment
+      //ok = mKeyholeShader.loadFromFile(ShadersDir + "/keyhole.fs", sf::Shader::Fragment);
+      //if (!ok)
+      //  std::cerr << ShadersDir + "/keyhole.fs" << " failed to load/compile." << std::endl;
+      //mKeyholeShader.setParameter("uStretch", 2.5f);
+      //mKeyholeShader.setParameter("uAspect", mDefaultView.getSize().y / mDefaultView.getSize().x);
+      //mKeyholeShader.setParameter("uCenter", sf::Vector2f(.5f, .5f));
     }
 
     mKeyMapping[Action::PauseAction] = sf::Keyboard::Escape;
@@ -1888,10 +1889,10 @@ namespace Impact {
           mRenderTexture0.draw(*body);
       }
 
-      if (mBall != nullptr) {
-        executeKeyhole(mRenderTexture1, mRenderTexture0, mBall->position());
-        executeCopy(mRenderTexture0, mRenderTexture1);
-      }
+      //TODO: uncomment
+      //if (mBall != nullptr) {
+      //  executeKeyhole(mRenderTexture1, mRenderTexture0, mBall->position(), true);
+      //}
 
       if (mBlurPlayground && gSettings.useShaders) {
         executeBlur(mRenderTexture1, mRenderTexture0);
