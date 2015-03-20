@@ -168,85 +168,85 @@ namespace Impact {
     icon.loadFromFile(ImagesDir + "/app-icon.png");
     mWindow.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 
-    ok = mFixedFont.loadFromFile(FontsDir + "/04b_03.ttf");
+    ok = mFixedFont.loadFromFile(FontsDir + "/04b_03.ttf"); //XXX
     if (!ok)
       std::cerr << FontsDir + "/04b_03.ttf failed to load." << std::endl;
 
-    ok = mTitleFont.loadFromFile(FontsDir + "/Dimitri.ttf");
+    ok = mTitleFont.loadFromFile(FontsDir + "/Dimitri.ttf"); //XXX
     if (!ok)
       std::cerr << FontsDir + "/Dimitri.ttf failed to load." << std::endl;
 
-    ok = mStartupBuffer.loadFromFile(SoundFXDir + "/startup.ogg");
+    ok = mStartupBuffer.loadFromFile(SoundFXDir + "/startup.ogg"); 
     if (!ok)
       std::cerr << SoundFXDir + "/startup.ogg failed to load." << std::endl;
     mStartupSound.setBuffer(mStartupBuffer);
     mStartupSound.setLoop(false);
     mSoundFX.push_back(&mStartupSound);
 
-    ok = mNewBallBuffer.loadFromFile(SoundFXDir + "/new-ball.ogg");
+    ok = mNewBallBuffer.loadFromFile(SoundFXDir + "/new-ball.ogg"); //XXX
     if (!ok)
       std::cerr << SoundFXDir + "/new-ball.ogg failed to load." << std::endl;
     mNewBallSound.setBuffer(mNewBallBuffer);
     mNewBallSound.setLoop(false);
     mSoundFX.push_back(&mNewBallSound);
 
-    ok = mNewLifeBuffer.loadFromFile(SoundFXDir + "/new-life.ogg");
+    ok = mNewLifeBuffer.loadFromFile(SoundFXDir + "/new-life.ogg"); //XXX
     if (!ok)
       std::cerr << SoundFXDir + "/new-ball.ogg failed to load." << std::endl;
     mNewLifeSound.setBuffer(mNewLifeBuffer);
     mNewLifeSound.setLoop(false);
     mSoundFX.push_back(&mNewLifeSound);
 
-    ok = mBallOutBuffer.loadFromFile(SoundFXDir + "/ball-out.ogg");
+    ok = mBallOutBuffer.loadFromFile(SoundFXDir + "/ball-out.ogg"); //XXX
     if (!ok)
       std::cerr << SoundFXDir + "/ball-out.ogg failed to load." << std::endl;
     mBallOutSound.setBuffer(mBallOutBuffer);
     mBallOutSound.setLoop(false);
     mSoundFX.push_back(&mBallOutSound);
 
-    ok = mBlockHitBuffer.loadFromFile(SoundFXDir + "/block-hit.ogg");
+    ok = mBlockHitBuffer.loadFromFile(SoundFXDir + "/block-hit.ogg"); //XXX
     if (!ok)
       std::cerr << SoundFXDir + "/block-hit.ogg failed to load." << std::endl;
     mBlockHitSound.setBuffer(mBlockHitBuffer);
     mBlockHitSound.setLoop(false);
     mSoundFX.push_back(&mBlockHitSound);
 
-    ok = mPenaltyBuffer.loadFromFile(SoundFXDir + "/penalty.ogg");
+    ok = mPenaltyBuffer.loadFromFile(SoundFXDir + "/penalty.ogg"); //XXX
     if (!ok)
       std::cerr << SoundFXDir + "/penalty.ogg failed to load." << std::endl;
     mPenaltySound.setBuffer(mPenaltyBuffer);
     mPenaltySound.setLoop(false);
     mSoundFX.push_back(&mPenaltySound);
 
-    ok = mRacketHitBuffer.loadFromFile(SoundFXDir + "/racket-hit.ogg");
+    ok = mRacketHitBuffer.loadFromFile(SoundFXDir + "/racket-hit.ogg"); //XXX
     if (!ok)
       std::cerr << SoundFXDir + "/racket-hit.ogg failed to load." << std::endl;
     mRacketHitSound.setBuffer(mRacketHitBuffer);
     mRacketHitSound.setLoop(false);
     mSoundFX.push_back(&mRacketHitSound);
 
-    ok = mRacketHitBlockBuffer.loadFromFile(SoundFXDir + "/racket-hit-block.ogg");
+    ok = mRacketHitBlockBuffer.loadFromFile(SoundFXDir + "/racket-hit-block.ogg"); //XXX
     if (!ok)
       std::cerr << SoundFXDir + "/racket-hit-block.ogg failed to load." << std::endl;
     mRacketHitBlockSound.setBuffer(mRacketHitBlockBuffer);
     mRacketHitBlockSound.setLoop(false);
     mSoundFX.push_back(&mRacketHitBlockSound);
 
-    ok = mExplosionBuffer.loadFromFile(SoundFXDir + "/explosion.ogg");
+    ok = mExplosionBuffer.loadFromFile(SoundFXDir + "/explosion.ogg"); //XXX
     if (!ok)
       std::cerr << SoundFXDir + "/explosion.ogg failed to load." << std::endl;
     mExplosionSound.setBuffer(mExplosionBuffer);
     mExplosionSound.setLoop(false);
     mSoundFX.push_back(&mExplosionSound);
 
-    ok = mLevelCompleteBuffer.loadFromFile(SoundFXDir + "/level-complete.ogg");
+    ok = mLevelCompleteBuffer.loadFromFile(SoundFXDir + "/level-complete.ogg"); //XXX
     if (!ok)
       std::cerr << SoundFXDir + "/level-complete.ogg failed to load." << std::endl;
     mLevelCompleteSound.setBuffer(mLevelCompleteBuffer);
     mLevelCompleteSound.setLoop(false);
     mSoundFX.push_back(&mLevelCompleteSound);
 
-    ok = mKillingSpreeSoundBuffer.loadFromFile(SoundFXDir + "/killing-spree.ogg");
+    ok = mKillingSpreeSoundBuffer.loadFromFile(SoundFXDir + "/killing-spree.ogg"); //XXX
     if (!ok)
       std::cerr << SoundFXDir + "/killing-spree.ogg failed to load." << std::endl;
     mKillingSpreeSound.setBuffer(mKillingSpreeSoundBuffer);
@@ -255,25 +255,24 @@ namespace Impact {
 
     setSoundFXVolume(gSettings.soundfxVolume);
 
-    mParticleTexture.loadFromFile(ImagesDir + "/particle.png");
-    mSoftParticleTexture.loadFromFile(ImagesDir + "/smooth-dot-12x12.png");
+    mParticleTexture.loadFromFile(ImagesDir + "/particle.png"); //XXX
 
     mScrollbarTexture.loadFromFile(ImagesDir + "/white-pixel.png");
     mScrollbarSprite.setTexture(mScrollbarTexture);
 
-    mLevelCompletedMsg.setString("Level complete");
+    mLevelCompletedMsg.setString(tr("Level complete"));
     mLevelCompletedMsg.setFont(mFixedFont);
     mLevelCompletedMsg.setCharacterSize(64U);
 
-    mGameOverMsg.setString("Game over");
+    mGameOverMsg.setString(tr("Game over"));
     mGameOverMsg.setFont(mFixedFont);
     mGameOverMsg.setCharacterSize(64U);
 
-    mPlayerWonMsg.setString("You won");
+    mPlayerWonMsg.setString(tr("You won"));
     mPlayerWonMsg.setFont(mFixedFont);
     mPlayerWonMsg.setCharacterSize(64U);
 
-    mYourScoreMsg.setString("Your score");
+    mYourScoreMsg.setString(tr("Your score"));
     mYourScoreMsg.setFont(mFixedFont);
     mYourScoreMsg.setCharacterSize(32U);
 
@@ -431,7 +430,8 @@ namespace Impact {
       ok = mOverlayShader.loadFromFile(ShadersDir + "/approachingoverlay.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/approachingoverlay.fs" << " failed to load/compile." << std::endl;
-      //TODO: uncomment
+
+      //XXX
       //ok = mKeyholeShader.loadFromFile(ShadersDir + "/keyhole.fs", sf::Shader::Fragment);
       //if (!ok)
       //  std::cerr << ShadersDir + "/keyhole.fs" << " failed to load/compile." << std::endl;
@@ -440,8 +440,8 @@ namespace Impact {
       //mKeyholeShader.setParameter("uCenter", sf::Vector2f(.5f, .5f));
     }
 
-    mKeyMapping[Action::PauseAction] = sf::Keyboard::Escape;
-    mKeyMapping[Action::NewBall] = sf::Keyboard::N;
+    mKeyMapping[Action::PauseAction] = sf::Keyboard::Escape; //XXX
+    mKeyMapping[Action::NewBall] = sf::Keyboard::N; //XXX
 
     restart();
   }

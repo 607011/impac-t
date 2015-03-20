@@ -105,10 +105,9 @@ namespace Impact {
     mjd.bodyA = ground;
     mjd.bodyB = mTeetingBody;
     mjd.target = mBody->GetPosition();
-    mjd.collideConnected = true;
-    mjd.frequencyHz = 6.f;
-    mjd.dampingRatio = .9f;
-    mjd.maxForce = 1000.f * mTeetingBody->GetMass();
+    mjd.collideConnected = true;    mjd.frequencyHz = 6.f; //XXX
+    mjd.dampingRatio = .95f; //XXX
+    mjd.maxForce = 1000.f * mTeetingBody->GetMass(); //XXX
     mMouseJoint = reinterpret_cast<b2MouseJoint*>(mGame->world()->CreateJoint(&mjd));
 
     setPosition(pos);

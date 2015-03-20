@@ -34,7 +34,8 @@ namespace Impact {
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
     bd.position.Set(def.pos.x - .5f * Game::InvScale * mSprite.getGlobalBounds().width, def.pos.y - .5f * Game::InvScale * mSprite.getGlobalBounds().height);
-    bd.gravityScale = -1.f;
+    bd.gravityScale = -1.f; //XXX
+    bd.bullet = false;
     bd.fixedRotation = true;
     mBody = mGame->world()->CreateBody(&bd);
   }
