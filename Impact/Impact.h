@@ -149,7 +149,6 @@ namespace Impact {
     static const unsigned int DefaultWindowHeight = DefaultPlaygroundHeight + DefaultStatsHeight;
     static const unsigned int ColorDepth = 32;
     static const int DefaultLives;
-    static const int DefaultPenalty;
     static const int NewLiveAfterSoManyPointsDefault;
     static const int NewLiveAfterSoManyPoints[];
     static const int32 MaxContactPoints = 512;
@@ -250,7 +249,6 @@ namespace Impact {
     sf::Clock mOverlayClock;
     std::vector<OverlayDef> mOverlayQueue;
     sf::Texture mParticleTexture;
-    sf::Texture mSoftParticleTexture;
     std::string mFadeShaderCode;
     sf::Shader mEarthquakeShader;
     float32 mEarthquakeIntensity;
