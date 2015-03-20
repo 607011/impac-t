@@ -82,17 +82,16 @@ namespace Impact {
 
 
   const float32 Game::InvScale = 1.f / Game::Scale;
-  const int Game::DefaultLives = 3;
-  const int Game::DefaultPenalty = 100;
-  const float32 DefaultGravity = 9.81f;
-  const int Game::NewLiveAfterSoManyPoints[] = { 10000, 25000, 50000, 100000, -1 };
-  const int Game::NewLiveAfterSoManyPointsDefault = 100000;
-  const sf::Time Game::DefaultKillingSpreeInterval = sf::milliseconds(2500);
+  const int Game::DefaultLives = 3; //XXX
+  const float32 DefaultGravity = 9.81f; //XXX
+  const int Game::NewLiveAfterSoManyPoints[] = { 10000, 25000, 50000, 100000, -1 }; //XXX
+  const int Game::NewLiveAfterSoManyPointsDefault = 100000; //XXX
+  const sf::Time Game::DefaultKillingSpreeInterval = sf::milliseconds(2500); //XXX
   const sf::Time Game::DefaultFadeEffectDuration = sf::milliseconds(150);
   const sf::Time Game::DefaultAberrationEffectDuration = sf::milliseconds(250);
   const sf::Time Game::DefaultEarthquakeDuration = sf::milliseconds(10 * 1000);
   const sf::Time Game::DefaultOverlayDuration = sf::milliseconds(300);
-  const sf::Time Game::DefaultPenaltyInterval = sf::milliseconds(100);
+  const sf::Time Game::DefaultPenaltyInterval = sf::milliseconds(100); //XXX
 
 #ifndef NDEBUG
   const char* Game::StateNames[State::LastState] = {
