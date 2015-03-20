@@ -1734,9 +1734,6 @@ namespace Impact {
       if (copyBack)
         executeCopy(in, out);
     }
-    else {
-      executeCopy(out, in);
-    }
   }
 
 
@@ -1750,9 +1747,6 @@ namespace Impact {
       out.draw(sprite, states);
       if (copyBack)
         executeCopy(in, out);
-    }
-    else {
-      executeCopy(out, in);
     }
   }
 
@@ -1798,9 +1792,6 @@ namespace Impact {
       }
       executeCopy(in, out);
     }
-    else {
-      executeCopy(out, in);
-    }
   }
 
 
@@ -1832,9 +1823,6 @@ namespace Impact {
       out.draw(sprite, states);
       if (copyBack)
         executeCopy(in, out);
-    }
-    else {
-      executeCopy(out, in);
     }
   }
 
