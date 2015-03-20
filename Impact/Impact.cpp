@@ -2110,6 +2110,7 @@ namespace Impact {
 #endif
             pos.x -= aabb.lowerBound.x + InvScale * .1f;
             racket->setPosition(pos);
+            setCursorOnRacket();
           }
         }
         else if (a->type() == Body::BodyType::RightBoundary || b->type() == Body::BodyType::RightBoundary) {
@@ -2122,6 +2123,20 @@ namespace Impact {
 #endif
             pos.x -= aabb.upperBound.x + InvScale * .1f;
             racket->setPosition(pos);
+            setCursorOnRacket();
+          }
+        }
+        else if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
+          Racket *racket = reinterpret_cast<Racket*>(a->type() == Body::BodyType::Racket ? a : b);
+          const b2AABB &aabb = racket->aabb();
+          b2Vec2 pos = racket->position();
+          if (cp.normal.y > 0) {
+#ifndef NDEBUG
+            std::cout << "racket stuck to GROUND: " << cp.normal.y << std::endl;
+#endif
+            pos.y -= aabb.upperBound.y + InvScale * .1f;
+            racket->setPosition(pos);
+            setCursorOnRacket();
           }
         }
       }
