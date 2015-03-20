@@ -2077,9 +2077,6 @@ namespace Impact {
           const b2AABB &aabb = racket->aabb();
           b2Vec2 pos = racket->position();
           if (cp.normal.x < 0) {
-#ifndef NDEBUG
-            std::cout << "racket stuck LEFT: " << (pos.x + aabb.lowerBound.x) << std::endl;
-#endif
             pos.x -= aabb.lowerBound.x + InvScale * .1f;
             racket->setPosition(pos);
           }
@@ -2089,9 +2086,6 @@ namespace Impact {
           const b2AABB &aabb = racket->aabb();
           b2Vec2 pos = racket->position();
           if (cp.normal.x > 0) {
-#ifndef NDEBUG
-            std::cout << "racket stuck RIGHT: " << (pos.x + aabb.upperBound.x) << std::endl;
-#endif
             pos.x -= aabb.upperBound.x + InvScale * .1f;
             racket->setPosition(pos);
           }
