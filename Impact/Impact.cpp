@@ -1929,7 +1929,7 @@ namespace Impact {
       }
 
       if (gSettings.useShaders) {
-        if (mFadeEffectsActive > 0 && gSettings.useShaders) {
+        if (mFadeEffectsActive > 0) {
           sf::Uint8 c;
           if (mFadeEffectTimer.getElapsedTime() < mFadeEffectDuration) {
             c = sf::Uint8(Easing<float>::quadEaseInForthAndBack(mFadeEffectTimer.getElapsedTime().asSeconds(), 0.f, 255.f, mFadeEffectDuration.asSeconds()));
