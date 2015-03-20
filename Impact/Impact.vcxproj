@@ -244,6 +244,7 @@
     <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\shaders\vignette.fs" />
     <None Include="resources\shaders\keyhole.fs" />
     <None Include="resources\shaders\toon.fs" />
     <None Include="LICENSE.md" />

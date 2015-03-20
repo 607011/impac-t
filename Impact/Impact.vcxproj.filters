@@ -176,6 +176,7 @@
     <None Include="resources\shaders\keyhole.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
+    <None Include="resources\shaders\vignette.fs" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="settings.xml" />

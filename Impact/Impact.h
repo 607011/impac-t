@@ -209,6 +209,7 @@ namespace Impact {
     sf::Shader mVBlurShader;
     bool mBlurPlayground;
     sf::Shader mKeyholeShader;
+    sf::Shader mVignetteShader;
     sf::Font mFixedFont;
     sf::Font mTitleFont;
     sf::Texture mBackgroundTexture;
@@ -398,6 +399,7 @@ namespace Impact {
     void executeBlur(sf::RenderTexture &out, sf::RenderTexture &in, bool copyBack);
     void executeEarthquake(sf::RenderTexture &out, sf::RenderTexture &in, bool copyBack);
     void executeKeyhole(sf::RenderTexture &out, sf::RenderTexture &in, const b2Vec2 &center, bool copyBack);
+    void executeVignette(sf::RenderTexture &out, sf::RenderTexture &in, bool copyBack);
     void resetKillingSpree(void);
 
     void gotoWelcomeScreen(void);

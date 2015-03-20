@@ -438,6 +438,13 @@ namespace Impact {
       //mKeyholeShader.setParameter("uStretch", 2.5f);
       //mKeyholeShader.setParameter("uAspect", mDefaultView.getSize().y / mDefaultView.getSize().x);
       //mKeyholeShader.setParameter("uCenter", sf::Vector2f(.5f, .5f));
+
+      //XXX
+      ok = mVignetteShader.loadFromFile(ShadersDir + "/vignette.fs", sf::Shader::Fragment);
+      if (!ok)
+        std::cerr << ShadersDir + "/vignette.fs" << " failed to load/compile." << std::endl;
+      mVignetteShader.setParameter("uStretch", 1.f);
+      mVignetteShader.setParameter("uHSV", sf::Vector3f(1.f, 1.f, 1.f));
     }
 
     mKeyMapping[Action::PauseAction] = sf::Keyboard::Escape; //XXX
@@ -1722,6 +1729,22 @@ namespace Impact {
   }
 
 
+  inline void Game::executeVignette(sf::RenderTexture &out, sf::RenderTexture &in, bool copyBack)
+  {
+    if (gSettings.useShaders) {
+      if (mRacket != nullptr && mBall != nullptr) {
+        // mVignetteShader.setParameter("uHSV", sf::Vector3f(1.f, 1.f, 1.f));
+        sf::RenderStates states;
+        sf::Sprite sprite(in.getTexture());
+        states.shader = &mVignetteShader;
+        out.draw(sprite, states);
+        if (copyBack)
+          executeCopy(in, out);
+      }
+    }
+  }
+
+
   inline void Game::executeKeyhole(sf::RenderTexture &out, sf::RenderTexture &in, const b2Vec2 &center, bool copyBack)
   {
     if (gSettings.useShaders) {
@@ -1905,6 +1928,8 @@ namespace Impact {
       //if (mBall != nullptr) {
       //  executeKeyhole(mRenderTexture1, mRenderTexture0, mBall->position(), true);
       //}
+
+      executeVignette(mRenderTexture1, mRenderTexture0, true);
 
       if (mBlurPlayground && gSettings.useShaders) {
         executeBlur(mRenderTexture1, mRenderTexture0, true);
