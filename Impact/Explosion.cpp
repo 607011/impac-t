@@ -48,10 +48,10 @@ namespace Impact {
       mShader->setParameter("uMaxAge", def.maxLifetime.asSeconds());
     }
 
-    boost::random::uniform_int_distribution<sf::Int32> randomLifetime(def.minLifetime.asMilliseconds(), def.maxLifetime.asMilliseconds());
-    boost::random::uniform_real_distribution<float32> randomSpeed(def.minSpeed * Game::Scale, def.maxSpeed * Game::Scale);
-    boost::random::uniform_real_distribution<float32> randomAngle(0.f, 2 * b2_pi);
-    boost::random::uniform_real_distribution<float32> randomOffset(Game::InvScale * -5.f, Game::InvScale * +5.f);
+    static boost::random::uniform_int_distribution<sf::Int32> randomLifetime(def.minLifetime.asMilliseconds(), def.maxLifetime.asMilliseconds());
+    static boost::random::uniform_real_distribution<float32> randomSpeed(def.minSpeed * Game::Scale, def.maxSpeed * Game::Scale);
+    static boost::random::uniform_real_distribution<float32> randomAngle(0.f, 2 * b2_pi);
+    static boost::random::uniform_real_distribution<float32> randomOffset(Game::InvScale * -5.f, Game::InvScale * +5.f);
 
     b2World *world = mGame->world();
     const int N = mParticles.size();
@@ -61,7 +61,7 @@ namespace Impact {
       p.lifeTime = sf::milliseconds(randomLifetime(gRNG));
       p.sprite.setTexture(mTexture);
       mTexture.setRepeated(false);
-      mTexture.setSmooth(false);
+      mTexture.setSmooth(true);
       p.sprite.setOrigin(.5f * mTexture.getSize().x, .5f * mTexture.getSize().y);
 
       b2BodyDef bd;
@@ -77,7 +77,7 @@ namespace Impact {
       bd.userData = this;
       bd.gravityScale = def.gravityScale;
       bd.linearDamping = def.linearDamping;
-      float angle = randomAngle(gRNG);
+      const float angle = randomAngle(gRNG);
       bd.linearVelocity = randomSpeed(gRNG) * b2Vec2(std::cos(angle), std::sin(angle));
       p.body = world->CreateBody(&bd);
 
