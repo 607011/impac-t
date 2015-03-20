@@ -121,7 +121,7 @@ namespace Impact {
     , mGround(nullptr)
     , mContactPointCount(0)
     , mLevelScore(0)
-    , mLives(3)
+    , mLives(DefaultLives)
     , mMouseButtonDown(false)
     , mPaused(false)
     , mState(State::Initialization)
@@ -679,6 +679,7 @@ namespace Impact {
           mWindow.close();
         }
       }
+#endif
     }
   }
 
@@ -1926,8 +1927,8 @@ namespace Impact {
           mRenderTexture0.draw(*body);
       }
 
-      //TODO: uncomment
-      //if (mBall != nullptr) {
+      //TODO: uncomment (change mBall to mRacket)
+      //if (mBall != nullptr && gSettings.useShaders) {
       //  executeKeyhole(mRenderTexture1, mRenderTexture0, mBall->position(), true);
       //}
 
@@ -2104,6 +2105,9 @@ namespace Impact {
           const b2AABB &aabb = racket->aabb();
           b2Vec2 pos = racket->position();
           if (cp.normal.x < 0) {
+#ifndef NDEBUG
+            std::cout << "racket stuck LEFT" << std::endl;
+#endif
             pos.x -= aabb.lowerBound.x + InvScale * .1f;
             racket->setPosition(pos);
           }
@@ -2113,6 +2117,9 @@ namespace Impact {
           const b2AABB &aabb = racket->aabb();
           b2Vec2 pos = racket->position();
           if (cp.normal.x > 0) {
+#ifndef NDEBUG
+            std::cout << "racket stuck RIGHT" << std::endl;
+#endif
             pos.x -= aabb.upperBound.x + InvScale * .1f;
             racket->setPosition(pos);
           }
@@ -2521,7 +2528,7 @@ namespace Impact {
 
   int Game::deductPenalty(int score) const
   {
-    return b2Max(0, score - 5 * mLevelTimer.accumulatedMilliseconds() / 1000);
+    return b2Max(0, score - 5 * mLevelTimer.accumulatedMilliseconds() / 1000); //XXX
   }
 
 
