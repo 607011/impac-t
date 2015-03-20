@@ -582,8 +582,10 @@ namespace Impact {
 
   void Game::enterLoop(void)
   {
+#ifdef CT_VERSION_INTERNAL
     if (!mLevelZipFilename.empty())
       loadLevelFromZip(mLevelZipFilename);
+#endif
 
     while (mWindow.isOpen()) {
 
@@ -642,6 +644,7 @@ namespace Impact {
 
       mWindow.display();
 
+#ifdef CT_VERSION_INTERNAL
       if (!mLevelZipFilename.empty()) {
         if (mDisplayCount++ > 10) {
           char szPath[MAX_PATH];
