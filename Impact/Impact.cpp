@@ -2083,6 +2083,32 @@ namespace Impact {
       Body *b = reinterpret_cast<Body *>(cp.fixtureB->GetUserData());
       if (a == nullptr || b == nullptr)
         return;
+      if (a->type() == Body::BodyType::Racket || b->type() == Body::BodyType::Racket) {
+        if (a->type() == Body::BodyType::LeftBoundary || b->type() == Body::BodyType::LeftBoundary) {
+          Racket *racket = reinterpret_cast<Racket*>(a->type() == Body::BodyType::Racket ? a : b);
+          const b2AABB &aabb = racket->aabb();
+          b2Vec2 pos = racket->position();
+          if (cp.normal.x < 0) {
+#ifndef NDEBUG
+            std::cout << "racket stuck LEFT: " << (pos.x + aabb.lowerBound.x) << std::endl;
+#endif
+            pos.x -= aabb.lowerBound.x + InvScale * .1f;
+            racket->setPosition(pos);
+          }
+        }
+        else if (a->type() == Body::BodyType::RightBoundary || b->type() == Body::BodyType::RightBoundary) {
+          Racket *racket = reinterpret_cast<Racket*>(a->type() == Body::BodyType::Racket ? a : b);
+          const b2AABB &aabb = racket->aabb();
+          b2Vec2 pos = racket->position();
+          if (cp.normal.x > 0) {
+#ifndef NDEBUG
+            std::cout << "racket stuck RIGHT: " << (pos.x + aabb.upperBound.x) << std::endl;
+#endif
+            pos.x -= aabb.upperBound.x + InvScale * .1f;
+            racket->setPosition(pos);
+          }
+        }
+      }
       if (a->type() == Body::BodyType::Block || b->type() == Body::BodyType::Block) {
         if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
@@ -2210,8 +2236,9 @@ namespace Impact {
       Body *bodyA = reinterpret_cast<Body*>(cp.fixtureA->GetUserData());
       Body *bodyB = reinterpret_cast<Body*>(cp.fixtureB->GetUserData());
       if (bodyA != nullptr && bodyB != nullptr) {
-        cp.position = contact->GetManifold()->points[0].localPoint;
-        cp.normal = b2Vec2_zero;
+        b2Manifold *manifold = contact->GetManifold();
+        cp.position = manifold->points[0].localPoint;
+        cp.normal = manifold->localNormal;
         cp.normalImpulse = impulse->normalImpulses[0];
         cp.tangentImpulse = impulse->tangentImpulses[0];
         cp.separation = 0.f;
