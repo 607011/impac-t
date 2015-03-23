@@ -42,11 +42,11 @@ Section "${APP}"
   CreateDirectory "$INSTDIR\resources"
   CreateDirectory "$INSTDIR\resources\fonts"
   CreateDirectory "$INSTDIR\resources\images"
-  CreateDirectory "$INSTDIR\resources\music"
   CreateDirectory "$INSTDIR\resources\shaders"
-  CreateDirectory "$INSTDIR\resources\soundfx"
   CreateDirectory "$APPDATA\${APP}"
   CreateDirectory "$APPDATA\${APP}\levels"
+  CreateDirectory "$APPDATA\${APP}\soundfx"
+  CreateDirectory "$APPDATA\${APP}\music"
   File "..\Release\${APP}.exe"
   File "..\${APP}\LICENSE"
   File "..\${APP}\LICENSE.md"
@@ -83,17 +83,17 @@ Section "${APP}"
   SetOutPath "$INSTDIR\resources\images"
   File /a /r "..\${APP}\resources\images\"
 
-;  SetOutPath "$INSTDIR\resources\music"
-;  File /a /r "..\${APP}\resources\music\"
-
   SetOutPath "$INSTDIR\resources\shaders"
   File /a /r "..\${APP}\resources\shaders\"
 
-  SetOutPath "$INSTDIR\resources\soundfx"
-  File /a /r "..\${APP}\resources\soundfx\*.ogg"
-
   SetOutPath "$APPDATA\${APP}\levels"
   File /a /r "..\${APP}\resources\levels\"
+
+  SetOutPath "$APPDATA\${APP}\soundfx"
+  File /a /r "..\${APP}\resources\soundfx\*.ogg"
+
+;  SetOutPath "$APPDATA\${APP}\music"
+;  File /a /r "..\$APPDATA\${APP}\music\"
 
   SetOutPath "$APPDATA\${APP}"
   File "..\${APP}\settings.xml"

@@ -46,6 +46,8 @@ namespace Impact {
     std::string appData;
     std::string settingsFile;
     std::string levelsDir;
+    std::string soundFXDir;
+    std::string musicDir;
   };
 
 }

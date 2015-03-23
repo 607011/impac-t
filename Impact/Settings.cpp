@@ -41,6 +41,8 @@ namespace Impact {
       this->appData += "\\Impact";
       this->settingsFile = this->appData + "\\settings.xml";
       this->levelsDir = this->appData + "\\levels";
+      this->soundFXDir = this->appData + "\\soundfx";
+      this->musicDir = this->appData + "\\music";
 #ifndef NDEBUG
       std::cout << "settingsFile = '" << settingsFile << "'" << std::endl;
 #endif

@@ -175,79 +175,79 @@ namespace Impact {
     if (!ok)
       std::cerr << FontsDir + "/Dimitri.ttf failed to load." << std::endl;
 
-    ok = mStartupBuffer.loadFromFile(SoundFXDir + "/startup.ogg"); 
+    ok = mStartupBuffer.loadFromFile(gSettings.soundFXDir + "/startup.ogg"); 
     if (!ok)
-      std::cerr << SoundFXDir + "/startup.ogg failed to load." << std::endl;
+      std::cerr << gSettings.soundFXDir + "/startup.ogg failed to load." << std::endl;
     mStartupSound.setBuffer(mStartupBuffer);
     mStartupSound.setLoop(false);
     mSoundFX.push_back(&mStartupSound);
 
-    ok = mNewBallBuffer.loadFromFile(SoundFXDir + "/new-ball.ogg"); //XXX
+    ok = mNewBallBuffer.loadFromFile(gSettings.soundFXDir + "/new-ball.ogg"); //XXX
     if (!ok)
-      std::cerr << SoundFXDir + "/new-ball.ogg failed to load." << std::endl;
+      std::cerr << gSettings.soundFXDir + "/new-ball.ogg failed to load." << std::endl;
     mNewBallSound.setBuffer(mNewBallBuffer);
     mNewBallSound.setLoop(false);
     mSoundFX.push_back(&mNewBallSound);
 
-    ok = mNewLifeBuffer.loadFromFile(SoundFXDir + "/new-life.ogg"); //XXX
+    ok = mNewLifeBuffer.loadFromFile(gSettings.soundFXDir + "/new-life.ogg"); //XXX
     if (!ok)
-      std::cerr << SoundFXDir + "/new-ball.ogg failed to load." << std::endl;
+      std::cerr << gSettings.soundFXDir + "/new-ball.ogg failed to load." << std::endl;
     mNewLifeSound.setBuffer(mNewLifeBuffer);
     mNewLifeSound.setLoop(false);
     mSoundFX.push_back(&mNewLifeSound);
 
-    ok = mBallOutBuffer.loadFromFile(SoundFXDir + "/ball-out.ogg"); //XXX
+    ok = mBallOutBuffer.loadFromFile(gSettings.soundFXDir + "/ball-out.ogg"); //XXX
     if (!ok)
-      std::cerr << SoundFXDir + "/ball-out.ogg failed to load." << std::endl;
+      std::cerr << gSettings.soundFXDir + "/ball-out.ogg failed to load." << std::endl;
     mBallOutSound.setBuffer(mBallOutBuffer);
     mBallOutSound.setLoop(false);
     mSoundFX.push_back(&mBallOutSound);
 
-    ok = mBlockHitBuffer.loadFromFile(SoundFXDir + "/block-hit.ogg"); //XXX
+    ok = mBlockHitBuffer.loadFromFile(gSettings.soundFXDir + "/block-hit.ogg"); //XXX
     if (!ok)
-      std::cerr << SoundFXDir + "/block-hit.ogg failed to load." << std::endl;
+      std::cerr << gSettings.soundFXDir + "/block-hit.ogg failed to load." << std::endl;
     mBlockHitSound.setBuffer(mBlockHitBuffer);
     mBlockHitSound.setLoop(false);
     mSoundFX.push_back(&mBlockHitSound);
 
-    ok = mPenaltyBuffer.loadFromFile(SoundFXDir + "/penalty.ogg"); //XXX
+    ok = mPenaltyBuffer.loadFromFile(gSettings.soundFXDir + "/penalty.ogg"); //XXX
     if (!ok)
-      std::cerr << SoundFXDir + "/penalty.ogg failed to load." << std::endl;
+      std::cerr << gSettings.soundFXDir + "/penalty.ogg failed to load." << std::endl;
     mPenaltySound.setBuffer(mPenaltyBuffer);
     mPenaltySound.setLoop(false);
     mSoundFX.push_back(&mPenaltySound);
 
-    ok = mRacketHitBuffer.loadFromFile(SoundFXDir + "/racket-hit.ogg"); //XXX
+    ok = mRacketHitBuffer.loadFromFile(gSettings.soundFXDir + "/racket-hit.ogg"); //XXX
     if (!ok)
-      std::cerr << SoundFXDir + "/racket-hit.ogg failed to load." << std::endl;
+      std::cerr << gSettings.soundFXDir + "/racket-hit.ogg failed to load." << std::endl;
     mRacketHitSound.setBuffer(mRacketHitBuffer);
     mRacketHitSound.setLoop(false);
     mSoundFX.push_back(&mRacketHitSound);
 
-    ok = mRacketHitBlockBuffer.loadFromFile(SoundFXDir + "/racket-hit-block.ogg"); //XXX
+    ok = mRacketHitBlockBuffer.loadFromFile(gSettings.soundFXDir + "/racket-hit-block.ogg"); //XXX
     if (!ok)
-      std::cerr << SoundFXDir + "/racket-hit-block.ogg failed to load." << std::endl;
+      std::cerr << gSettings.soundFXDir + "/racket-hit-block.ogg failed to load." << std::endl;
     mRacketHitBlockSound.setBuffer(mRacketHitBlockBuffer);
     mRacketHitBlockSound.setLoop(false);
     mSoundFX.push_back(&mRacketHitBlockSound);
 
-    ok = mExplosionBuffer.loadFromFile(SoundFXDir + "/explosion.ogg"); //XXX
+    ok = mExplosionBuffer.loadFromFile(gSettings.soundFXDir + "/explosion.ogg"); //XXX
     if (!ok)
-      std::cerr << SoundFXDir + "/explosion.ogg failed to load." << std::endl;
+      std::cerr << gSettings.soundFXDir + "/explosion.ogg failed to load." << std::endl;
     mExplosionSound.setBuffer(mExplosionBuffer);
     mExplosionSound.setLoop(false);
     mSoundFX.push_back(&mExplosionSound);
 
-    ok = mLevelCompleteBuffer.loadFromFile(SoundFXDir + "/level-complete.ogg"); //XXX
+    ok = mLevelCompleteBuffer.loadFromFile(gSettings.soundFXDir + "/level-complete.ogg"); //XXX
     if (!ok)
-      std::cerr << SoundFXDir + "/level-complete.ogg failed to load." << std::endl;
+      std::cerr << gSettings.soundFXDir + "/level-complete.ogg failed to load." << std::endl;
     mLevelCompleteSound.setBuffer(mLevelCompleteBuffer);
     mLevelCompleteSound.setLoop(false);
     mSoundFX.push_back(&mLevelCompleteSound);
 
-    ok = mKillingSpreeSoundBuffer.loadFromFile(SoundFXDir + "/killing-spree.ogg"); //XXX
+    ok = mKillingSpreeSoundBuffer.loadFromFile(gSettings.soundFXDir + "/killing-spree.ogg"); //XXX
     if (!ok)
-      std::cerr << SoundFXDir + "/killing-spree.ogg failed to load." << std::endl;
+      std::cerr << gSettings.soundFXDir + "/killing-spree.ogg failed to load." << std::endl;
     mKillingSpreeSound.setBuffer(mKillingSpreeSoundBuffer);
     mKillingSpreeSound.setLoop(false);
     mSoundFX.push_back(&mKillingSpreeSound);
