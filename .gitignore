@@ -35,8 +35,8 @@ Debug/glew32.dll
 Debug/zlib.dll
 Debug/libsndfile-1.dll
 Debug/openal32.dll
-Debug/sfml-audio-2.dll
-Debug/sfml-graphics-2.dll
-Debug/sfml-system-2.dll
-Debug/sfml-window-2.dll
-Debug/sfml-network-2.dll
+Debug/sfml-audio-d-2.dll
+Debug/sfml-graphics-d-2.dll
+Debug/sfml-system-d-2.dll
+Debug/sfml-window-d-2.dll
+Debug/sfml-network-d-2.dll
