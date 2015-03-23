@@ -157,8 +157,8 @@ namespace Impact {
     static const sf::Time DefaultEarthquakeDuration;
     static const sf::Time DefaultOverlayDuration;
     static const sf::Time DefaultPenaltyInterval;
-    static const int DefaultKillingsPerKillingSpree = 5;
-    static const int DefaultKillingSpreeBonus = 1000;
+    static const int DefaultKillingsPerKillingSpree;
+    static const int DefaultKillingSpreeBonus;
     static const sf::Time DefaultKillingSpreeInterval;
 
     Game(void);

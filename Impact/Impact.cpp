@@ -87,6 +87,8 @@ namespace Impact {
   const int Game::NewLiveAfterSoManyPoints[] = { 10000, 25000, 50000, 100000, -1 }; //XXX
   const int Game::NewLiveAfterSoManyPointsDefault = 100000; //XXX
   const sf::Time Game::DefaultKillingSpreeInterval = sf::milliseconds(2500); //XXX
+  const int Game::DefaultKillingsPerKillingSpree = 5;
+  const int Game::DefaultKillingSpreeBonus = 1000;
   const sf::Time Game::DefaultFadeEffectDuration = sf::milliseconds(150);
   const sf::Time Game::DefaultAberrationEffectDuration = sf::milliseconds(250);
   const sf::Time Game::DefaultEarthquakeDuration = sf::milliseconds(10 * 1000);
