@@ -281,6 +281,7 @@ namespace Impact {
     sf::Text mGameOverMsg;
     sf::Text mPlayerWonMsg;
     sf::Text mScoreMsg;
+    sf::Text mCurrentScoreMsg;
     sf::Text mYourScoreMsg;
     sf::Text mTotalScoreMsg;
     sf::Text mTotalScorePointsMsg;
@@ -347,7 +348,8 @@ namespace Impact {
     Ball *mBall;
     Racket *mRacket;
     Level mLevel;
-    LevelTimer mLevelTimer;
+    Timer mLevelTimer;
+    sf::Clock mStatsClock;
     sf::Clock mPenaltyClock;
     std::vector<sf::Time> mLastKillings;
     int mLastKillingsIndex;

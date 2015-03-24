@@ -291,6 +291,9 @@ namespace Impact {
     mScoreMsg.setFont(mFixedFont);
     mScoreMsg.setCharacterSize(16U);
 
+    mCurrentScoreMsg.setFont(mFixedFont);
+    mCurrentScoreMsg.setCharacterSize(16U);
+
     mTotalScoreMsg.setFont(mFixedFont);
     mTotalScoreMsg.setCharacterSize(64U);
 
@@ -453,7 +456,7 @@ namespace Impact {
       if (!ok)
         std::cerr << ShadersDir + "/vignette.fs" << " failed to load/compile." << std::endl;
       mVignetteShader.setParameter("uStretch", 1.0f);
-      mVignetteShader.setParameter("uHSV", sf::Vector3f(1.0f, 1.0f, 1.0f));
+      mVignetteShader.setParameter("uHSV", sf::Vector3f(1.1f, 1.0f, 1.0f));
     }
 
     mKeyMapping[Action::PauseAction] = sf::Keyboard::Escape; //XXX
@@ -1119,6 +1122,7 @@ namespace Impact {
       }
       setState(State::Playing);
       mLevelTimer.restart();
+      mStatsClock.restart();
       mPenaltyClock.restart();
       mLevelScore = 0;
     }
@@ -2019,65 +2023,61 @@ namespace Impact {
       }
     }
 
-    if (true /* TODO: call the stats block only every 1/60th seconds for better overall performance */) {
-      mWindow.setView(mStatsView);
-
-      mWindow.draw(mStatsViewRectangle);
-
+    if (mStatsClock.getElapsedTime() > sf::milliseconds(33)) {
       mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
-      mWindow.draw(mLevelMsg);
-
       mFPSText.setString(std::to_string(mFPS) + " fps");
       mFPSText.setPosition(mStatsView.getSize().x - mFPSText.getGlobalBounds().width - 4, mStatsView.getSize().y - 4 - mFPSText.getGlobalBounds().height);
-      mWindow.draw(mFPSText);
-
-      mWindow.draw(mLevelNameText);
-      mWindow.draw(mLevelAuthorText);
-
       if (mState == State::Playing) {
         const int penalty = calcPenalty();
         mScoreMsg.setString(std::to_string(mLevelScore) + (penalty > 0 ? " " + std::to_string(-penalty) : ""));
         mScoreMsg.setPosition(mStatsView.getSize().x - mScoreMsg.getLocalBounds().width - 4, 4);
-        mWindow.draw(mScoreMsg);
-
-        sf::Text totalScoreMsg;
-        totalScoreMsg.setFont(mFixedFont);
-        totalScoreMsg.setCharacterSize(16U);
-        totalScoreMsg.setString("total: " + std::to_string(b2Max(0, mTotalScore + mLevelScore - penalty)));
-        totalScoreMsg.setPosition(mStatsView.getSize().x - totalScoreMsg.getLocalBounds().width - 4, 20);
-        mWindow.draw(totalScoreMsg);
-
-        for (unsigned int life = 0; life < mLives; ++life) {
-          const sf::Texture &ballTexture = mLevel.texture(Ball::Name);
-          sf::Sprite lifeSprite(ballTexture);
-          lifeSprite.setOrigin(0.f, 0.f);
-          lifeSprite.setPosition(4 + (ballTexture.getSize().x * 1.5f) * life, 26.f);
-          mWindow.draw(lifeSprite);
-        }
+        mCurrentScoreMsg.setString("total: " + std::to_string(b2Max(0, mTotalScore + mLevelScore - penalty)));
+        mCurrentScoreMsg.setPosition(mStatsView.getSize().x - mCurrentScoreMsg.getLocalBounds().width - 4, 20);
       }
+      mStatsClock.restart();
+    }
 
-      // draw special effect hints
-      std::vector<std::vector<SpecialEffect>::iterator> expiredEffects;
-      sf::Vector2f pos(mStatsView.getSize().x - 4, mStatsView.getSize().y - 16);
-      for (std::vector<SpecialEffect>::iterator i = mSpecialEffects.begin(); i != mSpecialEffects.end(); ++i) {
-        if (i->isActive()) {
-          const sf::Uint8 alpha = 255U - sf::Uint8(255U * i->clock->getElapsedTime().asMilliseconds() / i->duration.asMilliseconds());
-          i->sprite.setPosition(pos);
-          i->sprite.setColor(sf::Color(255U, 255U, 255U, alpha));
-          mWindow.draw(i->sprite);
-          pos.x -= i->texture.getSize().x;
-        }
-        else {
-          expiredEffects.push_back(i);
-        }
-      }
-      for (std::vector<std::vector<SpecialEffect>::iterator>::const_iterator i = expiredEffects.cbegin(); i != expiredEffects.cend(); ++i) {
-#ifndef NDEBUG
-        std::cout << "Expired effect 0x" << std::hex << std::setfill('0') << std::setw(8) << (*i)->clock << std::endl;
-#endif
-        mSpecialEffects.erase(*i);
+    mWindow.setView(mStatsView);
+    mWindow.draw(mStatsViewRectangle);
+    mWindow.draw(mLevelMsg);
+    mWindow.draw(mFPSText);
+    mWindow.draw(mLevelNameText);
+    mWindow.draw(mLevelAuthorText);
+
+    if (mState == State::Playing) {
+      mWindow.draw(mScoreMsg);
+      mWindow.draw(mCurrentScoreMsg);
+      for (unsigned int life = 0; life < mLives; ++life) {
+        const sf::Texture &ballTexture = mLevel.texture(Ball::Name);
+        sf::Sprite lifeSprite(ballTexture);
+        lifeSprite.setOrigin(0.f, 0.f);
+        lifeSprite.setPosition(4 + (ballTexture.getSize().x * 1.5f) * life, 26.f);
+        mWindow.draw(lifeSprite);
       }
     }
+
+    // draw special effect hints
+    std::vector<std::vector<SpecialEffect>::iterator> expiredEffects;
+    sf::Vector2f pos(mStatsView.getSize().x - 4, mStatsView.getSize().y - 16);
+    for (std::vector<SpecialEffect>::iterator i = mSpecialEffects.begin(); i != mSpecialEffects.end(); ++i) {
+      if (i->isActive()) {
+        const sf::Uint8 alpha = 255U - sf::Uint8(255U * i->clock->getElapsedTime().asMilliseconds() / i->duration.asMilliseconds());
+        i->sprite.setPosition(pos);
+        i->sprite.setColor(sf::Color(255U, 255U, 255U, alpha));
+        mWindow.draw(i->sprite);
+        pos.x -= i->texture.getSize().x;
+      }
+      else {
+        expiredEffects.push_back(i);
+      }
+    }
+    for (std::vector<std::vector<SpecialEffect>::iterator>::const_iterator i = expiredEffects.cbegin(); i != expiredEffects.cend(); ++i) {
+#ifndef NDEBUG
+      std::cout << "Expired effect 0x" << std::hex << std::setfill('0') << std::setw(8) << (*i)->clock << std::endl;
+#endif
+      mSpecialEffects.erase(*i);
+    }
+
   }
 
 

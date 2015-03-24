@@ -17,8 +17,8 @@
 
 */
 
-#ifndef __LEVELTIMER_H_
-#define __LEVELTIMER_H_
+#ifndef __TIMER_H_
+#define __TIMER_H_
 
 #include <SFML/System.hpp>
 
@@ -27,9 +27,10 @@
 #endif
 
 namespace Impact {
-class LevelTimer {
+
+  class Timer {
   public:
-    LevelTimer(void)
+    Timer(void)
     {
       restart();
       mActive = false;
@@ -43,7 +44,7 @@ class LevelTimer {
     inline void pause(void)
     {
 #ifndef NDEBUG
-      std::cout << "LevelTimer is paused." << std::endl;
+      std::cout << "Timer is paused." << std::endl;
 #endif
       mTime += mClock.restart();
       mActive = false;
@@ -51,7 +52,7 @@ class LevelTimer {
     inline void resume(void)
     {
 #ifndef NDEBUG
-      std::cout << "LevelTimer is active." << std::endl;
+      std::cout << "Timer is active." << std::endl;
 #endif
       mActive = true;
       mClock.restart();
@@ -73,8 +74,8 @@ class LevelTimer {
     sf::Clock mClock;
     sf::Time mTime;
     bool mActive;
-  };
+    };
 
 }
 
-#endif // __LEVELTIMER_H_
+#endif // __TIMER_H_

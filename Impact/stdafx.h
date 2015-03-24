@@ -65,7 +65,7 @@
 #include "Settings.h"
 #include "globals.h"
 #include "Easings.h"
-#include "LevelTimer.h"
+#include "Timer.h"
 #include "TileParam.h"
 #include "Level.h"
 #include "Destructible.h"
