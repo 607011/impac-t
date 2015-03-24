@@ -2036,10 +2036,17 @@ namespace Impact {
 
       if (mState == State::Playing) {
         const int penalty = calcPenalty();
-        mScoreMsg.setString(std::to_string(mLevelScore) + (penalty > 0 ? std::to_string(-penalty) : "") + "\n"
-          + "total: " + std::to_string(mTotalScore));
+        mScoreMsg.setString(std::to_string(mLevelScore) + (penalty > 0 ? " " + std::to_string(-penalty) : ""));
         mScoreMsg.setPosition(mStatsView.getSize().x - mScoreMsg.getLocalBounds().width - 4, 4);
         mWindow.draw(mScoreMsg);
+
+        sf::Text totalScoreMsg;
+        totalScoreMsg.setFont(mFixedFont);
+        totalScoreMsg.setCharacterSize(16U);
+        totalScoreMsg.setString("total: " + std::to_string(b2Max(0, mTotalScore + mLevelScore - penalty)));
+        totalScoreMsg.setPosition(mStatsView.getSize().x - totalScoreMsg.getLocalBounds().width - 4, 20);
+        mWindow.draw(totalScoreMsg);
+
         for (unsigned int life = 0; life < mLives; ++life) {
           const sf::Texture &ballTexture = mLevel.texture(Ball::Name);
           sf::Sprite lifeSprite(ballTexture);
