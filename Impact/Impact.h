@@ -232,7 +232,8 @@ namespace Impact {
     sf::Text mMenuUseShadersText;
     sf::Text mMenuUseShadersForExplosionsText;
     sf::Text mMenuParticlesPerExplosionText;
-    sf::Text mMenuAntialiasingLevelText;
+    sf::Text mMenuMusicVolumeText;
+    sf::Text mMenuSoundFXVolumeText;
     sf::Text mOptionsTitleText;
     sf::Text mCreditsTitleText;
     sf::Text mCreditsText;
