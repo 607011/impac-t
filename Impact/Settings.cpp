@@ -28,8 +28,6 @@ namespace Impact {
 
   Settings::Settings(void)
     : useShaders(ENABLE_SHADERS)
-    , verticalSync(false)
-    , antialiasingLevel(16U)
     , particlesPerExplosion(50)
     , lastCampaignLevel(1)
     , musicVolume(50)
@@ -61,8 +59,6 @@ namespace Impact {
     pt.put("impact.use-shaders", this->useShaders);
     pt.put("impact.explosion.use-shaders", this->useShadersForExplosions);
     pt.put("impact.explosion.particle-count", this->particlesPerExplosion);
-    pt.put("impact.vertical-sync", this->verticalSync);
-    pt.put("impact.antialiasing-level", this->antialiasingLevel);
     pt.put("impact.last-open-dir", this->lastOpenDir);
     pt.put("impact.campaign.last-level", this->lastCampaignLevel);
     pt.put("impact.volume.music", this->musicVolume);
@@ -99,14 +95,12 @@ namespace Impact {
       this->useShaders = pt.get<bool>("impact.use-shaders", true);
       this->useShadersForExplosions = pt.get<bool>("impact.explosion.use-shaders", true);
       this->particlesPerExplosion = pt.get<unsigned int>("impact.explosion.particle-count", 50U);
-      this->verticalSync = pt.get<bool>("impact.vertical-sync", false);
-      this->antialiasingLevel = pt.get<unsigned int>("impact.antialiasing-level", 0U);
       this->lastOpenDir = pt.get<std::string>("impact.last-open-dir", levelsDir);
       this->lastCampaignLevel = pt.get<int>("impact.campaign.last-level", 1);
       if (this->lastCampaignLevel < 1)
         this->lastCampaignLevel = 1;
-      this->soundfxVolume = b2Clamp(pt.get<float>("impact.volume.soundfx", 100), 0.f, 100.f);
-      this->musicVolume = b2Clamp(pt.get<float>("impact.volume.music", 50), 0.f, 100.f);
+      this->soundfxVolume = b2Clamp(pt.get<float>("impact.volume.soundfx", 100.f), 0.f, 100.f);
+      this->musicVolume = b2Clamp(pt.get<float>("impact.volume.music", 50.f), 0.f, 100.f);
     }
     catch (const boost::property_tree::xml_parser::xml_parser_error &ex) {
       std::cerr << "XML parser error: " << ex.what() << " (line " << ex.line() << ")" << std::endl;
@@ -117,8 +111,6 @@ namespace Impact {
     std::cout << "useShaderss: " << this->useShaders << std::endl;
     std::cout << "useShadersForExplosions: " << this->useShadersForExplosions << std::endl;
     std::cout << "particlesPerExplosion: " << this->particlesPerExplosion << std::endl;
-    std::cout << "verticalSync: " << this->verticalSync << std::endl;
-    std::cout << "antialiasingLevel: " << this->antialiasingLevel << std::endl;
     std::cout << "lastOpenDir: " << this->lastOpenDir << std::endl;
     std::cout << "lastCampaignLevel: " << this->lastCampaignLevel << std::endl;
     std::cout << "soundfxVolume: " << this->soundfxVolume << std::endl;

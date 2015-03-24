@@ -487,7 +487,7 @@ namespace Impact {
   void Game::createMainWindow(void)
   {
     sf::ContextSettings requestedContextSettings(24U, 0U, 16U, 3U, 0U);
-    requestedContextSettings.antialiasingLevel = gSettings.antialiasingLevel;
+    requestedContextSettings.antialiasingLevel = 0;
     mWindow.create(
       sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth),
       std::string("Impac't") + " v" + std::string(IMPACT_VERSION),
@@ -1102,7 +1102,7 @@ namespace Impact {
     mScaleGravityEnabled = false;
     mScaleBallDensityEnabled = false;
     if (mLevel.isAvailable()) {
-      mWindow.setVerticalSyncEnabled(gSettings.verticalSync);
+      mWindow.setVerticalSyncEnabled(false);
       if (mPlaymode == Campaign)
         gSettings.lastCampaignLevel = mLevel.num();
       buildLevel();
