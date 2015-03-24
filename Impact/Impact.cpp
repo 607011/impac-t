@@ -145,7 +145,7 @@ namespace Impact {
     , mBlurPlayground(false)
     , mOverlayDuration(DefaultOverlayDuration)
     , mLastKillingsIndex(0)
-    , mFPSArray(20, 0)
+    , mFPSArray(32, 0)
     , mFPS(0)
     , mFPSIndex(0)
   {
@@ -2220,8 +2220,11 @@ namespace Impact {
 
   inline void Game::update(const sf::Time &elapsed)
   {
+    if (elapsed == sf::Time::Zero)
+      return;
+
     float elapsedSeconds = 1e-6f * elapsed.asMicroseconds();
-    
+
     BodyList remainingBodies;
     for (BodyList::iterator b = mBodies.begin(); b != mBodies.end(); ++b) {
       Body *body = *b;
