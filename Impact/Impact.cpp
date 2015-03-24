@@ -2104,6 +2104,11 @@ namespace Impact {
   void Game::evaluateCollisions(void)
   {
     std::list<Body*> killedBodies;
+
+    auto isAlive = [&killedBodies](Body *body) {
+      return std::find(killedBodies.cbegin(), killedBodies.cend(), body) == killedBodies.cend();
+    };
+
     for (int i = 0; i < mContactPointCount; ++i) {
       ContactPoint &cp = mPoints[i];
       b2Body *bodyA = cp.fixtureA->GetBody();
@@ -2156,7 +2161,7 @@ namespace Impact {
       if (a->type() == Body::BodyType::Block || b->type() == Body::BodyType::Block) {
         if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
-          if (std::find(killedBodies.cbegin(), killedBodies.cend(), block) == killedBodies.cend()) {
+          if (isAlive(block)) {
             bool destroyed = block->hit(cp.normalImpulse);
             if (destroyed) {
               block->kill();
@@ -2169,7 +2174,7 @@ namespace Impact {
         }
         else if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
-          if (std::find(killedBodies.cbegin(), killedBodies.cend(), block) == killedBodies.cend()) {
+          if (isAlive(block)) {
             block->kill();
             killedBodies.push_back(block);
           }
@@ -2177,7 +2182,7 @@ namespace Impact {
         else if (a->type() == Body::BodyType::Racket || b->type() == Body::BodyType::Racket) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
           if (block->body()->GetGravityScale() > 0.f) {
-            if (std::find(killedBodies.cbegin(), killedBodies.cend(), block) == killedBodies.cend()) {
+            if (isAlive(block)) {
               showScore(block->getScore(), block->position(), 2);
               block->kill();
               mRacketHitBlockSound.play();
@@ -2197,7 +2202,7 @@ namespace Impact {
       else if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
         if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
           Ball *ball = reinterpret_cast<Ball*>(a->type() == Body::BodyType::Ball ? a : b);
-          if (std::find(killedBodies.cbegin(), killedBodies.cend(), ball) == killedBodies.cend()) {
+          if (isAlive(ball)) {
             ball->lethalHit();
             ball->kill();
             killedBodies.push_back(ball);
