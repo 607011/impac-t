@@ -262,6 +262,7 @@ namespace Impact {
     mSoundFX.push_back(&mKillingSpreeSound);
 
     setSoundFXVolume(gSettings.soundfxVolume);
+    setMusicVolume(gSettings.musicVolume);
 
     mParticleTexture.loadFromFile(ImagesDir + "/particle.png"); //XXX
 
@@ -1486,12 +1487,15 @@ namespace Impact {
             if (gSettings.musicVolume > 100.f)
               gSettings.musicVolume = 0.f;
             gSettings.save();
+            setMusicVolume(gSettings.musicVolume);
           }
           else if (mMenuSoundFXVolumeText.getGlobalBounds().contains(mousePos)) {
             gSettings.soundfxVolume += 5.f;
             if (gSettings.soundfxVolume > 100.f)
               gSettings.soundfxVolume = 0.f;
             gSettings.save();
+            setSoundFXVolume(gSettings.soundfxVolume);
+            mRacketHitBlockSound.play();
           }
           else if (mMenuFrameRateLimitText.getGlobalBounds().contains(mousePos)) {
             if (gSettings.framerateLimit == 0)
@@ -2648,6 +2652,15 @@ namespace Impact {
   {
     for (std::vector<sf::Sound*>::iterator sound = mSoundFX.begin(); sound != mSoundFX.end(); ++sound)
       (*sound)->setVolume(volume);
+  }
+
+
+  void Game::setMusicVolume(float volume)
+  {
+    for (std::vector<sf::Music*>::iterator m = mMusic.begin(); m != mMusic.end(); ++m)
+      (*m)->setVolume(volume);
+    if (mLevel.music() != nullptr)
+      mLevel.music()->setVolume(volume);
   }
 
 

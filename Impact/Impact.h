@@ -376,6 +376,7 @@ namespace Impact {
     std::vector<sf::Sound*> mSoundFX;
 
     void setSoundFXVolume(float volume);
+    void setMusicVolume(float volume);
     int calcPenalty(void) const;
     int deductPenalty(int score) const;
     void createStatsViewRectangle(void);
