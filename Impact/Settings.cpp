@@ -28,11 +28,11 @@ namespace Impact {
 
   Settings::Settings(void)
     : useShaders(ENABLE_SHADERS)
-    , particlesPerExplosion(50)
+    , particlesPerExplosion(50U)
     , lastCampaignLevel(1)
-    , musicVolume(50)
-    , soundfxVolume(100)
-    , framerateLimit(0)
+    , musicVolume(50.f)
+    , soundfxVolume(100.f)
+    , framerateLimit(0U)
   {
     TCHAR szPath[MAX_PATH];
     if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, szPath))) {
