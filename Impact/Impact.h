@@ -109,7 +109,7 @@ namespace Impact {
     typedef enum _Actions {
       NoAction,
       PauseAction,
-      NewBall,
+      RecoverBallAction,
       LastAction
     } Action;
 

@@ -465,8 +465,8 @@ namespace Impact {
       mVignetteShader.setParameter("uHSV", sf::Vector3f(1.1f, 1.0f, 1.0f));
     }
 
-    mKeyMapping[Action::PauseAction] = sf::Keyboard::Escape; //XXX
-    mKeyMapping[Action::NewBall] = sf::Keyboard::N; //XXX
+    mKeyMapping[PauseAction] = sf::Keyboard::Escape; //XXX
+    mKeyMapping[RecoverBallAction] = sf::Keyboard::N; //XXX
 
     restart();
   }
@@ -1225,13 +1225,13 @@ namespace Impact {
           newBall();
         break;
       case sf::Event::KeyPressed:
-        if (event.key.code == mKeyMapping[Action::PauseAction]) {
+        if (event.key.code == mKeyMapping[PauseAction]) {
           if (!mPaused)
             gotoPausing();
           else
             resume();
         }
-        else if (event.key.code == mKeyMapping[Action::NewBall] || event.key.code == sf::Keyboard::Space) {
+        else if (event.key.code == mKeyMapping[RecoverBallAction] || event.key.code == sf::Keyboard::Space) {
           if (mBall != nullptr) {
             const b2Vec2 &padPos = mRacket->position();
             mBall->setPosition(padPos.x, padPos.y - 3.5f);
@@ -1557,7 +1557,6 @@ namespace Impact {
     mWindow.draw(mMenuBackText);
 
     updateStats();
-
     mWindow.setView(mStatsView);
     mWindow.draw(mFPSText);
   }
