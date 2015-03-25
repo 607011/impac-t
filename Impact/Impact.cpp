@@ -1870,7 +1870,7 @@ namespace Impact {
     }
     mEarthquakeShader.setParameter("uMaxT", mEarthquakeDuration.asSeconds());
     OverlayDef od;
-    od.line1 = std::string("Shake ") + std::to_string(static_cast<int>(10 * mEarthquakeIntensity));
+    od.line1 = std::string("Shake ") + std::to_string(int(10 * mEarthquakeIntensity));
     od.line2 = std::string("for ") + std::to_string(mEarthquakeDuration.asMilliseconds() / 1000) + "s";
     startOverlay(od);
   }
@@ -2415,9 +2415,7 @@ namespace Impact {
     mLevelAuthorText.setString(mLevel.author());
     mLevelAuthorText.setPosition(4, 62);
 
-    // place mouse cursor on racket position
-    const b2Vec2 &racketPos = float32(Game::Scale) * mRacket->position();
-    sf::Mouse::setPosition(sf::Vector2i(int(racketPos.x), int(racketPos.y)), mWindow);
+    setCursorOnRacket();
   }
 
 
@@ -2450,8 +2448,10 @@ namespace Impact {
 
   void Game::setCursorOnRacket(void)
   {
-    if (mRacket != nullptr)
-      sf::Mouse::setPosition(sf::Vector2i(static_cast<int>(Scale * mRacket->position().x), static_cast<int>(Scale * mRacket->position().y)), mWindow);
+    if (mRacket != nullptr) {
+      const b2Vec2 &racketPos = float32(Game::Scale) * mRacket->position();
+      sf::Mouse::setPosition(sf::Vector2i(int(racketPos.x), int(racketPos.y)), mWindow);
+    }
   }
 
 
@@ -2582,7 +2582,7 @@ namespace Impact {
         mScaleGravityDuration = tileParam.scaleGravityDuration;
         startAberrationEffect(tileParam.scaleGravityBy, tileParam.scaleGravityDuration);
         OverlayDef od;
-        od.line1 = std::string("G*") + std::to_string(static_cast<int>(tileParam.scaleGravityBy));
+        od.line1 = std::string("G*") + std::to_string(int(tileParam.scaleGravityBy));
         od.line2 = std::string("for ") + std::to_string(tileParam.scaleGravityDuration.asMilliseconds() / 1000) + "s";
         startOverlay(od);
         addSpecialEffect(SpecialEffect(mScaleGravityDuration, &mScaleGravityClock, killedBody->texture()));
