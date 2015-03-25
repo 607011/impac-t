@@ -248,7 +248,7 @@
     <ClInclude Include="Easings.h" />
     <ClInclude Include="globals.h" />
     <ClInclude Include="Level.h" />
-    <ClInclude Include="LevelTimer.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="TileParam.h" />
     <ClInclude Include="util.h" />

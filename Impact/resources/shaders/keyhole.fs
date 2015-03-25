@@ -20,6 +20,7 @@
 uniform sampler2D uTexture;
 uniform float uStretch;
 uniform float uAspect;
+uniform float uSharpness;
 uniform float uDarkest;
 uniform vec2 uCenter;
 
@@ -28,8 +29,8 @@ void main(void)
   vec2 aspect = vec2(1.0 / uAspect, uAspect);
   vec2 coord = gl_TexCoord[0].st * aspect;
   vec2 center = vec2(uCenter.x, 1.0 - uCenter.y) * aspect;
-  float dist = uStretch * distance(center, coord);
-  float lightness = 1.0 - pow(dist, 1.65);
+  float dist = distance(center, coord) / uStretch;
+  float lightness = 1.0 - pow(dist, uSharpness);
   vec3 rgb = texture2D(uTexture, gl_TexCoord[0].st).rgb;
   gl_FragColor = vec4(rgb * lightness, 1.0);
 }

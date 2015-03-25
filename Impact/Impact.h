@@ -148,17 +148,18 @@ namespace Impact {
     static const unsigned int DefaultWindowWidth = DefaultPlaygroundWidth;
     static const unsigned int DefaultWindowHeight = DefaultPlaygroundHeight + DefaultStatsHeight;
     static const unsigned int ColorDepth = 32;
-    static const int DefaultLives;
-    static const int NewLiveAfterSoManyPointsDefault;
-    static const int NewLiveAfterSoManyPoints[];
+    static const unsigned int DefaultLives;
+    static const unsigned int NewLiveAfterSoManyPointsDefault;
+    static const unsigned int NewLiveAfterSoManyPoints[];
+    static const int DefaultForceNewBallPenalty;
     static const int32 MaxContactPoints = 512;
     static const sf::Time DefaultFadeEffectDuration;
     static const sf::Time DefaultAberrationEffectDuration;
     static const sf::Time DefaultEarthquakeDuration;
     static const sf::Time DefaultOverlayDuration;
     static const sf::Time DefaultPenaltyInterval;
-    static const int DefaultKillingsPerKillingSpree;
-    static const int DefaultKillingSpreeBonus;
+    static const unsigned int DefaultKillingsPerKillingSpree;
+    static const unsigned int DefaultKillingSpreeBonus;
     static const sf::Time DefaultKillingSpreeInterval;
 
     Game(void);
@@ -231,7 +232,8 @@ namespace Impact {
     sf::Text mMenuUseShadersText;
     sf::Text mMenuUseShadersForExplosionsText;
     sf::Text mMenuParticlesPerExplosionText;
-    sf::Text mMenuAntialiasingLevelText;
+    sf::Text mMenuMusicVolumeText;
+    sf::Text mMenuSoundFXVolumeText;
     sf::Text mOptionsTitleText;
     sf::Text mCreditsTitleText;
     sf::Text mCreditsText;
@@ -279,6 +281,7 @@ namespace Impact {
     sf::Text mGameOverMsg;
     sf::Text mPlayerWonMsg;
     sf::Text mScoreMsg;
+    sf::Text mCurrentScoreMsg;
     sf::Text mYourScoreMsg;
     sf::Text mTotalScoreMsg;
     sf::Text mTotalScorePointsMsg;
@@ -336,7 +339,7 @@ namespace Impact {
     Playmode mPlaymode;
     int mLevelScore;
     int mTotalScore;
-    int mLives;
+    unsigned int mLives;
     BodyList mBodies;
     int mBlockCount;
     int mWelcomeLevel;
@@ -345,7 +348,8 @@ namespace Impact {
     Ball *mBall;
     Racket *mRacket;
     Level mLevel;
-    LevelTimer mLevelTimer;
+    Timer mLevelTimer;
+    sf::Clock mStatsClock;
     sf::Clock mPenaltyClock;
     std::vector<sf::Time> mLastKillings;
     int mLastKillingsIndex;
@@ -362,6 +366,7 @@ namespace Impact {
     std::vector<sf::Sound*> mSoundFX;
 
     void setSoundFXVolume(float volume);
+    int calcPenalty(void) const;
     int deductPenalty(int score) const;
     void createStatsViewRectangle(void);
     void addSpecialEffect(const SpecialEffect &);
@@ -369,6 +374,7 @@ namespace Impact {
     void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);
     void newBall(const b2Vec2 &pos = b2Vec2_zero);
+	sf::Vector2f getCursorPosition(void) const;
     void setCursorOnRacket(void);
     void extraBall(void);
     void setState(State state);
