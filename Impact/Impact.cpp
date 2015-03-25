@@ -148,7 +148,7 @@ namespace Impact {
     , mFPSArray(32, 0)
     , mFPS(0)
     , mFPSIndex(0)
-    , mSelf(0)
+    , mMyProcessHandle(0)
     , mNumProcessors(0)
   {
     bool ok;
@@ -488,8 +488,8 @@ namespace Impact {
     GetSystemTimeAsFileTime(&ftime);
     mLastCPU.LowPart = ftime.dwLowDateTime;
     mLastCPU.HighPart = ftime.dwHighDateTime;
-    mSelf = GetCurrentProcess();
-    GetProcessTimes(mSelf, &ftime, &ftime, &fsys, &fuser);
+    mMyProcessHandle = GetCurrentProcess();
+    GetProcessTimes(mMyProcessHandle, &ftime, &ftime, &fsys, &fuser);
     mLastCPU.LowPart = fsys.dwLowDateTime;
     mLastCPU.HighPart = fsys.dwHighDateTime;
     mLastCPU.LowPart = fuser.dwLowDateTime;
@@ -504,7 +504,7 @@ namespace Impact {
     GetSystemTimeAsFileTime(&ftime);
     now.LowPart = ftime.dwLowDateTime;
     now.HighPart = ftime.dwHighDateTime;
-    GetProcessTimes(mSelf, &ftime, &fexit, &fsys, &fuser);
+    GetProcessTimes(mMyProcessHandle, &ftime, &fexit, &fsys, &fuser);
     sys.LowPart = fsys.dwLowDateTime;
     sys.HighPart = fsys.dwHighDateTime;
     user.LowPart = fuser.dwLowDateTime;

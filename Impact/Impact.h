@@ -189,7 +189,7 @@ namespace Impact {
 
   private:
     DWORD mNumProcessors;
-    HANDLE mSelf;
+    HANDLE mMyProcessHandle;
     ULARGE_INTEGER mLastCPU;
     ULARGE_INTEGER mLastSysCPU;
     ULARGE_INTEGER mLastUserCPU;
