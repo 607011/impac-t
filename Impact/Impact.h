@@ -194,7 +194,7 @@ namespace Impact {
     ULARGE_INTEGER mLastSysCPU;
     ULARGE_INTEGER mLastUserCPU;
     void initCPULoadMonitor(void);
-    double getCurrentCPULoadPercentage(void);
+    float getCurrentCPULoadPercentage(void);
 
     int mGLVersionMajor;
     int mGLVersionMinor;

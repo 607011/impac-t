@@ -497,7 +497,7 @@ namespace Impact {
   }
 
 
-  double Game::getCurrentCPULoadPercentage(void)
+  float Game::getCurrentCPULoadPercentage(void)
   {
     FILETIME ftime, fsys, fuser, fexit;
     ULARGE_INTEGER now, sys, user;
@@ -509,7 +509,8 @@ namespace Impact {
     sys.HighPart = fsys.dwHighDateTime;
     user.LowPart = fuser.dwLowDateTime;
     user.HighPart = fuser.dwHighDateTime;
-    const double percent = 1e2f * float(sys.QuadPart - mLastSysCPU.QuadPart + user.QuadPart - mLastUserCPU.QuadPart)
+    const float percent = 1e2f
+      * float(sys.QuadPart - mLastSysCPU.QuadPart + user.QuadPart - mLastUserCPU.QuadPart)
       / float(now.QuadPart - mLastCPU.QuadPart)
       / mNumProcessors;
     mLastCPU.QuadPart = now.QuadPart;
