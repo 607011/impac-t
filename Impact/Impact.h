@@ -139,15 +139,16 @@ namespace Impact {
   public:
     static const int Scale = 16;
     static const float32 InvScale;
-    static const unsigned int DefaultTilesHorizontally = 40;
-    static const unsigned int DefaultTilesVertically = 25;
-    static const unsigned int DefaultPlaygroundWidth = 640;
-    static const unsigned int DefaultPlaygroundHeight = 400;
+    static const unsigned int DefaultTilesHorizontally = 40U;
+    static const unsigned int DefaultTilesVertically = 25U;
+    static const unsigned int DefaultPlaygroundWidth = 640U;
+    static const unsigned int DefaultPlaygroundHeight = 400U;
     static const unsigned int DefaultStatsWidth = DefaultPlaygroundWidth;
-    static const unsigned int DefaultStatsHeight = 80;
+    static const unsigned int DefaultStatsHeight = 80U;
     static const unsigned int DefaultWindowWidth = DefaultPlaygroundWidth;
     static const unsigned int DefaultWindowHeight = DefaultPlaygroundHeight + DefaultStatsHeight;
-    static const unsigned int ColorDepth = 32;
+    static const unsigned int ColorDepth = 32U;
+    static const unsigned int DefaultFramerateLimit = 120U;
     static const unsigned int DefaultLives;
     static const unsigned int NewLiveAfterSoManyPointsDefault;
     static const unsigned int NewLiveAfterSoManyPoints[];

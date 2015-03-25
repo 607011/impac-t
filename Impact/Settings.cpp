@@ -32,6 +32,7 @@ namespace Impact {
     , lastCampaignLevel(1)
     , musicVolume(50)
     , soundfxVolume(100)
+    , framerateLimit(0)
   {
     TCHAR szPath[MAX_PATH];
     if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, szPath))) {
@@ -57,6 +58,7 @@ namespace Impact {
 #endif
     boost::property_tree::ptree pt;
     pt.put("impact.use-shaders", this->useShaders);
+    pt.put("impact.frame-rate-limit", this->framerateLimit);
     pt.put("impact.explosion.use-shaders", this->useShadersForExplosions);
     pt.put("impact.explosion.particle-count", this->particlesPerExplosion);
     pt.put("impact.last-open-dir", this->lastOpenDir);
@@ -94,6 +96,7 @@ namespace Impact {
     try {
       this->useShaders = pt.get<bool>("impact.use-shaders", true);
       this->useShadersForExplosions = pt.get<bool>("impact.explosion.use-shaders", true);
+      this->framerateLimit = pt.get<unsigned int>("impact.frame-rate-limit", 0U);
       this->particlesPerExplosion = pt.get<unsigned int>("impact.explosion.particle-count", 50U);
       this->lastOpenDir = pt.get<std::string>("impact.last-open-dir", levelsDir);
       this->lastCampaignLevel = pt.get<int>("impact.campaign.last-level", 1);
@@ -108,9 +111,10 @@ namespace Impact {
     }
 
 #ifndef NDEBUG
-    std::cout << "useShaderss: " << this->useShaders << std::endl;
+    std::cout << "useShaders: " << this->useShaders << std::endl;
     std::cout << "useShadersForExplosions: " << this->useShadersForExplosions << std::endl;
     std::cout << "particlesPerExplosion: " << this->particlesPerExplosion << std::endl;
+    std::cout << "framerateLimit: " << this->framerateLimit << std::endl;
     std::cout << "lastOpenDir: " << this->lastOpenDir << std::endl;
     std::cout << "lastCampaignLevel: " << this->lastCampaignLevel << std::endl;
     std::cout << "soundfxVolume: " << this->soundfxVolume << std::endl;

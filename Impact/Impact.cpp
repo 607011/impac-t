@@ -166,6 +166,8 @@ namespace Impact {
     glEnable(GL_TEXTURE_2D);
 
     mWindow.setActive();
+    mWindow.setFramerateLimit(DefaultFramerateLimit);
+    mWindow.setVerticalSyncEnabled(false);
     resize();
 
     sf::Image icon;
@@ -399,7 +401,7 @@ namespace Impact {
     mMenuMusicVolumeText.setPosition(20.f, mOptionsTitleText.getPosition().y + 128);
     mMenuSoundFXVolumeText = sf::Text(tr("Sound fx volume"), mFixedFont, 16U);
     mMenuSoundFXVolumeText.setPosition(20.f, mOptionsTitleText.getPosition().y + 144);
-    mMenuFrameRateLimitText = sf::Text(tr("frame rate limit"), mFixedFont, 16U);
+    mMenuFrameRateLimitText = sf::Text(tr("Frame rate limit"), mFixedFont, 16U);
     mMenuFrameRateLimitText.setPosition(20.f, mOptionsTitleText.getPosition().y + 160);
 
     mLevelsRenderTexture.create(600, 170);
@@ -767,7 +769,7 @@ namespace Impact {
     mWelcomeLevel = 0;
     mWallClock.restart();
     mWindow.setMouseCursorVisible(true);
-    mWindow.setVerticalSyncEnabled(true);
+    mWindow.setFramerateLimit(DefaultFramerateLimit);
   }
 
 
@@ -902,6 +904,7 @@ namespace Impact {
     if (mLevel.music() != nullptr)
       mLevel.music()->stop();
     mLevelTimer.restart();
+    mWindow.setFramerateLimit(DefaultFramerateLimit);
   }
 
 
@@ -936,6 +939,7 @@ namespace Impact {
     mTotalScore = deductPenalty(mLevelScore);
     if (mLevel.music() != nullptr)
       mLevel.music()->stop();
+    mWindow.setFramerateLimit(DefaultFramerateLimit);
   }
 
 
@@ -982,6 +986,7 @@ namespace Impact {
       mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 220));
     }
     mTotalScore = deductPenalty(mLevelScore);
+    mWindow.setFramerateLimit(DefaultFramerateLimit);
   }
 
 
@@ -1018,6 +1023,7 @@ namespace Impact {
   void Game::gotoPausing(void)
   {
     pause();
+    mWindow.setFramerateLimit(DefaultFramerateLimit);
   }
 
 
@@ -1068,6 +1074,7 @@ namespace Impact {
   {
     setState(State::SplashScreenBeforePlaying);
     mStartMsg.setString(tr("Click to continue"));
+    mWindow.setFramerateLimit(DefaultFramerateLimit);
   }
 
 
@@ -1107,7 +1114,6 @@ namespace Impact {
     mScaleGravityEnabled = false;
     mScaleBallDensityEnabled = false;
     if (mLevel.isAvailable()) {
-      mWindow.setVerticalSyncEnabled(false);
       if (mPlaymode == Campaign)
         gSettings.lastCampaignLevel = mLevel.num();
       buildLevel();
@@ -1127,6 +1133,7 @@ namespace Impact {
       mStatsClock.restart();
       mPenaltyClock.restart();
       mLevelScore = 0;
+      mWindow.setFramerateLimit(gSettings.framerateLimit);
     }
     else {
       gotoPlayerWon();
@@ -1266,6 +1273,7 @@ namespace Impact {
 
   void Game::gotoAchievementsScreen(void)
   {
+    mWindow.setFramerateLimit(DefaultFramerateLimit);
     // TODO: implement gotoAchievementsScreen()
   }
 
@@ -1282,7 +1290,7 @@ namespace Impact {
     setState(State::CreditsScreen);
     mWindow.setView(mDefaultView);
     mWindow.setMouseCursorVisible(true);
-    mWindow.setVerticalSyncEnabled(true);
+    mWindow.setFramerateLimit(DefaultFramerateLimit);
     mRacketHitSound.play();
     mWallClock.restart();
     mWelcomeLevel = 0;
@@ -1357,6 +1365,7 @@ namespace Impact {
     mWelcomeLevel = 0;
     mWallClock.restart();
     setState(State::OptionsScreen);
+    mWindow.setFramerateLimit(DefaultFramerateLimit);
   }
 
 
@@ -1440,12 +1449,13 @@ namespace Impact {
             gSettings.save();
           }
           else if (mMenuFrameRateLimitText.getGlobalBounds().contains(mousePos)) {
-            if (gSettings.frameRateLimit == 0)
-              gSettings.frameRateLimit = 60;
+            if (gSettings.framerateLimit == 0)
+              gSettings.framerateLimit = 60;
             else
-              gSettings.frameRateLimit *= 2;
-            if (gSettings.frameRateLimit > 2000)
-              gSettings.frameRateLimit = 0;
+              gSettings.framerateLimit *= 2;
+            if (gSettings.framerateLimit > 2000)
+              gSettings.framerateLimit = 0;
+            mWindow.setFramerateLimit(gSettings.framerateLimit);
             gSettings.save();
           }
         }
@@ -1493,7 +1503,7 @@ namespace Impact {
     soundfxVolumeText.setPosition(mDefaultView.getCenter().x + 160, mMenuSoundFXVolumeText.getPosition().y);
     mWindow.draw(soundfxVolumeText);
 
-    sf::Text frameRateLimitText(gSettings.frameRateLimit == 0 ? tr("off") : std::to_string(int(gSettings.frameRateLimit)) + "fps", mFixedFont, 16U);
+    sf::Text frameRateLimitText(gSettings.framerateLimit == 0 ? tr("off") : std::to_string(int(gSettings.framerateLimit)) + "fps", mFixedFont, 16U);
     frameRateLimitText.setPosition(mDefaultView.getCenter().x + 160, mMenuFrameRateLimitText.getPosition().y);
     mWindow.draw(frameRateLimitText);
 
@@ -1510,7 +1520,7 @@ namespace Impact {
     setState(State::SelectLevelScreen);
     mWindow.setView(mDefaultView);
     mWindow.setMouseCursorVisible(true);
-    mWindow.setVerticalSyncEnabled(true);
+    mWindow.setFramerateLimit(DefaultFramerateLimit);
     mRacketHitSound.play();
     mWallClock.restart();
     mWelcomeLevel = 0;
@@ -1676,7 +1686,7 @@ namespace Impact {
     setState(State::CampaignScreen);
     mWindow.setView(mDefaultView);
     mWindow.setMouseCursorVisible(true);
-    mWindow.setVerticalSyncEnabled(true);
+    mWindow.setFramerateLimit(DefaultFramerateLimit);
     mRacketHitSound.play();
     mWelcomeLevel = 0;
     mWallClock.restart();

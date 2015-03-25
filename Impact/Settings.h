@@ -40,6 +40,7 @@ namespace Impact {
     int lastCampaignLevel;
     float musicVolume;
     float soundfxVolume;
+    unsigned int framerateLimit;
 
     std::string appData;
     std::string settingsFile;
