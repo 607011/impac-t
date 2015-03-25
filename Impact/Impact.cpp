@@ -1319,7 +1319,7 @@ namespace Impact {
     mCreditsTitleText.setPosition(.5f * (mDefaultView.getSize().x - mCreditsTitleText.getLocalBounds().width), menuTop - 40);
     mWindow.draw(mCreditsTitleText);
 
-    mCreditsText.setPosition(.5f * (mDefaultView.getSize().x - mCreditsText.getLocalBounds().width), menuTop);
+    mCreditsText.setPosition(.5f * (mDefaultView.getSize().x - mCreditsText.getLocalBounds().width), menuTop + 20);
     mWindow.draw(mCreditsText);
 
     sf::Event event;
