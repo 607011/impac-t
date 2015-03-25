@@ -148,6 +148,8 @@ namespace Impact {
     , mFPSArray(32, 0)
     , mFPS(0)
     , mFPSIndex(0)
+    , mMyProcessHandle(0)
+    , mNumProcessors(0)
   {
     bool ok;
 
@@ -463,8 +465,8 @@ namespace Impact {
       mVignetteShader.setParameter("uHSV", sf::Vector3f(1.1f, 1.0f, 1.0f));
     }
 
-    mKeyMapping[Action::PauseAction] = sf::Keyboard::Escape; //XXX
-    mKeyMapping[Action::NewBall] = sf::Keyboard::N; //XXX
+    mKeyMapping[PauseAction] = sf::Keyboard::Escape; //XXX
+    mKeyMapping[RecoverBallAction] = sf::Keyboard::N; //XXX
 
     restart();
   }
@@ -474,6 +476,47 @@ namespace Impact {
   {
     gSettings.save();
     clearWorld();
+  }
+
+
+  void Game::initCPULoadMonitor(void)
+  {
+    SYSTEM_INFO sysInfo;
+    FILETIME ftime, fsys, fuser;
+    GetSystemInfo(&sysInfo);
+    mNumProcessors = sysInfo.dwNumberOfProcessors;
+    GetSystemTimeAsFileTime(&ftime);
+    mLastCPU.LowPart = ftime.dwLowDateTime;
+    mLastCPU.HighPart = ftime.dwHighDateTime;
+    mMyProcessHandle = GetCurrentProcess();
+    GetProcessTimes(mMyProcessHandle, &ftime, &ftime, &fsys, &fuser);
+    mLastCPU.LowPart = fsys.dwLowDateTime;
+    mLastCPU.HighPart = fsys.dwHighDateTime;
+    mLastCPU.LowPart = fuser.dwLowDateTime;
+    mLastCPU.HighPart = fuser.dwHighDateTime;
+  }
+
+
+  float Game::getCurrentCPULoadPercentage(void)
+  {
+    FILETIME ftime, fsys, fuser, fexit;
+    ULARGE_INTEGER now, sys, user;
+    GetSystemTimeAsFileTime(&ftime);
+    now.LowPart = ftime.dwLowDateTime;
+    now.HighPart = ftime.dwHighDateTime;
+    GetProcessTimes(mMyProcessHandle, &ftime, &fexit, &fsys, &fuser);
+    sys.LowPart = fsys.dwLowDateTime;
+    sys.HighPart = fsys.dwHighDateTime;
+    user.LowPart = fuser.dwLowDateTime;
+    user.HighPart = fuser.dwHighDateTime;
+    const float percent = 1e2f
+      * float(sys.QuadPart - mLastSysCPU.QuadPart + user.QuadPart - mLastUserCPU.QuadPart)
+      / float(now.QuadPart - mLastCPU.QuadPart)
+      / mNumProcessors;
+    mLastCPU.QuadPart = now.QuadPart;
+    mLastUserCPU.QuadPart = user.QuadPart;
+    mLastSysCPU.QuadPart = sys.QuadPart;
+    return percent;
   }
 
 
@@ -770,6 +813,7 @@ namespace Impact {
     mWallClock.restart();
     mWindow.setMouseCursorVisible(true);
     mWindow.setFramerateLimit(DefaultFramerateLimit);
+    initCPULoadMonitor();
   }
 
 
@@ -1182,13 +1226,13 @@ namespace Impact {
           newBall();
         break;
       case sf::Event::KeyPressed:
-        if (event.key.code == mKeyMapping[Action::PauseAction]) {
+        if (event.key.code == mKeyMapping[PauseAction]) {
           if (!mPaused)
             gotoPausing();
           else
             resume();
         }
-        else if (event.key.code == mKeyMapping[Action::NewBall] || event.key.code == sf::Keyboard::Space) {
+        else if (event.key.code == mKeyMapping[RecoverBallAction] || event.key.code == sf::Keyboard::Space) {
           if (mBall != nullptr) {
             const b2Vec2 &padPos = mRacket->position();
             mBall->setPosition(padPos.x, padPos.y - 3.5f);
@@ -1365,7 +1409,7 @@ namespace Impact {
     mWelcomeLevel = 0;
     mWallClock.restart();
     setState(State::OptionsScreen);
-    mWindow.setFramerateLimit(DefaultFramerateLimit);
+    mWindow.setFramerateLimit(gSettings.framerateLimit);
   }
 
 
@@ -1377,6 +1421,7 @@ namespace Impact {
 
     const float t = mWallClock.getElapsedTime().asSeconds();
 
+    mWindow.setView(mDefaultView);
     mWindow.clear(sf::Color(31, 31, 47));
     mWindow.draw(mBackgroundSprite);
 
@@ -1453,7 +1498,7 @@ namespace Impact {
               gSettings.framerateLimit = 60;
             else
               gSettings.framerateLimit *= 2;
-            if (gSettings.framerateLimit > 2000)
+            if (gSettings.framerateLimit > 480)
               gSettings.framerateLimit = 0;
             mWindow.setFramerateLimit(gSettings.framerateLimit);
             gSettings.save();
@@ -1511,6 +1556,10 @@ namespace Impact {
     mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
     mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), mLevelsRenderTexture.getSize().y + menuTop);
     mWindow.draw(mMenuBackText);
+
+    updateStats();
+    mWindow.setView(mStatsView);
+    mWindow.draw(mFPSText);
   }
 
 
@@ -2050,19 +2099,7 @@ namespace Impact {
       }
     }
 
-    if (mStatsClock.getElapsedTime() > sf::milliseconds(33)) {
-      mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
-      mFPSText.setString(std::to_string(mFPS) + " fps");
-      mFPSText.setPosition(mStatsView.getSize().x - mFPSText.getGlobalBounds().width - 4, mStatsView.getSize().y - 4 - mFPSText.getGlobalBounds().height);
-      if (mState == State::Playing) {
-        const int penalty = calcPenalty();
-        mScoreMsg.setString(std::to_string(mLevelScore) + (penalty > 0 ? " " + std::to_string(-penalty) : ""));
-        mScoreMsg.setPosition(mStatsView.getSize().x - mScoreMsg.getLocalBounds().width - 4, 4);
-        mCurrentScoreMsg.setString("total: " + std::to_string(b2Max(0, mTotalScore + mLevelScore - penalty)));
-        mCurrentScoreMsg.setPosition(mStatsView.getSize().x - mCurrentScoreMsg.getLocalBounds().width - 4, 20);
-      }
-      mStatsClock.restart();
-    }
+    updateStats();
 
     mWindow.setView(mStatsView);
     mWindow.draw(mStatsViewRectangle);
@@ -2105,6 +2142,24 @@ namespace Impact {
       mSpecialEffects.erase(*i);
     }
 
+  }
+
+
+  void Game::updateStats(void)
+  {
+    if (mStatsClock.getElapsedTime() > sf::milliseconds(33)) {
+      mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
+      mFPSText.setString(std::to_string(mFPS) + " fps\nCPU: " + std::to_string(int(getCurrentCPULoadPercentage())) + "%");
+      mFPSText.setPosition(mStatsView.getSize().x - b2Max(mFPSText.getGlobalBounds().width - 4, 60.f), mStatsView.getSize().y - 8 - mFPSText.getGlobalBounds().height);
+      if (mState == State::Playing) {
+        const int penalty = calcPenalty();
+        mScoreMsg.setString(std::to_string(mLevelScore) + (penalty > 0 ? " " + std::to_string(-penalty) : ""));
+        mScoreMsg.setPosition(mStatsView.getSize().x - mScoreMsg.getLocalBounds().width - 4, 4);
+        mCurrentScoreMsg.setString("total: " + std::to_string(b2Max(0, mTotalScore + mLevelScore - penalty)));
+        mCurrentScoreMsg.setPosition(mStatsView.getSize().x - mCurrentScoreMsg.getLocalBounds().width - 4, 20);
+      }
+      mStatsClock.restart();
+    }
   }
 
 
