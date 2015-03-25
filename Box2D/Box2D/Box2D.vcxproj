@@ -107,6 +107,9 @@
     <ClCompile Include="Dynamics\Joints\b2WheelJoint.cpp" />
     <ClCompile Include="Rope\b2Rope.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="README.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{585BAED2-B225-469B-8B43-29788D897C00}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
