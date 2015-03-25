@@ -234,6 +234,7 @@ namespace Impact {
     sf::Text mMenuParticlesPerExplosionText;
     sf::Text mMenuMusicVolumeText;
     sf::Text mMenuSoundFXVolumeText;
+    sf::Text mMenuFrameRateLimitText;
     sf::Text mOptionsTitleText;
     sf::Text mCreditsTitleText;
     sf::Text mCreditsText;

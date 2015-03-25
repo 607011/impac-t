@@ -399,6 +399,8 @@ namespace Impact {
     mMenuMusicVolumeText.setPosition(20.f, mOptionsTitleText.getPosition().y + 128);
     mMenuSoundFXVolumeText = sf::Text(tr("Sound fx volume"), mFixedFont, 16U);
     mMenuSoundFXVolumeText.setPosition(20.f, mOptionsTitleText.getPosition().y + 144);
+    mMenuFrameRateLimitText = sf::Text(tr("frame rate limit"), mFixedFont, 16U);
+    mMenuFrameRateLimitText.setPosition(20.f, mOptionsTitleText.getPosition().y + 160);
 
     mLevelsRenderTexture.create(600, 170);
     mLevelsRenderView = mLevelsRenderTexture.getDefaultView();
@@ -1437,6 +1439,15 @@ namespace Impact {
               gSettings.soundfxVolume = 0.f;
             gSettings.save();
           }
+          else if (mMenuFrameRateLimitText.getGlobalBounds().contains(mousePos)) {
+            if (gSettings.frameRateLimit == 0)
+              gSettings.frameRateLimit = 60;
+            else
+              gSettings.frameRateLimit *= 2;
+            if (gSettings.frameRateLimit > 2000)
+              gSettings.frameRateLimit = 0;
+            gSettings.save();
+          }
         }
       }
     }
@@ -1450,11 +1461,13 @@ namespace Impact {
     mMenuParticlesPerExplosionText.setColor(sf::Color(255U, 255U, 255U, mMenuParticlesPerExplosionText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mMenuMusicVolumeText.setColor(sf::Color(255U, 255U, 255U, mMenuMusicVolumeText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mMenuSoundFXVolumeText.setColor(sf::Color(255U, 255U, 255U, mMenuSoundFXVolumeText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+    mMenuFrameRateLimitText.setColor(sf::Color(255U, 255U, 255U, mMenuFrameRateLimitText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
 
     mWindow.draw(mMenuUseShadersText);
     mWindow.draw(mMenuParticlesPerExplosionText);
     mWindow.draw(mMenuMusicVolumeText);
     mWindow.draw(mMenuSoundFXVolumeText);
+    mWindow.draw(mMenuFrameRateLimitText);
 
     sf::Text useShadersText(gSettings.useShaders ? tr("on") : tr("off"), mFixedFont, 16U);
     useShadersText.setPosition(mDefaultView.getCenter().x + 160, mMenuUseShadersText.getPosition().y);
@@ -1472,13 +1485,17 @@ namespace Impact {
     particlesPerExplosionText.setPosition(mDefaultView.getCenter().x + 160, mMenuParticlesPerExplosionText.getPosition().y);
     mWindow.draw(particlesPerExplosionText);
 
-    sf::Text musicVolumeText(std::to_string(int(gSettings.musicVolume)) + "%", mFixedFont, 16U);
+    sf::Text musicVolumeText(gSettings.musicVolume == 0 ? tr("off") : std::to_string(int(gSettings.musicVolume)) + "%", mFixedFont, 16U);
     musicVolumeText.setPosition(mDefaultView.getCenter().x + 160, mMenuMusicVolumeText.getPosition().y);
     mWindow.draw(musicVolumeText);
 
-    sf::Text soundfxVolumeText(std::to_string(int(gSettings.soundfxVolume)) + "%", mFixedFont, 16U);
+    sf::Text soundfxVolumeText(gSettings.soundfxVolume == 0 ? tr("off") : std::to_string(int(gSettings.soundfxVolume)) + "%", mFixedFont, 16U);
     soundfxVolumeText.setPosition(mDefaultView.getCenter().x + 160, mMenuSoundFXVolumeText.getPosition().y);
     mWindow.draw(soundfxVolumeText);
+
+    sf::Text frameRateLimitText(gSettings.frameRateLimit == 0 ? tr("off") : std::to_string(int(gSettings.frameRateLimit)) + "fps", mFixedFont, 16U);
+    frameRateLimitText.setPosition(mDefaultView.getCenter().x + 160, mMenuFrameRateLimitText.getPosition().y);
+    mWindow.draw(frameRateLimitText);
 
     const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
     mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
