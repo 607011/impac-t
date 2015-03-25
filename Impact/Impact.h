@@ -188,6 +188,14 @@ namespace Impact {
     void onBodyKilled(Body *body);
 
   private:
+    DWORD mNumProcessors;
+    HANDLE mSelf;
+    ULARGE_INTEGER mLastCPU;
+    ULARGE_INTEGER mLastSysCPU;
+    ULARGE_INTEGER mLastUserCPU;
+    void initCPULoadMonitor(void);
+    double getCurrentCPULoadPercentage(void);
+
     int mGLVersionMajor;
     int mGLVersionMinor;
     const GLubyte *mGLShadingLanguageVersion;
@@ -382,6 +390,7 @@ namespace Impact {
     void setState(State state);
     void clearWorld(void);
     void clearWindow(void);
+    void updateStats(void);
     void drawWorld(const sf::View &view);
     void drawStartMessage(void);
     void drawPlayground(const sf::Time &elapsed);
