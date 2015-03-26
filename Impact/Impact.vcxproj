@@ -231,6 +231,7 @@
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="resource.h" />
     <ClInclude Include="sha1.h" />
     <ClInclude Include="..\zip-utils\unzip.h" />
     <ClInclude Include="Settings.h" />
@@ -275,6 +276,12 @@
   </ItemGroup>
   <ItemGroup>
     <Xml Include="settings.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Impact.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="exe-icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -131,6 +131,9 @@
     <ClInclude Include="Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\title.fs">
@@ -182,5 +185,11 @@
   </ItemGroup>
   <ItemGroup>
     <Xml Include="settings.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Impact.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="exe-icon.ico" />
   </ItemGroup>
 </Project>
