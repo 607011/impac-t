@@ -27,7 +27,7 @@
 
 namespace Impact {
 
-#define EXPLOSION_PARTICLES_CANNOT_ROTATE
+// #define EXPLOSION_PARTICLES_CANNOT_ROTATE
 
   std::vector<sf::Shader*>::size_type Explosion::sCurrentShaderIndex = 0;
   std::vector<sf::Shader*> Explosion::sShaders;
@@ -110,7 +110,6 @@ namespace Impact {
   {
     bool allDead = true;
     const int N = mParticles.size();
-// #pragma omp parallel for reduction(&:allDead)
     for (int i = 0; i < N; ++i) {
       SimpleParticle &p = mParticles[i];
       if (age() > p.lifeTime && !p.dead) {
