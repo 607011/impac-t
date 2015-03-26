@@ -239,6 +239,9 @@ namespace Impact {
 
     sf::Listener::setPosition(DefaultCenter.x, DefaultCenter.y, 0.f);
 
+    mMusic[0].openFromFile(gSettings.musicDir + "/Pooka.ogg");
+    mMusic[0].setLoop(true);
+
     mParticleTexture.loadFromFile(ImagesDir + "/particle.png"); //XXX
 
     mScrollbarTexture.loadFromFile(ImagesDir + "/white-pixel.png");
@@ -1388,6 +1391,7 @@ namespace Impact {
     playSound(mRacketHitSound);
     setState(State::OptionsScreen);
     mWindow.setFramerateLimit(gSettings.framerateLimit);
+    mMusic[0].play();
   }
 
 

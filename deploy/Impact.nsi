@@ -92,8 +92,8 @@ Section "${APP}"
   SetOutPath "$APPDATA\${APP}\soundfx"
   File /a /r "..\${APP}\resources\soundfx\*.ogg"
 
-;  SetOutPath "$APPDATA\${APP}\music"
-;  File /a /r "..\$APPDATA\${APP}\music\"
+  SetOutPath "$APPDATA\${APP}\music"
+  File /a /r "..\${APP}\resources\music\*.ogg"
 
   SetOutPath "$APPDATA\${APP}"
   File "..\${APP}\settings.xml"
