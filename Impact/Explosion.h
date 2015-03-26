@@ -98,7 +98,7 @@ namespace Impact {
     static std::vector<sf::Shader*>::size_type sCurrentShaderIndex;
 
     struct ShaderPool {
-      static const std::vector<sf::Shader*>::size_type N = 8; // maximum number of concurrent explosions
+      static const std::vector<sf::Shader*>::size_type N = 16; // maximum number of concurrent explosions
       ShaderPool(void)
       {
 #ifndef NDEBUG
