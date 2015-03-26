@@ -1425,10 +1425,7 @@ namespace Impact {
         mWindow.close();
       }
       else if (event.type == sf::Event::MouseButtonPressed) {
-        if (event.mouseButton.button == sf::Mouse::Button::Right) {
-          playSound(mExplosionSound, b2Vec2(mousePos.x / DefaultTilesHorizontally, mousePos.y / DefaultTilesVertically));
-        }
-        else if (event.mouseButton.button == sf::Mouse::Button::Left) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
           if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
             playSound(mBlockHitSound);
             gotoWelcomeScreen();
