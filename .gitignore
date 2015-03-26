@@ -3,6 +3,7 @@
 *.opensdf
 *.suo
 deploy/*.exe
+Impact/*.aps
 Impact/Debug
 Impact/Release
 glfw/Debug
