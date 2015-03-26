@@ -145,6 +145,7 @@ namespace Impact {
     , mBlurPlayground(false)
     , mOverlayDuration(DefaultOverlayDuration)
     , mLastKillingsIndex(0)
+    , mMusic(16)
     , mSoundFX(16)
     , mSoundIndex(0)
     , mFPSArray(32, 0)
@@ -529,8 +530,8 @@ namespace Impact {
 
   void Game::stopAllMusic(void)
   {
-    for (std::vector<sf::Music*>::iterator m = mMusic.begin(); m != mMusic.end(); ++m)
-      (*m)->stop();
+    for (std::vector<sf::Music>::iterator m = mMusic.begin(); m != mMusic.end(); ++m)
+      m->stop();
     if (mLevel.music() != nullptr)
       mLevel.music()->stop();
   }
@@ -2633,8 +2634,8 @@ namespace Impact {
 
   void Game::setMusicVolume(float volume)
   {
-    for (std::vector<sf::Music*>::iterator m = mMusic.begin(); m != mMusic.end(); ++m)
-      (*m)->setVolume(volume);
+    for (std::vector<sf::Music>::iterator m = mMusic.begin(); m != mMusic.end(); ++m)
+      m->setVolume(volume);
     if (mLevel.music() != nullptr)
       mLevel.music()->setVolume(volume);
   }

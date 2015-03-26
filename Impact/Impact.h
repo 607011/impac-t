@@ -312,7 +312,7 @@ namespace Impact {
     sf::SoundBuffer mLevelCompleteSound;
     sf::SoundBuffer mKillingSpreeSound;
 
-    std::vector<sf::Music*> mMusic;
+    std::vector<sf::Music> mMusic;
     std::vector<int> mFPSArray;
     std::vector<int>::size_type mFPSIndex;
     int mFPS;
