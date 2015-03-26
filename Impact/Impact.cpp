@@ -742,6 +742,7 @@ namespace Impact {
 
   void Game::openLevelZip(void)
   {
+    playSound(mRacketHitSound);
 #ifndef NDEBUG
     std::cout << "openLevelZip()" << std::endl;
 #endif
@@ -1383,6 +1384,7 @@ namespace Impact {
   {
     mWelcomeLevel = 0;
     mWallClock.restart();
+    playSound(mRacketHitSound);
     setState(State::OptionsScreen);
     mWindow.setFramerateLimit(gSettings.framerateLimit);
   }
