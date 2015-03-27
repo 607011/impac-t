@@ -217,6 +217,17 @@ namespace Impact {
     if (!ok)
       std::cerr << FontsDir + "/Dimitri.ttf failed to load." << std::endl;
 
+    setSoundFXVolume(gSettings.soundfxVolume);
+    setMusicVolume(gSettings.musicVolume);
+
+    sf::Listener::setPosition(DefaultCenter.x, DefaultCenter.y, 0.f);
+
+    mMusic[0].openFromFile(gSettings.musicDir + "/Pooka.ogg");
+    mMusic[0].setLoop(true);
+
+    for (std::vector<sf::Sound>::iterator sound = mSoundFX.begin(); sound != mSoundFX.end(); ++sound)
+      sound->setMinDistance(float(DefaultTilesHorizontally * DefaultTilesVertically));
+
     ok = mStartupSound.loadFromFile(gSettings.soundFXDir + "/startup.ogg");
     if (!ok)
       std::cerr << gSettings.soundFXDir + "/startup.ogg failed to load." << std::endl;
@@ -260,17 +271,6 @@ namespace Impact {
     ok = mKillingSpreeSound.loadFromFile(gSettings.soundFXDir + "/killing-spree.ogg"); //MOD Sound
     if (!ok)
       std::cerr << gSettings.soundFXDir + "/killing-spree.ogg failed to load." << std::endl;
-
-    for (std::vector<sf::Sound>::iterator sound = mSoundFX.begin(); sound != mSoundFX.end(); ++sound)
-      sound->setMinDistance(b2Sqrt(float(DefaultTilesHorizontally * DefaultTilesVertically)));
-
-    setSoundFXVolume(gSettings.soundfxVolume);
-    setMusicVolume(gSettings.musicVolume);
-
-    sf::Listener::setPosition(DefaultCenter.x, DefaultCenter.y, 0.f);
-
-    mMusic[0].openFromFile(gSettings.musicDir + "/Pooka.ogg");
-    mMusic[0].setLoop(true);
 
     mParticleTexture.loadFromFile(ImagesDir + "/particle.png"); //MOD Explosionspartikel
 
@@ -325,21 +325,6 @@ namespace Impact {
 
     mFPSText.setFont(mFixedFont);
     mFPSText.setCharacterSize(8U);
-
-    mProgramInfoMsg.setString("Impac't v" + std::string(IMPACT_VERSION) + " (" + __TIMESTAMP__ + ")" 
-      + " - "
-      + "Copyright (c) 2015 Oliver Lau <ola@ct.de>"
-      + "\n"
-      + tr("Built with") + ": SFML " + std::to_string(SFML_VERSION_MAJOR) + "." + std::to_string(SFML_VERSION_MINOR)
-      + ", Box2D " + std::to_string(b2_version.major) + "." + std::to_string(b2_version.minor) + "." + std::to_string(b2_version.revision)
-      + ", glew " + std::to_string(GLEW_VERSION) + "." + std::to_string(GLEW_VERSION_MAJOR) + "." + std::to_string(GLEW_VERSION_MINOR)
-      + ", zlib " + zlibVersion()
-      + " - " + "OpenGL " + std::to_string(mGLVersionMajor) + "." + std::to_string(mGLVersionMinor)
-      + ", GLSL " + mGLShadingLanguageVersion
-      );
-    mProgramInfoMsg.setFont(mFixedFont);
-    mProgramInfoMsg.setCharacterSize(8U);
-    mProgramInfoMsg.setPosition(8.f, mDefaultView.getSize().y - mProgramInfoMsg.getLocalBounds().height - 8.f);
 
     mBackgroundTexture.loadFromFile(ImagesDir + "/welcome-background.jpg");
     mBackgroundSprite.setTexture(mBackgroundTexture);
@@ -398,8 +383,46 @@ namespace Impact {
       "easings: https://github.com/jesusgollonet/ofpennereasing\n"
       "\n"), mFixedFont, 16U);
 
+    mLevelsRenderTexture.create(600, 170);
+    mLevelsRenderView = mLevelsRenderTexture.getDefaultView();
+
     mKeyMapping[PauseAction] = sf::Keyboard::Escape; //MOD Tasten
     mKeyMapping[RecoverBallAction] = sf::Keyboard::N; //MOD Tasten
+
+    initShaderDependants();
+
+    restart();
+  }
+
+
+  Game::~Game(void)
+  {
+    gSettings.save();
+    clearWorld();
+  }
+
+
+  void Game::initShaderDependants(void)
+  {
+    bool ok = false;
+
+    const float menuTop = std::floor(mDefaultView.getCenter().y - 45.5f);
+
+    mProgramInfoMsg.setString("Impac't v" + std::string(IMPACT_VERSION) + " (" + __TIMESTAMP__ + ")"
+      + " - "
+      + "Copyright (c) 2015 Oliver Lau <ola@ct.de>"
+      + "\n"
+      + tr("Built with") + ": SFML " + std::to_string(SFML_VERSION_MAJOR) + "." + std::to_string(SFML_VERSION_MINOR)
+      + ", Box2D " + std::to_string(b2_version.major) + "." + std::to_string(b2_version.minor) + "." + std::to_string(b2_version.revision)
+      + ", glew " + std::to_string(GLEW_VERSION) + "." + std::to_string(GLEW_VERSION_MAJOR) + "." + std::to_string(GLEW_VERSION_MINOR)
+      + ", zlib " + zlibVersion()
+      + " - " + "OpenGL " + std::to_string(mGLVersionMajor) + "." + std::to_string(mGLVersionMinor)
+      + (mShadersAvailable ? ", GLSL " + mGLShadingLanguageVersion : "")
+      );
+    mProgramInfoMsg.setFont(mFixedFont);
+    mProgramInfoMsg.setCharacterSize(8U);
+    mProgramInfoMsg.setPosition(8.f, mDefaultView.getSize().y - mProgramInfoMsg.getLocalBounds().height - 8.f);
+
     mOptionsTitleText = sf::Text(tr("Options"), mFixedFont, 32U);
     mOptionsTitleText.setPosition(mDefaultView.getCenter().x - .5f * mOptionsTitleText.getLocalBounds().width, menuTop);
     if (mShadersAvailable) {
@@ -422,18 +445,6 @@ namespace Impact {
     if (!warning.empty())
       mWarningText.setString(warning);
     mWarningText.setPosition(8.f, 4.f);
-
-    mMenuParticlesPerExplosionText = sf::Text(tr("Particles per explosion"), mFixedFont, 16U);
-    mMenuParticlesPerExplosionText.setPosition(20.f, mOptionsTitleText.getPosition().y + 112);
-    mMenuMusicVolumeText = sf::Text(tr("Music volume"), mFixedFont, 16U);
-    mMenuMusicVolumeText.setPosition(20.f, mOptionsTitleText.getPosition().y + 128);
-    mMenuSoundFXVolumeText = sf::Text(tr("Sound fx volume"), mFixedFont, 16U);
-    mMenuSoundFXVolumeText.setPosition(20.f, mOptionsTitleText.getPosition().y + 144);
-    mMenuFrameRateLimitText = sf::Text(tr("Frame rate limit"), mFixedFont, 16U);
-    mMenuFrameRateLimitText.setPosition(20.f, mOptionsTitleText.getPosition().y + 160);
-
-    mLevelsRenderTexture.create(600, 170);
-    mLevelsRenderView = mLevelsRenderTexture.getDefaultView();
 
     if (gSettings.useShaders) {
       const sf::Vector2f &windowSize = sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y));
@@ -474,7 +485,7 @@ namespace Impact {
         std::cerr << ShadersDir + "/overlay.fs" << " failed to load/compile." << std::endl;
       mOverlayShader.setParameter("uResolution", windowSize);
 
-      //XXX
+      //MOD Schlüsselloch
       //ok = mKeyholeShader.loadFromFile(ShadersDir + "/keyhole.fs", sf::Shader::Fragment);
       //if (!ok)
       //   std::cerr << ShadersDir + "/keyhole.fs" << " failed to load/compile." << std::endl;
@@ -483,7 +494,6 @@ namespace Impact {
       //mKeyholeShader.setParameter("uAspect", mDefaultView.getSize().y / mDefaultView.getSize().x);
       //mKeyholeShader.setParameter("uCenter", sf::Vector2f(.5f, .5f));
 
-      //XXX
       ok = mVignetteShader.loadFromFile(ShadersDir + "/vignette.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/vignette.fs" << " failed to load/compile." << std::endl;
@@ -491,15 +501,16 @@ namespace Impact {
       mVignetteShader.setParameter("uHSV", sf::Vector3f(1.1f, 1.0f, 1.0f));
     }
 
+    mMenuParticlesPerExplosionText = sf::Text(tr("Particles per explosion"), mFixedFont, 16U);
+    mMenuParticlesPerExplosionText.setPosition(20.f, mOptionsTitleText.getPosition().y + 112);
+    mMenuMusicVolumeText = sf::Text(tr("Music volume"), mFixedFont, 16U);
+    mMenuMusicVolumeText.setPosition(20.f, mOptionsTitleText.getPosition().y + 128);
+    mMenuSoundFXVolumeText = sf::Text(tr("Sound fx volume"), mFixedFont, 16U);
+    mMenuSoundFXVolumeText.setPosition(20.f, mOptionsTitleText.getPosition().y + 144);
+    mMenuFrameRateLimitText = sf::Text(tr("Frame rate limit"), mFixedFont, 16U);
+    mMenuFrameRateLimitText.setPosition(20.f, mOptionsTitleText.getPosition().y + 160);
 
-    restart();
-  }
 
-
-  Game::~Game(void)
-  {
-    gSettings.save();
-    clearWorld();
   }
 
 
@@ -575,6 +586,7 @@ namespace Impact {
     std::cout << "OpenGL version: " << settings.majorVersion << "." << settings.minorVersion << std::endl;
 #endif
   }
+
 
   void Game::stopAllMusic(void)
   {
@@ -1485,6 +1497,8 @@ namespace Impact {
           }
           else if (mShadersAvailable && mMenuUseShadersText.getGlobalBounds().contains(mousePos)) {
             gSettings.useShaders = !gSettings.useShaders;
+            if (gSettings.useShaders)
+              initShaderDependants();
             createMainWindow();
             gSettings.save();
           }
