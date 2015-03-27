@@ -21,6 +21,7 @@
 
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/regex.hpp>
 
 #include <zlib.h>
 
@@ -160,7 +161,10 @@ namespace Impact {
     glGetIntegerv(GL_MAJOR_VERSION, &mGLVersionMajor);
     glGetIntegerv(GL_MINOR_VERSION, &mGLVersionMinor);
 
-    mGLShadingLanguageVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+    const boost::regex re_version("(\d+)\.(\d+)");
+    const GLubyte *glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+    mGLShadingLanguageVersion = reinterpret_cast<const char*>(glslVersion);
+    boost::regex_match(mGLShadingLanguageVersion, re_version);
 
     warmupRNG();
 
@@ -305,7 +309,7 @@ namespace Impact {
       + ", glew " + std::to_string(GLEW_VERSION) + "." + std::to_string(GLEW_VERSION_MAJOR) + "." + std::to_string(GLEW_VERSION_MINOR)
       + ", zlib " + zlibVersion()
       + " - " + "OpenGL " + std::to_string(mGLVersionMajor) + "." + std::to_string(mGLVersionMinor)
-      + ", GLSL " + std::string(reinterpret_cast<const char*>(mGLShadingLanguageVersion))
+      + ", GLSL " + mGLShadingLanguageVersion
       );
     mProgramInfoMsg.setFont(mFixedFont);
     mProgramInfoMsg.setCharacterSize(8U);

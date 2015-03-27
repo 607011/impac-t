@@ -199,7 +199,7 @@ namespace Impact {
 
     int mGLVersionMajor;
     int mGLVersionMinor;
-    const GLubyte *mGLShadingLanguageVersion;
+    std::string mGLShadingLanguageVersion;
 
 
     // SFML
