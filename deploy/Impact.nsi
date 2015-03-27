@@ -61,11 +61,10 @@ Section "${APP}"
   File "..\Release\sfml-graphics-2.dll"
   File "..\Release\sfml-system-2.dll"
   File "..\Release\sfml-window-2.dll"
-; File "..\Release\sfml-network-2.dll"
   WriteUninstaller "$INSTDIR\uninstall.exe"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "DisplayName" "${APP}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "DisplayVersion" "${VERSION}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "DisplayIcon" "$INSTDIR\app-icon.ico"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "DisplayIcon" "$INSTDIR\exe-icon.ico"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "Publisher" "${PUBLISHER}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "UninstallString" '"$INSTDIR\uninstall.exe"'
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "NoModify" 1
@@ -110,6 +109,11 @@ Section "Start Menu Shortcuts"
 SectionEnd
 
 
+Section "Desktop Icon"
+  CreateShortCut "$DESKTOP\${APP}-${VERSION}.lnk" "$INSTDIR\${APP}.exe" ""
+SectionEnd
+
+
 Section "Uninstall"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}"
   DeleteRegKey HKLM "SOFTWARE\${APP}"
@@ -124,14 +128,14 @@ Section "Uninstall"
   Delete "$INSTDIR\sfml-graphics-2.dll"
   Delete "$INSTDIR\sfml-system-2.dll"
   Delete "$INSTDIR\sfml-window-2.dll"
-  Delete "$INSTDIR\sfml-network-2.dll"
-  Delete "$INSTDIR\app-icon.ico"
+  Delete "$INSTDIR\exe-icon.ico"
   Delete "$INSTDIR\${APP}.exe"
   Delete "$INSTDIR\uninstall.exe"
 
-  RMDir /r "$INSTDIR\resources"
-  
+  Delete "$DESKTOP\${APP}-${VERSION}.lnk"
   Delete "$SMPROGRAMS\${APP}\*.*"
   RMDir "$SMPROGRAMS\${APP}"
+
+  RMDir /r "$INSTDIR\resources"
   RMDir "$INSTDIR"
 SectionEnd
