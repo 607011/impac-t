@@ -2,7 +2,6 @@
 
 ## Nice to have
 
- - create multi size ICO file
  - display gravity vector as a visual aid for the player
  - nicer visual effect when the racket hits a block
  - nicer visual effect for killing spree bonus
