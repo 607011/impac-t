@@ -84,15 +84,15 @@ namespace Impact {
 
   const float32 Game::InvScale = 1.f / Game::Scale;
   const b2Vec2 Game::DefaultCenter = b2Vec2(.5f * Game::DefaultTilesHorizontally, .5f * Game::DefaultTilesVertically);
-  const unsigned int Game::DefaultLives = 3; //XXX
-  const float32 DefaultGravity = 9.81f; //XXX
-  const sf::Time Game::DefaultKillingSpreeInterval = sf::milliseconds(2500); //XXX
-  const unsigned int Game::DefaultKillingsPerKillingSpree = 5; //XXX
-  const unsigned int Game::DefaultKillingSpreeBonus = 1000; //XXX
-  const unsigned int Game::NewLiveAfterSoManyPoints[] = { 10000, 25000, 50000, 100000, -1 }; //XXX
-  const unsigned int Game::NewLiveAfterSoManyPointsDefault = 100000; //XXX
-  const int Game::DefaultForceNewBallPenalty = 500; //XXX
-  const sf::Time Game::DefaultPenaltyInterval = sf::milliseconds(100); //XXX
+  const unsigned int Game::DefaultLives = 3; //MOD Leben
+  const float32 DefaultGravity = 9.81f; //MOD Schwerkraft
+  const sf::Time Game::DefaultKillingSpreeInterval = sf::milliseconds(2500); //MOD Multikill
+  const unsigned int Game::DefaultKillingsPerKillingSpree = 5; //MOD Multikill
+  const unsigned int Game::DefaultKillingSpreeBonus = 1000; //MOD Multikill
+  const unsigned int Game::NewLiveAfterSoManyPoints[] = { 10000, 25000, 50000, 100000, -1 }; //MOD Extraball
+  const unsigned int Game::NewLiveAfterSoManyPointsDefault = 100000; //MOD Extraball
+  const int Game::DefaultForceNewBallPenalty = 500; //MOD Strafe
+  const sf::Time Game::DefaultPenaltyInterval = sf::milliseconds(100); //MOD Strafe
 
   const sf::Time Game::DefaultFadeEffectDuration = sf::milliseconds(150);
   const sf::Time Game::DefaultAberrationEffectDuration = sf::milliseconds(250);
@@ -209,11 +209,11 @@ namespace Impact {
     icon.loadFromFile(ImagesDir + "/app-icon.png");
     mWindow.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 
-    ok = mFixedFont.loadFromFile(FontsDir + "/04b_03.ttf"); //XXX
+    ok = mFixedFont.loadFromFile(FontsDir + "/04b_03.ttf"); //MOD Font
     if (!ok)
       std::cerr << FontsDir + "/04b_03.ttf failed to load." << std::endl;
 
-    ok = mTitleFont.loadFromFile(FontsDir + "/Dimitri.ttf"); //XXX
+    ok = mTitleFont.loadFromFile(FontsDir + "/Dimitri.ttf"); //MOD Font
     if (!ok)
       std::cerr << FontsDir + "/Dimitri.ttf failed to load." << std::endl;
 
@@ -221,43 +221,43 @@ namespace Impact {
     if (!ok)
       std::cerr << gSettings.soundFXDir + "/startup.ogg failed to load." << std::endl;
 
-    ok = mNewBallSound.loadFromFile(gSettings.soundFXDir + "/new-ball.ogg"); //XXX
+    ok = mNewBallSound.loadFromFile(gSettings.soundFXDir + "/new-ball.ogg"); //MOD Sound
     if (!ok)
       std::cerr << gSettings.soundFXDir + "/new-ball.ogg failed to load." << std::endl;
 
-    ok = mNewLifeSound.loadFromFile(gSettings.soundFXDir + "/new-life.ogg"); //XXX
+    ok = mNewLifeSound.loadFromFile(gSettings.soundFXDir + "/new-life.ogg"); //MOD Sound
     if (!ok)
       std::cerr << gSettings.soundFXDir + "/new-ball.ogg failed to load." << std::endl;
 
-    ok = mBallOutSound.loadFromFile(gSettings.soundFXDir + "/ball-out.ogg"); //XXX
+    ok = mBallOutSound.loadFromFile(gSettings.soundFXDir + "/ball-out.ogg"); //MOD Sound
     if (!ok)
       std::cerr << gSettings.soundFXDir + "/ball-out.ogg failed to load." << std::endl;
 
-    ok = mBlockHitSound.loadFromFile(gSettings.soundFXDir + "/block-hit.ogg"); //XXX
+    ok = mBlockHitSound.loadFromFile(gSettings.soundFXDir + "/block-hit.ogg"); //MOD Sound
     if (!ok)
       std::cerr << gSettings.soundFXDir + "/block-hit.ogg failed to load." << std::endl;
 
-    ok = mPenaltySound.loadFromFile(gSettings.soundFXDir + "/penalty.ogg"); //XXX
+    ok = mPenaltySound.loadFromFile(gSettings.soundFXDir + "/penalty.ogg"); //MOD Sound
     if (!ok)
       std::cerr << gSettings.soundFXDir + "/penalty.ogg failed to load." << std::endl;
 
-    ok = mRacketHitSound.loadFromFile(gSettings.soundFXDir + "/racket-hit.ogg"); //XXX
+    ok = mRacketHitSound.loadFromFile(gSettings.soundFXDir + "/racket-hit.ogg"); //MOD Sound
     if (!ok)
       std::cerr << gSettings.soundFXDir + "/racket-hit.ogg failed to load." << std::endl;
 
-    ok = mRacketHitBlockSound.loadFromFile(gSettings.soundFXDir + "/racket-hit-block.ogg"); //XXX
+    ok = mRacketHitBlockSound.loadFromFile(gSettings.soundFXDir + "/racket-hit-block.ogg"); //MOD Sound
     if (!ok)
       std::cerr << gSettings.soundFXDir + "/racket-hit-block.ogg failed to load." << std::endl;
 
-    ok = mExplosionSound.loadFromFile(gSettings.soundFXDir + "/explosion.ogg"); //XXX
+    ok = mExplosionSound.loadFromFile(gSettings.soundFXDir + "/explosion.ogg"); //MOD Sound
     if (!ok)
       std::cerr << gSettings.soundFXDir + "/explosion.ogg failed to load." << std::endl;
 
-    ok = mLevelCompleteSound.loadFromFile(gSettings.soundFXDir + "/level-complete.ogg"); //XXX
+    ok = mLevelCompleteSound.loadFromFile(gSettings.soundFXDir + "/level-complete.ogg"); //MOD Sound
     if (!ok)
       std::cerr << gSettings.soundFXDir + "/level-complete.ogg failed to load." << std::endl;
 
-    ok = mKillingSpreeSound.loadFromFile(gSettings.soundFXDir + "/killing-spree.ogg"); //XXX
+    ok = mKillingSpreeSound.loadFromFile(gSettings.soundFXDir + "/killing-spree.ogg"); //MOD Sound
     if (!ok)
       std::cerr << gSettings.soundFXDir + "/killing-spree.ogg failed to load." << std::endl;
 
@@ -272,7 +272,7 @@ namespace Impact {
     mMusic[0].openFromFile(gSettings.musicDir + "/Pooka.ogg");
     mMusic[0].setLoop(true);
 
-    mParticleTexture.loadFromFile(ImagesDir + "/particle.png"); //XXX
+    mParticleTexture.loadFromFile(ImagesDir + "/particle.png"); //MOD Explosionspartikel
 
     mScrollbarTexture.loadFromFile(ImagesDir + "/white-pixel.png");
     mScrollbarSprite.setTexture(mScrollbarTexture);
@@ -398,6 +398,8 @@ namespace Impact {
       "easings: https://github.com/jesusgollonet/ofpennereasing\n"
       "\n"), mFixedFont, 16U);
 
+    mKeyMapping[PauseAction] = sf::Keyboard::Escape; //MOD Tasten
+    mKeyMapping[RecoverBallAction] = sf::Keyboard::N; //MOD Tasten
     mOptionsTitleText = sf::Text(tr("Options"), mFixedFont, 32U);
     mOptionsTitleText.setPosition(mDefaultView.getCenter().x - .5f * mOptionsTitleText.getLocalBounds().width, menuTop);
     if (mShadersAvailable) {
@@ -489,8 +491,6 @@ namespace Impact {
       mVignetteShader.setParameter("uHSV", sf::Vector3f(1.1f, 1.0f, 1.0f));
     }
 
-    mKeyMapping[PauseAction] = sf::Keyboard::Escape; //XXX
-    mKeyMapping[RecoverBallAction] = sf::Keyboard::N; //XXX
 
     restart();
   }
@@ -2711,7 +2711,7 @@ namespace Impact {
 
   int Game::deductPenalty(int score) const
   {
-    return b2Max(0, score - calcPenalty()); //XXX
+    return b2Max(0, score - calcPenalty());
   }
 
 
