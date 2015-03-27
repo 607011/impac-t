@@ -166,12 +166,11 @@ namespace Impact {
     glGetIntegerv(GL_MAJOR_VERSION, &mGLVersionMajor);
     glGetIntegerv(GL_MINOR_VERSION, &mGLVersionMinor);
 
-    mShadersAvailable = false;
+    const GLubyte *glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+    mGLShadingLanguageVersion = reinterpret_cast<const char*>(glslVersion);
     if (mShadersAvailable) {
       const boost::regex re_version("(\\d+)\\.(\\d+)");
       boost::cmatch what;
-      const GLubyte *glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
-      mGLShadingLanguageVersion = reinterpret_cast<const char*>(glslVersion);
       boost::regex_search(mGLShadingLanguageVersion.c_str(), what, re_version);
       if (what.size() == 3) {
         std::string glslMajor(what[1].first, what[1].second);
@@ -401,7 +400,7 @@ namespace Impact {
 
     mOptionsTitleText = sf::Text(tr("Options"), mFixedFont, 32U);
     mOptionsTitleText.setPosition(mDefaultView.getCenter().x - .5f * mOptionsTitleText.getLocalBounds().width, menuTop);
-    if (gSettings.useShaders) {
+    if (mShadersAvailable) {
       mMenuUseShadersText = sf::Text(tr("Use shaders"), mFixedFont, 16U);
       mMenuUseShadersForExplosionsText = sf::Text(tr("Use shaders for explosions"), mFixedFont, 16U);
       mMenuUseShadersForExplosionsText.setPosition(20.f, mOptionsTitleText.getPosition().y + 96);
