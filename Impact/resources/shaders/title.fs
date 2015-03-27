@@ -1,3 +1,5 @@
+#version 110
+
 /*
 
     Copyright (c) 2015 Oliver Lau <ola@ct.de>
@@ -21,7 +23,6 @@ uniform sampler2D uTexture;
 uniform vec2 uResolution;
 uniform float uT;
 uniform float uMaxT;
-
 
 float bounceEaseOut(float t, float b, float c, float d)
 {

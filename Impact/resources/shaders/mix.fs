@@ -1,3 +1,5 @@
+#version 110
+
 /*
 
     Copyright (c) 2015 Oliver Lau <ola@ct.de>
@@ -26,5 +28,5 @@ void main()
 {
   vec2 pos = gl_TexCoord[0].xy;
   pos.y = 1.0 - pos.y;
-  gl_FragColor = gl_Color * uColorMix * (texture2D(uTexture, pos) + uColorAdd - uColorSub);
+  gl_FragColor = uColorMix * (texture2D(uTexture, pos) + uColorAdd - uColorSub);
 }

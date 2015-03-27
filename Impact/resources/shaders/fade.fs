@@ -1,3 +1,5 @@
+#version 110
+
 /*
 
     Copyright (c) 2015 Oliver Lau <ola@ct.de>
@@ -37,5 +39,5 @@ void main()
   pos.y = 1.0 - pos.y;
   vec4 color = texture2D(uTexture, pos);
   float alpha = quadEaseInOut(uT, uMaxT);
-  gl_FragColor = gl_Color * color * vec4(1.0, 1.0, 1.0, alpha);
+  gl_FragColor = color * vec4(1.0, 1.0, 1.0, alpha);
 }
