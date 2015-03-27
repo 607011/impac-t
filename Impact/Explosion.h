@@ -104,7 +104,7 @@ namespace Impact {
 #ifndef NDEBUG
         std::cout << "ShaderPool()" << std::flush;
 #endif
-        if (sf::Shader::isAvailable()) {
+        if (gSettings.useShaders) {
 #ifndef NDEBUG
           std::cout << " initialiazing shaders" << std::flush;
 #endif
