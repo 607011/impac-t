@@ -146,8 +146,8 @@ namespace Impact {
     , mBlurPlayground(false)
     , mOverlayDuration(DefaultOverlayDuration)
     , mLastKillingsIndex(0)
-    , mMusic(16)
-    , mSoundFX(16)
+    , mMusic(4)
+    , mSoundFX(8)
     , mSoundIndex(0)
     , mFPSArray(32, 0)
     , mFPS(0)
@@ -1489,14 +1489,12 @@ namespace Impact {
             gSettings.save();
           }
           else if (mShadersAvailable && gSettings.useShaders && mMenuUseShadersForExplosionsText.getGlobalBounds().contains(mousePos)) {
-            if (gSettings.useShaders) {
-              gSettings.useShadersForExplosions = !gSettings.useShadersForExplosions;
-              ExplosionDef pd(this, InvScale * b2Vec2(mousePos.x, mousePos.y));
-              pd.count = gSettings.particlesPerExplosion;
-              pd.texture = mParticleTexture;
-              addBody(new Explosion(pd));
-              gSettings.save();
-            }
+            gSettings.useShadersForExplosions = !gSettings.useShadersForExplosions;
+            ExplosionDef pd(this, InvScale * b2Vec2(mousePos.x, mousePos.y));
+            pd.count = gSettings.particlesPerExplosion;
+            pd.texture = mParticleTexture;
+            addBody(new Explosion(pd));
+            gSettings.save();
           }
           else if (mMenuParticlesPerExplosionText.getGlobalBounds().contains(mousePos)) {
             gSettings.particlesPerExplosion += 10U;

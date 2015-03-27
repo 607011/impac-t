@@ -98,35 +98,40 @@ namespace Impact {
     static std::vector<sf::Shader*>::size_type sCurrentShaderIndex;
 
     struct ShaderPool {
-      static const std::vector<sf::Shader*>::size_type N = 16; // maximum number of concurrent explosions
+      static const std::vector<sf::Shader*>::size_type N = 8; // maximum number of concurrent explosions
       ShaderPool(void)
       {
 #ifndef NDEBUG
         std::cout << "ShaderPool()" << std::flush;
 #endif
-        if (gSettings.useShaders) {
+        if (gSettings.useShaders)
+          init();
+      }
+      static void init(void)
+      {
 #ifndef NDEBUG
-          std::cout << " initialiazing shaders" << std::flush;
+        std::cout << "ShaderPool::init()" << std::flush;
 #endif
-          std::ifstream inFile;
-          inFile.open(ShadersDir + "/explosion.fs");
-          std::stringstream strStream;
-          strStream << inFile.rdbuf();
-          std::string fragmentShaderCode = strStream.str();
-          for (std::vector<sf::Shader*>::size_type i = 0; i < N; ++i) {
-            sf::Shader *shader = new sf::Shader;
-            shader->loadFromMemory(fragmentShaderCode, sf::Shader::Fragment);
-            sShaders.push_back(shader);
-          }
+        std::ifstream inFile;
+        inFile.open(ShadersDir + "/explosion.fs");
+        std::stringstream strStream;
+        strStream << inFile.rdbuf();
+        std::string fragmentShaderCode = strStream.str();
+        for (std::vector<sf::Shader*>::size_type i = 0; i < N; ++i) {
+          sf::Shader *shader = new sf::Shader;
+          shader->loadFromMemory(fragmentShaderCode, sf::Shader::Fragment);
+          sShaders.push_back(shader);
         }
 #ifndef NDEBUG
         std::cout << std::endl;
 #endif
       }
-      inline static sf::Shader *getNext(void)
+      static sf::Shader *getNext(void)
       {
         if (!gSettings.useShaders)
           return nullptr;
+        if (sShaders.size() == 0)
+          ShaderPool::init();
         sf::Shader *next = sShaders.at(sCurrentShaderIndex);
         if (++sCurrentShaderIndex >= sShaders.size())
           sCurrentShaderIndex = 0;
