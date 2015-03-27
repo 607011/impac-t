@@ -154,6 +154,11 @@ namespace Impact {
     , mFPSIndex(0)
     , mMyProcessHandle(0)
     , mNumProcessors(0)
+    , mGLVersionMajor(0)
+    , mGLVersionMinor(0)
+    , mGLSLVersionMajor(0)
+    , mGLSLVersionMinor(0)
+    , mShadersAvailable(sf::Shader::isAvailable())
   {
     bool ok;
 
@@ -161,10 +166,32 @@ namespace Impact {
     glGetIntegerv(GL_MAJOR_VERSION, &mGLVersionMajor);
     glGetIntegerv(GL_MINOR_VERSION, &mGLVersionMinor);
 
-    const boost::regex re_version("(\\d+)\\.(\\d+)");
-    const GLubyte *glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
-    mGLShadingLanguageVersion = reinterpret_cast<const char*>(glslVersion);
-    boost::regex_match(mGLShadingLanguageVersion, re_version);
+    mShadersAvailable = false;
+    if (mShadersAvailable) {
+      const boost::regex re_version("(\\d+)\\.(\\d+)");
+      boost::cmatch what;
+      const GLubyte *glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+      mGLShadingLanguageVersion = reinterpret_cast<const char*>(glslVersion);
+      boost::regex_search(mGLShadingLanguageVersion.c_str(), what, re_version);
+      if (what.size() == 3) {
+        std::string glslMajor(what[1].first, what[1].second);
+        std::string glslMinor(what[2].first, what[2].second);
+        std::istringstream(glslMajor) >> mGLSLVersionMajor;
+        std::istringstream(glslMinor) >> mGLSLVersionMinor;
+#ifndef NDEBUG
+        std::cout << "GLSL version " << mGLSLVersionMajor << "." << mGLSLVersionMinor << " (" << mGLShadingLanguageVersion << ")" << std::endl;
+#endif
+      }
+      if (mGLSLVersionMajor < 1 || (mGLSLVersionMajor == 1 && mGLSLVersionMinor < 10)) {
+        mShadersAvailable = false;
+        gSettings.useShaders = false;
+        gSettings.useShadersForExplosions = false;
+      }
+    }
+    else {
+      gSettings.useShaders = false;
+      gSettings.useShadersForExplosions = false;
+    }
 
     warmupRNG();
 
@@ -374,12 +401,27 @@ namespace Impact {
 
     mOptionsTitleText = sf::Text(tr("Options"), mFixedFont, 32U);
     mOptionsTitleText.setPosition(mDefaultView.getCenter().x - .5f * mOptionsTitleText.getLocalBounds().width, menuTop);
-    if (sf::Shader::isAvailable()) {
+    if (gSettings.useShaders) {
       mMenuUseShadersText = sf::Text(tr("Use shaders"), mFixedFont, 16U);
-      mMenuUseShadersText.setPosition(20.f, mOptionsTitleText.getPosition().y + 80);
       mMenuUseShadersForExplosionsText = sf::Text(tr("Use shaders for explosions"), mFixedFont, 16U);
       mMenuUseShadersForExplosionsText.setPosition(20.f, mOptionsTitleText.getPosition().y + 96);
     }
+    else {
+      mMenuUseShadersText = sf::Text(tr("SHADERS ARE NOT AVAILABLE.\nPLEASE UPGRADE YOUR GRAPHICS CARD/DRIVER!"), mFixedFont, 16U);
+    }
+    mMenuUseShadersText.setPosition(20.f, mOptionsTitleText.getPosition().y + 80);
+
+    std::string warning;
+    mWarningText.setFont(mFixedFont);
+    mWarningText.setCharacterSize(16U);
+    if (mGLVersionMajor < 3)
+      warning += tr(">> Bad OpenGL version (must be >=3.x)\n");
+    if (!mShadersAvailable)
+      warning += tr(">> Bad GLSL version (must be >=1.10)\n");
+    if (!warning.empty())
+      mWarningText.setString(warning);
+    mWarningText.setPosition(8.f, 4.f);
+
     mMenuParticlesPerExplosionText = sf::Text(tr("Particles per explosion"), mFixedFont, 16U);
     mMenuParticlesPerExplosionText.setPosition(20.f, mOptionsTitleText.getPosition().y + 112);
     mMenuMusicVolumeText = sf::Text(tr("Music volume"), mFixedFont, 16U);
@@ -392,7 +434,7 @@ namespace Impact {
     mLevelsRenderTexture.create(600, 170);
     mLevelsRenderView = mLevelsRenderTexture.getDefaultView();
 
-    if (sf::Shader::isAvailable()) {
+    if (gSettings.useShaders) {
       const sf::Vector2f &windowSize = sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y));
       mRenderTexture0.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
       mRenderTexture1.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
@@ -572,9 +614,6 @@ namespace Impact {
     resume();
     gotoWelcomeScreen();
     resetKillingSpree();
-
-    if (mGLVersionMajor < 3) // TODO: exit more nicely, i.e. inform user about reason
-      mWindow.close();
   }
 
 
@@ -603,7 +642,7 @@ namespace Impact {
     mStatsView.reset(sf::FloatRect(0.f, float(DefaultPlaygroundHeight), float(DefaultStatsWidth), float(DefaultStatsHeight)));
     mStatsView.setCenter(sf::Vector2f(.5f * DefaultStatsWidth, .5f * DefaultStatsHeight));
     mStatsView.setViewport(sf::FloatRect(0.f, float(DefaultWindowHeight - DefaultStatsHeight) / float(DefaultWindowHeight), 1.f, float(DefaultStatsHeight) / float(DefaultWindowHeight)));
-    if (sf::Shader::isAvailable()) {
+    if (gSettings.useShaders) {
       mKeyholeShader.setParameter("uAspect", mDefaultView.getSize().y / mDefaultView.getSize().x);
     }
   }
@@ -857,6 +896,9 @@ namespace Impact {
     else {
       mWindow.draw(mTitleText);
     }
+
+    if (!mWarningText.getString().isEmpty())
+      mWindow.draw(mWarningText);
 
     if (mWelcomeLevel == 0) {
       ExplosionDef pd(this, b2Vec2(.5f * DefaultTilesHorizontally, .4f * DefaultTilesVertically));
@@ -1442,12 +1484,12 @@ namespace Impact {
             gotoWelcomeScreen();
             return;
           }
-          else if (mMenuUseShadersText.getGlobalBounds().contains(mousePos)) {
+          else if (mShadersAvailable && mMenuUseShadersText.getGlobalBounds().contains(mousePos)) {
             gSettings.useShaders = !gSettings.useShaders;
             createMainWindow();
             gSettings.save();
           }
-          else if (mMenuUseShadersForExplosionsText.getGlobalBounds().contains(mousePos)) {
+          else if (mShadersAvailable && gSettings.useShaders && mMenuUseShadersForExplosionsText.getGlobalBounds().contains(mousePos)) {
             if (gSettings.useShaders) {
               gSettings.useShadersForExplosions = !gSettings.useShadersForExplosions;
               ExplosionDef pd(this, InvScale * b2Vec2(mousePos.x, mousePos.y));
@@ -1501,23 +1543,27 @@ namespace Impact {
 
     mWindow.draw(mOptionsTitleText);
 
-    mMenuUseShadersText.setColor(sf::Color(255U, 255U, 255U, mMenuUseShadersText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-    mMenuParticlesPerExplosionText.setColor(sf::Color(255U, 255U, 255U, mMenuParticlesPerExplosionText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-    mMenuMusicVolumeText.setColor(sf::Color(255U, 255U, 255U, mMenuMusicVolumeText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-    mMenuSoundFXVolumeText.setColor(sf::Color(255U, 255U, 255U, mMenuSoundFXVolumeText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-    mMenuFrameRateLimitText.setColor(sf::Color(255U, 255U, 255U, mMenuFrameRateLimitText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-
+    if (mShadersAvailable) {
+      mMenuUseShadersText.setColor(sf::Color(255U, 255U, 255U, mMenuUseShadersText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+      sf::Text useShadersText(gSettings.useShaders ? tr("on") : tr("off"), mFixedFont, 16U);
+      useShadersText.setPosition(mDefaultView.getCenter().x + 160, mMenuUseShadersText.getPosition().y);
+      mWindow.draw(useShadersText);
+    }
     mWindow.draw(mMenuUseShadersText);
+
+    mMenuParticlesPerExplosionText.setColor(sf::Color(255U, 255U, 255U, mMenuParticlesPerExplosionText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mWindow.draw(mMenuParticlesPerExplosionText);
+
+    mMenuMusicVolumeText.setColor(sf::Color(255U, 255U, 255U, mMenuMusicVolumeText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mWindow.draw(mMenuMusicVolumeText);
+
+    mMenuSoundFXVolumeText.setColor(sf::Color(255U, 255U, 255U, mMenuSoundFXVolumeText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mWindow.draw(mMenuSoundFXVolumeText);
+
+    mMenuFrameRateLimitText.setColor(sf::Color(255U, 255U, 255U, mMenuFrameRateLimitText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mWindow.draw(mMenuFrameRateLimitText);
 
-    sf::Text useShadersText(gSettings.useShaders ? tr("on") : tr("off"), mFixedFont, 16U);
-    useShadersText.setPosition(mDefaultView.getCenter().x + 160, mMenuUseShadersText.getPosition().y);
-    mWindow.draw(useShadersText);
-
-    if (gSettings.useShaders) {
+    if (mShadersAvailable && gSettings.useShaders) {
       mMenuUseShadersForExplosionsText.setColor(sf::Color(255U, 255U, 255U, mMenuUseShadersForExplosionsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
       sf::Text useShadersForExplosionsText(gSettings.useShadersForExplosions ? tr("on") : tr("off"), mFixedFont, 16U);
       useShadersForExplosionsText.setPosition(mDefaultView.getCenter().x + 160, mMenuUseShadersForExplosionsText.getPosition().y);

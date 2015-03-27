@@ -199,8 +199,10 @@ namespace Impact {
 
     int mGLVersionMajor;
     int mGLVersionMinor;
+    int mGLSLVersionMajor;
+    int mGLSLVersionMinor;
     std::string mGLShadingLanguageVersion;
-
+    bool mShadersAvailable;
 
     // SFML
     sf::RenderWindow mWindow;
@@ -225,6 +227,7 @@ namespace Impact {
     sf::Texture mBackgroundTexture;
     sf::Sprite mBackgroundSprite;
     sf::Shader mTitleShader;
+    sf::Text mWarningText;
     sf::Text mTitleText;
     sf::Texture mTitleTexture;
     sf::Sprite mTitleSprite;
