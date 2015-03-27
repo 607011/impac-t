@@ -169,6 +169,7 @@ namespace Impact {
     void setLevelZip(const char *zipFilename);
     void enterLoop(void);
     void addBody(Body *body);
+    void initSounds(void);
     void initShaderDependants(void);
 
     inline b2World *world(void)

@@ -205,6 +205,8 @@ namespace Impact {
     mWindow.setVerticalSyncEnabled(false);
     resize();
 
+    initSounds();
+
     sf::Image icon;
     icon.loadFromFile(ImagesDir + "/app-icon.png");
     mWindow.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
@@ -216,61 +218,6 @@ namespace Impact {
     ok = mTitleFont.loadFromFile(FontsDir + "/Dimitri.ttf"); //MOD Font
     if (!ok)
       std::cerr << FontsDir + "/Dimitri.ttf failed to load." << std::endl;
-
-    setSoundFXVolume(gSettings.soundfxVolume);
-    setMusicVolume(gSettings.musicVolume);
-
-    sf::Listener::setPosition(DefaultCenter.x, DefaultCenter.y, 0.f);
-
-    mMusic[0].openFromFile(gSettings.musicDir + "/Pooka.ogg");
-    mMusic[0].setLoop(true);
-
-    for (std::vector<sf::Sound>::iterator sound = mSoundFX.begin(); sound != mSoundFX.end(); ++sound)
-      sound->setMinDistance(float(DefaultTilesHorizontally * DefaultTilesVertically));
-
-    ok = mStartupSound.loadFromFile(gSettings.soundFXDir + "/startup.ogg");
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/startup.ogg failed to load." << std::endl;
-
-    ok = mNewBallSound.loadFromFile(gSettings.soundFXDir + "/new-ball.ogg"); //MOD Sound
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/new-ball.ogg failed to load." << std::endl;
-
-    ok = mNewLifeSound.loadFromFile(gSettings.soundFXDir + "/new-life.ogg"); //MOD Sound
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/new-ball.ogg failed to load." << std::endl;
-
-    ok = mBallOutSound.loadFromFile(gSettings.soundFXDir + "/ball-out.ogg"); //MOD Sound
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/ball-out.ogg failed to load." << std::endl;
-
-    ok = mBlockHitSound.loadFromFile(gSettings.soundFXDir + "/block-hit.ogg"); //MOD Sound
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/block-hit.ogg failed to load." << std::endl;
-
-    ok = mPenaltySound.loadFromFile(gSettings.soundFXDir + "/penalty.ogg"); //MOD Sound
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/penalty.ogg failed to load." << std::endl;
-
-    ok = mRacketHitSound.loadFromFile(gSettings.soundFXDir + "/racket-hit.ogg"); //MOD Sound
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/racket-hit.ogg failed to load." << std::endl;
-
-    ok = mRacketHitBlockSound.loadFromFile(gSettings.soundFXDir + "/racket-hit-block.ogg"); //MOD Sound
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/racket-hit-block.ogg failed to load." << std::endl;
-
-    ok = mExplosionSound.loadFromFile(gSettings.soundFXDir + "/explosion.ogg"); //MOD Sound
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/explosion.ogg failed to load." << std::endl;
-
-    ok = mLevelCompleteSound.loadFromFile(gSettings.soundFXDir + "/level-complete.ogg"); //MOD Sound
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/level-complete.ogg failed to load." << std::endl;
-
-    ok = mKillingSpreeSound.loadFromFile(gSettings.soundFXDir + "/killing-spree.ogg"); //MOD Sound
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/killing-spree.ogg failed to load." << std::endl;
 
     mParticleTexture.loadFromFile(ImagesDir + "/particle.png"); //MOD Explosionspartikel
 
@@ -399,6 +346,68 @@ namespace Impact {
   {
     gSettings.save();
     clearWorld();
+  }
+
+
+  void Game::initSounds(void)
+  {
+    bool ok;
+
+    setSoundFXVolume(gSettings.soundfxVolume);
+    setMusicVolume(gSettings.musicVolume);
+
+    sf::Listener::setPosition(DefaultCenter.x, DefaultCenter.y, 0.f);
+
+    mMusic[0].openFromFile(gSettings.musicDir + "/Pooka.ogg");
+    mMusic[0].setLoop(true);
+
+    for (std::vector<sf::Sound>::iterator sound = mSoundFX.begin(); sound != mSoundFX.end(); ++sound)
+      sound->setMinDistance(float(DefaultTilesHorizontally * DefaultTilesVertically));
+
+    ok = mStartupSound.loadFromFile(gSettings.soundFXDir + "/startup.ogg");
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/startup.ogg failed to load." << std::endl;
+
+    ok = mNewBallSound.loadFromFile(gSettings.soundFXDir + "/new-ball.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/new-ball.ogg failed to load." << std::endl;
+
+    ok = mNewLifeSound.loadFromFile(gSettings.soundFXDir + "/new-life.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/new-ball.ogg failed to load." << std::endl;
+
+    ok = mBallOutSound.loadFromFile(gSettings.soundFXDir + "/ball-out.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/ball-out.ogg failed to load." << std::endl;
+
+    ok = mBlockHitSound.loadFromFile(gSettings.soundFXDir + "/block-hit.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/block-hit.ogg failed to load." << std::endl;
+
+    ok = mPenaltySound.loadFromFile(gSettings.soundFXDir + "/penalty.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/penalty.ogg failed to load." << std::endl;
+
+    ok = mRacketHitSound.loadFromFile(gSettings.soundFXDir + "/racket-hit.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/racket-hit.ogg failed to load." << std::endl;
+
+    ok = mRacketHitBlockSound.loadFromFile(gSettings.soundFXDir + "/racket-hit-block.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/racket-hit-block.ogg failed to load." << std::endl;
+
+    ok = mExplosionSound.loadFromFile(gSettings.soundFXDir + "/explosion.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/explosion.ogg failed to load." << std::endl;
+
+    ok = mLevelCompleteSound.loadFromFile(gSettings.soundFXDir + "/level-complete.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/level-complete.ogg failed to load." << std::endl;
+
+    ok = mKillingSpreeSound.loadFromFile(gSettings.soundFXDir + "/killing-spree.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/killing-spree.ogg failed to load." << std::endl;
+
   }
 
 
