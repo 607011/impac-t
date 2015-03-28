@@ -161,7 +161,7 @@ namespace Impact {
     glGetIntegerv(GL_MAJOR_VERSION, &mGLVersionMajor);
     glGetIntegerv(GL_MINOR_VERSION, &mGLVersionMinor);
 
-    const boost::regex re_version("(\d+)\.(\d+)");
+    const boost::regex re_version("(\\d+)\\.(\\d+)");
     const GLubyte *glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
     mGLShadingLanguageVersion = reinterpret_cast<const char*>(glslVersion);
     boost::regex_match(mGLShadingLanguageVersion, re_version);
