@@ -167,9 +167,6 @@
     <None Include="resources\shaders\explosion.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="resources\shaders\approachingoverlay.fs">
-      <Filter>Fragment Shaders</Filter>
-    </None>
     <None Include="packages.config" />
     <None Include="LICENSE.md" />
     <None Include="TODO.md" />
@@ -180,6 +177,9 @@
       <Filter>Fragment Shaders</Filter>
     </None>
     <None Include="resources\shaders\vignette.fs">
+      <Filter>Fragment Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\overlay.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
   </ItemGroup>

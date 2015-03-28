@@ -426,9 +426,9 @@ namespace Impact {
       ok = mEarthquakeShader.loadFromFile(ShadersDir + "/earthquake.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/earthquake.fs" << " failed to load/compile." << std::endl;
-      ok = mOverlayShader.loadFromFile(ShadersDir + "/approachingoverlay.fs", sf::Shader::Fragment);
+      ok = mOverlayShader.loadFromFile(ShadersDir + "/overlay.fs", sf::Shader::Fragment);
       if (!ok)
-        std::cerr << ShadersDir + "/approachingoverlay.fs" << " failed to load/compile." << std::endl;
+        std::cerr << ShadersDir + "/overlay.fs" << " failed to load/compile." << std::endl;
       mOverlayShader.setParameter("uResolution", windowSize);
 
       //XXX
