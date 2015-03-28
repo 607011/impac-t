@@ -1,3 +1,4 @@
+#version 110
 /*
 
     Copyright (c) 2015 Oliver Lau <ola@ct.de>
@@ -61,52 +62,52 @@ vec4 lensDistort(vec2 uv, float distort)
 
   // unrolled loop (numIter iterations)
 
-  t = 0.f * invIter;
+  t = 0.0 * invIter;
   w = spectrum_offset(t);
   sumw += w;
   sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 1.f * invIter;
+  t = 1.0 * invIter;
   w = spectrum_offset(t);
   sumw += w;
   sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 2.f * invIter;
+  t = 2.0 * invIter;
   w = spectrum_offset(t);
   sumw += w;
   sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 3.f * invIter;
+  t = 3.0 * invIter;
   w = spectrum_offset(t);
   sumw += w;
   sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 4.f * invIter;
+  t = 4.0 * invIter;
   w = spectrum_offset(t);
   sumw += w;
   sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 5.f * invIter;
+  t = 5.0 * invIter;
   w = spectrum_offset(t);
   sumw += w;
   sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 6.f * invIter;
+  t = 6.0 * invIter;
   w = spectrum_offset(t);
   sumw += w;
   sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 7.f * invIter;
+  t = 7.0 * invIter;
   w = spectrum_offset(t);
   sumw += w;
   sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 8.f * invIter;
+  t = 8.0 * invIter;
   w = spectrum_offset(t);
   sumw += w;
   sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
 
-  t = 9.f * invIter;
+  t = 9.0 * invIter;
   w = spectrum_offset(t);
   sumw += w;
   sumcol += w * texture2D(uTexture, barrelDistortion(uv, distort*t)).rgb;
@@ -117,10 +118,10 @@ vec4 lensDistort(vec2 uv, float distort)
 
 float quadEaseInOut(float t, float b, float c, float d)
 {
-  t /= d/2;
-  if (t < 1) return c/2*t*t + b;
+  t /= d/2.0;
+  if (t < 1.0) return c/2.0*t*t + b;
   t--;
-  return -c/2 * (t*(t-2) - 1) + b;
+  return -c/2.0 * (t*(t-2.0) - 1.0) + b;
 }
 
 
@@ -128,5 +129,5 @@ void main()
 {
   vec2 pos = gl_TexCoord[0].xy;
   float intensity = 1.0 - quadEaseInOut(uT, 0.0, 1.0, uMaxT);
-  gl_FragColor = gl_Color * lensDistort(pos, uDistort * intensity);
+  gl_FragColor = lensDistort(pos, uDistort * intensity);
 }

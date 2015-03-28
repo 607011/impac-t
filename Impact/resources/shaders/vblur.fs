@@ -1,3 +1,5 @@
+#version 110
+
 /*
 
     Copyright (c) 2015 Oliver Lau <ola@ct.de>
@@ -33,5 +35,5 @@ void main(void) {
   sum += texture2D(uTexture, pos + vec2(0.0, 0.50 * sy)) * 0.1216216216;
   sum += texture2D(uTexture, pos + vec2(0.0, 0.75 * sy)) * 0.0540540541;
   sum += texture2D(uTexture, pos + vec2(0.0, 1.00 * sy)) * 0.0162162162;
-  gl_FragColor = gl_Color * sum;
+  gl_FragColor = sum;
 }

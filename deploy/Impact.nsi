@@ -1,6 +1,6 @@
 !define VERSIONMAJOR "1"
 !define VERSIONMINOR "0"
-!define VERSION "${VERSIONMAJOR}.${VERSIONMINOR}-BETA24"
+!define VERSION "${VERSIONMAJOR}.${VERSIONMINOR}-BETA27"
 !define GUID "{95E41A25-7E41-45CA-A1F6-0FFAB66A1B2F}"
 !define APP "Impact"
 !define PUBLISHER "Heise Medien GmbH & Co. KG - Redaktion c't"
@@ -51,7 +51,7 @@ Section "${APP}"
   File "..\${APP}\LICENSE"
   File "..\${APP}\LICENSE.md"
   File "..\${APP}\TODO.md"
-  File "..\${APP}\app-icon.ico"
+  File "..\${APP}\exe-icon.ico"
   File "..\README.md"
   File "..\Release\glew32.dll"
   File "..\Release\zlib.dll"
@@ -61,11 +61,10 @@ Section "${APP}"
   File "..\Release\sfml-graphics-2.dll"
   File "..\Release\sfml-system-2.dll"
   File "..\Release\sfml-window-2.dll"
-; File "..\Release\sfml-network-2.dll"
   WriteUninstaller "$INSTDIR\uninstall.exe"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "DisplayName" "${APP}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "DisplayVersion" "${VERSION}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "DisplayIcon" "$INSTDIR\app-icon.ico"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "DisplayIcon" "$INSTDIR\exe-icon.ico"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "Publisher" "${PUBLISHER}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "UninstallString" '"$INSTDIR\uninstall.exe"'
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "NoModify" 1
@@ -92,8 +91,8 @@ Section "${APP}"
   SetOutPath "$APPDATA\${APP}\soundfx"
   File /a /r "..\${APP}\resources\soundfx\*.ogg"
 
-;  SetOutPath "$APPDATA\${APP}\music"
-;  File /a /r "..\$APPDATA\${APP}\music\"
+  SetOutPath "$APPDATA\${APP}\music"
+  File /a /r "..\${APP}\resources\music\*.ogg"
 
   SetOutPath "$APPDATA\${APP}"
   File "..\${APP}\settings.xml"
@@ -107,6 +106,11 @@ Section "Start Menu Shortcuts"
   CreateDirectory "$SMPROGRAMS\${APP}"
   CreateShortCut "$SMPROGRAMS\${APP}\${APP} ${VERSION}.lnk" "$INSTDIR\${APP}.exe"
   CreateShortcut "$SMPROGRAMS\${APP}\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+SectionEnd
+
+
+Section "Desktop Icon"
+  CreateShortCut "$DESKTOP\${APP}-${VERSION}.lnk" "$INSTDIR\${APP}.exe" ""
 SectionEnd
 
 
@@ -124,14 +128,14 @@ Section "Uninstall"
   Delete "$INSTDIR\sfml-graphics-2.dll"
   Delete "$INSTDIR\sfml-system-2.dll"
   Delete "$INSTDIR\sfml-window-2.dll"
-  Delete "$INSTDIR\sfml-network-2.dll"
-  Delete "$INSTDIR\app-icon.ico"
+  Delete "$INSTDIR\exe-icon.ico"
   Delete "$INSTDIR\${APP}.exe"
   Delete "$INSTDIR\uninstall.exe"
 
-  RMDir /r "$INSTDIR\resources"
-  
+  Delete "$DESKTOP\${APP}-${VERSION}.lnk"
   Delete "$SMPROGRAMS\${APP}\*.*"
   RMDir "$SMPROGRAMS\${APP}"
+
+  RMDir /r "$INSTDIR\resources"
   RMDir "$INSTDIR"
 SectionEnd

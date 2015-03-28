@@ -4,6 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Impact", "Impact\Impact.vcxproj", "{0864737A-E9AE-4826-A2D1-AFF9B752B887}"
+	ProjectSection(ProjectDependencies) = postProject
+		{585BAED2-B225-469B-8B43-29788D897C00} = {585BAED2-B225-469B-8B43-29788D897C00}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Box2D", "Box2D\Box2D\Box2D.vcxproj", "{585BAED2-B225-469B-8B43-29788D897C00}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +20,10 @@ Global
 		{0864737A-E9AE-4826-A2D1-AFF9B752B887}.Debug|Win32.Build.0 = Debug|Win32
 		{0864737A-E9AE-4826-A2D1-AFF9B752B887}.Release|Win32.ActiveCfg = Release|Win32
 		{0864737A-E9AE-4826-A2D1-AFF9B752B887}.Release|Win32.Build.0 = Release|Win32
+		{585BAED2-B225-469B-8B43-29788D897C00}.Debug|Win32.ActiveCfg = Debug|Win32
+		{585BAED2-B225-469B-8B43-29788D897C00}.Debug|Win32.Build.0 = Debug|Win32
+		{585BAED2-B225-469B-8B43-29788D897C00}.Release|Win32.ActiveCfg = Release|Win32
+		{585BAED2-B225-469B-8B43-29788D897C00}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

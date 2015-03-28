@@ -21,6 +21,7 @@
 
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/regex.hpp>
 
 #include <zlib.h>
 
@@ -82,16 +83,16 @@ namespace Impact {
 
 
   const float32 Game::InvScale = 1.f / Game::Scale;
-
-  const unsigned int Game::DefaultLives = 3; //XXX
-  const float32 DefaultGravity = 9.81f; //XXX
-  const sf::Time Game::DefaultKillingSpreeInterval = sf::milliseconds(2500); //XXX
-  const unsigned int Game::DefaultKillingsPerKillingSpree = 5; //XXX
-  const unsigned int Game::DefaultKillingSpreeBonus = 1000; //XXX
-  const unsigned int Game::NewLiveAfterSoManyPoints[] = { 10000, 25000, 50000, 100000, -1 }; //XXX
-  const unsigned int Game::NewLiveAfterSoManyPointsDefault = 100000; //XXX
-  const int Game::DefaultForceNewBallPenalty = 500; //XXX
-  const sf::Time Game::DefaultPenaltyInterval = sf::milliseconds(100); //XXX
+  const b2Vec2 Game::DefaultCenter = b2Vec2(.5f * Game::DefaultTilesHorizontally, .5f * Game::DefaultTilesVertically);
+  const unsigned int Game::DefaultLives = 3; //MOD Leben
+  const float32 DefaultGravity = 9.81f; //MOD Schwerkraft
+  const sf::Time Game::DefaultKillingSpreeInterval = sf::milliseconds(2500); //MOD Multikill
+  const unsigned int Game::DefaultKillingsPerKillingSpree = 5; //MOD Multikill
+  const unsigned int Game::DefaultKillingSpreeBonus = 1000; //MOD Multikill
+  const unsigned int Game::NewLiveAfterSoManyPoints[] = { 10000, 25000, 50000, 100000, -1 }; //MOD Extraball
+  const unsigned int Game::NewLiveAfterSoManyPointsDefault = 100000; //MOD Extraball
+  const int Game::DefaultForceNewBallPenalty = 500; //MOD Strafe
+  const sf::Time Game::DefaultPenaltyInterval = sf::milliseconds(100); //MOD Strafe
 
   const sf::Time Game::DefaultFadeEffectDuration = sf::milliseconds(150);
   const sf::Time Game::DefaultAberrationEffectDuration = sf::milliseconds(250);
@@ -145,9 +146,19 @@ namespace Impact {
     , mBlurPlayground(false)
     , mOverlayDuration(DefaultOverlayDuration)
     , mLastKillingsIndex(0)
+    , mMusic(4)
+    , mSoundFX(8)
+    , mSoundIndex(0)
     , mFPSArray(32, 0)
     , mFPS(0)
     , mFPSIndex(0)
+    , mMyProcessHandle(0)
+    , mNumProcessors(0)
+    , mGLVersionMajor(0)
+    , mGLVersionMinor(0)
+    , mGLSLVersionMajor(0)
+    , mGLSLVersionMinor(0)
+    , mShadersAvailable(sf::Shader::isAvailable())
   {
     bool ok;
 
@@ -155,7 +166,31 @@ namespace Impact {
     glGetIntegerv(GL_MAJOR_VERSION, &mGLVersionMajor);
     glGetIntegerv(GL_MINOR_VERSION, &mGLVersionMinor);
 
-    mGLShadingLanguageVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+    const GLubyte *glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+    mGLShadingLanguageVersion = reinterpret_cast<const char*>(glslVersion);
+    if (mShadersAvailable) {
+      const boost::regex re_version("(\\d+)\\.(\\d+)");
+      boost::cmatch what;
+      boost::regex_search(mGLShadingLanguageVersion.c_str(), what, re_version);
+      if (what.size() == 3) {
+        std::string glslMajor(what[1].first, what[1].second);
+        std::string glslMinor(what[2].first, what[2].second);
+        std::istringstream(glslMajor) >> mGLSLVersionMajor;
+        std::istringstream(glslMinor) >> mGLSLVersionMinor;
+#ifndef NDEBUG
+        std::cout << "GLSL version " << mGLSLVersionMajor << "." << mGLSLVersionMinor << " (" << mGLShadingLanguageVersion << ")" << std::endl;
+#endif
+      }
+      if (mGLSLVersionMajor < 1 || (mGLSLVersionMajor == 1 && mGLSLVersionMinor < 10)) {
+        mShadersAvailable = false;
+        gSettings.useShaders = false;
+        gSettings.useShadersForExplosions = false;
+      }
+    }
+    else {
+      gSettings.useShaders = false;
+      gSettings.useShadersForExplosions = false;
+    }
 
     warmupRNG();
 
@@ -170,98 +205,21 @@ namespace Impact {
     mWindow.setVerticalSyncEnabled(false);
     resize();
 
+    initSounds();
+
     sf::Image icon;
     icon.loadFromFile(ImagesDir + "/app-icon.png");
     mWindow.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 
-    ok = mFixedFont.loadFromFile(FontsDir + "/04b_03.ttf"); //XXX
+    ok = mFixedFont.loadFromFile(FontsDir + "/04b_03.ttf"); //MOD Font
     if (!ok)
       std::cerr << FontsDir + "/04b_03.ttf failed to load." << std::endl;
 
-    ok = mTitleFont.loadFromFile(FontsDir + "/Dimitri.ttf"); //XXX
+    ok = mTitleFont.loadFromFile(FontsDir + "/Dimitri.ttf"); //MOD Font
     if (!ok)
       std::cerr << FontsDir + "/Dimitri.ttf failed to load." << std::endl;
 
-    ok = mStartupBuffer.loadFromFile(gSettings.soundFXDir + "/startup.ogg"); 
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/startup.ogg failed to load." << std::endl;
-    mStartupSound.setBuffer(mStartupBuffer);
-    mStartupSound.setLoop(false);
-    mSoundFX.push_back(&mStartupSound);
-
-    ok = mNewBallBuffer.loadFromFile(gSettings.soundFXDir + "/new-ball.ogg"); //XXX
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/new-ball.ogg failed to load." << std::endl;
-    mNewBallSound.setBuffer(mNewBallBuffer);
-    mNewBallSound.setLoop(false);
-    mSoundFX.push_back(&mNewBallSound);
-
-    ok = mNewLifeBuffer.loadFromFile(gSettings.soundFXDir + "/new-life.ogg"); //XXX
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/new-ball.ogg failed to load." << std::endl;
-    mNewLifeSound.setBuffer(mNewLifeBuffer);
-    mNewLifeSound.setLoop(false);
-    mSoundFX.push_back(&mNewLifeSound);
-
-    ok = mBallOutBuffer.loadFromFile(gSettings.soundFXDir + "/ball-out.ogg"); //XXX
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/ball-out.ogg failed to load." << std::endl;
-    mBallOutSound.setBuffer(mBallOutBuffer);
-    mBallOutSound.setLoop(false);
-    mSoundFX.push_back(&mBallOutSound);
-
-    ok = mBlockHitBuffer.loadFromFile(gSettings.soundFXDir + "/block-hit.ogg"); //XXX
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/block-hit.ogg failed to load." << std::endl;
-    mBlockHitSound.setBuffer(mBlockHitBuffer);
-    mBlockHitSound.setLoop(false);
-    mSoundFX.push_back(&mBlockHitSound);
-
-    ok = mPenaltyBuffer.loadFromFile(gSettings.soundFXDir + "/penalty.ogg"); //XXX
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/penalty.ogg failed to load." << std::endl;
-    mPenaltySound.setBuffer(mPenaltyBuffer);
-    mPenaltySound.setLoop(false);
-    mSoundFX.push_back(&mPenaltySound);
-
-    ok = mRacketHitBuffer.loadFromFile(gSettings.soundFXDir + "/racket-hit.ogg"); //XXX
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/racket-hit.ogg failed to load." << std::endl;
-    mRacketHitSound.setBuffer(mRacketHitBuffer);
-    mRacketHitSound.setLoop(false);
-    mSoundFX.push_back(&mRacketHitSound);
-
-    ok = mRacketHitBlockBuffer.loadFromFile(gSettings.soundFXDir + "/racket-hit-block.ogg"); //XXX
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/racket-hit-block.ogg failed to load." << std::endl;
-    mRacketHitBlockSound.setBuffer(mRacketHitBlockBuffer);
-    mRacketHitBlockSound.setLoop(false);
-    mSoundFX.push_back(&mRacketHitBlockSound);
-
-    ok = mExplosionBuffer.loadFromFile(gSettings.soundFXDir + "/explosion.ogg"); //XXX
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/explosion.ogg failed to load." << std::endl;
-    mExplosionSound.setBuffer(mExplosionBuffer);
-    mExplosionSound.setLoop(false);
-    mSoundFX.push_back(&mExplosionSound);
-
-    ok = mLevelCompleteBuffer.loadFromFile(gSettings.soundFXDir + "/level-complete.ogg"); //XXX
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/level-complete.ogg failed to load." << std::endl;
-    mLevelCompleteSound.setBuffer(mLevelCompleteBuffer);
-    mLevelCompleteSound.setLoop(false);
-    mSoundFX.push_back(&mLevelCompleteSound);
-
-    ok = mKillingSpreeSoundBuffer.loadFromFile(gSettings.soundFXDir + "/killing-spree.ogg"); //XXX
-    if (!ok)
-      std::cerr << gSettings.soundFXDir + "/killing-spree.ogg failed to load." << std::endl;
-    mKillingSpreeSound.setBuffer(mKillingSpreeSoundBuffer);
-    mKillingSpreeSound.setLoop(false);
-    mSoundFX.push_back(&mKillingSpreeSound);
-
-    setSoundFXVolume(gSettings.soundfxVolume);
-
-    mParticleTexture.loadFromFile(ImagesDir + "/particle.png"); //XXX
+    mParticleTexture.loadFromFile(ImagesDir + "/particle.png"); //MOD Explosionspartikel
 
     mScrollbarTexture.loadFromFile(ImagesDir + "/white-pixel.png");
     mScrollbarSprite.setTexture(mScrollbarTexture);
@@ -314,21 +272,6 @@ namespace Impact {
 
     mFPSText.setFont(mFixedFont);
     mFPSText.setCharacterSize(8U);
-
-    mProgramInfoMsg.setString("Impac't v" + std::string(IMPACT_VERSION) + " (" + __TIMESTAMP__ + ")" 
-      + " - "
-      + "Copyright (c) 2015 Oliver Lau <ola@ct.de>"
-      + "\n"
-      + tr("Built with") + ": SFML " + std::to_string(SFML_VERSION_MAJOR) + "." + std::to_string(SFML_VERSION_MINOR)
-      + ", Box2D " + std::to_string(b2_version.major) + "." + std::to_string(b2_version.minor) + "." + std::to_string(b2_version.revision)
-      + ", glew " + std::to_string(GLEW_VERSION) + "." + std::to_string(GLEW_VERSION_MAJOR) + "." + std::to_string(GLEW_VERSION_MINOR)
-      + ", zlib " + zlibVersion()
-      + " - " + "OpenGL " + std::to_string(mGLVersionMajor) + "." + std::to_string(mGLVersionMinor)
-      + ", GLSL " + std::string(reinterpret_cast<const char*>(mGLShadingLanguageVersion))
-      );
-    mProgramInfoMsg.setFont(mFixedFont);
-    mProgramInfoMsg.setCharacterSize(8U);
-    mProgramInfoMsg.setPosition(8.f, mDefaultView.getSize().y - mProgramInfoMsg.getLocalBounds().height - 8.f);
 
     mBackgroundTexture.loadFromFile(ImagesDir + "/welcome-background.jpg");
     mBackgroundSprite.setTexture(mBackgroundTexture);
@@ -387,27 +330,132 @@ namespace Impact {
       "easings: https://github.com/jesusgollonet/ofpennereasing\n"
       "\n"), mFixedFont, 16U);
 
-    mOptionsTitleText = sf::Text(tr("Options"), mFixedFont, 32U);
-    mOptionsTitleText.setPosition(mDefaultView.getCenter().x - .5f * mOptionsTitleText.getLocalBounds().width, menuTop);
-    if (sf::Shader::isAvailable()) {
-      mMenuUseShadersText = sf::Text(tr("Use shaders"), mFixedFont, 16U);
-      mMenuUseShadersText.setPosition(20.f, mOptionsTitleText.getPosition().y + 80);
-      mMenuUseShadersForExplosionsText = sf::Text(tr("Use shaders for explosions"), mFixedFont, 16U);
-      mMenuUseShadersForExplosionsText.setPosition(20.f, mOptionsTitleText.getPosition().y + 96);
-    }
-    mMenuParticlesPerExplosionText = sf::Text(tr("Particles per explosion"), mFixedFont, 16U);
-    mMenuParticlesPerExplosionText.setPosition(20.f, mOptionsTitleText.getPosition().y + 112);
-    mMenuMusicVolumeText = sf::Text(tr("Music volume"), mFixedFont, 16U);
-    mMenuMusicVolumeText.setPosition(20.f, mOptionsTitleText.getPosition().y + 128);
-    mMenuSoundFXVolumeText = sf::Text(tr("Sound fx volume"), mFixedFont, 16U);
-    mMenuSoundFXVolumeText.setPosition(20.f, mOptionsTitleText.getPosition().y + 144);
-    mMenuFrameRateLimitText = sf::Text(tr("Frame rate limit"), mFixedFont, 16U);
-    mMenuFrameRateLimitText.setPosition(20.f, mOptionsTitleText.getPosition().y + 160);
-
     mLevelsRenderTexture.create(600, 170);
     mLevelsRenderView = mLevelsRenderTexture.getDefaultView();
 
-    if (sf::Shader::isAvailable()) {
+    mKeyMapping[PauseAction] = sf::Keyboard::Escape; //MOD Tasten
+    mKeyMapping[RecoverBallAction] = sf::Keyboard::N; //MOD Tasten
+
+    initShaderDependants();
+
+    restart();
+  }
+
+
+  Game::~Game(void)
+  {
+    gSettings.save();
+    clearWorld();
+  }
+
+
+  void Game::initSounds(void)
+  {
+    bool ok;
+
+    setSoundFXVolume(gSettings.soundfxVolume);
+    setMusicVolume(gSettings.musicVolume);
+
+    sf::Listener::setPosition(DefaultCenter.x, DefaultCenter.y, 0.f);
+
+    mMusic[0].openFromFile(gSettings.musicDir + "/Pooka.ogg");
+    mMusic[0].setLoop(true);
+
+    for (std::vector<sf::Sound>::iterator sound = mSoundFX.begin(); sound != mSoundFX.end(); ++sound)
+      sound->setMinDistance(float(DefaultTilesHorizontally * DefaultTilesVertically));
+
+    ok = mStartupSound.loadFromFile(gSettings.soundFXDir + "/startup.ogg");
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/startup.ogg failed to load." << std::endl;
+
+    ok = mNewBallSound.loadFromFile(gSettings.soundFXDir + "/new-ball.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/new-ball.ogg failed to load." << std::endl;
+
+    ok = mNewLifeSound.loadFromFile(gSettings.soundFXDir + "/new-life.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/new-ball.ogg failed to load." << std::endl;
+
+    ok = mBallOutSound.loadFromFile(gSettings.soundFXDir + "/ball-out.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/ball-out.ogg failed to load." << std::endl;
+
+    ok = mBlockHitSound.loadFromFile(gSettings.soundFXDir + "/block-hit.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/block-hit.ogg failed to load." << std::endl;
+
+    ok = mPenaltySound.loadFromFile(gSettings.soundFXDir + "/penalty.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/penalty.ogg failed to load." << std::endl;
+
+    ok = mRacketHitSound.loadFromFile(gSettings.soundFXDir + "/racket-hit.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/racket-hit.ogg failed to load." << std::endl;
+
+    ok = mRacketHitBlockSound.loadFromFile(gSettings.soundFXDir + "/racket-hit-block.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/racket-hit-block.ogg failed to load." << std::endl;
+
+    ok = mExplosionSound.loadFromFile(gSettings.soundFXDir + "/explosion.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/explosion.ogg failed to load." << std::endl;
+
+    ok = mLevelCompleteSound.loadFromFile(gSettings.soundFXDir + "/level-complete.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/level-complete.ogg failed to load." << std::endl;
+
+    ok = mKillingSpreeSound.loadFromFile(gSettings.soundFXDir + "/killing-spree.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gSettings.soundFXDir + "/killing-spree.ogg failed to load." << std::endl;
+
+  }
+
+
+  void Game::initShaderDependants(void)
+  {
+    bool ok = false;
+
+    const float menuTop = std::floor(mDefaultView.getCenter().y - 45.5f);
+
+    mProgramInfoMsg.setString("Impac't v" + std::string(IMPACT_VERSION) + " (" + __TIMESTAMP__ + ")"
+      + " - "
+      + "Copyright (c) 2015 Oliver Lau <ola@ct.de>"
+      + "\n"
+      + tr("Built with") + ": SFML " + std::to_string(SFML_VERSION_MAJOR) + "." + std::to_string(SFML_VERSION_MINOR)
+      + ", Box2D " + std::to_string(b2_version.major) + "." + std::to_string(b2_version.minor) + "." + std::to_string(b2_version.revision)
+      + ", glew " + std::to_string(GLEW_VERSION) + "." + std::to_string(GLEW_VERSION_MAJOR) + "." + std::to_string(GLEW_VERSION_MINOR)
+      + ", zlib " + zlibVersion()
+      + " - " + "OpenGL " + std::to_string(mGLVersionMajor) + "." + std::to_string(mGLVersionMinor)
+      + (mShadersAvailable ? ", GLSL " + mGLShadingLanguageVersion : "")
+      );
+    mProgramInfoMsg.setFont(mFixedFont);
+    mProgramInfoMsg.setCharacterSize(8U);
+    mProgramInfoMsg.setPosition(8.f, mDefaultView.getSize().y - mProgramInfoMsg.getLocalBounds().height - 8.f);
+
+    mOptionsTitleText = sf::Text(tr("Options"), mFixedFont, 32U);
+    mOptionsTitleText.setPosition(mDefaultView.getCenter().x - .5f * mOptionsTitleText.getLocalBounds().width, menuTop);
+    if (mShadersAvailable) {
+      mMenuUseShadersText = sf::Text(tr("Use shaders"), mFixedFont, 16U);
+      mMenuUseShadersForExplosionsText = sf::Text(tr("Use shaders for explosions"), mFixedFont, 16U);
+      mMenuUseShadersForExplosionsText.setPosition(20.f, mOptionsTitleText.getPosition().y + 96);
+    }
+    else {
+      mMenuUseShadersText = sf::Text(tr("SHADERS ARE NOT AVAILABLE.\nPLEASE UPGRADE YOUR GRAPHICS CARD/DRIVER!"), mFixedFont, 16U);
+    }
+    mMenuUseShadersText.setPosition(20.f, mOptionsTitleText.getPosition().y + 80);
+
+    std::string warning;
+    mWarningText.setFont(mFixedFont);
+    mWarningText.setCharacterSize(16U);
+    if (mGLVersionMajor < 3)
+      warning += tr(">> Bad OpenGL version (must be >=3.x)\n");
+    if (!mShadersAvailable)
+      warning += tr(">> Bad GLSL version (must be >=1.10)\n");
+    if (!warning.empty())
+      mWarningText.setString(warning);
+    mWarningText.setPosition(8.f, 4.f);
+
+    if (gSettings.useShaders) {
       const sf::Vector2f &windowSize = sf::Vector2f(float(mWindow.getSize().x), float(mWindow.getSize().y));
       mRenderTexture0.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
       mRenderTexture1.create(DefaultPlaygroundWidth, DefaultPlaygroundHeight);
@@ -441,12 +489,12 @@ namespace Impact {
       ok = mEarthquakeShader.loadFromFile(ShadersDir + "/earthquake.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/earthquake.fs" << " failed to load/compile." << std::endl;
-      ok = mOverlayShader.loadFromFile(ShadersDir + "/approachingoverlay.fs", sf::Shader::Fragment);
+      ok = mOverlayShader.loadFromFile(ShadersDir + "/overlay.fs", sf::Shader::Fragment);
       if (!ok)
-        std::cerr << ShadersDir + "/approachingoverlay.fs" << " failed to load/compile." << std::endl;
+        std::cerr << ShadersDir + "/overlay.fs" << " failed to load/compile." << std::endl;
       mOverlayShader.setParameter("uResolution", windowSize);
 
-      //XXX
+      //MOD Schlüsselloch
       //ok = mKeyholeShader.loadFromFile(ShadersDir + "/keyhole.fs", sf::Shader::Fragment);
       //if (!ok)
       //   std::cerr << ShadersDir + "/keyhole.fs" << " failed to load/compile." << std::endl;
@@ -455,7 +503,6 @@ namespace Impact {
       //mKeyholeShader.setParameter("uAspect", mDefaultView.getSize().y / mDefaultView.getSize().x);
       //mKeyholeShader.setParameter("uCenter", sf::Vector2f(.5f, .5f));
 
-      //XXX
       ok = mVignetteShader.loadFromFile(ShadersDir + "/vignette.fs", sf::Shader::Fragment);
       if (!ok)
         std::cerr << ShadersDir + "/vignette.fs" << " failed to load/compile." << std::endl;
@@ -463,17 +510,57 @@ namespace Impact {
       mVignetteShader.setParameter("uHSV", sf::Vector3f(1.1f, 1.0f, 1.0f));
     }
 
-    mKeyMapping[Action::PauseAction] = sf::Keyboard::Escape; //XXX
-    mKeyMapping[Action::NewBall] = sf::Keyboard::N; //XXX
+    mMenuParticlesPerExplosionText = sf::Text(tr("Particles per explosion"), mFixedFont, 16U);
+    mMenuParticlesPerExplosionText.setPosition(20.f, mOptionsTitleText.getPosition().y + 112);
+    mMenuMusicVolumeText = sf::Text(tr("Music volume"), mFixedFont, 16U);
+    mMenuMusicVolumeText.setPosition(20.f, mOptionsTitleText.getPosition().y + 128);
+    mMenuSoundFXVolumeText = sf::Text(tr("Sound fx volume"), mFixedFont, 16U);
+    mMenuSoundFXVolumeText.setPosition(20.f, mOptionsTitleText.getPosition().y + 144);
+    mMenuFrameRateLimitText = sf::Text(tr("Frame rate limit"), mFixedFont, 16U);
+    mMenuFrameRateLimitText.setPosition(20.f, mOptionsTitleText.getPosition().y + 160);
 
-    restart();
+
   }
 
 
-  Game::~Game(void)
+  void Game::initCPULoadMonitor(void)
   {
-    gSettings.save();
-    clearWorld();
+    SYSTEM_INFO sysInfo;
+    FILETIME ftime, fsys, fuser;
+    GetSystemInfo(&sysInfo);
+    mNumProcessors = sysInfo.dwNumberOfProcessors;
+    GetSystemTimeAsFileTime(&ftime);
+    mLastCPU.LowPart = ftime.dwLowDateTime;
+    mLastCPU.HighPart = ftime.dwHighDateTime;
+    mMyProcessHandle = GetCurrentProcess();
+    GetProcessTimes(mMyProcessHandle, &ftime, &ftime, &fsys, &fuser);
+    mLastCPU.LowPart = fsys.dwLowDateTime;
+    mLastCPU.HighPart = fsys.dwHighDateTime;
+    mLastCPU.LowPart = fuser.dwLowDateTime;
+    mLastCPU.HighPart = fuser.dwHighDateTime;
+  }
+
+
+  float Game::getCurrentCPULoadPercentage(void)
+  {
+    FILETIME ftime, fsys, fuser, fexit;
+    ULARGE_INTEGER now, sys, user;
+    GetSystemTimeAsFileTime(&ftime);
+    now.LowPart = ftime.dwLowDateTime;
+    now.HighPart = ftime.dwHighDateTime;
+    GetProcessTimes(mMyProcessHandle, &ftime, &fexit, &fsys, &fuser);
+    sys.LowPart = fsys.dwLowDateTime;
+    sys.HighPart = fsys.dwHighDateTime;
+    user.LowPart = fuser.dwLowDateTime;
+    user.HighPart = fuser.dwHighDateTime;
+    const float percent = 1e2f
+      * float(sys.QuadPart - mLastSysCPU.QuadPart + user.QuadPart - mLastUserCPU.QuadPart)
+      / float(now.QuadPart - mLastCPU.QuadPart)
+      / mNumProcessors;
+    mLastCPU.QuadPart = now.QuadPart;
+    mLastUserCPU.QuadPart = user.QuadPart;
+    mLastSysCPU.QuadPart = sys.QuadPart;
+    return percent;
   }
 
 
@@ -509,10 +596,11 @@ namespace Impact {
 #endif
   }
 
+
   void Game::stopAllMusic(void)
   {
-    for (std::vector<sf::Music*>::iterator m = mMusic.begin(); m != mMusic.end(); ++m)
-      (*m)->stop();
+    for (std::vector<sf::Music>::iterator m = mMusic.begin(); m != mMusic.end(); ++m)
+      m->stop();
     if (mLevel.music() != nullptr)
       mLevel.music()->stop();
   }
@@ -546,9 +634,6 @@ namespace Impact {
     resume();
     gotoWelcomeScreen();
     resetKillingSpree();
-
-    if (mGLVersionMajor < 3) // TODO: exit more nicely, i.e. inform user about reason
-      mWindow.close();
   }
 
 
@@ -577,7 +662,7 @@ namespace Impact {
     mStatsView.reset(sf::FloatRect(0.f, float(DefaultPlaygroundHeight), float(DefaultStatsWidth), float(DefaultStatsHeight)));
     mStatsView.setCenter(sf::Vector2f(.5f * DefaultStatsWidth, .5f * DefaultStatsHeight));
     mStatsView.setViewport(sf::FloatRect(0.f, float(DefaultWindowHeight - DefaultStatsHeight) / float(DefaultWindowHeight), 1.f, float(DefaultStatsHeight) / float(DefaultWindowHeight)));
-    if (sf::Shader::isAvailable()) {
+    if (gSettings.useShaders) {
       mKeyholeShader.setParameter("uAspect", mDefaultView.getSize().y / mDefaultView.getSize().x);
     }
   }
@@ -724,6 +809,7 @@ namespace Impact {
 
   void Game::openLevelZip(void)
   {
+    playSound(mRacketHitSound);
 #ifndef NDEBUG
     std::cout << "openLevelZip()" << std::endl;
 #endif
@@ -759,7 +845,7 @@ namespace Impact {
   {
     clearWorld();
     stopAllMusic();
-    mStartupSound.play();
+    playSound(mStartupSound);
     mStartMsg.setString(tr("Click to start"));
     setState(State::WelcomeScreen);
     mWindow.setView(mDefaultView);
@@ -770,6 +856,7 @@ namespace Impact {
     mWallClock.restart();
     mWindow.setMouseCursorVisible(true);
     mWindow.setFramerateLimit(DefaultFramerateLimit);
+    initCPULoadMonitor();
   }
 
 
@@ -830,6 +917,9 @@ namespace Impact {
       mWindow.draw(mTitleText);
     }
 
+    if (!mWarningText.getString().isEmpty())
+      mWindow.draw(mWarningText);
+
     if (mWelcomeLevel == 0) {
       ExplosionDef pd(this, b2Vec2(.5f * DefaultTilesHorizontally, .4f * DefaultTilesVertically));
       pd.ballCollisionEnabled = false;
@@ -856,7 +946,7 @@ namespace Impact {
       mWindow.draw(mMenuExitText);
 
       if (mWelcomeLevel == 1) {
-        mExplosionSound.play();
+        playSound(mExplosionSound, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y));
         mWelcomeLevel = 2;
         ExplosionDef pd(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y));
         pd.count = gSettings.particlesPerExplosion;
@@ -867,7 +957,7 @@ namespace Impact {
     if (t > 550) {
       mWindow.draw(mLogoSprite);
       if (mWelcomeLevel == 2) {
-        mExplosionSound.play();
+        playSound(mExplosionSound, Game::InvScale * b2Vec2(mLogoSprite.getPosition().x, mLogoSprite.getPosition().y));
         mWelcomeLevel = 3;
         ExplosionDef pd(this, Game::InvScale * b2Vec2(mLogoSprite.getPosition().x, mLogoSprite.getPosition().y));
         pd.count = gSettings.particlesPerExplosion;
@@ -878,7 +968,7 @@ namespace Impact {
     if (t > 670) {
       mWindow.draw(mProgramInfoMsg);
       if (mWelcomeLevel == 3) {
-        mExplosionSound.play();
+        playSound(mExplosionSound, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y));
         mWelcomeLevel = 4;
         ExplosionDef pd(this, Game::InvScale * b2Vec2(mProgramInfoMsg.getPosition().x, mProgramInfoMsg.getPosition().y));
         pd.texture = mParticleTexture;
@@ -897,7 +987,7 @@ namespace Impact {
   void Game::gotoLevelCompleted(void)
   {
     mTotalScore = deductPenalty(mLevelScore);
-    mLevelCompleteSound.play();
+    playSound(mLevelCompleteSound);
     mStartMsg.setString(tr("Click to continue"));
     startBlurEffect();
     setState(State::LevelCompleted);
@@ -1060,7 +1150,7 @@ namespace Impact {
             resume();
           }
           else if (mainMenuText.getGlobalBounds().contains(mousePos)) {
-            mBlockHitSound.play();
+            playSound(mBlockHitSound);
             gotoWelcomeScreen();
           }
           return;
@@ -1182,13 +1272,13 @@ namespace Impact {
           newBall();
         break;
       case sf::Event::KeyPressed:
-        if (event.key.code == mKeyMapping[Action::PauseAction]) {
+        if (event.key.code == mKeyMapping[PauseAction]) {
           if (!mPaused)
             gotoPausing();
           else
             resume();
         }
-        else if (event.key.code == mKeyMapping[Action::NewBall] || event.key.code == sf::Keyboard::Space) {
+        else if (event.key.code == mKeyMapping[RecoverBallAction] || event.key.code == sf::Keyboard::Space) {
           if (mBall != nullptr) {
             const b2Vec2 &padPos = mRacket->position();
             mBall->setPosition(padPos.x, padPos.y - 3.5f);
@@ -1291,7 +1381,7 @@ namespace Impact {
     mWindow.setView(mDefaultView);
     mWindow.setMouseCursorVisible(true);
     mWindow.setFramerateLimit(DefaultFramerateLimit);
-    mRacketHitSound.play();
+    playSound(mRacketHitSound);
     mWallClock.restart();
     mWelcomeLevel = 0;
   }
@@ -1338,7 +1428,7 @@ namespace Impact {
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
           if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
-            mBlockHitSound.play();
+            playSound(mBlockHitSound);
             gotoWelcomeScreen();
             return;
           }
@@ -1364,8 +1454,10 @@ namespace Impact {
   {
     mWelcomeLevel = 0;
     mWallClock.restart();
+    playSound(mRacketHitSound);
     setState(State::OptionsScreen);
-    mWindow.setFramerateLimit(DefaultFramerateLimit);
+    mWindow.setFramerateLimit(gSettings.framerateLimit);
+    mMusic[0].play();
   }
 
 
@@ -1377,6 +1469,7 @@ namespace Impact {
 
     const float t = mWallClock.getElapsedTime().asSeconds();
 
+    mWindow.setView(mDefaultView);
     mWindow.clear(sf::Color(31, 31, 47));
     mWindow.draw(mBackgroundSprite);
 
@@ -1407,24 +1500,24 @@ namespace Impact {
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
           if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
-            mBlockHitSound.play();
+            playSound(mBlockHitSound);
             gotoWelcomeScreen();
             return;
           }
-          else if (mMenuUseShadersText.getGlobalBounds().contains(mousePos)) {
+          else if (mShadersAvailable && mMenuUseShadersText.getGlobalBounds().contains(mousePos)) {
             gSettings.useShaders = !gSettings.useShaders;
+            if (gSettings.useShaders)
+              initShaderDependants();
             createMainWindow();
             gSettings.save();
           }
-          else if (mMenuUseShadersForExplosionsText.getGlobalBounds().contains(mousePos)) {
-            if (gSettings.useShaders) {
-              gSettings.useShadersForExplosions = !gSettings.useShadersForExplosions;
-              ExplosionDef pd(this, InvScale * b2Vec2(mousePos.x, mousePos.y));
-              pd.count = gSettings.particlesPerExplosion;
-              pd.texture = mParticleTexture;
-              addBody(new Explosion(pd));
-              gSettings.save();
-            }
+          else if (mShadersAvailable && gSettings.useShaders && mMenuUseShadersForExplosionsText.getGlobalBounds().contains(mousePos)) {
+            gSettings.useShadersForExplosions = !gSettings.useShadersForExplosions;
+            ExplosionDef pd(this, InvScale * b2Vec2(mousePos.x, mousePos.y));
+            pd.count = gSettings.particlesPerExplosion;
+            pd.texture = mParticleTexture;
+            addBody(new Explosion(pd));
+            gSettings.save();
           }
           else if (mMenuParticlesPerExplosionText.getGlobalBounds().contains(mousePos)) {
             gSettings.particlesPerExplosion += 10U;
@@ -1441,19 +1534,22 @@ namespace Impact {
             if (gSettings.musicVolume > 100.f)
               gSettings.musicVolume = 0.f;
             gSettings.save();
+            setMusicVolume(gSettings.musicVolume);
           }
           else if (mMenuSoundFXVolumeText.getGlobalBounds().contains(mousePos)) {
             gSettings.soundfxVolume += 5.f;
             if (gSettings.soundfxVolume > 100.f)
               gSettings.soundfxVolume = 0.f;
             gSettings.save();
+            setSoundFXVolume(gSettings.soundfxVolume);
+            playSound(mRacketHitBlockSound);
           }
           else if (mMenuFrameRateLimitText.getGlobalBounds().contains(mousePos)) {
             if (gSettings.framerateLimit == 0)
               gSettings.framerateLimit = 60;
             else
               gSettings.framerateLimit *= 2;
-            if (gSettings.framerateLimit > 2000)
+            if (gSettings.framerateLimit > 480)
               gSettings.framerateLimit = 0;
             mWindow.setFramerateLimit(gSettings.framerateLimit);
             gSettings.save();
@@ -1467,23 +1563,27 @@ namespace Impact {
 
     mWindow.draw(mOptionsTitleText);
 
-    mMenuUseShadersText.setColor(sf::Color(255U, 255U, 255U, mMenuUseShadersText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-    mMenuParticlesPerExplosionText.setColor(sf::Color(255U, 255U, 255U, mMenuParticlesPerExplosionText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-    mMenuMusicVolumeText.setColor(sf::Color(255U, 255U, 255U, mMenuMusicVolumeText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-    mMenuSoundFXVolumeText.setColor(sf::Color(255U, 255U, 255U, mMenuSoundFXVolumeText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-    mMenuFrameRateLimitText.setColor(sf::Color(255U, 255U, 255U, mMenuFrameRateLimitText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-
+    if (mShadersAvailable) {
+      mMenuUseShadersText.setColor(sf::Color(255U, 255U, 255U, mMenuUseShadersText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+      sf::Text useShadersText(gSettings.useShaders ? tr("on") : tr("off"), mFixedFont, 16U);
+      useShadersText.setPosition(mDefaultView.getCenter().x + 160, mMenuUseShadersText.getPosition().y);
+      mWindow.draw(useShadersText);
+    }
     mWindow.draw(mMenuUseShadersText);
+
+    mMenuParticlesPerExplosionText.setColor(sf::Color(255U, 255U, 255U, mMenuParticlesPerExplosionText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mWindow.draw(mMenuParticlesPerExplosionText);
+
+    mMenuMusicVolumeText.setColor(sf::Color(255U, 255U, 255U, mMenuMusicVolumeText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mWindow.draw(mMenuMusicVolumeText);
+
+    mMenuSoundFXVolumeText.setColor(sf::Color(255U, 255U, 255U, mMenuSoundFXVolumeText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mWindow.draw(mMenuSoundFXVolumeText);
+
+    mMenuFrameRateLimitText.setColor(sf::Color(255U, 255U, 255U, mMenuFrameRateLimitText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mWindow.draw(mMenuFrameRateLimitText);
 
-    sf::Text useShadersText(gSettings.useShaders ? tr("on") : tr("off"), mFixedFont, 16U);
-    useShadersText.setPosition(mDefaultView.getCenter().x + 160, mMenuUseShadersText.getPosition().y);
-    mWindow.draw(useShadersText);
-
-    if (gSettings.useShaders) {
+    if (mShadersAvailable && gSettings.useShaders) {
       mMenuUseShadersForExplosionsText.setColor(sf::Color(255U, 255U, 255U, mMenuUseShadersForExplosionsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
       sf::Text useShadersForExplosionsText(gSettings.useShadersForExplosions ? tr("on") : tr("off"), mFixedFont, 16U);
       useShadersForExplosionsText.setPosition(mDefaultView.getCenter().x + 160, mMenuUseShadersForExplosionsText.getPosition().y);
@@ -1511,6 +1611,10 @@ namespace Impact {
     mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
     mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), mLevelsRenderTexture.getSize().y + menuTop);
     mWindow.draw(mMenuBackText);
+
+    updateStats();
+    mWindow.setView(mStatsView);
+    mWindow.draw(mFPSText);
   }
 
 
@@ -1521,7 +1625,7 @@ namespace Impact {
     mWindow.setView(mDefaultView);
     mWindow.setMouseCursorVisible(true);
     mWindow.setFramerateLimit(DefaultFramerateLimit);
-    mRacketHitSound.play();
+    playSound(mRacketHitSound);
     mWallClock.restart();
     mWelcomeLevel = 0;
   }
@@ -1634,7 +1738,7 @@ namespace Impact {
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
           if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
-            mBlockHitSound.play();
+            playSound(mBlockHitSound);
             gotoWelcomeScreen();
             return;
           }
@@ -1687,7 +1791,7 @@ namespace Impact {
     mWindow.setView(mDefaultView);
     mWindow.setMouseCursorVisible(true);
     mWindow.setFramerateLimit(DefaultFramerateLimit);
-    mRacketHitSound.play();
+    playSound(mRacketHitSound);
     mWelcomeLevel = 0;
     mWallClock.restart();
   }
@@ -1721,7 +1825,7 @@ namespace Impact {
             gotoNextLevel();
           }
           else if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
-            mBlockHitSound.play();
+            playSound(mBlockHitSound);
             gotoWelcomeScreen();
           }
           return;
@@ -2050,19 +2154,7 @@ namespace Impact {
       }
     }
 
-    if (mStatsClock.getElapsedTime() > sf::milliseconds(33)) {
-      mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
-      mFPSText.setString(std::to_string(mFPS) + " fps");
-      mFPSText.setPosition(mStatsView.getSize().x - mFPSText.getGlobalBounds().width - 4, mStatsView.getSize().y - 4 - mFPSText.getGlobalBounds().height);
-      if (mState == State::Playing) {
-        const int penalty = calcPenalty();
-        mScoreMsg.setString(std::to_string(mLevelScore) + (penalty > 0 ? " " + std::to_string(-penalty) : ""));
-        mScoreMsg.setPosition(mStatsView.getSize().x - mScoreMsg.getLocalBounds().width - 4, 4);
-        mCurrentScoreMsg.setString("total: " + std::to_string(b2Max(0, mTotalScore + mLevelScore - penalty)));
-        mCurrentScoreMsg.setPosition(mStatsView.getSize().x - mCurrentScoreMsg.getLocalBounds().width - 4, 20);
-      }
-      mStatsClock.restart();
-    }
+    updateStats();
 
     mWindow.setView(mStatsView);
     mWindow.draw(mStatsViewRectangle);
@@ -2105,6 +2197,24 @@ namespace Impact {
       mSpecialEffects.erase(*i);
     }
 
+  }
+
+
+  void Game::updateStats(void)
+  {
+    if (mStatsClock.getElapsedTime() > sf::milliseconds(33)) {
+      mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
+      mFPSText.setString(std::to_string(mFPS) + " fps\nCPU: " + std::to_string(int(getCurrentCPULoadPercentage())) + "%");
+      mFPSText.setPosition(mStatsView.getSize().x - b2Max(mFPSText.getGlobalBounds().width - 4, 60.f), mStatsView.getSize().y - 8 - mFPSText.getGlobalBounds().height);
+      if (mState == State::Playing) {
+        const int penalty = calcPenalty();
+        mScoreMsg.setString(std::to_string(mLevelScore) + (penalty > 0 ? " " + std::to_string(-penalty) : ""));
+        mScoreMsg.setPosition(mStatsView.getSize().x - mScoreMsg.getLocalBounds().width - 4, 4);
+        mCurrentScoreMsg.setString("total: " + std::to_string(b2Max(0, mTotalScore + mLevelScore - penalty)));
+        mCurrentScoreMsg.setPosition(mStatsView.getSize().x - mCurrentScoreMsg.getLocalBounds().width - 4, 20);
+      }
+      mStatsClock.restart();
+    }
   }
 
 
@@ -2196,7 +2306,7 @@ namespace Impact {
               killedBodies.push_back(block);
             }
             else if (cp.normalImpulse > 20)
-              mBlockHitSound.play();
+              playSound(mBlockHitSound, block->position());
           }
         }
         else if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
@@ -2212,14 +2322,14 @@ namespace Impact {
             if (isAlive(block)) {
               showScore(block->getScore(), block->position(), 2);
               block->kill();
-              mRacketHitBlockSound.play();
+              playSound(mRacketHitBlockSound, block->position());
               killedBodies.push_back(block);
             }
           }
           else {
             if (mPenaltyClock.getElapsedTime() > DefaultPenaltyInterval) {
               showScore(-block->getScore(), block->position());
-              mPenaltySound.play();
+              playSound(mPenaltySound, block->position());
               startFadeEffect();
               mPenaltyClock.restart();
             }
@@ -2227,8 +2337,8 @@ namespace Impact {
         }
       }
       else if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
+        Ball *ball = reinterpret_cast<Ball*>(a->type() == Body::BodyType::Ball ? a : b);
         if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
-          Ball *ball = reinterpret_cast<Ball*>(a->type() == Body::BodyType::Ball ? a : b);
           if (isAlive(ball)) {
             ball->lethalHit();
             ball->kill();
@@ -2238,7 +2348,7 @@ namespace Impact {
         }
         else if (a->type() == Body::BodyType::Racket || b->type() == Body::BodyType::Racket) {
           if (cp.normalImpulse > 20)
-            mRacketHitSound.play();
+            playSound(mRacketHitSound, ball->position());
         }
       }
     }
@@ -2511,13 +2621,13 @@ namespace Impact {
   void Game::extraBall(void)
   {
     ++mLives;
-    mNewLifeSound.play();
+    playSound(mNewLifeSound);
   }
 
 
   void Game::newBall(const b2Vec2 &pos)
   {
-    mNewBallSound.play();
+    playSound(mNewBallSound);
     safeRenew(mBall, new Ball(this));
     if (mBallHasBeenLost) {
       const b2Vec2 &padPos = mRacket->position();
@@ -2591,8 +2701,28 @@ namespace Impact {
 
   void Game::setSoundFXVolume(float volume)
   {
-    for (std::vector<sf::Sound*>::iterator sound = mSoundFX.begin(); sound != mSoundFX.end(); ++sound)
-      (*sound)->setVolume(volume);
+    for (std::vector<sf::Sound>::iterator sound = mSoundFX.begin(); sound != mSoundFX.end(); ++sound)
+      sound->setVolume(volume);
+  }
+
+
+  void Game::setMusicVolume(float volume)
+  {
+    for (std::vector<sf::Music>::iterator m = mMusic.begin(); m != mMusic.end(); ++m)
+      m->setVolume(volume);
+    if (mLevel.music() != nullptr)
+      mLevel.music()->setVolume(volume);
+  }
+
+
+  void Game::playSound(const sf::SoundBuffer &buffer, const b2Vec2 &pos)
+  {
+    sf::Sound &sound = mSoundFX[mSoundIndex];
+    sound.setBuffer(buffer);
+    sound.setPosition(pos.x, 0, 0);
+    sound.play();
+    if (++mSoundIndex >= mSoundFX.size())
+      mSoundIndex = 0;
   }
 
 
@@ -2604,14 +2734,14 @@ namespace Impact {
 
   int Game::deductPenalty(int score) const
   {
-    return b2Max(0, score - calcPenalty()); //XXX
+    return b2Max(0, score - calcPenalty());
   }
 
 
   void Game::onBodyKilled(Body *killedBody)
   {
     if (killedBody->type() == Body::BodyType::Block) {
-      mExplosionSound.play();
+      playSound(mExplosionSound, killedBody->position());
       ExplosionDef pd(this, killedBody->position());
       pd.ballCollisionEnabled = mLevel.explosionParticlesCollideWithBall();
       pd.count = gSettings.particlesPerExplosion;
@@ -2624,7 +2754,7 @@ namespace Impact {
         const sf::Time &dt = mLastKillings.at(mLastKillingsIndex) - mLastKillings.at(i);
         mLastKillingsIndex = (mLastKillingsIndex + 1) % mLastKillings.size();
         if (dt < mLevel.killingSpreeInterval()) {
-          mKillingSpreeSound.play();
+          playSound(mKillingSpreeSound, killedBody->position());
           showScore((mLevel.killingSpreeInterval() - dt).asMilliseconds() + mLevel.killingSpreeBonus(), killedBody->position() + b2Vec2(0.f, 1.35f));
           resetKillingSpree();
         }
@@ -2657,7 +2787,7 @@ namespace Impact {
     }
     else if (killedBody->type() == Body::BodyType::Ball) {
       if (mState == State::Playing) {
-        mBallOutSound.play();
+        playSound(mBallOutSound, killedBody->position());
         mBallHasBeenLost = true;
         if (killedBody->energy() == 0) {
           if (mLives-- == 0) {
