@@ -686,6 +686,15 @@ namespace Impact {
   }
 
 
+
+  void Game::clearEventQueue(void)
+  {
+    sf::Event event;
+    while (mWindow.pollEvent(event))
+      /**/;
+  }
+
+
   void Game::enterLoop(void)
   {
 #ifdef CT_VERSION_INTERNAL
@@ -1228,6 +1237,7 @@ namespace Impact {
     else {
       gotoPlayerWon();
     }
+    clearEventQueue();
   }
 
 

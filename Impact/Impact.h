@@ -171,6 +171,7 @@ namespace Impact {
     void addBody(Body *body);
     void initSounds(void);
     void initShaderDependants(void);
+    void clearEventQueue(void);
 
     inline b2World *world(void)
     {
