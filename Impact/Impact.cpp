@@ -353,7 +353,7 @@ namespace Impact {
   {
     bool ok;
 
-    setSoundFXVolume(gSettings.soundfxVolume);
+    /**/setSoundFXVolume(gSettings.soundfxVolume);/**/
     setMusicVolume(gSettings.musicVolume);
 
     sf::Listener::setPosition(DefaultCenter.x, DefaultCenter.y, 0.f);
@@ -822,6 +822,7 @@ namespace Impact {
 #ifndef NDEBUG
     std::cout << "openLevelZip()" << std::endl;
 #endif
+#if defined(WIN32)
     char szFile[MAX_PATH];
     ZeroMemory(szFile, sizeof(szFile));
     OPENFILENAME ofn;
@@ -840,10 +841,16 @@ namespace Impact {
     ZeroMemory(&szCwd, sizeof(szCwd));
     GetCurrentDirectory(MAX_PATH, szCwd);
     BOOL ok = GetOpenFileName(&ofn);
+#endif
+
     if (ok == TRUE) {
+#if defined(WIN32)
       SetCurrentDirectory(szCwd); // GetOpenFileName() changed current directory, so restore it afterwards
+#endif
       std::string zipFilename = ofn.lpstrFile;
+#if defined(WIN32)
       PathRemoveFileSpec(ofn.lpstrFile);
+#endif
       gSettings.lastOpenDir = ofn.lpstrFile;
       loadLevelFromZip(zipFilename);
     }
@@ -2815,8 +2822,10 @@ namespace Impact {
     std::cout << std::endl << "Game::enumerateAllLevels()" << std::endl << std::endl;
 #endif
     std::packaged_task<bool()> task([this]{
+#if defined(WIN32)
       const int prio = GetThreadPriority(GetCurrentThread());
       SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
+#endif
       if (mLevels.empty()) {
         Level level;
         int l = 1;
@@ -2830,7 +2839,9 @@ namespace Impact {
           }
         } while (level.isAvailable());
       }
+#if defined(WIN32)
       SetThreadPriority(GetCurrentThread(), prio);
+#endif
       return true;
     });
     mEnumerateFuture = task.get_future();
