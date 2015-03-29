@@ -2728,7 +2728,7 @@ namespace Impact {
 
   int Game::calcPenalty(void) const
   {
-    return 5 * mLevelTimer.accumulatedMilliseconds() / 1000;
+    return 5 * mLevelTimer.accumulatedMilliseconds() / 1000; //MOD PenaltyPerSecond
   }
 
 
