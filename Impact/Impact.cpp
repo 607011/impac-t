@@ -611,10 +611,10 @@ namespace Impact {
     clearWorld();
 
     safeRenew(mWorld, new b2World(b2Vec2(0.f, DefaultGravity)));
-    mWorld->SetContactListener(this);
     mWorld->SetAllowSleeping(true);
     mWorld->SetWarmStarting(true);
     mWorld->SetContinuousPhysics(false);
+    mWorld->SetContactListener(this);
     mWorld->SetSubStepping(true);
 
     mExtraLifeIndex = 0;
@@ -964,7 +964,7 @@ namespace Impact {
       if (mWelcomeLevel == 1) {
         playSound(mExplosionSound, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y));
         mWelcomeLevel = 2;
-        ExplosionDef pd(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y));
+        ExplosionDef pd(this, Game::InvScale * b2Vec2(mStartMsg.getPosition().x, mStartMsg.getPosition().y)); //XXX
         pd.count = gSettings.particlesPerExplosion;
         pd.texture = mParticleTexture;
         addBody(new Explosion(pd));
