@@ -91,7 +91,7 @@ namespace Impact {
   const unsigned int Game::DefaultKillingSpreeBonus = 1000; //MOD Multikill
   const unsigned int Game::NewLiveAfterSoManyPoints[] = { 10000, 25000, 50000, 100000, -1 }; //MOD Extraball
   const unsigned int Game::NewLiveAfterSoManyPointsDefault = 100000; //MOD Extraball
-  const int Game::DefaultForceNewBallPenalty = 500; //MOD Strafe
+  const int Game::DefaultForceNewBallPenalty = 500;
   const sf::Time Game::DefaultPenaltyInterval = sf::milliseconds(100); //MOD Strafe
 
   const sf::Time Game::DefaultFadeEffectDuration = sf::milliseconds(150);
@@ -494,12 +494,12 @@ namespace Impact {
         std::cerr << ShadersDir + "/overlay.fs" << " failed to load/compile." << std::endl;
       mOverlayShader.setParameter("uResolution", windowSize);
 
-      //MOD Schlüsselloch
+      ////MOD Schlüsselloch
       //ok = mKeyholeShader.loadFromFile(ShadersDir + "/keyhole.fs", sf::Shader::Fragment);
       //if (!ok)
       //   std::cerr << ShadersDir + "/keyhole.fs" << " failed to load/compile." << std::endl;
-      //mKeyholeShader.setParameter("uStretch", 0.5f);
-      //mKeyholeShader.setParameter("uSharpness", 2.0f);
+      //mKeyholeShader.setParameter("uStretch", 0.5f); //MOD Stretch
+      //mKeyholeShader.setParameter("uSharpness", 2.0f); //MOD Sharpness
       //mKeyholeShader.setParameter("uAspect", mDefaultView.getSize().y / mDefaultView.getSize().x);
       //mKeyholeShader.setParameter("uCenter", sf::Vector2f(.5f, .5f));
 
@@ -1240,6 +1240,7 @@ namespace Impact {
       mPenaltyClock.restart();
       mLevelScore = 0;
       mWindow.setFramerateLimit(gSettings.framerateLimit);
+      //MOD KeyholeEnable
     }
     else {
       gotoPlayerWon();
@@ -2092,7 +2093,7 @@ namespace Impact {
           mRenderTexture0.draw(*body);
       }
 
-      //TODO: uncomment (change mBall to mRacket)
+      //MOD Keyhole
       //if (mBall != nullptr && gSettings.useShaders) {
       //  executeKeyhole(mRenderTexture1, mRenderTexture0, mBall->position(), true);
       //}
@@ -2781,6 +2782,7 @@ namespace Impact {
         startEarthquake(tileParam.earthquakeIntensity, tileParam.earthquakeDuration);
         addSpecialEffect(SpecialEffect(mEarthquakeDuration, &mEarthquakeClock, killedBody->texture()));
       }
+      //MOD Tileparam
       if (tileParam.scaleGravityDuration > sf::Time::Zero) {
         mWorld->SetGravity(tileParam.scaleGravityBy * mWorld->GetGravity());
         mScaleGravityEnabled = true;

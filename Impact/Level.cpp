@@ -411,6 +411,7 @@ namespace Impact {
               try {
                 std::string propName = property.get<std::string>("<xmlattr>.name");
                 boost::algorithm::to_lower(propName);
+                //MOD Property1
                 if (propName == "name") {
                   tileParam.textureName = property.get<std::string>("<xmlattr>.value");
                 }
@@ -420,6 +421,7 @@ namespace Impact {
                 else if (propName == "fixed") {
                   tileParam.fixed = property.get<bool>("<xmlattr>.value");
                 }
+                //MOD Property2
                 else if (propName == "friction") {
                   tileParam.friction = property.get<float32>("<xmlattr>.value");
                 }
