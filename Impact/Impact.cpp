@@ -2510,23 +2510,26 @@ namespace Impact {
     mGround->setPosition(0, g < 0.f ? 0 : mLevel.height());
     addBody(mGround);
 
+
     const sf::Texture *bgTex = mLevel.backgroundSprite().getTexture();
-    sf::Image bg = bgTex->copyToImage();
-    unsigned int nPixels = bg.getSize().x * bg.getSize().y;
-    if (nPixels > 0) {
-      const sf::Uint8 *pixels = bg.getPixelsPtr();
-      const sf::Uint8 *pixelsEnd = pixels + (4 * nPixels);
-      sf::Vector3i color;
-      while (pixels < pixelsEnd) {
-        color.x += *(pixels + 0);
-        color.y += *(pixels + 1);
-        color.z += *(pixels + 2);
-        pixels += 4;
+    if (bgTex != nullptr) {
+      sf::Image bg = bgTex->copyToImage();
+      unsigned int nPixels = bg.getSize().x * bg.getSize().y;
+      if (nPixels > 0) {
+        const sf::Uint8 *pixels = bg.getPixelsPtr();
+        const sf::Uint8 *pixelsEnd = pixels + (4 * nPixels);
+        sf::Vector3i color;
+        while (pixels < pixelsEnd) {
+          color.x += *(pixels + 0);
+          color.y += *(pixels + 1);
+          color.z += *(pixels + 2);
+          pixels += 4;
+        }
+        mStatsColor = sf::Color(sf::Uint8(color.x / nPixels), sf::Uint8(color.y / nPixels), sf::Uint8(color.z / nPixels), 255U);
       }
-      mStatsColor = sf::Color(sf::Uint8(color.x / nPixels), sf::Uint8(color.y / nPixels), sf::Uint8(color.z / nPixels), 255U);
-    }
-    else {
-      mStatsColor = sf::Color::Black;
+      else {
+        mStatsColor = sf::Color::Black;
+      }
     }
 
     createStatsViewRectangle();
