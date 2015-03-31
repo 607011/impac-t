@@ -2513,7 +2513,7 @@ namespace Impact {
 
     const sf::Texture *bgTex = mLevel.backgroundSprite().getTexture();
     if (bgTex != nullptr) {
-      sf::Image bg = bgTex->copyToImage();
+      const sf::Image &bg = bgTex->copyToImage();
       unsigned int nPixels = bg.getSize().x * bg.getSize().y;
       if (nPixels > 0) {
         const sf::Uint8 *pixels = bg.getPixelsPtr();
