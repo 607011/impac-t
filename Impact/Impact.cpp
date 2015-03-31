@@ -99,6 +99,8 @@ namespace Impact {
   const sf::Time Game::DefaultEarthquakeDuration = sf::milliseconds(10 * 1000);
   const sf::Time Game::DefaultOverlayDuration = sf::milliseconds(300);
 
+  const float Game::DefaultWallRestitution = 1.f;
+
 #ifndef NDEBUG
   const char* Game::StateNames[State::LastState] = {
     "NoState",
@@ -2485,24 +2487,21 @@ namespace Impact {
     b2EdgeShape rightShape;
     rightShape.Set(b2Vec2(W, 0), b2Vec2(W, H));
     b2FixtureDef fdRight;
-    fdRight.restitution = 0.9f;
-    fdRight.density = 0.f;
+    fdRight.restitution = DefaultWallRestitution; //TODO: parametrize wall restitution
     fdRight.shape = &rightShape;
     fdRight.userData = new RightBoundary(this);
     boundaries->CreateFixture(&fdRight);
     b2EdgeShape leftShape;
     leftShape.Set(b2Vec2(0, 0), b2Vec2(0, H));
     b2FixtureDef fdLeft;
-    fdLeft.restitution = 0.9f;
-    fdLeft.density = 0.f;
+    fdLeft.restitution = DefaultWallRestitution; //TODO: parametrize wall restitution
     fdLeft.shape = &leftShape;
     fdLeft.userData = new LeftBoundary(this);
     boundaries->CreateFixture(&fdLeft);
     b2EdgeShape topShape;
     topShape.Set(b2Vec2(0, g > 0.f ? 0.f : float32(mLevel.height())), b2Vec2(W, g > 0.f ? 0.f : float32(mLevel.height())));
     b2FixtureDef fdTop;
-    fdTop.restitution = 0.9f;
-    fdTop.density = 0.f;
+    fdTop.restitution = DefaultWallRestitution; //TODO: parametrize wall restitution
     fdTop.shape = &topShape;
     boundaries->CreateFixture(&fdTop);
 

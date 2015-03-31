@@ -163,6 +163,7 @@ namespace Impact {
     static const unsigned int DefaultKillingsPerKillingSpree;
     static const unsigned int DefaultKillingSpreeBonus;
     static const sf::Time DefaultKillingSpreeInterval;
+    static const float DefaultWallRestitution;
 
     Game(void);
     ~Game();
