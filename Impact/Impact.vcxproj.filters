@@ -27,28 +27,10 @@
     <ClCompile Include="Body.cpp">
       <Filter>Quelltexte</Filter>
     </ClCompile>
-    <ClCompile Include="BodyBlock.cpp">
-      <Filter>Quelltexte</Filter>
-    </ClCompile>
-    <ClCompile Include="BodyBall.cpp">
-      <Filter>Quelltexte</Filter>
-    </ClCompile>
     <ClCompile Include="Level.cpp">
       <Filter>Quelltexte</Filter>
     </ClCompile>
-    <ClCompile Include="BodyGround.cpp">
-      <Filter>Quelltexte</Filter>
-    </ClCompile>
-    <ClCompile Include="BodyText.cpp">
-      <Filter>Quelltexte</Filter>
-    </ClCompile>
     <ClCompile Include="globals.cpp">
-      <Filter>Quelltexte</Filter>
-    </ClCompile>
-    <ClCompile Include="BodyRacket.cpp">
-      <Filter>Quelltexte</Filter>
-    </ClCompile>
-    <ClCompile Include="BodyWall.cpp">
       <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="Impact.cpp">
@@ -64,6 +46,24 @@
       <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="sha1.cpp">
+      <Filter>Quelltexte</Filter>
+    </ClCompile>
+    <ClCompile Include="Ball.cpp">
+      <Filter>Quelltexte</Filter>
+    </ClCompile>
+    <ClCompile Include="Block.cpp">
+      <Filter>Quelltexte</Filter>
+    </ClCompile>
+    <ClCompile Include="Ground.cpp">
+      <Filter>Quelltexte</Filter>
+    </ClCompile>
+    <ClCompile Include="Racket.cpp">
+      <Filter>Quelltexte</Filter>
+    </ClCompile>
+    <ClCompile Include="Text.cpp">
+      <Filter>Quelltexte</Filter>
+    </ClCompile>
+    <ClCompile Include="Wall.cpp">
       <Filter>Quelltexte</Filter>
     </ClCompile>
   </ItemGroup>
@@ -83,15 +83,6 @@
     <ClInclude Include="Destructive.h">
       <Filter>Header-Dateien</Filter>
     </ClInclude>
-    <ClInclude Include="BodyBlock.h">
-      <Filter>Header-Dateien</Filter>
-    </ClInclude>
-    <ClInclude Include="BodyBall.h">
-      <Filter>Header-Dateien</Filter>
-    </ClInclude>
-    <ClInclude Include="BodyGround.h">
-      <Filter>Header-Dateien</Filter>
-    </ClInclude>
     <ClInclude Include="Level.h">
       <Filter>Header-Dateien</Filter>
     </ClInclude>
@@ -99,15 +90,6 @@
       <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="Easings.h">
-      <Filter>Header-Dateien</Filter>
-    </ClInclude>
-    <ClInclude Include="BodyText.h">
-      <Filter>Header-Dateien</Filter>
-    </ClInclude>
-    <ClInclude Include="BodyRacket.h">
-      <Filter>Header-Dateien</Filter>
-    </ClInclude>
-    <ClInclude Include="BodyWall.h">
       <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="Impact.h">
@@ -132,6 +114,24 @@
       <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header-Dateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Ball.h">
+      <Filter>Header-Dateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Block.h">
+      <Filter>Header-Dateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Ground.h">
+      <Filter>Header-Dateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Racket.h">
+      <Filter>Header-Dateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Text.h">
+      <Filter>Header-Dateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Wall.h">
       <Filter>Header-Dateien</Filter>
     </ClInclude>
   </ItemGroup>

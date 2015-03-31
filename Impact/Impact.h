@@ -29,9 +29,9 @@
 #include "globals.h"
 #include "Settings.h"
 #include "Level.h"
-#include "BodyBall.h"
-#include "BodyRacket.h"
-#include "BodyGround.h"
+#include "Ball.h"
+#include "Racket.h"
+#include "Ground.h"
 
 #include <future>
 
