@@ -40,6 +40,7 @@ namespace Impact {
       , minimumHitImpulse(5)
       , minimumKillImpulse(50)
       , earthquakeIntensity(.1f)
+      //MOD Keyhole2
     { /* ... */ }
     TileParam(const TileParam &other)
       : score(other.score)
@@ -75,6 +76,7 @@ namespace Impact {
     float32 scaleBallDensityBy;
     sf::Time earthquakeDuration;
     float32 earthquakeIntensity;
+    //MOD Keyhole1
   };
 
 

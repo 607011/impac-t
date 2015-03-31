@@ -27,7 +27,7 @@
 
 namespace Impact {
 
-#define EXPLOSION_PARTICLES_CANNOT_ROTATE
+// #define EXPLOSION_PARTICLES_CANNOT_ROTATE
 
   std::vector<sf::Shader*>::size_type Explosion::sCurrentShaderIndex = 0;
   std::vector<sf::Shader*> Explosion::sShaders;
@@ -49,9 +49,8 @@ namespace Impact {
     }
 
     static boost::random::uniform_int_distribution<sf::Int32> randomLifetime(def.minLifetime.asMilliseconds(), def.maxLifetime.asMilliseconds());
-    static boost::random::uniform_real_distribution<float32> randomSpeed(def.minSpeed * Game::Scale, def.maxSpeed * Game::Scale);
-    static boost::random::uniform_real_distribution<float32> randomAngle(0.f, 2 * b2_pi);
-    static boost::random::uniform_real_distribution<float32> randomOffset(Game::InvScale * -5.f, Game::InvScale * +5.f);
+    static boost::random::uniform_real_distribution<float32> randomSpeed(def.minSpeed, def.maxSpeed);
+    static boost::random::uniform_real_distribution<float32> randomOffset(-1.f, +1.f);
 
     b2World *world = mGame->world();
     const int N = mParticles.size();
@@ -66,7 +65,7 @@ namespace Impact {
 
       b2BodyDef bd;
       bd.type = b2_dynamicBody;
-      bd.position = def.pos + b2Vec2(randomOffset(gRNG), randomOffset(gRNG));
+      bd.position = def.pos + Game::InvScale * b2Vec2(randomOffset(gRNG), randomOffset(gRNG));
 #ifdef EXPLOSION_PARTICLES_CANNOT_ROTATE
       bd.fixedRotation = true;
 #else
@@ -77,8 +76,7 @@ namespace Impact {
       bd.userData = this;
       bd.gravityScale = def.gravityScale;
       bd.linearDamping = def.linearDamping;
-      const float angle = randomAngle(gRNG);
-      bd.linearVelocity = randomSpeed(gRNG) * b2Vec2(std::cos(angle), std::sin(angle));
+      bd.linearVelocity = randomSpeed(gRNG) * b2Vec2(randomOffset(gRNG), randomOffset(gRNG));
       p.body = world->CreateBody(&bd);
 
       b2CircleShape circleShape;
@@ -112,7 +110,6 @@ namespace Impact {
   {
     bool allDead = true;
     const int N = mParticles.size();
-// #pragma omp parallel for reduction(&:allDead)
     for (int i = 0; i < N; ++i) {
       SimpleParticle &p = mParticles[i];
       if (age() > p.lifeTime && !p.dead) {

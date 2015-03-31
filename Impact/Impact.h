@@ -141,6 +141,7 @@ namespace Impact {
     static const float32 InvScale;
     static const unsigned int DefaultTilesHorizontally = 40U;
     static const unsigned int DefaultTilesVertically = 25U;
+    static const b2Vec2 DefaultCenter;
     static const unsigned int DefaultPlaygroundWidth = 640U;
     static const unsigned int DefaultPlaygroundHeight = 400U;
     static const unsigned int DefaultStatsWidth = DefaultPlaygroundWidth;
@@ -162,12 +163,16 @@ namespace Impact {
     static const unsigned int DefaultKillingsPerKillingSpree;
     static const unsigned int DefaultKillingSpreeBonus;
     static const sf::Time DefaultKillingSpreeInterval;
+    static const float DefaultWallRestitution;
 
     Game(void);
     ~Game();
     void setLevelZip(const char *zipFilename);
     void enterLoop(void);
     void addBody(Body *body);
+    void initSounds(void);
+    void initShaderDependants(void);
+    void clearEventQueue(void);
 
     inline b2World *world(void)
     {
@@ -198,8 +203,10 @@ namespace Impact {
 
     int mGLVersionMajor;
     int mGLVersionMinor;
-    const GLubyte *mGLShadingLanguageVersion;
-
+    int mGLSLVersionMajor;
+    int mGLSLVersionMinor;
+    std::string mGLShadingLanguageVersion;
+    bool mShadersAvailable;
 
     // SFML
     sf::RenderWindow mWindow;
@@ -224,6 +231,7 @@ namespace Impact {
     sf::Texture mBackgroundTexture;
     sf::Sprite mBackgroundSprite;
     sf::Shader mTitleShader;
+    sf::Text mWarningText;
     sf::Text mTitleText;
     sf::Texture mTitleTexture;
     sf::Sprite mTitleSprite;
@@ -299,30 +307,19 @@ namespace Impact {
     sf::Text mStartMsg;
     sf::Text mProgramInfoMsg;
     sf::Text mLevelMsg;
-    sf::SoundBuffer mStartupBuffer;
-    sf::Sound mStartupSound;
-    sf::SoundBuffer mNewBallBuffer;
-    sf::Sound mNewBallSound;
-    sf::SoundBuffer mBallOutBuffer;
-    sf::Sound mBallOutSound;
-    sf::SoundBuffer mBlockHitBuffer;
-    sf::Sound mBlockHitSound;
-    sf::SoundBuffer mPenaltyBuffer;
-    sf::Sound mPenaltySound;
-    sf::SoundBuffer mRacketHitBuffer;
-    sf::Sound mRacketHitSound;
-    sf::SoundBuffer mRacketHitBlockBuffer;
-    sf::Sound mRacketHitBlockSound;
-    sf::SoundBuffer mExplosionBuffer;
-    sf::Sound mExplosionSound;
-    sf::SoundBuffer mNewLifeBuffer;
-    sf::Sound mNewLifeSound;
-    sf::SoundBuffer mLevelCompleteBuffer;
-    sf::Sound mLevelCompleteSound;
-    sf::SoundBuffer mKillingSpreeSoundBuffer;
-    sf::Sound mKillingSpreeSound;
+    sf::SoundBuffer mStartupSound;
+    sf::SoundBuffer mNewBallSound;
+    sf::SoundBuffer mBallOutSound;
+    sf::SoundBuffer mBlockHitSound;
+    sf::SoundBuffer mPenaltySound;
+    sf::SoundBuffer mRacketHitSound;
+    sf::SoundBuffer mRacketHitBlockSound;
+    sf::SoundBuffer mExplosionSound;
+    sf::SoundBuffer mNewLifeSound;
+    sf::SoundBuffer mLevelCompleteSound;
+    sf::SoundBuffer mKillingSpreeSound;
 
-    std::vector<sf::Music*> mMusic;
+    std::vector<sf::Music> mMusic;
     std::vector<int> mFPSArray;
     std::vector<int>::size_type mFPSIndex;
     int mFPS;
@@ -373,9 +370,11 @@ namespace Impact {
     void enumerateAllLevels(void);
     std::packaged_task<bool()> mEnumerateTask;
     std::future<bool> mEnumerateFuture;
-    std::vector<sf::Sound*> mSoundFX;
-
+    std::vector<sf::Sound> mSoundFX;
+    std::vector<sf::Sound>::size_type mSoundIndex;
     void setSoundFXVolume(float volume);
+    void setMusicVolume(float volume);
+    void playSound(const sf::SoundBuffer &buffer, const b2Vec2 &pos = DefaultCenter);
     int calcPenalty(void) const;
     int deductPenalty(int score) const;
     void createStatsViewRectangle(void);
@@ -384,7 +383,7 @@ namespace Impact {
     void showScore(int score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int);
     void newBall(const b2Vec2 &pos = b2Vec2_zero);
-	sf::Vector2f getCursorPosition(void) const;
+	  sf::Vector2f getCursorPosition(void) const;
     void setCursorOnRacket(void);
     void extraBall(void);
     void setState(State state);

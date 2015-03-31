@@ -1,4 +1,6 @@
-﻿/*
+﻿#version 110
+
+/*
 
     Copyright (c) 2015 Oliver Lau <ola@ct.de>
 

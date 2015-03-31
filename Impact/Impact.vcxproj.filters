@@ -1,135 +1,138 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="Fragment Shaders">
       <UniqueIdentifier>{5b9c3794-6170-4971-bfa1-1c337c5bd4db}</UniqueIdentifier>
       <Extensions>*.fs</Extensions>
     </Filter>
+    <Filter Include="Quelltexte">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header-Dateien">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="util.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="Body.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="BodyBlock.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="BodyBall.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="Level.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="BodyGround.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="BodyText.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="globals.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="BodyRacket.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="BodyWall.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="Impact.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="Explosion.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="Settings.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="..\zip-utils\unzip.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="sha1.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Quelltexte</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="util.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="Body.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="Destructible.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="Destructive.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="BodyBlock.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="BodyBall.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="BodyGround.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="Level.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="globals.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="Easings.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="BodyText.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="BodyRacket.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="BodyWall.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="Impact.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="TileParam.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="Explosion.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="Settings.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="..\zip-utils\unzip.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="sha1.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="Timer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header-Dateien</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header-Dateien</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -164,9 +167,6 @@
     <None Include="resources\shaders\explosion.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
-    <None Include="resources\shaders\approachingoverlay.fs">
-      <Filter>Fragment Shaders</Filter>
-    </None>
     <None Include="packages.config" />
     <None Include="LICENSE.md" />
     <None Include="TODO.md" />
@@ -179,8 +179,17 @@
     <None Include="resources\shaders\vignette.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
+    <None Include="resources\shaders\overlay.fs">
+      <Filter>Fragment Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="settings.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Impact.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="exe-icon.ico" />
   </ItemGroup>
 </Project>

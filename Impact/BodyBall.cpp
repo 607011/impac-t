@@ -23,9 +23,9 @@
 namespace Impact {
 
   const std::string Ball::Name = "Ball";
-  const float32 Ball::DefaultDensity = 2.f;
-  const float32 Ball::DefaultFriction = .71f;
-  const float32 Ball::DefaultRestitution = .3f;
+  const float32 Ball::DefaultDensity = 2.f; //MOD Ballmasse
+  const float32 Ball::DefaultFriction = .71f; //MOD Ballreibung
+  const float32 Ball::DefaultRestitution = .3f; //MOD Ballelastizität
 
   Ball::Ball(Game *game)
     : Body(Body::BodyType::Ball, game)

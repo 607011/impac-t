@@ -1,3 +1,5 @@
+#version 110
+
 /*
 
     Copyright (c) 2015 Oliver Lau <ola@ct.de>
@@ -24,7 +26,7 @@ uniform vec4 uColor;
 uniform vec2 uResolution;
 
 void main(void) {
-  float blur = uBlur * sin(12.796157f * uAge)  / uResolution.x;
+  float blur = uBlur * sin(12.796157 * uAge)  / uResolution.x;
   vec2 pos = gl_TexCoord[0].xy;
   vec4 sum =  texture2D(uTexture, vec2(pos.x - 4.0 * blur, pos.y)) * 0.0162162162;
        sum += texture2D(uTexture, vec2(pos.x - 3.0 * blur, pos.y)) * 0.0540540541;
@@ -35,5 +37,5 @@ void main(void) {
        sum += texture2D(uTexture, vec2(pos.x + 2.0 * blur, pos.y)) * 0.1216216216;
        sum += texture2D(uTexture, vec2(pos.x + 3.0 * blur, pos.y)) * 0.0540540541;
        sum += texture2D(uTexture, vec2(pos.x + 4.0 * blur, pos.y)) * 0.0162162162;
-  gl_FragColor = sum * uColor * gl_Color;
+  gl_FragColor = sum * uColor;
 }

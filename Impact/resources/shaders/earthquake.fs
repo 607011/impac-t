@@ -1,3 +1,5 @@
+#version 110
+
 /*
 
     Copyright (c) 2015 Oliver Lau <ola@ct.de>
@@ -37,5 +39,5 @@ void main(void)
     texture2D(uTexture, uGShift * intensity + pos).g,
     texture2D(uTexture, uBShift * intensity + pos).b
   );
-  gl_FragColor = vec4(rgb, 1.0) * gl_Color;
+  gl_FragColor = vec4(rgb, 1.0);
 }
