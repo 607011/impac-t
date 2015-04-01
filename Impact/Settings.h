@@ -38,6 +38,7 @@ namespace Impact {
     unsigned int particlesPerExplosion;
     std::string lastOpenDir;
     int lastCampaignLevel;
+    int campaignScore;
     float musicVolume;
     float soundfxVolume;
     unsigned int framerateLimit;

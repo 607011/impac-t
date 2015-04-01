@@ -30,6 +30,7 @@ namespace Impact {
     : useShaders(ENABLE_SHADERS)
     , particlesPerExplosion(50)
     , lastCampaignLevel(1)
+    , campaignScore(0)
     , musicVolume(50)
     , soundfxVolume(100)
     , framerateLimit(0)
@@ -63,6 +64,7 @@ namespace Impact {
     pt.put("impact.explosion.particle-count", this->particlesPerExplosion);
     pt.put("impact.last-open-dir", this->lastOpenDir);
     pt.put("impact.campaign.last-level", this->lastCampaignLevel);
+    pt.put("impact.campaign.score", this->campaignScore);
     pt.put("impact.volume.music", this->musicVolume);
     pt.put("impact.volume.soundfx", this->soundfxVolume);
     try {
@@ -96,12 +98,13 @@ namespace Impact {
     try {
       this->useShaders = pt.get<bool>("impact.use-shaders", true);
       this->useShadersForExplosions = pt.get<bool>("impact.explosion.use-shaders", true);
-      this->framerateLimit = pt.get<unsigned int>("impact.frame-rate-limit", 0U);
       this->particlesPerExplosion = pt.get<unsigned int>("impact.explosion.particle-count", 50U);
+      this->framerateLimit = pt.get<unsigned int>("impact.frame-rate-limit", 0U);
       this->lastOpenDir = pt.get<std::string>("impact.last-open-dir", levelsDir);
       this->lastCampaignLevel = pt.get<int>("impact.campaign.last-level", 1);
       if (this->lastCampaignLevel < 1)
         this->lastCampaignLevel = 1;
+      this->campaignScore = pt.get<int>("impact.campaign.score", 0);
       this->soundfxVolume = b2Clamp(pt.get<float>("impact.volume.soundfx", 100.f), 0.f, 100.f);
       this->musicVolume = b2Clamp(pt.get<float>("impact.volume.music", 50.f), 0.f, 100.f);
     }
@@ -117,6 +120,7 @@ namespace Impact {
     std::cout << "framerateLimit: " << this->framerateLimit << std::endl;
     std::cout << "lastOpenDir: " << this->lastOpenDir << std::endl;
     std::cout << "lastCampaignLevel: " << this->lastCampaignLevel << std::endl;
+    std::cout << "campaignScore: " << this->campaignScore << std::endl;
     std::cout << "soundfxVolume: " << this->soundfxVolume << std::endl;
     std::cout << "musicVolume: " << this->musicVolume << std::endl;
 #endif
