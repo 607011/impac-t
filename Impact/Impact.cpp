@@ -903,10 +903,8 @@ namespace Impact {
 
   void Game::onWelcomeScreen(void)
   {
-    sf::Time elapsed = mClock.restart();
-
+    const sf::Time &elapsed = mClock.restart();
     const sf::Vector2f &mousePos = getCursorPosition();
-
     sf::Event event;
     while (mWindow.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
