@@ -30,7 +30,6 @@ namespace Impact {
     mName = Name;
 
     b2BodyDef bd;
-    bd.type = b2_staticBody;
     bd.userData = this;
     mBody = mGame->world()->CreateBody(&bd);
 
