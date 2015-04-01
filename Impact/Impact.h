@@ -131,6 +131,16 @@ namespace Impact {
       LastState
     } State;
 
+    typedef enum _Music {
+      WelcomeMusic,
+      LevelMusic1,
+      LevelMusic2,
+      LevelMusic3,
+      LevelMusic4,
+      LevelMusic5,
+      LastMusic
+    } Music;
+
 #ifndef NDEBUG
     static const char* StateNames[State::LastState];
 #endif
@@ -153,6 +163,7 @@ namespace Impact {
     static const unsigned int DefaultLives;
     static const unsigned int NewLiveAfterSoManyPointsDefault;
     static const unsigned int NewLiveAfterSoManyPoints[];
+    static const int MaxSoundFX = 8;
     static const int DefaultForceNewBallPenalty;
     static const int32 MaxContactPoints = 512;
     static const sf::Time DefaultFadeEffectDuration;
@@ -373,8 +384,9 @@ namespace Impact {
     std::vector<sf::Sound> mSoundFX;
     std::vector<sf::Sound>::size_type mSoundIndex;
     void setSoundFXVolume(float volume);
-    void setMusicVolume(float volume);
     void playSound(const sf::SoundBuffer &buffer, const b2Vec2 &pos = DefaultCenter);
+    void setMusicVolume(float volume);
+    void playMusic(Music music, bool loop = true);
     int calcPenalty(void) const;
     int deductPenalty(int score) const;
     void createStatsViewRectangle(void);

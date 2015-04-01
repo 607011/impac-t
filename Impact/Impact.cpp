@@ -148,8 +148,8 @@ namespace Impact {
     , mBlurPlayground(false)
     , mOverlayDuration(DefaultOverlayDuration)
     , mLastKillingsIndex(0)
-    , mMusic(4)
-    , mSoundFX(8)
+    , mMusic(Music::LastMusic)
+    , mSoundFX(MaxSoundFX)
     , mSoundIndex(0)
     , mFPSArray(32, 0)
     , mFPS(0)
@@ -324,6 +324,8 @@ namespace Impact {
     mCreditsTitleText = sf::Text(tr("Credits"), mFixedFont, 32U);
 
     mCreditsText = sf::Text(tr("Impac't: Copyright (c) Oliver Lau, Heise Medien GmbH & Co. KG\n"
+      "Music: Hartmut Gieselmann <hag@ct.de>\n"
+      "Sounds: Oliver Lau <ola@ct.de> (made with sfxr)\n"
       "SFML: Copyright (c) Laurent Gomila\n"
       "Box2D: Copyright (c) Erin Catto\n"
       "boost: see http://opensource.org/licenses/bsl1.0.html\n"
@@ -360,8 +362,29 @@ namespace Impact {
 
     sf::Listener::setPosition(DefaultCenter.x, DefaultCenter.y, 0.f);
 
-    mMusic[0].openFromFile(gSettings.musicDir + "/Pooka.ogg");
-    mMusic[0].setLoop(true);
+    ok = mMusic[Music::WelcomeMusic].openFromFile(gSettings.musicDir + "/hag2.ogg");
+    if (!ok)
+      std::cerr << gSettings.musicDir + "/hag1.ogg failed to load." << std::endl;
+
+    mMusic[Music::LevelMusic1].openFromFile(gSettings.musicDir + "/hag2.ogg");
+    if (!ok)
+      std::cerr << gSettings.musicDir + "/hag2.ogg failed to load." << std::endl;
+
+    mMusic[Music::LevelMusic2].openFromFile(gSettings.musicDir + "/hag3.ogg");
+    if (!ok)
+      std::cerr << gSettings.musicDir + "/hag3.ogg failed to load." << std::endl;
+
+    mMusic[Music::LevelMusic3].openFromFile(gSettings.musicDir + "/hag4.ogg");
+    if (!ok)
+      std::cerr << gSettings.musicDir + "/hag4.ogg failed to load." << std::endl;
+
+    mMusic[Music::LevelMusic4].openFromFile(gSettings.musicDir + "/hag5.ogg");
+    if (!ok)
+      std::cerr << gSettings.musicDir + "/hag5.ogg failed to load." << std::endl;
+
+    mMusic[Music::LevelMusic5].openFromFile(gSettings.musicDir + "/hag1.ogg");
+    if (!ok)
+      std::cerr << gSettings.musicDir + "/hag1.ogg failed to load." << std::endl;
 
     for (std::vector<sf::Sound>::iterator sound = mSoundFX.begin(); sound != mSoundFX.end(); ++sound)
       sound->setMinDistance(float(DefaultTilesHorizontally * DefaultTilesVertically));
@@ -996,6 +1019,8 @@ namespace Impact {
     }
 
     if (mWelcomeLevel == 4) {
+      if (mMusic.at(WelcomeMusic).getStatus() != sf::Music::Playing)
+        playMusic(WelcomeMusic);
       mWelcomeLevel = 5;
       enumerateAllLevels();
     }
@@ -1235,6 +1260,9 @@ namespace Impact {
       if (mLevel.music() != nullptr) {
         mLevel.music()->play();
         mLevel.music()->setVolume(gSettings.musicVolume);
+      }
+      else {
+        playMusic(Game::Music(LevelMusic1 + std::rand() % (LevelMusic5 - LevelMusic1)));
       }
       setState(State::Playing);
       mLevelTimer.restart();
@@ -2743,6 +2771,14 @@ namespace Impact {
     sound.play();
     if (++mSoundIndex >= mSoundFX.size())
       mSoundIndex = 0;
+  }
+
+
+  void Game::playMusic(Game::Music music, bool loop)
+  {
+    stopAllMusic();
+    mMusic[music].play();
+    mMusic[music].setLoop(loop);
   }
 
 
