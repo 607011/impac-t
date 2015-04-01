@@ -362,7 +362,7 @@ namespace Impact {
 
     sf::Listener::setPosition(DefaultCenter.x, DefaultCenter.y, 0.f);
 
-    ok = mMusic[Music::WelcomeMusic].openFromFile(gSettings.musicDir + "/hag2.ogg");
+    ok = mMusic[Music::WelcomeMusic].openFromFile(gSettings.musicDir + "/hag5.ogg");
     if (!ok)
       std::cerr << gSettings.musicDir + "/hag1.ogg failed to load." << std::endl;
 

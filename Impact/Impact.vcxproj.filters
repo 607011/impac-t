@@ -182,6 +182,7 @@
     <None Include="resources\shaders\overlay.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
+    <None Include="..\deploy\Impact.nsi" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="settings.xml" />
