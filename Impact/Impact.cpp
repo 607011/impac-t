@@ -2301,7 +2301,7 @@ namespace Impact {
       Body *a = reinterpret_cast<Body *>(cp.fixtureA->GetUserData());
       Body *b = reinterpret_cast<Body *>(cp.fixtureB->GetUserData());
       if (a == nullptr || b == nullptr)
-        return;
+        continue;
       if (a->type() == Body::BodyType::Racket || b->type() == Body::BodyType::Racket) {
         if (a->type() == Body::BodyType::LeftBoundary || b->type() == Body::BodyType::LeftBoundary) {
           Racket *racket = reinterpret_cast<Racket*>(a->type() == Body::BodyType::Racket ? a : b);
