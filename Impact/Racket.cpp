@@ -38,8 +38,6 @@ namespace Impact {
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
     bd.gravityScale = 0.f;
-    bd.bullet = true;
-    bd.allowSleep = true;
     mTeetingBody = mGame->world()->CreateBody(&bd);
 
     b2PolygonShape polygon;
@@ -57,7 +55,7 @@ namespace Impact {
     mTeetingBody->CreateFixture(&fdBox);
 
     b2CircleShape circleL;
-    circleL.m_p.Set(-xoff, 0.f);
+    circleL.m_p.x = -xoff;
     circleL.m_radius = hh;
 
     b2FixtureDef fdCircleL;
@@ -69,7 +67,7 @@ namespace Impact {
     mTeetingBody->CreateFixture(&fdCircleL);
 
     b2CircleShape circleR;
-    circleR.m_p.Set(xoff, 0.f);
+    circleR.m_p.x = xoff;
     circleR.m_radius = hh;
 
     b2FixtureDef fdCircleR;
@@ -81,14 +79,7 @@ namespace Impact {
     mTeetingBody->CreateFixture(&fdCircleR);
 
     b2BodyDef bdHinge;
-    bdHinge.position.Set(0.f, 1.5f);
     bdHinge.type = b2_dynamicBody;
-    bdHinge.bullet = true;
-    bdHinge.gravityScale = 0.f;
-    bdHinge.allowSleep = false;
-    bdHinge.awake = true;
-    bdHinge.userData = this;
-    bdHinge.fixedRotation = true;
     mBody = mGame->world()->CreateBody(&bdHinge);
 
     b2RevoluteJointDef rjd;
@@ -96,15 +87,13 @@ namespace Impact {
     rjd.enableMotor = true;
     rjd.maxMotorTorque = 20000.0f; //MOD Drehmoment
     rjd.enableLimit = true;
-    rjd.motorSpeed = 0.f;
-    rjd.lowerAngle = deg2rad(-17.5f); //MOD Anschlagswinkel
-    rjd.upperAngle = deg2rad(+17.5f); //MOD Anschlagswinkel 
+    rjd.lowerAngle = deg2rad(-17.5f); //MOD Anschlagswinkel in Grad
+    rjd.upperAngle = deg2rad(+17.5f); //MOD Anschlagswinkel in Grad
     mJoint = reinterpret_cast<b2RevoluteJoint*>(mGame->world()->CreateJoint(&rjd));
 
     b2MouseJointDef mjd;
     mjd.bodyA = ground;
     mjd.bodyB = mTeetingBody;
-    mjd.target = mBody->GetPosition();
     mjd.collideConnected = true;
     mjd.frequencyHz = 6.f; //MOD
     mjd.dampingRatio = .95f; //MOD
@@ -153,8 +142,6 @@ namespace Impact {
 
   void Racket::moveTo(const b2Vec2 &target)
   {
-    mBody->SetAwake(true);
-    mTeetingBody->SetAwake(true);
     mMouseJoint->SetTarget(target);
   }
 
@@ -164,14 +151,13 @@ namespace Impact {
     const float32 W = float32(mTexture.getSize().x);
     const float32 H = float32(mTexture.getSize().y);
     b2BodyDef bd;
-    bd.position.Set(0.f, y);
+    bd.position.y = y;
     b2Body *xAxis = mGame->world()->CreateBody(&bd);
     b2PrismaticJointDef pjd;
     pjd.bodyA = xAxis;
     pjd.bodyB = mBody;
     pjd.collideConnected = false;
-    pjd.localAxisA.Set(1.f, 0.f);
-    pjd.localAnchorA.SetZero();
+    pjd.localAxisA.x = 1.f;
     const float32 s = .5f * Game::InvScale;
     pjd.localAnchorB.Set(s * W, s * H);
     pjd.lowerTranslation = 0.f;

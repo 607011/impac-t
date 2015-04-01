@@ -2466,25 +2466,6 @@ namespace Impact {
   }
 
 
-  void Game::BeginContact(b2Contact *contact)
-  {
-    B2_NOT_USED(contact);
-  }
-
-
-  void Game::EndContact(b2Contact *contact)
-  {
-    B2_NOT_USED(contact);
-  }
-
-
-  void Game::PreSolve(b2Contact *contact, const b2Manifold *oldManifold)
-  {
-    B2_NOT_USED(contact);
-    B2_NOT_USED(oldManifold);
-  }
-
-
   void Game::PostSolve(b2Contact *contact, const b2ContactImpulse *impulse)
   {
     if (mContactPointCount < MaxContactPoints) {
@@ -2495,11 +2476,8 @@ namespace Impact {
       Body *bodyB = reinterpret_cast<Body*>(cp.fixtureB->GetUserData());
       if (bodyA != nullptr && bodyB != nullptr) {
         b2Manifold *manifold = contact->GetManifold();
-        cp.position = manifold->points[0].localPoint;
         cp.normal = manifold->localNormal;
         cp.normalImpulse = impulse->normalImpulses[0];
-        cp.tangentImpulse = impulse->tangentImpulses[0];
-        cp.separation = 0.f;
         ++mContactPointCount;
       }
     }

@@ -68,11 +68,7 @@ namespace Impact {
     b2Fixture *fixtureA;
     b2Fixture *fixtureB;
     b2Vec2 normal;
-    b2Vec2 position;
-    b2PointState state;
     float32 normalImpulse;
-    float32 tangentImpulse;
-    float32 separation;
   };
 
 
@@ -344,10 +340,7 @@ namespace Impact {
     int32 mContactPointCount;
 
     // b2ContactListener interface
-    void PreSolve(b2Contact *contact, const b2Manifold *oldManifold);
-    void BeginContact(b2Contact *contact);
-    void EndContact(b2Contact *contact);
-    void PostSolve(b2Contact *contact, const b2ContactImpulse *impulse);
+    virtual void PostSolve(b2Contact *contact, const b2ContactImpulse *impulse);
 
     // game logic
     std::vector<sf::Keyboard::Key> mKeyMapping;

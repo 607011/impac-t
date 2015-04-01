@@ -53,7 +53,6 @@ namespace Impact {
     mBody = game->world()->CreateBody(&bd);
 
     b2CircleShape circle;
-    circle.m_p.SetZero();
     circle.m_radius = halfH * Game::InvScale;
 
     b2FixtureDef fd;
