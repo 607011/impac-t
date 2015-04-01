@@ -94,11 +94,11 @@ namespace Impact {
     b2RevoluteJointDef rjd;
     rjd.Initialize(mBody, mTeetingBody, b2Vec2_zero);
     rjd.enableMotor = true;
-    rjd.maxMotorTorque = 20000.0f;
+    rjd.maxMotorTorque = 20000.0f; //MOD Drehmoment
     rjd.enableLimit = true;
     rjd.motorSpeed = 0.f;
-    rjd.lowerAngle = deg2rad(-17.5f);
-    rjd.upperAngle = deg2rad(+17.5f);
+    rjd.lowerAngle = deg2rad(-17.5f); //MOD Anschlagswinkel
+    rjd.upperAngle = deg2rad(+17.5f); //MOD Anschlagswinkel 
     mJoint = reinterpret_cast<b2RevoluteJoint*>(mGame->world()->CreateJoint(&rjd));
 
     b2MouseJointDef mjd;
@@ -106,9 +106,9 @@ namespace Impact {
     mjd.bodyB = mTeetingBody;
     mjd.target = mBody->GetPosition();
     mjd.collideConnected = true;
-    mjd.frequencyHz = 6.f; //XXX
-    mjd.dampingRatio = .95f; //XXX
-    mjd.maxForce = 1000.f * mTeetingBody->GetMass(); //XXX
+    mjd.frequencyHz = 6.f; //MOD
+    mjd.dampingRatio = .95f; //MOD
+    mjd.maxForce = 1000.f * mTeetingBody->GetMass(); //MOD
     mMouseJoint = reinterpret_cast<b2MouseJoint*>(mGame->world()->CreateJoint(&mjd));
 
     setPosition(pos);
