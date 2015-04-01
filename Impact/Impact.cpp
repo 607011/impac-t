@@ -462,12 +462,12 @@ namespace Impact {
     if (mShadersAvailable) {
       mMenuUseShadersText = sf::Text(tr("Use shaders"), mFixedFont, 16U);
       mMenuUseShadersForExplosionsText = sf::Text(tr("Use shaders for explosions"), mFixedFont, 16U);
-      mMenuUseShadersForExplosionsText.setPosition(20.f, mOptionsTitleText.getPosition().y + 96);
+      mMenuUseShadersForExplosionsText.setPosition(20.f, -20 + mOptionsTitleText.getPosition().y + 96);
     }
     else {
       mMenuUseShadersText = sf::Text(tr("SHADERS ARE NOT AVAILABLE.\nPLEASE UPGRADE YOUR GRAPHICS CARD/DRIVER!"), mFixedFont, 16U);
     }
-    mMenuUseShadersText.setPosition(20.f, mOptionsTitleText.getPosition().y + 80);
+    mMenuUseShadersText.setPosition(20.f, -20 + mOptionsTitleText.getPosition().y + 80);
 
     std::string warning;
     mWarningText.setFont(mFixedFont);
@@ -536,15 +536,17 @@ namespace Impact {
     }
 
     mMenuParticlesPerExplosionText = sf::Text(tr("Particles per explosion"), mFixedFont, 16U);
-    mMenuParticlesPerExplosionText.setPosition(20.f, mOptionsTitleText.getPosition().y + 112);
+    mMenuParticlesPerExplosionText.setPosition(20.f, -20 + mOptionsTitleText.getPosition().y + 112);
     mMenuMusicVolumeText = sf::Text(tr("Music volume"), mFixedFont, 16U);
-    mMenuMusicVolumeText.setPosition(20.f, mOptionsTitleText.getPosition().y + 128);
+    mMenuMusicVolumeText.setPosition(20.f, -20 + mOptionsTitleText.getPosition().y + 128);
     mMenuSoundFXVolumeText = sf::Text(tr("Sound fx volume"), mFixedFont, 16U);
-    mMenuSoundFXVolumeText.setPosition(20.f, mOptionsTitleText.getPosition().y + 144);
+    mMenuSoundFXVolumeText.setPosition(20.f, -20 + mOptionsTitleText.getPosition().y + 144);
     mMenuFrameRateLimitText = sf::Text(tr("Frame rate limit"), mFixedFont, 16U);
-    mMenuFrameRateLimitText.setPosition(20.f, mOptionsTitleText.getPosition().y + 160);
-
-
+    mMenuFrameRateLimitText.setPosition(20.f, -20 + mOptionsTitleText.getPosition().y + 160);
+    mMenuVelocityIterationsText = sf::Text(tr("Velocity iterations"), mFixedFont, 16U);
+    mMenuVelocityIterationsText.setPosition(20.f, -20 + mOptionsTitleText.getPosition().y + 176);
+    mMenuPositionIterationsText = sf::Text(tr("Position iterations"), mFixedFont, 16U);
+    mMenuPositionIterationsText.setPosition(20.f, -20 + mOptionsTitleText.getPosition().y + 192);
   }
 
 
@@ -1436,9 +1438,7 @@ namespace Impact {
   void Game::onCreditsScreen(void)
   {
     const sf::Time &elapsed = mClock.restart();
-
-	const sf::Vector2f &mousePos = getCursorPosition();
-
+    const sf::Vector2f &mousePos = getCursorPosition();
     const float t = mWallClock.getElapsedTime().asSeconds();
 
     mWindow.clear(sf::Color(31, 31, 47));
@@ -1463,7 +1463,7 @@ namespace Impact {
     mCreditsTitleText.setPosition(.5f * (mDefaultView.getSize().x - mCreditsTitleText.getLocalBounds().width), menuTop - 40);
     mWindow.draw(mCreditsTitleText);
 
-    mCreditsText.setPosition(.5f * (mDefaultView.getSize().x - mCreditsText.getLocalBounds().width), menuTop + 20);
+    mCreditsText.setPosition(.5f * (mDefaultView.getSize().x - mCreditsText.getLocalBounds().width), menuTop + 10);
     mWindow.draw(mCreditsText);
 
     sf::Event event;
@@ -1510,9 +1510,7 @@ namespace Impact {
   void Game::onOptionsScreen(void)
   {
     const sf::Time &elapsed = mClock.restart();
-
     const sf::Vector2f &mousePos = getCursorPosition();
-
     const float t = mWallClock.getElapsedTime().asSeconds();
 
     mWindow.setView(mDefaultView);
@@ -1600,6 +1598,20 @@ namespace Impact {
             mWindow.setFramerateLimit(gSettings.framerateLimit);
             gSettings.save();
           }
+          else if (mMenuPositionIterationsText.getGlobalBounds().contains(mousePos)) {
+            if (gSettings.positionIterations > 256)
+              gSettings.positionIterations = 16;
+            else
+              gSettings.positionIterations *= 2;
+            gSettings.save();
+          }
+          else if (mMenuVelocityIterationsText.getGlobalBounds().contains(mousePos)) {
+            if (gSettings.velocityIterations > 256)
+              gSettings.velocityIterations = 16;
+            else
+              gSettings.velocityIterations *= 2;
+            gSettings.save();
+          }
         }
       }
     }
@@ -1629,6 +1641,12 @@ namespace Impact {
     mMenuFrameRateLimitText.setColor(sf::Color(255U, 255U, 255U, mMenuFrameRateLimitText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mWindow.draw(mMenuFrameRateLimitText);
 
+    mMenuVelocityIterationsText.setColor(sf::Color(255U, 255U, 255U, mMenuVelocityIterationsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+    mWindow.draw(mMenuVelocityIterationsText);
+
+    mMenuPositionIterationsText.setColor(sf::Color(255U, 255U, 255U, mMenuPositionIterationsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+    mWindow.draw(mMenuPositionIterationsText);
+
     if (mShadersAvailable && gSettings.useShaders) {
       mMenuUseShadersForExplosionsText.setColor(sf::Color(255U, 255U, 255U, mMenuUseShadersForExplosionsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
       sf::Text useShadersForExplosionsText(gSettings.useShadersForExplosions ? tr("on") : tr("off"), mFixedFont, 16U);
@@ -1652,6 +1670,14 @@ namespace Impact {
     sf::Text frameRateLimitText(gSettings.framerateLimit == 0 ? tr("off") : std::to_string(int(gSettings.framerateLimit)) + "fps", mFixedFont, 16U);
     frameRateLimitText.setPosition(mDefaultView.getCenter().x + 160, mMenuFrameRateLimitText.getPosition().y);
     mWindow.draw(frameRateLimitText);
+
+    sf::Text velocityIterationsText(std::to_string(int(gSettings.velocityIterations)), mFixedFont, 16U);
+    velocityIterationsText.setPosition(mDefaultView.getCenter().x + 160, mMenuVelocityIterationsText.getPosition().y);
+    mWindow.draw(velocityIterationsText);
+
+    sf::Text positionIterationsText(std::to_string(int(gSettings.positionIterations)), mFixedFont, 16U);
+    positionIterationsText.setPosition(mDefaultView.getCenter().x + 160, mMenuPositionIterationsText.getPosition().y);
+    mWindow.draw(positionIterationsText);
 
     const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
     mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
@@ -1680,8 +1706,9 @@ namespace Impact {
   void Game::onSelectLevelScreen(void)
   {
     const sf::Time &elapsed = mClock.restart();
-
     const sf::Vector2f &mousePos = getCursorPosition();
+    const float t = mWallClock.getElapsedTime().asSeconds();
+
 
     static const int marginTop = 10;
     static const int marginBottom = 10;
@@ -1692,8 +1719,6 @@ namespace Impact {
 
     mWindow.clear(sf::Color(31, 31, 47));
     mWindow.draw(mBackgroundSprite);
-
-    const float t = mWallClock.getElapsedTime().asSeconds();
 
     if (gSettings.useShaders) {
       sf::RenderStates states;
@@ -2072,7 +2097,6 @@ namespace Impact {
   void Game::startOverlay(const OverlayDef &od)
   {
     mOverlayDuration = od.duration;
-
     mOverlayText1 = sf::Text(od.line1, mTitleFont, 80U);
     mOverlayText1.setPosition(.5f * (mDefaultView.getSize().x - mOverlayText1.getLocalBounds().width), .16f * (mDefaultView.getSize().y - mOverlayText1.getLocalBounds().height));
     mOverlayText2 = sf::Text(od.line2, mTitleFont, 80U);
@@ -2093,7 +2117,6 @@ namespace Impact {
       mOverlayText1.setColor(sf::Color(255, 255, 255, 128));
       mOverlayText2.setColor(sf::Color(255, 255, 255, 128));
     }
-
     mOverlayClock.restart();
   }
 
@@ -2102,7 +2125,7 @@ namespace Impact {
   inline void Game::executeCopy(sf::RenderTexture &out, sf::RenderTexture &in)
   {
 	  sf::Sprite sprite(in.getTexture());
-	  out.draw(sprite);
+    out.draw(sprite);
   }
 
 
@@ -2110,7 +2133,7 @@ namespace Impact {
   {
     mWindow.setView(mPlaygroundView);
     clearWindow();
-    
+
     if (gSettings.useShaders) {
       mRenderTexture0.clear(mLevel.backgroundColor());
       mRenderTexture0.draw(mLevel.backgroundSprite());
@@ -2426,7 +2449,7 @@ namespace Impact {
     mBodies = remainingBodies;
 
     mContactPointCount = 0;
-    mWorld->Step(elapsedSeconds, VelocityIterations, PositionIterations);
+    mWorld->Step(elapsedSeconds, gSettings.velocityIterations, gSettings.positionIterations);
     /* Note from the Box2D manual: You should always process the
      * contact points [collected in PostSolve()] immediately after
      * the time step; otherwise some other client code might

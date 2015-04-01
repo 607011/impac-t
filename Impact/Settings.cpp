@@ -34,6 +34,8 @@ namespace Impact {
     , musicVolume(50)
     , soundfxVolume(100)
     , framerateLimit(0)
+    , velocityIterations(16)
+    , positionIterations(64)
   {
     TCHAR szPath[MAX_PATH];
     if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, szPath))) {
@@ -60,6 +62,8 @@ namespace Impact {
     boost::property_tree::ptree pt;
     pt.put("impact.use-shaders", this->useShaders);
     pt.put("impact.frame-rate-limit", this->framerateLimit);
+    pt.put("impact.velocity-iterations", this->velocityIterations);
+    pt.put("impact.position-iterations", this->positionIterations);
     pt.put("impact.explosion.use-shaders", this->useShadersForExplosions);
     pt.put("impact.explosion.particle-count", this->particlesPerExplosion);
     pt.put("impact.last-open-dir", this->lastOpenDir);
@@ -99,6 +103,8 @@ namespace Impact {
       this->useShaders = pt.get<bool>("impact.use-shaders", true);
       this->useShadersForExplosions = pt.get<bool>("impact.explosion.use-shaders", true);
       this->particlesPerExplosion = pt.get<unsigned int>("impact.explosion.particle-count", 50U);
+      this->velocityIterations = pt.get<unsigned int>("impact.velocity-iterations", 16);
+      this->positionIterations = pt.get<unsigned int>("impact.position-iterations", 64);
       this->framerateLimit = pt.get<unsigned int>("impact.frame-rate-limit", 0U);
       this->lastOpenDir = pt.get<std::string>("impact.last-open-dir", levelsDir);
       this->lastCampaignLevel = pt.get<int>("impact.campaign.last-level", 1);
@@ -118,6 +124,8 @@ namespace Impact {
     std::cout << "useShadersForExplosions: " << this->useShadersForExplosions << std::endl;
     std::cout << "particlesPerExplosion: " << this->particlesPerExplosion << std::endl;
     std::cout << "framerateLimit: " << this->framerateLimit << std::endl;
+    std::cout << "velocityIterations: " << this->velocityIterations << std::endl;
+    std::cout << "positionIterations: " << this->positionIterations << std::endl;
     std::cout << "lastOpenDir: " << this->lastOpenDir << std::endl;
     std::cout << "lastCampaignLevel: " << this->lastCampaignLevel << std::endl;
     std::cout << "campaignScore: " << this->campaignScore << std::endl;

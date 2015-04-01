@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <impact>
   <use-shaders>false</use-shaders>
+  <last-open-dir></last-open-dir>
+  <frame-rate-limit>240</frame-rate-limit>
+  <velocity-iterations>16</velocity-iterations>
+  <position-iterations>64</position-iterations>
   <explosion>
     <particle-count>50</particle-count>
     <use-shaders>false</use-shaders>
@@ -9,10 +13,8 @@
     <last-level>1</last-level>
     <score>0</score>
   </campaign>
-  <last-open-dir></last-open-dir>
-  <frame-rate-limit>240</frame-rate-limit>
   <volume>
-    <music>100</music>
-    <soundfx>20</soundfx>
+    <music>50</music>
+    <soundfx>75</soundfx>
   </volume>
 </impact>

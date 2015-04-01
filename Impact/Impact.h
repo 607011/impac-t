@@ -263,6 +263,8 @@ namespace Impact {
     sf::Text mMenuMusicVolumeText;
     sf::Text mMenuSoundFXVolumeText;
     sf::Text mMenuFrameRateLimitText;
+    sf::Text mMenuVelocityIterationsText;
+    sf::Text mMenuPositionIterationsText;
     sf::Text mOptionsTitleText;
     sf::Text mCreditsTitleText;
     sf::Text mCreditsText;
@@ -336,8 +338,6 @@ namespace Impact {
     int mFPS;
 
     // Box2D
-    static const int32 VelocityIterations = 50;
-    static const int32 PositionIterations = 25;
     b2World *mWorld;
     Ground *mGround;
     ContactPoint mPoints[MaxContactPoints];
