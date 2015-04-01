@@ -45,10 +45,8 @@ namespace Impact {
 
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
-    bd.angle = 0.f;
-    bd.linearDamping = .5f;
+    bd.linearDamping = DefaultLinearDamping;
     bd.angularDamping = .21f;
-    bd.gravityScale = 1.f;
     bd.bullet = true;
     bd.allowSleep = true;
     bd.userData = this;

@@ -41,6 +41,8 @@ namespace Impact {
     static const float32 DefaultDensity;
     static const float32 DefaultFriction;
     static const float32 DefaultRestitution;
+    static const float32 DefaultLinearDamping;
+    static const float32 DefaultAngularDamping;
     static const std::string Name;
 
   };
