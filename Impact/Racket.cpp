@@ -38,7 +38,7 @@ namespace Impact {
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
     bd.gravityScale = 0.f;
-    mTeetingBody = mGame->world()->CreateBody(&bd);
+    mTiltingBody = mGame->world()->CreateBody(&bd);
 
     b2PolygonShape polygon;
     const float32 hs = .5f * Game::InvScale;
@@ -52,7 +52,7 @@ namespace Impact {
     fdBox.friction = DefaultFriction;
     fdBox.restitution = DefaultRestitution;
     fdBox.userData = this;
-    mTeetingBody->CreateFixture(&fdBox);
+    mTiltingBody->CreateFixture(&fdBox);
 
     b2CircleShape circleL;
     circleL.m_p.x = -xoff;
@@ -64,7 +64,7 @@ namespace Impact {
     fdCircleL.friction = DefaultFriction;
     fdCircleL.restitution = DefaultRestitution;
     fdCircleL.userData = this;
-    mTeetingBody->CreateFixture(&fdCircleL);
+    mTiltingBody->CreateFixture(&fdCircleL);
 
     b2CircleShape circleR;
     circleR.m_p.x = xoff;
@@ -76,14 +76,14 @@ namespace Impact {
     fdCircleR.friction = DefaultFriction;
     fdCircleR.restitution = DefaultRestitution;
     fdCircleR.userData = this;
-    mTeetingBody->CreateFixture(&fdCircleR);
+    mTiltingBody->CreateFixture(&fdCircleR);
 
     b2BodyDef bdHinge;
     bdHinge.type = b2_dynamicBody;
     mBody = mGame->world()->CreateBody(&bdHinge);
 
     b2RevoluteJointDef rjd;
-    rjd.Initialize(mBody, mTeetingBody, b2Vec2_zero);
+    rjd.Initialize(mBody, mTiltingBody, b2Vec2_zero);
     rjd.enableMotor = true;
     rjd.maxMotorTorque = 20000.0f; //MOD Drehmoment
     rjd.enableLimit = true;
@@ -93,11 +93,11 @@ namespace Impact {
 
     b2MouseJointDef mjd;
     mjd.bodyA = ground;
-    mjd.bodyB = mTeetingBody;
+    mjd.bodyB = mTiltingBody;
     mjd.collideConnected = true;
     mjd.frequencyHz = 6.f; //MOD
     mjd.dampingRatio = .95f; //MOD
-    mjd.maxForce = 1000.f * mTeetingBody->GetMass(); //MOD
+    mjd.maxForce = 1000.f * mTiltingBody->GetMass(); //MOD
     mMouseJoint = reinterpret_cast<b2MouseJoint*>(mGame->world()->CreateJoint(&mjd));
 
     setPosition(pos);
@@ -106,23 +106,23 @@ namespace Impact {
 
   void Racket::setRestitution(float32 restitution)
   {
-    for (b2Fixture *f = mTeetingBody->GetFixtureList(); f != nullptr; f = f->GetNext())
+    for (b2Fixture *f = mTiltingBody->GetFixtureList(); f != nullptr; f = f->GetNext())
       f->SetRestitution(restitution);
   }
 
 
   void Racket::setFriction(float32 friction)
   {
-    for (b2Fixture *f = mTeetingBody->GetFixtureList(); f != nullptr; f = f->GetNext())
+    for (b2Fixture *f = mTiltingBody->GetFixtureList(); f != nullptr; f = f->GetNext())
       f->SetFriction(friction);
   }
 
 
   void Racket::setDensity(float32 density)
   {
-    for (b2Fixture *f = mTeetingBody->GetFixtureList(); f != nullptr; f = f->GetNext())
+    for (b2Fixture *f = mTiltingBody->GetFixtureList(); f != nullptr; f = f->GetNext())
       f->SetDensity(density);
-    mTeetingBody->ResetMassData();
+    mTiltingBody->ResetMassData();
   }
 
 
@@ -136,7 +136,7 @@ namespace Impact {
   {
     Body::setPosition(pos);
     const b2Transform &tx = mBody->GetTransform();
-    mTeetingBody->SetTransform(tx.p, tx.q.GetAngle());
+    mTiltingBody->SetTransform(tx.p, tx.q.GetAngle());
   }
 
 
@@ -168,13 +168,13 @@ namespace Impact {
 
   const b2Vec2 &Racket::position(void) const
   {
-    return mTeetingBody->GetPosition();
+    return mTiltingBody->GetPosition();
   }
 
 
   b2Body *Racket::body(void)
   {
-    return mTeetingBody;
+    return mTiltingBody;
   }
 
 
@@ -184,7 +184,7 @@ namespace Impact {
     t.SetIdentity();
     mAABB.lowerBound = b2Vec2(FLT_MAX, FLT_MAX);
     mAABB.upperBound = b2Vec2(-FLT_MAX, -FLT_MAX);
-    b2Fixture* fixture = mTeetingBody->GetFixtureList();
+    b2Fixture* fixture = mTiltingBody->GetFixtureList();
     while (fixture != nullptr) {
       const b2Shape *shape = fixture->GetShape();
       const int childCount = shape->GetChildCount();
@@ -216,15 +216,15 @@ namespace Impact {
 
   void Racket::stopKick(void)
   {
-    mJoint->SetMotorSpeed(mTeetingBody->GetAngle() > 0.f ? -1.f : 1.f);
+    mJoint->SetMotorSpeed(mTiltingBody->GetAngle() > 0.f ? -1.f : 1.f);
   }
 
 
   void Racket::onUpdate(float elapsedSeconds)
   {
     UNUSED(elapsedSeconds);
-    mSprite.setPosition(Game::Scale * mTeetingBody->GetPosition().x, Game::Scale * mTeetingBody->GetPosition().y);
-    mSprite.setRotation(rad2deg(mTeetingBody->GetAngle()));
+    mSprite.setPosition(Game::Scale * mTiltingBody->GetPosition().x, Game::Scale * mTiltingBody->GetPosition().y);
+    mSprite.setRotation(rad2deg(mTiltingBody->GetAngle()));
   }
 
 
