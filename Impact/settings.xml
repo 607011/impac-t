@@ -2,8 +2,8 @@
 <impact>
   <use-shaders>false</use-shaders>
   <last-open-dir></last-open-dir>
-  <frame-rate-limit>240</frame-rate-limit>
-  <velocity-iterations>16</velocity-iterations>
+  <frame-rate-limit>0</frame-rate-limit>
+  <velocity-iterations>32</velocity-iterations>
   <position-iterations>64</position-iterations>
   <explosion>
     <particle-count>50</particle-count>
