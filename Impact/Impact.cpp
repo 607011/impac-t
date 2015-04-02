@@ -2323,47 +2323,6 @@ namespace Impact {
       Body *b = reinterpret_cast<Body *>(cp.fixtureB->GetUserData());
       if (a == nullptr || b == nullptr)
         continue;
-      if (a->type() == Body::BodyType::Racket || b->type() == Body::BodyType::Racket) {
-        if (a->type() == Body::BodyType::LeftBoundary || b->type() == Body::BodyType::LeftBoundary) {
-          Racket *racket = reinterpret_cast<Racket*>(a->type() == Body::BodyType::Racket ? a : b);
-          const b2AABB &aabb = racket->aabb();
-          b2Vec2 pos = racket->position();
-          if (cp.normal.x < 0) {
-#ifndef NDEBUG
-            std::cout << "racket stuck LEFT" << std::endl;
-#endif
-            pos.x -= aabb.lowerBound.x + InvScale * .1f;
-            racket->setPosition(pos);
-            setCursorOnRacket();
-          }
-        }
-        else if (a->type() == Body::BodyType::RightBoundary || b->type() == Body::BodyType::RightBoundary) {
-          Racket *racket = reinterpret_cast<Racket*>(a->type() == Body::BodyType::Racket ? a : b);
-          const b2AABB &aabb = racket->aabb();
-          b2Vec2 pos = racket->position();
-          if (cp.normal.x > 0) {
-#ifndef NDEBUG
-            std::cout << "racket stuck RIGHT" << std::endl;
-#endif
-            pos.x -= aabb.upperBound.x + InvScale * .1f;
-            racket->setPosition(pos);
-            setCursorOnRacket();
-          }
-        }
-        else if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
-          Racket *racket = reinterpret_cast<Racket*>(a->type() == Body::BodyType::Racket ? a : b);
-          const b2AABB &aabb = racket->aabb();
-          b2Vec2 pos = racket->position();
-          if (cp.normal.y > 0) {
-#ifndef NDEBUG
-            std::cout << "racket stuck to GROUND: " << cp.normal.y << std::endl;
-#endif
-            pos.y -= aabb.upperBound.y + InvScale * .1f;
-            racket->setPosition(pos);
-            setCursorOnRacket();
-          }
-        }
-      }
       if (a->type() == Body::BodyType::Block || b->type() == Body::BodyType::Block) {
         if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
@@ -2463,6 +2422,50 @@ namespace Impact {
     if (mFPSIndex >= mFPSArray.size())
       mFPSIndex = 0;
     mFPS = std::accumulate(mFPSArray.begin(), mFPSArray.end(), 0) / mFPSArray.size();
+  }
+
+
+  void Game::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
+  {
+    b2Fixture *fixA = contact->GetFixtureA();
+    b2Fixture *fixB = contact->GetFixtureB();
+    Body *a = reinterpret_cast<Body*>(fixA->GetUserData());
+    Body *b = reinterpret_cast<Body*>(fixB->GetUserData());
+    if (a == nullptr || b == nullptr)
+      return;
+    if (a->type() == Body::BodyType::Racket || b->type() == Body::BodyType::Racket) {
+      if (a->type() == Body::BodyType::LeftBoundary || b->type() == Body::BodyType::LeftBoundary) {
+        Racket *racket = reinterpret_cast<Racket*>(a->type() == Body::BodyType::Racket ? a : b);
+        if (racket->position().x + racket->aabb().lowerBound.x < 0.f) {
+          contact->SetEnabled(false);
+          setCursorOnRacket();
+        }
+      }
+      else if (a->type() == Body::BodyType::RightBoundary || b->type() == Body::BodyType::RightBoundary) {
+        Racket *racket = reinterpret_cast<Racket*>(a->type() == Body::BodyType::Racket ? a : b);
+        if (racket->position().x + racket->aabb().upperBound.x > DefaultTilesHorizontally) {
+          contact->SetEnabled(false);
+          setCursorOnRacket();
+        }
+      }
+      //else if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
+      //  Racket *racket = reinterpret_cast<Racket*>(a->type() == Body::BodyType::Racket ? a : b);
+      //  if (mLevel.gravity() > 0.f) {
+      //    std::cout << racket->position().y << " / " << racket->aabb().upperBound.y << " >? " << DefaultTilesVertically << std::endl;
+      //    if (racket->position().y + racket->aabb().upperBound.y > DefaultTilesVertically) {
+      //      std::cout << "STUCK*****" << std::endl;
+      //      contact->SetEnabled(false);
+      //      setCursorOnRacket();
+      //    }
+      //  }
+      //  else {
+      //    if (racket->position().y + racket->aabb().lowerBound.y < 0.f) {
+      //      contact->SetEnabled(false);
+      //      setCursorOnRacket();
+      //    }
+      //  }
+      //}
+    }
   }
 
 

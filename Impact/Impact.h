@@ -340,6 +340,7 @@ namespace Impact {
     int32 mContactPointCount;
 
     // b2ContactListener interface
+    virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
     virtual void PostSolve(b2Contact *contact, const b2ContactImpulse *impulse);
 
     // game logic
