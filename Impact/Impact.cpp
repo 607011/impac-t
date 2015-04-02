@@ -2425,12 +2425,10 @@ namespace Impact {
   }
 
 
-  void Game::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
+  void Game::PreSolve(b2Contact* contact, const b2Manifold*)
   {
-    b2Fixture *fixA = contact->GetFixtureA();
-    b2Fixture *fixB = contact->GetFixtureB();
-    Body *a = reinterpret_cast<Body*>(fixA->GetUserData());
-    Body *b = reinterpret_cast<Body*>(fixB->GetUserData());
+    Body *a = reinterpret_cast<Body*>(contact->GetFixtureA()->GetUserData());
+    Body *b = reinterpret_cast<Body*>(contact->GetFixtureB()->GetUserData());
     if (a == nullptr || b == nullptr)
       return;
     if (a->type() == Body::BodyType::Racket || b->type() == Body::BodyType::Racket) {
@@ -2448,23 +2446,6 @@ namespace Impact {
           setCursorOnRacket();
         }
       }
-      //else if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
-      //  Racket *racket = reinterpret_cast<Racket*>(a->type() == Body::BodyType::Racket ? a : b);
-      //  if (mLevel.gravity() > 0.f) {
-      //    std::cout << racket->position().y << " / " << racket->aabb().upperBound.y << " >? " << DefaultTilesVertically << std::endl;
-      //    if (racket->position().y + racket->aabb().upperBound.y > DefaultTilesVertically) {
-      //      std::cout << "STUCK*****" << std::endl;
-      //      contact->SetEnabled(false);
-      //      setCursorOnRacket();
-      //    }
-      //  }
-      //  else {
-      //    if (racket->position().y + racket->aabb().lowerBound.y < 0.f) {
-      //      contact->SetEnabled(false);
-      //      setCursorOnRacket();
-      //    }
-      //  }
-      //}
     }
   }
 
