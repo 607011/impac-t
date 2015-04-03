@@ -911,6 +911,7 @@ namespace Impact {
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
           if (mMenuSingleLevel.getGlobalBounds().contains(mousePos)) {
+            mPlaymode = Playmode::SingleLevel;
             gotoSelectLevelScreen();
           }
           else if (mMenuLoadLevelText.getGlobalBounds().contains(mousePos)) {
