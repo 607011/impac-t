@@ -1276,8 +1276,6 @@ namespace Impact {
 
   void Game::onPlaying(void)
   {
-    sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
-
     sf::Event event;
     while (mWindow.pollEvent(event)) {
       switch (event.type)
@@ -1344,6 +1342,8 @@ namespace Impact {
       else {
         mRacket->stopKick();
       }
+
+      sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
 
       if (mFPS < 200) {
         // check if racket has been kicked out of the screen
@@ -1852,7 +1852,7 @@ namespace Impact {
 
   void Game::onCampaignScreen(void)
   {
-	const sf::Vector2f &mousePos = getCursorPosition();
+    const sf::Vector2f &mousePos = getCursorPosition();
 
     mMenuResumeCampaignText.setString(gSettings.lastCampaignLevel > 1 ? tr("Resume Campaign") : tr("Start Campaign"));
 
@@ -2008,9 +2008,9 @@ namespace Impact {
       states1.shader = &mVBlurShader;
       sf::Sprite sprite1;
       const float blur = b2Min(1.f, 8.f * mBlurClock.getElapsedTime().asSeconds());
-      for (int i = 1; i < 5; ++i) {
-        mVBlurShader.setParameter("uBlur", 3 * i * blur);
-        mHBlurShader.setParameter("uBlur", 3 * i * blur);
+      for (int i = 3; i < 15; i += 3) {
+        mVBlurShader.setParameter("uBlur", i * blur);
+        mHBlurShader.setParameter("uBlur", i * blur);
         sprite1.setTexture(in.getTexture());
         out.draw(sprite1, states1);
         sprite0.setTexture(out.getTexture());
