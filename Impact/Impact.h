@@ -175,7 +175,7 @@ namespace Impact {
     Game(void);
     ~Game();
     void setLevelZip(const char *zipFilename);
-    void enterLoop(void);
+    void loop(void);
     void addBody(Body *body);
     void initSounds(void);
     void initShaderDependants(void);

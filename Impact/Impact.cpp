@@ -722,7 +722,7 @@ namespace Impact {
   }
 
 
-  void Game::enterLoop(void)
+  void Game::loop(void)
   {
 #ifdef CT_VERSION_INTERNAL
     if (!mLevelZipFilename.empty())

@@ -35,6 +35,6 @@ int main(int argc, char *argv[])
         breakout.setLevelZip(szPath);
     }
   }
-  breakout.enterLoop();
+  breakout.loop();
   return EXIT_SUCCESS;
 }
