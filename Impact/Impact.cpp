@@ -915,15 +915,13 @@ namespace Impact {
             gotoSelectLevelScreen();
           }
           else if (mMenuLoadLevelText.getGlobalBounds().contains(mousePos)) {
-            mPlaymode = SingleLevel;
+            mPlaymode = Playmode::SingleLevel;
             openLevelZip();
           }
           else if (mMenuCampaignText.getGlobalBounds().contains(mousePos)) {
+            mPlaymode = Playmode::Campaign;
             gotoCampaignScreen();
           }
-          //else if (mMenuAchievementsText.getGlobalBounds().contains(mousePos)) {
-          //  gotoAchievementsScreen();
-          //}
           else if (mMenuOptionsText.getGlobalBounds().contains(mousePos)) {
             gotoOptionsScreen();
           }
