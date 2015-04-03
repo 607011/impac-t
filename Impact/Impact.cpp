@@ -901,7 +901,6 @@ namespace Impact {
 
   void Game::onWelcomeScreen(void)
   {
-    const sf::Time &elapsed = mClock.restart();
     const sf::Vector2f &mousePos = getCursorPosition();
     sf::Event event;
     while (mWindow.pollEvent(event)) {
@@ -938,7 +937,7 @@ namespace Impact {
     mWindow.clear(sf::Color(31, 31, 47));
     mWindow.draw(mBackgroundSprite);
 
-    update(elapsed);
+    update();
     drawWorld(mWindow.getDefaultView());
 
     const sf::Int32 t = mWallClock.getElapsedTime().asMilliseconds();
@@ -1038,9 +1037,8 @@ namespace Impact {
 
   void Game::onLevelCompleted(void)
   {
-    const sf::Time &elapsed = mClock.restart();
-    update(elapsed);
-    drawPlayground(elapsed);
+    update();
+    drawPlayground();
 
     sf::Event event;
     while (mWindow.pollEvent(event)) {
@@ -1073,9 +1071,8 @@ namespace Impact {
 
   void Game::onPlayerWon(void)
   {
-    const sf::Time &elapsed = mClock.restart();
-    update(elapsed);
-    drawPlayground(elapsed);
+    update();
+    drawPlayground();
 
     sf::Event event;
     while (mWindow.pollEvent(event)) {
@@ -1120,9 +1117,8 @@ namespace Impact {
 
   void Game::onGameOver(void)
   {
-    const sf::Time &elapsed = mClock.restart();
-    update(elapsed);
-    drawPlayground(elapsed);
+    update();
+    drawPlayground();
 
     sf::Event event;
     while (mWindow.pollEvent(event)) {
@@ -1157,8 +1153,7 @@ namespace Impact {
 
   void Game::onPausing(void)
   {
-    const sf::Time &elapsed = mClock.restart();
-    drawPlayground(elapsed);
+    drawPlayground();
 
     mWindow.setView(mPlaygroundView);
     sf::Text pausingText(tr(">>> Pausing <<<"), mFixedFont, 64U);
@@ -1258,8 +1253,6 @@ namespace Impact {
 
   void Game::onPlaying(void)
   {
-    const sf::Time &elapsed = mClock.restart();
-
     sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
 
     sf::Event event;
@@ -1373,8 +1366,8 @@ namespace Impact {
 #endif
     }
 
-    update(elapsed);
-    drawPlayground(elapsed);
+    update();
+    drawPlayground();
   }
 
 
@@ -1406,7 +1399,6 @@ namespace Impact {
 
   void Game::onCreditsScreen(void)
   {
-    const sf::Time &elapsed = mClock.restart();
     const sf::Vector2f &mousePos = getCursorPosition();
     const float t = mWallClock.getElapsedTime().asSeconds();
 
@@ -1460,7 +1452,7 @@ namespace Impact {
       mWelcomeLevel = 1;
     }
 
-    update(elapsed);
+    update();
     drawWorld(mWindow.getDefaultView());
   }
 
@@ -1478,7 +1470,6 @@ namespace Impact {
 
   void Game::onOptionsScreen(void)
   {
-    const sf::Time &elapsed = mClock.restart();
     const sf::Vector2f &mousePos = getCursorPosition();
     const float t = mWallClock.getElapsedTime().asSeconds();
 
@@ -1585,7 +1576,7 @@ namespace Impact {
       }
     }
 
-    update(elapsed);
+    update();
     drawWorld(mWindow.getDefaultView());
 
     mWindow.draw(mOptionsTitleText);
@@ -1674,7 +1665,6 @@ namespace Impact {
 
   void Game::onSelectLevelScreen(void)
   {
-    const sf::Time &elapsed = mClock.restart();
     const sf::Vector2f &mousePos = getCursorPosition();
     const float t = mWallClock.getElapsedTime().asSeconds();
 
@@ -1714,14 +1704,14 @@ namespace Impact {
 
     const float totalHeight = float(marginTop + marginBottom + lineHeight * mLevels.size());
     const float scrollAreaHeight = mLevelsRenderView.getSize().y;
-
+    const float dt = mElapsed.asSeconds();
     if (topSection.contains(mousePos)) {
       if (mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y > 0.f)
-        mLevelsRenderView.move(0.f, -scrollSpeed * elapsed.asSeconds());
+        mLevelsRenderView.move(0.f, -scrollSpeed * dt);
     }
     else if (bottomSection.contains(mousePos)) {
       if (mLevelsRenderView.getCenter().y + .5f * mLevelsRenderView.getSize().y < totalHeight)
-        mLevelsRenderView.move(0.f, +scrollSpeed * elapsed.asSeconds());
+        mLevelsRenderView.move(0.f, +scrollSpeed * dt);
     }
 
     const float scrollTop = mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y;
@@ -1819,7 +1809,7 @@ namespace Impact {
       mWelcomeLevel = 1;
     }
 
-    update(elapsed);
+    update();
     drawWorld(mWindow.getDefaultView());
   }
 
@@ -1839,8 +1829,6 @@ namespace Impact {
 
   void Game::onCampaignScreen(void)
   {
-    sf::Time elapsed = mClock.restart();
-
 	const sf::Vector2f &mousePos = getCursorPosition();
 
     mMenuResumeCampaignText.setString(gSettings.lastCampaignLevel > 1 ? tr("Resume Campaign") : tr("Start Campaign"));
@@ -1916,7 +1904,7 @@ namespace Impact {
       mWelcomeLevel = 1;
     }
 
-    update(elapsed);
+    update();
     drawWorld(mWindow.getDefaultView());
   }
 
@@ -2098,7 +2086,7 @@ namespace Impact {
   }
 
 
-  void Game::drawPlayground(const sf::Time &elapsed)
+  void Game::drawPlayground(void)
   {
     mWindow.setView(mPlaygroundView);
     clearWindow();
@@ -2352,12 +2340,23 @@ namespace Impact {
   }
 
 
-  inline void Game::update(const sf::Time &elapsed)
+  inline void Game::update(void)
   {
-    if (elapsed == sf::Time::Zero)
+    if (mElapsed == sf::Time::Zero)
       return;
 
-    float elapsedSeconds = 1e-6f * elapsed.asMicroseconds();
+    const float elapsedSeconds = 1e-6f * mElapsed.asMicroseconds();
+
+    mContactPointCount = 0;
+    mWorld->Step(elapsedSeconds, gSettings.velocityIterations, gSettings.positionIterations);
+    /* Note from the Box2D manual: You should always process the
+    * contact points [collected in PostSolve()] immediately after
+    * the time step; otherwise some other client code might
+    * alter the physics world, invalidating the contact buffer.
+    */
+    if (mState == State::Playing)
+      evaluateCollisions();
+    mWorld->ClearForces();
 
     BodyList remainingBodies;
     for (BodyList::iterator b = mBodies.begin(); b != mBodies.end(); ++b) {
@@ -2376,18 +2375,8 @@ namespace Impact {
     }
     mBodies = remainingBodies;
 
-    mContactPointCount = 0;
-    mWorld->Step(elapsedSeconds, gSettings.velocityIterations, gSettings.positionIterations);
-    /* Note from the Box2D manual: You should always process the
-     * contact points [collected in PostSolve()] immediately after
-     * the time step; otherwise some other client code might
-     * alter the physics world, invalidating the contact buffer.
-     */
-    if (mState == State::Playing)
-      evaluateCollisions();
-    mWorld->ClearForces();
 
-    mFPSArray[mFPSIndex++] = int(1.f / elapsed.asSeconds());
+    mFPSArray[mFPSIndex++] = int(1.f / mElapsed.asSeconds());
     if (mFPSIndex >= mFPSArray.size())
       mFPSIndex = 0;
     mFPS = std::accumulate(mFPSArray.begin(), mFPSArray.end(), 0) / mFPSArray.size();

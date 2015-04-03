@@ -292,6 +292,7 @@ namespace Impact {
     sf::Sprite mScrollbarSprite;
     sf::Vector2f mLastMousePos;
     bool mMouseButtonDown;
+    sf::Time mElapsed;
     sf::Clock mClock;
     sf::Clock mWallClock;
     sf::Clock mScoreClock;
@@ -397,14 +398,14 @@ namespace Impact {
     void updateStats(void);
     void drawWorld(const sf::View &view);
     void drawStartMessage(void);
-    void drawPlayground(const sf::Time &elapsed);
+    void drawPlayground(void);
     void stopAllMusic(void);
     void restart(void);
     void resize(void);
     void pause(void);
     void resume(void);
     void buildLevel(void);
-    void update(const sf::Time &elapsed);
+    void update(void);
     void evaluateCollisions(void);
     void startOverlay(const OverlayDef &);
     void startBlurEffect(void);
