@@ -1330,26 +1330,29 @@ namespace Impact {
         mRacket->stopKick();
       }
 
-      // check if pad has been kicked out of the screen
-      const float racketX = mRacket->position().x;
-      const float racketY = mRacket->position().y;
-      if (racketY > mLevel.height())
-        mRacket->setPosition(racketX, mLevel.height() - .5f);
-      if (racketX < 0.f)
-        mRacket->setPosition(1.5f, racketY);
-      else if (racketX > mLevel.width())
-        mRacket->setPosition(mLevel.width() - 1.5f, racketY);
+      if (mFPS < 200) {
+        // check if racket has been kicked out of the screen
+        const float racketX = mRacket->position().x;
+        const float racketY = mRacket->position().y;
+        if (racketY > mLevel.height())
+          mRacket->setPosition(racketX, mLevel.height() - .5f);
+        if (racketX < 0.f)
+          mRacket->setPosition(1.5f, racketY);
+        else if (racketX > mLevel.width())
+          mRacket->setPosition(mLevel.width() - 1.5f, racketY);
 
-      const b2AABB &aabb = mRacket->aabb();
-      const float32 w = aabb.upperBound.x - aabb.lowerBound.x;
-      const float32 h = aabb.upperBound.y - aabb.lowerBound.y;
-      if (mousePos.x < 0) {
-        mousePos.x = int(Scale * w);
+        const b2AABB &aabb = mRacket->aabb();
+        const float32 w = aabb.upperBound.x - aabb.lowerBound.x;
+        const float32 h = aabb.upperBound.y - aabb.lowerBound.y;
+        if (mousePos.x < 0) {
+          mousePos.x = int(Scale * w);
+        }
+        if (mousePos.x > int(mWindow.getSize().x)) {
+          mousePos.x = int(mWindow.getSize().x) - int(Scale * w);
+        }
+        sf::Mouse::setPosition(mousePos, mWindow);
       }
-      if (mousePos.x > int(mWindow.getSize().x)) {
-        mousePos.x = int(mWindow.getSize().x) - int(Scale * w);
-      }
-      sf::Mouse::setPosition(mousePos, mWindow);
+
       mRacket->moveTo(InvScale * b2Vec2(float32(mousePos.x), float32(mousePos.y)));
     }
 
