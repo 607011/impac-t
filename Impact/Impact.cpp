@@ -752,6 +752,8 @@ namespace Impact {
 
     while (mWindow.isOpen()) {
 
+      mElapsed = mClock.restart();
+
       switch (mState) {
       case State::Playing:
         onPlaying();
