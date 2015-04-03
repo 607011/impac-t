@@ -198,7 +198,6 @@ namespace Impact {
 
     createMainWindow();
 
-    glClearColor(0.0, 0.0, 0.0, 1.0);
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
 
