@@ -736,10 +736,6 @@ namespace Impact {
         onPlaying();
         break;
 
-      case State::SplashScreenBeforePlaying:
-        onSplashScreen();
-        break;
-
       case State::WelcomeScreen:
         onWelcomeScreen();
         break;
@@ -1200,35 +1196,6 @@ namespace Impact {
         }
       }
     }
-  }
-
-
-  void Game::gotoSplashScreen(void)
-  {
-    setState(State::SplashScreenBeforePlaying);
-    mStartMsg.setString(tr("Click to continue"));
-    mWindow.setFramerateLimit(DefaultFramerateLimit);
-  }
-
-
-  void Game::onSplashScreen(void)
-  {
-    const sf::Time &elapsed = mClock.restart();
-    drawPlayground(elapsed);
-
-    sf::Event event;
-    while (mWindow.pollEvent(event)) {
-      if (event.type == sf::Event::MouseButtonPressed) {
-        if (event.mouseButton.button == sf::Mouse::Button::Left) {
-          setState(State::Playing);
-          mWallClock.restart();
-          mClock.restart();
-          mLevelTimer.resume();
-        }
-      }
-    }
-
-    drawStartMessage();
   }
 
 

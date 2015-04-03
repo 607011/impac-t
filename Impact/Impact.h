@@ -117,7 +117,6 @@ namespace Impact {
       CreditsScreen,
       OptionsScreen,
       AchievementsScreen,
-      SplashScreenBeforePlaying,
       Playing,
       LevelCompleted,
       SelectLevelScreen,
@@ -424,9 +423,6 @@ namespace Impact {
 
     void gotoWelcomeScreen(void);
     void onWelcomeScreen(void);
-
-    void gotoSplashScreen(void);
-    void onSplashScreen(void);
 
     void gotoCurrentLevel(void);
 
