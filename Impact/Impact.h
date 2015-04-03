@@ -399,7 +399,9 @@ namespace Impact {
     void drawWorld(const sf::View &view);
     void drawStartMessage(void);
     void drawPlayground(void);
+    void resumeAllMusic(void);
     void stopAllMusic(void);
+    void pauseAllMusic(void);
     void restart(void);
     void resize(void);
     void pause(void);

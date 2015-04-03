@@ -623,6 +623,28 @@ namespace Impact {
   }
 
 
+  void Game::resumeAllMusic(void)
+  {
+    for (std::vector<sf::Music>::iterator m = mMusic.begin(); m != mMusic.end(); ++m) {
+      if (m->getStatus() == sf::Music::Paused)
+        m->play();
+    }
+    if (mLevel.music() != nullptr && mLevel.music()->getStatus() == sf::Music::Paused)
+      mLevel.music()->play();
+  }
+
+
+  void Game::pauseAllMusic(void)
+  {
+    for (std::vector<sf::Music>::iterator m = mMusic.begin(); m != mMusic.end(); ++m) {
+      if (m->getStatus() == sf::Music::Playing)
+      m->pause();
+    }
+    if (mLevel.music() != nullptr && mLevel.music()->getStatus() == sf::Music::Playing)
+      mLevel.music()->pause();
+  }
+
+
   void Game::stopAllMusic(void)
   {
     for (std::vector<sf::Music>::iterator m = mMusic.begin(); m != mMusic.end(); ++m)
@@ -2638,8 +2660,7 @@ namespace Impact {
     mLevelTimer.pause();
     startBlurEffect();
     mWindow.setMouseCursorVisible(true);
-    if (mLevel.music() != nullptr)
-      mLevel.music()->pause();
+    pauseAllMusic();
   }
 
 
@@ -2654,8 +2675,7 @@ namespace Impact {
     setCursorOnRacket();
     if (mState == State::Pausing)
       setState(State::Playing);
-    if (mLevel.music() != nullptr)
-      mLevel.music()->play();
+    resumeAllMusic();
   }
 
 
