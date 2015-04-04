@@ -2599,9 +2599,9 @@ namespace Impact {
 
   void Game::addToScore(int points)
   {
-    int newScore = mLevelScore + points;
+    const int newScore = mLevelScore + points;
     if (points > 0) {
-      int threshold = NewLiveAfterSoManyPoints[mExtraLifeIndex];
+      const int threshold = NewLiveAfterSoManyPoints[mExtraLifeIndex];
       if (threshold > 0 && newScore > threshold) {
         ++mExtraLifeIndex;
         extraBall();
