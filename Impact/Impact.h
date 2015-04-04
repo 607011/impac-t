@@ -110,6 +110,7 @@ namespace Impact {
     } Action;
 
     typedef enum _State {
+      /* !!! DO NOT FORGET TO CHANGE Game::StateNames WHEN MAKING CHANGES HERE !!! */
       NoState,
       Initialization,
       WelcomeScreen,
