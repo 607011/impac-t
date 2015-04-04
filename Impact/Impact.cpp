@@ -2614,7 +2614,7 @@ namespace Impact {
   }
 
 
-  inline sf::Vector2f Game::getCursorPosition(void) const
+  sf::Vector2f Game::getCursorPosition(void) const
   {
 	  const sf::Vector2i &mousePos = sf::Mouse::getPosition(mWindow);
 	  return sf::Vector2f(float(mousePos.x), float(mousePos.y));
