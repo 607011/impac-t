@@ -231,6 +231,8 @@ namespace Impact {
     sf::Shader mVBlurShader;
     bool mBlurPlayground;
     sf::Shader mKeyholeShader;
+    bool mVignettizePlayground;
+    sf::Vector3f mHSVShift;
     sf::Shader mVignetteShader;
     sf::Font mFixedFont;
     sf::Font mTitleFont;

@@ -146,6 +146,8 @@ namespace Impact {
     , mScaleBallDensityEnabled(false)
     , mAberrationIntensity(0.f)
     , mBlurPlayground(false)
+    , mVignettizePlayground(false)
+    , mHSVShift(sf::Vector3f(1.f, 1.f, 1.f))
     , mOverlayDuration(DefaultOverlayDuration)
     , mLastKillingsIndex(0)
     , mMusic(Music::LastMusic)
@@ -356,7 +358,7 @@ namespace Impact {
   {
     bool ok;
 
-    /**/setSoundFXVolume(gSettings.soundfxVolume);/**/
+    setSoundFXVolume(gSettings.soundfxVolume);
     setMusicVolume(gSettings.musicVolume);
 
     sf::Listener::setPosition(DefaultCenter.x, DefaultCenter.y, 0.f);
@@ -531,7 +533,7 @@ namespace Impact {
       if (!ok)
         std::cerr << ShadersDir + "/vignette.fs" << " failed to load/compile." << std::endl;
       mVignetteShader.setParameter("uStretch", 1.0f);
-      mVignetteShader.setParameter("uHSV", sf::Vector3f(1.1f, 1.0f, 1.0f));
+      mVignetteShader.setParameter("uHSV", mHSVShift);
     }
 
     mMenuParticlesPerExplosionText = sf::Text(tr("Particles per explosion"), mFixedFont, 16U);
@@ -1936,7 +1938,7 @@ namespace Impact {
   {
     if (gSettings.useShaders) {
       if (mRacket != nullptr && mBall != nullptr) {
-        // mVignetteShader.setParameter("uHSV", sf::Vector3f(1.f, 1.f, 1.f));
+        mVignetteShader.setParameter("uHSV", mHSVShift);
         sf::RenderStates states;
         sf::Sprite sprite(in.getTexture());
         states.shader = &mVignetteShader;
@@ -2128,6 +2130,10 @@ namespace Impact {
       //if (mBall != nullptr && gSettings.useShaders) {
       //  executeKeyhole(mRenderTexture1, mRenderTexture0, mBall->position(), true);
       //}
+
+      if (mVignettizePlayground) {
+        executeVignette(mRenderTexture1, mRenderTexture0, true);
+      }
 
       if (mBlurPlayground) {
         executeBlur(mRenderTexture1, mRenderTexture0, true);
