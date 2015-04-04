@@ -110,7 +110,6 @@ namespace Impact {
     "CreditsScreen",
     "OptionsScreen",
     "AchievementsScreen",
-    "SplashScreenBeforePlaying",
     "Playing",
     "LevelCompleted",
     "SelectLevelScreen",
@@ -146,10 +145,12 @@ namespace Impact {
     , mScaleBallDensityEnabled(false)
     , mAberrationIntensity(0.f)
     , mBlurPlayground(false)
+    , mVignettizePlayground(false)
+    , mHSVShift(sf::Vector3f(1.f, 1.f, 1.f))
     , mOverlayDuration(DefaultOverlayDuration)
     , mLastKillingsIndex(0)
-    , mMusic(4)
-    , mSoundFX(8)
+    , mMusic(Music::LastMusic)
+    , mSoundFX(MaxSoundFX)
     , mSoundIndex(0)
     , mFPSArray(32, 0)
     , mFPS(0)
@@ -198,7 +199,6 @@ namespace Impact {
 
     createMainWindow();
 
-    glClearColor(0.0, 0.0, 0.0, 1.0);
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
 
@@ -323,7 +323,9 @@ namespace Impact {
 
     mCreditsTitleText = sf::Text(tr("Credits"), mFixedFont, 32U);
 
-    mCreditsText = sf::Text(tr("Impac't: Copyright (c) Oliver Lau, Heise Medien GmbH & Co. KG\n"
+    mCreditsText = sf::Text(tr("Impac't: Copyright (c) Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG\n"
+      "Music: Hartmut Gieselmann <hag@ct.de>\n"
+      "Sounds made with sfxr by ola@ct.de, remastered by hag@ct.de\n"
       "SFML: Copyright (c) Laurent Gomila\n"
       "Box2D: Copyright (c) Erin Catto\n"
       "boost: see http://opensource.org/licenses/bsl1.0.html\n"
@@ -355,13 +357,34 @@ namespace Impact {
   {
     bool ok;
 
-    /**/setSoundFXVolume(gSettings.soundfxVolume);/**/
+    setSoundFXVolume(gSettings.soundfxVolume);
     setMusicVolume(gSettings.musicVolume);
 
     sf::Listener::setPosition(DefaultCenter.x, DefaultCenter.y, 0.f);
 
-    mMusic[0].openFromFile(gSettings.musicDir + "/Pooka.ogg");
-    mMusic[0].setLoop(true);
+    ok = mMusic[Music::WelcomeMusic].openFromFile(gSettings.musicDir + "/hag5.ogg");
+    if (!ok)
+      std::cerr << gSettings.musicDir + "/hag1.ogg failed to load." << std::endl;
+
+    mMusic[Music::LevelMusic1].openFromFile(gSettings.musicDir + "/hag2.ogg");
+    if (!ok)
+      std::cerr << gSettings.musicDir + "/hag2.ogg failed to load." << std::endl;
+
+    mMusic[Music::LevelMusic2].openFromFile(gSettings.musicDir + "/hag3.ogg");
+    if (!ok)
+      std::cerr << gSettings.musicDir + "/hag3.ogg failed to load." << std::endl;
+
+    mMusic[Music::LevelMusic3].openFromFile(gSettings.musicDir + "/hag4.ogg");
+    if (!ok)
+      std::cerr << gSettings.musicDir + "/hag4.ogg failed to load." << std::endl;
+
+    mMusic[Music::LevelMusic4].openFromFile(gSettings.musicDir + "/hag5.ogg");
+    if (!ok)
+      std::cerr << gSettings.musicDir + "/hag5.ogg failed to load." << std::endl;
+
+    mMusic[Music::LevelMusic5].openFromFile(gSettings.musicDir + "/hag1.ogg");
+    if (!ok)
+      std::cerr << gSettings.musicDir + "/hag1.ogg failed to load." << std::endl;
 
     for (std::vector<sf::Sound>::iterator sound = mSoundFX.begin(); sound != mSoundFX.end(); ++sound)
       sound->setMinDistance(float(DefaultTilesHorizontally * DefaultTilesVertically));
@@ -439,12 +462,12 @@ namespace Impact {
     if (mShadersAvailable) {
       mMenuUseShadersText = sf::Text(tr("Use shaders"), mFixedFont, 16U);
       mMenuUseShadersForExplosionsText = sf::Text(tr("Use shaders for explosions"), mFixedFont, 16U);
-      mMenuUseShadersForExplosionsText.setPosition(20.f, mOptionsTitleText.getPosition().y + 96);
+      mMenuUseShadersForExplosionsText.setPosition(20.f, -20 + mOptionsTitleText.getPosition().y + 96);
     }
     else {
       mMenuUseShadersText = sf::Text(tr("SHADERS ARE NOT AVAILABLE.\nPLEASE UPGRADE YOUR GRAPHICS CARD/DRIVER!"), mFixedFont, 16U);
     }
-    mMenuUseShadersText.setPosition(20.f, mOptionsTitleText.getPosition().y + 80);
+    mMenuUseShadersText.setPosition(20.f, -20 + mOptionsTitleText.getPosition().y + 80);
 
     std::string warning;
     mWarningText.setFont(mFixedFont);
@@ -509,19 +532,21 @@ namespace Impact {
       if (!ok)
         std::cerr << ShadersDir + "/vignette.fs" << " failed to load/compile." << std::endl;
       mVignetteShader.setParameter("uStretch", 1.0f);
-      mVignetteShader.setParameter("uHSV", sf::Vector3f(1.1f, 1.0f, 1.0f));
+      mVignetteShader.setParameter("uHSV", mHSVShift);
     }
 
     mMenuParticlesPerExplosionText = sf::Text(tr("Particles per explosion"), mFixedFont, 16U);
-    mMenuParticlesPerExplosionText.setPosition(20.f, mOptionsTitleText.getPosition().y + 112);
+    mMenuParticlesPerExplosionText.setPosition(20.f, -20 + mOptionsTitleText.getPosition().y + 112);
     mMenuMusicVolumeText = sf::Text(tr("Music volume"), mFixedFont, 16U);
-    mMenuMusicVolumeText.setPosition(20.f, mOptionsTitleText.getPosition().y + 128);
+    mMenuMusicVolumeText.setPosition(20.f, -20 + mOptionsTitleText.getPosition().y + 128);
     mMenuSoundFXVolumeText = sf::Text(tr("Sound fx volume"), mFixedFont, 16U);
-    mMenuSoundFXVolumeText.setPosition(20.f, mOptionsTitleText.getPosition().y + 144);
+    mMenuSoundFXVolumeText.setPosition(20.f, -20 + mOptionsTitleText.getPosition().y + 144);
     mMenuFrameRateLimitText = sf::Text(tr("Frame rate limit"), mFixedFont, 16U);
-    mMenuFrameRateLimitText.setPosition(20.f, mOptionsTitleText.getPosition().y + 160);
-
-
+    mMenuFrameRateLimitText.setPosition(20.f, -20 + mOptionsTitleText.getPosition().y + 160);
+    mMenuVelocityIterationsText = sf::Text(tr("Velocity iterations"), mFixedFont, 16U);
+    mMenuVelocityIterationsText.setPosition(20.f, -20 + mOptionsTitleText.getPosition().y + 176);
+    mMenuPositionIterationsText = sf::Text(tr("Position iterations"), mFixedFont, 16U);
+    mMenuPositionIterationsText.setPosition(20.f, -20 + mOptionsTitleText.getPosition().y + 192);
   }
 
 
@@ -596,6 +621,28 @@ namespace Impact {
     std::cout << "antialiasing level: " << settings.antialiasingLevel << std::endl;
     std::cout << "OpenGL version: " << settings.majorVersion << "." << settings.minorVersion << std::endl;
 #endif
+  }
+
+
+  void Game::resumeAllMusic(void)
+  {
+    for (std::vector<sf::Music>::iterator m = mMusic.begin(); m != mMusic.end(); ++m) {
+      if (m->getStatus() == sf::Music::Paused)
+        m->play();
+    }
+    if (mLevel.music() != nullptr && mLevel.music()->getStatus() == sf::Music::Paused)
+      mLevel.music()->play();
+  }
+
+
+  void Game::pauseAllMusic(void)
+  {
+    for (std::vector<sf::Music>::iterator m = mMusic.begin(); m != mMusic.end(); ++m) {
+      if (m->getStatus() == sf::Music::Playing)
+      m->pause();
+    }
+    if (mLevel.music() != nullptr && mLevel.music()->getStatus() == sf::Music::Playing)
+      mLevel.music()->pause();
   }
 
 
@@ -697,7 +744,7 @@ namespace Impact {
   }
 
 
-  void Game::enterLoop(void)
+  void Game::loop(void)
   {
 #ifdef CT_VERSION_INTERNAL
     if (!mLevelZipFilename.empty())
@@ -706,13 +753,11 @@ namespace Impact {
 
     while (mWindow.isOpen()) {
 
+      mElapsed = mClock.restart();
+
       switch (mState) {
       case State::Playing:
         onPlaying();
-        break;
-
-      case State::SplashScreenBeforePlaying:
-        onSplashScreen();
         break;
 
       case State::WelcomeScreen:
@@ -880,10 +925,7 @@ namespace Impact {
 
   void Game::onWelcomeScreen(void)
   {
-    sf::Time elapsed = mClock.restart();
-
     const sf::Vector2f &mousePos = getCursorPosition();
-
     sf::Event event;
     while (mWindow.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
@@ -892,18 +934,17 @@ namespace Impact {
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
           if (mMenuSingleLevel.getGlobalBounds().contains(mousePos)) {
+            mPlaymode = Playmode::SingleLevel;
             gotoSelectLevelScreen();
           }
           else if (mMenuLoadLevelText.getGlobalBounds().contains(mousePos)) {
-            mPlaymode = SingleLevel;
+            mPlaymode = Playmode::SingleLevel;
             openLevelZip();
           }
           else if (mMenuCampaignText.getGlobalBounds().contains(mousePos)) {
+            mPlaymode = Playmode::Campaign;
             gotoCampaignScreen();
           }
-          //else if (mMenuAchievementsText.getGlobalBounds().contains(mousePos)) {
-          //  gotoAchievementsScreen();
-          //}
           else if (mMenuOptionsText.getGlobalBounds().contains(mousePos)) {
             gotoOptionsScreen();
           }
@@ -920,7 +961,7 @@ namespace Impact {
     mWindow.clear(sf::Color(31, 31, 47));
     mWindow.draw(mBackgroundSprite);
 
-    update(elapsed);
+    update();
     drawWorld(mWindow.getDefaultView());
 
     const sf::Int32 t = mWallClock.getElapsedTime().asMilliseconds();
@@ -996,6 +1037,8 @@ namespace Impact {
     }
 
     if (mWelcomeLevel == 4) {
+      if (mMusic.at(WelcomeMusic).getStatus() != sf::Music::Playing)
+        playMusic(WelcomeMusic);
       mWelcomeLevel = 5;
       enumerateAllLevels();
     }
@@ -1018,9 +1061,8 @@ namespace Impact {
 
   void Game::onLevelCompleted(void)
   {
-    const sf::Time &elapsed = mClock.restart();
-    update(elapsed);
-    drawPlayground(elapsed);
+    update();
+    drawPlayground();
 
     sf::Event event;
     while (mWindow.pollEvent(event)) {
@@ -1053,9 +1095,8 @@ namespace Impact {
 
   void Game::onPlayerWon(void)
   {
-    const sf::Time &elapsed = mClock.restart();
-    update(elapsed);
-    drawPlayground(elapsed);
+    update();
+    drawPlayground();
 
     sf::Event event;
     while (mWindow.pollEvent(event)) {
@@ -1100,9 +1141,8 @@ namespace Impact {
 
   void Game::onGameOver(void)
   {
-    const sf::Time &elapsed = mClock.restart();
-    update(elapsed);
-    drawPlayground(elapsed);
+    update();
+    drawPlayground();
 
     sf::Event event;
     while (mWindow.pollEvent(event)) {
@@ -1137,8 +1177,7 @@ namespace Impact {
 
   void Game::onPausing(void)
   {
-    const sf::Time &elapsed = mClock.restart();
-    drawPlayground(elapsed);
+    drawPlayground();
 
     mWindow.setView(mPlaygroundView);
     sf::Text pausingText(tr(">>> Pausing <<<"), mFixedFont, 64U);
@@ -1178,35 +1217,6 @@ namespace Impact {
   }
 
 
-  void Game::gotoSplashScreen(void)
-  {
-    setState(State::SplashScreenBeforePlaying);
-    mStartMsg.setString(tr("Click to continue"));
-    mWindow.setFramerateLimit(DefaultFramerateLimit);
-  }
-
-
-  void Game::onSplashScreen(void)
-  {
-    const sf::Time &elapsed = mClock.restart();
-    drawPlayground(elapsed);
-
-    sf::Event event;
-    while (mWindow.pollEvent(event)) {
-      if (event.type == sf::Event::MouseButtonPressed) {
-        if (event.mouseButton.button == sf::Mouse::Button::Left) {
-          setState(State::Playing);
-          mWallClock.restart();
-          mClock.restart();
-          mLevelTimer.resume();
-        }
-      }
-    }
-
-    drawStartMessage();
-  }
-
-
   void Game::gotoCurrentLevel(void)
   {
 #ifndef NDEBUG
@@ -1236,6 +1246,9 @@ namespace Impact {
         mLevel.music()->play();
         mLevel.music()->setVolume(gSettings.musicVolume);
       }
+      else {
+        playMusic(Game::Music(LevelMusic1 + std::rand() % (LevelMusic5 - LevelMusic1)));
+      }
       setState(State::Playing);
       mLevelTimer.restart();
       mStatsClock.restart();
@@ -1264,10 +1277,6 @@ namespace Impact {
 
   void Game::onPlaying(void)
   {
-    const sf::Time &elapsed = mClock.restart();
-
-    sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
-
     sf::Event event;
     while (mWindow.pollEvent(event)) {
       switch (event.type)
@@ -1335,26 +1344,31 @@ namespace Impact {
         mRacket->stopKick();
       }
 
-      // check if pad has been kicked out of the screen
-      const float racketX = mRacket->position().x;
-      const float racketY = mRacket->position().y;
-      if (racketY > mLevel.height())
-        mRacket->setPosition(racketX, mLevel.height() - .5f);
-      if (racketX < 0.f)
-        mRacket->setPosition(1.5f, racketY);
-      else if (racketX > mLevel.width())
-        mRacket->setPosition(mLevel.width() - 1.5f, racketY);
+      sf::Vector2i mousePos = sf::Mouse::getPosition(mWindow);
 
-      const b2AABB &aabb = mRacket->aabb();
-      const float32 w = aabb.upperBound.x - aabb.lowerBound.x;
-      const float32 h = aabb.upperBound.y - aabb.lowerBound.y;
-      if (mousePos.x < 0) {
-        mousePos.x = int(Scale * w);
+      if (mFPS < 200) {
+        // check if racket has been kicked out of the screen
+        const float racketX = mRacket->position().x;
+        const float racketY = mRacket->position().y;
+        if (racketY > mLevel.height())
+          mRacket->setPosition(racketX, mLevel.height() - .5f);
+        if (racketX < 0.f)
+          mRacket->setPosition(1.5f, racketY);
+        else if (racketX > mLevel.width())
+          mRacket->setPosition(mLevel.width() - 1.5f, racketY);
+
+        const b2AABB &aabb = mRacket->aabb();
+        const float32 w = aabb.upperBound.x - aabb.lowerBound.x;
+        const float32 h = aabb.upperBound.y - aabb.lowerBound.y;
+        if (mousePos.x < 0) {
+          mousePos.x = int(Scale * w);
+        }
+        if (mousePos.x > int(mWindow.getSize().x)) {
+          mousePos.x = int(mWindow.getSize().x) - int(Scale * w);
+        }
+        sf::Mouse::setPosition(mousePos, mWindow);
       }
-      if (mousePos.x > int(mWindow.getSize().x)) {
-        mousePos.x = int(mWindow.getSize().x) - int(Scale * w);
-      }
-      sf::Mouse::setPosition(mousePos, mWindow);
+
       mRacket->moveTo(InvScale * b2Vec2(float32(mousePos.x), float32(mousePos.y)));
     }
 
@@ -1376,8 +1390,8 @@ namespace Impact {
 #endif
     }
 
-    update(elapsed);
-    drawPlayground(elapsed);
+    update();
+    drawPlayground();
   }
 
 
@@ -1409,10 +1423,7 @@ namespace Impact {
 
   void Game::onCreditsScreen(void)
   {
-    const sf::Time &elapsed = mClock.restart();
-
-	const sf::Vector2f &mousePos = getCursorPosition();
-
+    const sf::Vector2f &mousePos = getCursorPosition();
     const float t = mWallClock.getElapsedTime().asSeconds();
 
     mWindow.clear(sf::Color(31, 31, 47));
@@ -1437,7 +1448,7 @@ namespace Impact {
     mCreditsTitleText.setPosition(.5f * (mDefaultView.getSize().x - mCreditsTitleText.getLocalBounds().width), menuTop - 40);
     mWindow.draw(mCreditsTitleText);
 
-    mCreditsText.setPosition(.5f * (mDefaultView.getSize().x - mCreditsText.getLocalBounds().width), menuTop + 20);
+    mCreditsText.setPosition(.5f * (mDefaultView.getSize().x - mCreditsText.getLocalBounds().width), menuTop + 10);
     mWindow.draw(mCreditsText);
 
     sf::Event event;
@@ -1465,7 +1476,7 @@ namespace Impact {
       mWelcomeLevel = 1;
     }
 
-    update(elapsed);
+    update();
     drawWorld(mWindow.getDefaultView());
   }
 
@@ -1483,10 +1494,7 @@ namespace Impact {
 
   void Game::onOptionsScreen(void)
   {
-    const sf::Time &elapsed = mClock.restart();
-
     const sf::Vector2f &mousePos = getCursorPosition();
-
     const float t = mWallClock.getElapsedTime().asSeconds();
 
     mWindow.setView(mDefaultView);
@@ -1574,11 +1582,25 @@ namespace Impact {
             mWindow.setFramerateLimit(gSettings.framerateLimit);
             gSettings.save();
           }
+          else if (mMenuPositionIterationsText.getGlobalBounds().contains(mousePos)) {
+            if (gSettings.positionIterations > 256)
+              gSettings.positionIterations = 16;
+            else
+              gSettings.positionIterations *= 2;
+            gSettings.save();
+          }
+          else if (mMenuVelocityIterationsText.getGlobalBounds().contains(mousePos)) {
+            if (gSettings.velocityIterations > 256)
+              gSettings.velocityIterations = 16;
+            else
+              gSettings.velocityIterations *= 2;
+            gSettings.save();
+          }
         }
       }
     }
 
-    update(elapsed);
+    update();
     drawWorld(mWindow.getDefaultView());
 
     mWindow.draw(mOptionsTitleText);
@@ -1603,6 +1625,12 @@ namespace Impact {
     mMenuFrameRateLimitText.setColor(sf::Color(255U, 255U, 255U, mMenuFrameRateLimitText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mWindow.draw(mMenuFrameRateLimitText);
 
+    mMenuVelocityIterationsText.setColor(sf::Color(255U, 255U, 255U, mMenuVelocityIterationsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+    mWindow.draw(mMenuVelocityIterationsText);
+
+    mMenuPositionIterationsText.setColor(sf::Color(255U, 255U, 255U, mMenuPositionIterationsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+    mWindow.draw(mMenuPositionIterationsText);
+
     if (mShadersAvailable && gSettings.useShaders) {
       mMenuUseShadersForExplosionsText.setColor(sf::Color(255U, 255U, 255U, mMenuUseShadersForExplosionsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
       sf::Text useShadersForExplosionsText(gSettings.useShadersForExplosions ? tr("on") : tr("off"), mFixedFont, 16U);
@@ -1626,6 +1654,14 @@ namespace Impact {
     sf::Text frameRateLimitText(gSettings.framerateLimit == 0 ? tr("off") : std::to_string(int(gSettings.framerateLimit)) + "fps", mFixedFont, 16U);
     frameRateLimitText.setPosition(mDefaultView.getCenter().x + 160, mMenuFrameRateLimitText.getPosition().y);
     mWindow.draw(frameRateLimitText);
+
+    sf::Text velocityIterationsText(std::to_string(int(gSettings.velocityIterations)), mFixedFont, 16U);
+    velocityIterationsText.setPosition(mDefaultView.getCenter().x + 160, mMenuVelocityIterationsText.getPosition().y);
+    mWindow.draw(velocityIterationsText);
+
+    sf::Text positionIterationsText(std::to_string(int(gSettings.positionIterations)), mFixedFont, 16U);
+    positionIterationsText.setPosition(mDefaultView.getCenter().x + 160, mMenuPositionIterationsText.getPosition().y);
+    mWindow.draw(positionIterationsText);
 
     const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
     mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
@@ -1653,9 +1689,9 @@ namespace Impact {
 
   void Game::onSelectLevelScreen(void)
   {
-    const sf::Time &elapsed = mClock.restart();
-
     const sf::Vector2f &mousePos = getCursorPosition();
+    const float t = mWallClock.getElapsedTime().asSeconds();
+
 
     static const int marginTop = 10;
     static const int marginBottom = 10;
@@ -1666,8 +1702,6 @@ namespace Impact {
 
     mWindow.clear(sf::Color(31, 31, 47));
     mWindow.draw(mBackgroundSprite);
-
-    const float t = mWallClock.getElapsedTime().asSeconds();
 
     if (gSettings.useShaders) {
       sf::RenderStates states;
@@ -1694,14 +1728,14 @@ namespace Impact {
 
     const float totalHeight = float(marginTop + marginBottom + lineHeight * mLevels.size());
     const float scrollAreaHeight = mLevelsRenderView.getSize().y;
-
+    const float dt = mElapsed.asSeconds();
     if (topSection.contains(mousePos)) {
       if (mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y > 0.f)
-        mLevelsRenderView.move(0.f, -scrollSpeed * elapsed.asSeconds());
+        mLevelsRenderView.move(0.f, -scrollSpeed * dt);
     }
     else if (bottomSection.contains(mousePos)) {
       if (mLevelsRenderView.getCenter().y + .5f * mLevelsRenderView.getSize().y < totalHeight)
-        mLevelsRenderView.move(0.f, +scrollSpeed * elapsed.asSeconds());
+        mLevelsRenderView.move(0.f, +scrollSpeed * dt);
     }
 
     const float scrollTop = mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y;
@@ -1799,7 +1833,7 @@ namespace Impact {
       mWelcomeLevel = 1;
     }
 
-    update(elapsed);
+    update();
     drawWorld(mWindow.getDefaultView());
   }
 
@@ -1819,9 +1853,7 @@ namespace Impact {
 
   void Game::onCampaignScreen(void)
   {
-    sf::Time elapsed = mClock.restart();
-
-	const sf::Vector2f &mousePos = getCursorPosition();
+    const sf::Vector2f &mousePos = getCursorPosition();
 
     mMenuResumeCampaignText.setString(gSettings.lastCampaignLevel > 1 ? tr("Resume Campaign") : tr("Start Campaign"));
 
@@ -1896,7 +1928,7 @@ namespace Impact {
       mWelcomeLevel = 1;
     }
 
-    update(elapsed);
+    update();
     drawWorld(mWindow.getDefaultView());
   }
 
@@ -1905,7 +1937,7 @@ namespace Impact {
   {
     if (gSettings.useShaders) {
       if (mRacket != nullptr && mBall != nullptr) {
-        // mVignetteShader.setParameter("uHSV", sf::Vector3f(1.f, 1.f, 1.f));
+        mVignetteShader.setParameter("uHSV", mHSVShift);
         sf::RenderStates states;
         sf::Sprite sprite(in.getTexture());
         states.shader = &mVignetteShader;
@@ -1977,9 +2009,9 @@ namespace Impact {
       states1.shader = &mVBlurShader;
       sf::Sprite sprite1;
       const float blur = b2Min(1.f, 8.f * mBlurClock.getElapsedTime().asSeconds());
-      for (int i = 1; i < 5; ++i) {
-        mVBlurShader.setParameter("uBlur", 3 * i * blur);
-        mHBlurShader.setParameter("uBlur", 3 * i * blur);
+      for (int i = 3; i < 15; i += 3) {
+        mVBlurShader.setParameter("uBlur", i * blur);
+        mHBlurShader.setParameter("uBlur", i * blur);
         sprite1.setTexture(in.getTexture());
         out.draw(sprite1, states1);
         sprite0.setTexture(out.getTexture());
@@ -2046,7 +2078,6 @@ namespace Impact {
   void Game::startOverlay(const OverlayDef &od)
   {
     mOverlayDuration = od.duration;
-
     mOverlayText1 = sf::Text(od.line1, mTitleFont, 80U);
     mOverlayText1.setPosition(.5f * (mDefaultView.getSize().x - mOverlayText1.getLocalBounds().width), .16f * (mDefaultView.getSize().y - mOverlayText1.getLocalBounds().height));
     mOverlayText2 = sf::Text(od.line2, mTitleFont, 80U);
@@ -2067,7 +2098,6 @@ namespace Impact {
       mOverlayText1.setColor(sf::Color(255, 255, 255, 128));
       mOverlayText2.setColor(sf::Color(255, 255, 255, 128));
     }
-
     mOverlayClock.restart();
   }
 
@@ -2076,15 +2106,15 @@ namespace Impact {
   inline void Game::executeCopy(sf::RenderTexture &out, sf::RenderTexture &in)
   {
 	  sf::Sprite sprite(in.getTexture());
-	  out.draw(sprite);
+    out.draw(sprite);
   }
 
 
-  void Game::drawPlayground(const sf::Time &elapsed)
+  void Game::drawPlayground(void)
   {
     mWindow.setView(mPlaygroundView);
     clearWindow();
-    
+
     if (gSettings.useShaders) {
       mRenderTexture0.clear(mLevel.backgroundColor());
       mRenderTexture0.draw(mLevel.backgroundSprite());
@@ -2099,6 +2129,10 @@ namespace Impact {
       //if (mBall != nullptr && gSettings.useShaders) {
       //  executeKeyhole(mRenderTexture1, mRenderTexture0, mBall->position(), true);
       //}
+
+      if (mVignettizePlayground) {
+        executeVignette(mRenderTexture1, mRenderTexture0, true);
+      }
 
       if (mBlurPlayground) {
         executeBlur(mRenderTexture1, mRenderTexture0, true);
@@ -2264,7 +2298,7 @@ namespace Impact {
 
     auto isAlive = [&killedBodies](Body *body) {
       return std::find(killedBodies.cbegin(), killedBodies.cend(), body) == killedBodies.cend();
-    };
+    }; // Obscure syntax? Google "c++ lambda functions closures" ;-)
 
     for (int i = 0; i < mContactPointCount; ++i) {
       ContactPoint &cp = mPoints[i];
@@ -2273,48 +2307,7 @@ namespace Impact {
       Body *a = reinterpret_cast<Body *>(cp.fixtureA->GetUserData());
       Body *b = reinterpret_cast<Body *>(cp.fixtureB->GetUserData());
       if (a == nullptr || b == nullptr)
-        return;
-      if (a->type() == Body::BodyType::Racket || b->type() == Body::BodyType::Racket) {
-        if (a->type() == Body::BodyType::LeftBoundary || b->type() == Body::BodyType::LeftBoundary) {
-          Racket *racket = reinterpret_cast<Racket*>(a->type() == Body::BodyType::Racket ? a : b);
-          const b2AABB &aabb = racket->aabb();
-          b2Vec2 pos = racket->position();
-          if (cp.normal.x < 0) {
-#ifndef NDEBUG
-            std::cout << "racket stuck LEFT" << std::endl;
-#endif
-            pos.x -= aabb.lowerBound.x + InvScale * .1f;
-            racket->setPosition(pos);
-            setCursorOnRacket();
-          }
-        }
-        else if (a->type() == Body::BodyType::RightBoundary || b->type() == Body::BodyType::RightBoundary) {
-          Racket *racket = reinterpret_cast<Racket*>(a->type() == Body::BodyType::Racket ? a : b);
-          const b2AABB &aabb = racket->aabb();
-          b2Vec2 pos = racket->position();
-          if (cp.normal.x > 0) {
-#ifndef NDEBUG
-            std::cout << "racket stuck RIGHT" << std::endl;
-#endif
-            pos.x -= aabb.upperBound.x + InvScale * .1f;
-            racket->setPosition(pos);
-            setCursorOnRacket();
-          }
-        }
-        else if (a->type() == Body::BodyType::Ground || b->type() == Body::BodyType::Ground) {
-          Racket *racket = reinterpret_cast<Racket*>(a->type() == Body::BodyType::Racket ? a : b);
-          const b2AABB &aabb = racket->aabb();
-          b2Vec2 pos = racket->position();
-          if (cp.normal.y > 0) {
-#ifndef NDEBUG
-            std::cout << "racket stuck to GROUND: " << cp.normal.y << std::endl;
-#endif
-            pos.y -= aabb.upperBound.y + InvScale * .1f;
-            racket->setPosition(pos);
-            setCursorOnRacket();
-          }
-        }
-      }
+        continue;
       if (a->type() == Body::BodyType::Block || b->type() == Body::BodyType::Block) {
         if (a->type() == Body::BodyType::Ball || b->type() == Body::BodyType::Ball) {
           Block *block = reinterpret_cast<Block*>(a->type() == Body::BodyType::Block ? a : b);
@@ -2375,12 +2368,23 @@ namespace Impact {
   }
 
 
-  inline void Game::update(const sf::Time &elapsed)
+  inline void Game::update(void)
   {
-    if (elapsed == sf::Time::Zero)
+    if (mElapsed == sf::Time::Zero)
       return;
 
-    float elapsedSeconds = 1e-6f * elapsed.asMicroseconds();
+    const float elapsedSeconds = 1e-6f * mElapsed.asMicroseconds();
+
+    mContactPointCount = 0;
+    mWorld->Step(elapsedSeconds, gSettings.velocityIterations, gSettings.positionIterations);
+    /* Note from the Box2D manual: You should always process the
+    * contact points [collected in PostSolve()] immediately after
+    * the time step; otherwise some other client code might
+    * alter the physics world, invalidating the contact buffer.
+    */
+    if (mState == State::Playing)
+      evaluateCollisions();
+    mWorld->ClearForces();
 
     BodyList remainingBodies;
     for (BodyList::iterator b = mBodies.begin(); b != mBodies.end(); ++b) {
@@ -2399,40 +2403,36 @@ namespace Impact {
     }
     mBodies = remainingBodies;
 
-    mContactPointCount = 0;
-    mWorld->Step(elapsedSeconds, VelocityIterations, PositionIterations);
-    /* Note from the Box2D manual: You should always process the
-     * contact points [collected in PostSolve()] immediately after
-     * the time step; otherwise some other client code might
-     * alter the physics world, invalidating the contact buffer.
-     */
-    if (mState == State::Playing)
-      evaluateCollisions();
-    mWorld->ClearForces();
 
-    mFPSArray[mFPSIndex++] = int(1.f / elapsed.asSeconds());
+    mFPSArray[mFPSIndex++] = int(1.f / mElapsed.asSeconds());
     if (mFPSIndex >= mFPSArray.size())
       mFPSIndex = 0;
     mFPS = std::accumulate(mFPSArray.begin(), mFPSArray.end(), 0) / mFPSArray.size();
   }
 
 
-  void Game::BeginContact(b2Contact *contact)
+  void Game::PreSolve(b2Contact* contact, const b2Manifold*)
   {
-    B2_NOT_USED(contact);
-  }
-
-
-  void Game::EndContact(b2Contact *contact)
-  {
-    B2_NOT_USED(contact);
-  }
-
-
-  void Game::PreSolve(b2Contact *contact, const b2Manifold *oldManifold)
-  {
-    B2_NOT_USED(contact);
-    B2_NOT_USED(oldManifold);
+    Body *a = reinterpret_cast<Body*>(contact->GetFixtureA()->GetUserData());
+    Body *b = reinterpret_cast<Body*>(contact->GetFixtureB()->GetUserData());
+    if (a == nullptr || b == nullptr)
+      return;
+    if (a->type() == Body::BodyType::Racket || b->type() == Body::BodyType::Racket) {
+      if (a->type() == Body::BodyType::LeftBoundary || b->type() == Body::BodyType::LeftBoundary) {
+        Racket *racket = reinterpret_cast<Racket*>(a->type() == Body::BodyType::Racket ? a : b);
+        if (racket->position().x + racket->aabb().lowerBound.x < 0.f) {
+          contact->SetEnabled(false);
+          setCursorOnRacket();
+        }
+      }
+      else if (a->type() == Body::BodyType::RightBoundary || b->type() == Body::BodyType::RightBoundary) {
+        Racket *racket = reinterpret_cast<Racket*>(a->type() == Body::BodyType::Racket ? a : b);
+        if (racket->position().x + racket->aabb().upperBound.x > DefaultTilesHorizontally) {
+          contact->SetEnabled(false);
+          setCursorOnRacket();
+        }
+      }
+    }
   }
 
 
@@ -2446,11 +2446,8 @@ namespace Impact {
       Body *bodyB = reinterpret_cast<Body*>(cp.fixtureB->GetUserData());
       if (bodyA != nullptr && bodyB != nullptr) {
         b2Manifold *manifold = contact->GetManifold();
-        cp.position = manifold->points[0].localPoint;
         cp.normal = manifold->localNormal;
         cp.normalImpulse = impulse->normalImpulses[0];
-        cp.tangentImpulse = impulse->tangentImpulses[0];
-        cp.separation = 0.f;
         ++mContactPointCount;
       }
     }
@@ -2607,9 +2604,9 @@ namespace Impact {
 
   void Game::addToScore(int points)
   {
-    int newScore = mLevelScore + points;
+    const int newScore = mLevelScore + points;
     if (points > 0) {
-      int threshold = NewLiveAfterSoManyPoints[mExtraLifeIndex];
+      const int threshold = NewLiveAfterSoManyPoints[mExtraLifeIndex];
       if (threshold > 0 && newScore > threshold) {
         ++mExtraLifeIndex;
         extraBall();
@@ -2622,7 +2619,7 @@ namespace Impact {
   }
 
 
-  inline sf::Vector2f Game::getCursorPosition(void) const
+  sf::Vector2f Game::getCursorPosition(void) const
   {
 	  const sf::Vector2i &mousePos = sf::Mouse::getPosition(mWindow);
 	  return sf::Vector2f(float(mousePos.x), float(mousePos.y));
@@ -2670,8 +2667,7 @@ namespace Impact {
     mLevelTimer.pause();
     startBlurEffect();
     mWindow.setMouseCursorVisible(true);
-    if (mLevel.music() != nullptr)
-      mLevel.music()->pause();
+    pauseAllMusic();
   }
 
 
@@ -2686,8 +2682,7 @@ namespace Impact {
     setCursorOnRacket();
     if (mState == State::Pausing)
       setState(State::Playing);
-    if (mLevel.music() != nullptr)
-      mLevel.music()->play();
+    resumeAllMusic();
   }
 
 
@@ -2743,6 +2738,14 @@ namespace Impact {
     sound.play();
     if (++mSoundIndex >= mSoundFX.size())
       mSoundIndex = 0;
+  }
+
+
+  void Game::playMusic(Game::Music music, bool loop)
+  {
+    stopAllMusic();
+    mMusic[music].play();
+    mMusic[music].setLoop(loop);
   }
 
 

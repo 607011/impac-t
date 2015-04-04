@@ -29,9 +29,9 @@
 #include "globals.h"
 #include "Settings.h"
 #include "Level.h"
-#include "BodyBall.h"
-#include "BodyRacket.h"
-#include "BodyGround.h"
+#include "Ball.h"
+#include "Racket.h"
+#include "Ground.h"
 
 #include <future>
 
@@ -68,11 +68,7 @@ namespace Impact {
     b2Fixture *fixtureA;
     b2Fixture *fixtureB;
     b2Vec2 normal;
-    b2Vec2 position;
-    b2PointState state;
     float32 normalImpulse;
-    float32 tangentImpulse;
-    float32 separation;
   };
 
 
@@ -114,6 +110,7 @@ namespace Impact {
     } Action;
 
     typedef enum _State {
+      /* !!! DO NOT FORGET TO CHANGE Game::StateNames WHEN MAKING CHANGES HERE !!! */
       NoState,
       Initialization,
       WelcomeScreen,
@@ -121,7 +118,6 @@ namespace Impact {
       CreditsScreen,
       OptionsScreen,
       AchievementsScreen,
-      SplashScreenBeforePlaying,
       Playing,
       LevelCompleted,
       SelectLevelScreen,
@@ -130,6 +126,16 @@ namespace Impact {
       GameOver,
       LastState
     } State;
+
+    typedef enum _Music {
+      WelcomeMusic,
+      LevelMusic1,
+      LevelMusic2,
+      LevelMusic3,
+      LevelMusic4,
+      LevelMusic5,
+      LastMusic
+    } Music;
 
 #ifndef NDEBUG
     static const char* StateNames[State::LastState];
@@ -153,6 +159,7 @@ namespace Impact {
     static const unsigned int DefaultLives;
     static const unsigned int NewLiveAfterSoManyPointsDefault;
     static const unsigned int NewLiveAfterSoManyPoints[];
+    static const int MaxSoundFX = 8;
     static const int DefaultForceNewBallPenalty;
     static const int32 MaxContactPoints = 512;
     static const sf::Time DefaultFadeEffectDuration;
@@ -168,7 +175,7 @@ namespace Impact {
     Game(void);
     ~Game();
     void setLevelZip(const char *zipFilename);
-    void enterLoop(void);
+    void loop(void);
     void addBody(Body *body);
     void initSounds(void);
     void initShaderDependants(void);
@@ -225,6 +232,8 @@ namespace Impact {
     sf::Shader mVBlurShader;
     bool mBlurPlayground;
     sf::Shader mKeyholeShader;
+    bool mVignettizePlayground;
+    sf::Vector3f mHSVShift;
     sf::Shader mVignetteShader;
     sf::Font mFixedFont;
     sf::Font mTitleFont;
@@ -252,6 +261,8 @@ namespace Impact {
     sf::Text mMenuMusicVolumeText;
     sf::Text mMenuSoundFXVolumeText;
     sf::Text mMenuFrameRateLimitText;
+    sf::Text mMenuVelocityIterationsText;
+    sf::Text mMenuPositionIterationsText;
     sf::Text mOptionsTitleText;
     sf::Text mCreditsTitleText;
     sf::Text mCreditsText;
@@ -284,6 +295,7 @@ namespace Impact {
     sf::Sprite mScrollbarSprite;
     sf::Vector2f mLastMousePos;
     bool mMouseButtonDown;
+    sf::Time mElapsed;
     sf::Clock mClock;
     sf::Clock mWallClock;
     sf::Clock mScoreClock;
@@ -325,18 +337,14 @@ namespace Impact {
     int mFPS;
 
     // Box2D
-    static const int32 VelocityIterations = 50;
-    static const int32 PositionIterations = 25;
     b2World *mWorld;
     Ground *mGround;
     ContactPoint mPoints[MaxContactPoints];
     int32 mContactPointCount;
 
     // b2ContactListener interface
-    void PreSolve(b2Contact *contact, const b2Manifold *oldManifold);
-    void BeginContact(b2Contact *contact);
-    void EndContact(b2Contact *contact);
-    void PostSolve(b2Contact *contact, const b2ContactImpulse *impulse);
+    virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
+    virtual void PostSolve(b2Contact *contact, const b2ContactImpulse *impulse);
 
     // game logic
     std::vector<sf::Keyboard::Key> mKeyMapping;
@@ -373,8 +381,9 @@ namespace Impact {
     std::vector<sf::Sound> mSoundFX;
     std::vector<sf::Sound>::size_type mSoundIndex;
     void setSoundFXVolume(float volume);
-    void setMusicVolume(float volume);
     void playSound(const sf::SoundBuffer &buffer, const b2Vec2 &pos = DefaultCenter);
+    void setMusicVolume(float volume);
+    void playMusic(Music music, bool loop = true);
     int calcPenalty(void) const;
     int deductPenalty(int score) const;
     void createStatsViewRectangle(void);
@@ -392,14 +401,16 @@ namespace Impact {
     void updateStats(void);
     void drawWorld(const sf::View &view);
     void drawStartMessage(void);
-    void drawPlayground(const sf::Time &elapsed);
+    void drawPlayground(void);
+    void resumeAllMusic(void);
     void stopAllMusic(void);
+    void pauseAllMusic(void);
     void restart(void);
     void resize(void);
     void pause(void);
     void resume(void);
     void buildLevel(void);
-    void update(const sf::Time &elapsed);
+    void update(void);
     void evaluateCollisions(void);
     void startOverlay(const OverlayDef &);
     void startBlurEffect(void);
@@ -418,9 +429,6 @@ namespace Impact {
 
     void gotoWelcomeScreen(void);
     void onWelcomeScreen(void);
-
-    void gotoSplashScreen(void);
-    void onSplashScreen(void);
 
     void gotoCurrentLevel(void);
 

@@ -137,7 +137,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>CT_VERSION_INTERNAL;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -147,6 +147,8 @@
       <FloatingPointModel>Precise</FloatingPointModel>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalOptions>/Zm150</AdditionalOptions>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -154,6 +156,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>Shlwapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);sfml-window.lib;sfml-system.lib;sfml-graphics.lib;sfml-audio.lib;zlib.lib;glew32.lib;OpenGL32.Lib;Box2D.lib</AdditionalDependencies>
+      <Profile>true</Profile>
     </Link>
     <PostBuildEvent>
       <Command>$(SolutionDir)prepare.bat</Command>
@@ -211,13 +214,13 @@
     </ClCompile>
     <ClCompile Include="Explosion.cpp" />
     <ClCompile Include="Body.cpp" />
-    <ClCompile Include="BodyBall.cpp" />
-    <ClCompile Include="BodyBlock.cpp" />
-    <ClCompile Include="BodyGround.cpp" />
-    <ClCompile Include="BodyRacket.cpp" />
-    <ClCompile Include="BodyText.cpp" />
+    <ClCompile Include="Ball.cpp" />
+    <ClCompile Include="Block.cpp" />
+    <ClCompile Include="Ground.cpp" />
+    <ClCompile Include="Racket.cpp" />
+    <ClCompile Include="Text.cpp" />
     <ClCompile Include="Impact.cpp" />
-    <ClCompile Include="BodyWall.cpp" />
+    <ClCompile Include="Wall.cpp" />
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
@@ -237,13 +240,13 @@
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Explosion.h" />
     <ClInclude Include="Body.h" />
-    <ClInclude Include="BodyBall.h" />
-    <ClInclude Include="BodyBlock.h" />
-    <ClInclude Include="BodyGround.h" />
-    <ClInclude Include="BodyRacket.h" />
-    <ClInclude Include="BodyText.h" />
+    <ClInclude Include="Ball.h" />
+    <ClInclude Include="Block.h" />
+    <ClInclude Include="Ground.h" />
+    <ClInclude Include="Racket.h" />
+    <ClInclude Include="Text.h" />
     <ClInclude Include="Impact.h" />
-    <ClInclude Include="BodyWall.h" />
+    <ClInclude Include="Wall.h" />
     <ClInclude Include="Destructible.h" />
     <ClInclude Include="Destructive.h" />
     <ClInclude Include="Easings.h" />
@@ -255,6 +258,7 @@
     <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\deploy\Impact.nsi" />
     <None Include="resources\shaders\vignette.fs" />
     <None Include="resources\shaders\keyhole.fs" />
     <None Include="resources\shaders\toon.fs" />

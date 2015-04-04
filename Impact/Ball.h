@@ -17,28 +17,37 @@
 
 */
 
+#ifndef __BODYBALL_H_
+#define __BODYBALL_H_
 
-#ifndef __GLOBALS_H_
-#define __GLOBALS_H_
+#include "Body.h"
+#include "Impact.h"
+#include "Destructive.h"
 
 #include <string>
-#include <random>
-#include "Settings.h"
 
 namespace Impact {
 
-#define IMPACT_VERSION "1.0-BETA28"
+  class Ball : public Body
+  {
+  public:
+    Ball(Game *game);
 
-#define ResourcesDir std::string("resources")
-#define ImagesDir ResourcesDir + "/images"
-#define FontsDir ResourcesDir + "/fonts"
-#define ShadersDir ResourcesDir + "/shaders"
+    // Body implementation
+    virtual void onUpdate(float elapsedSeconds);
+    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
+    virtual BodyType type(void) const { return Body::BodyType::Ball; }
 
-  extern std::mt19937 gRNG;
-  extern void warmupRNG(void);
+    static const float32 DefaultDensity;
+    static const float32 DefaultFriction;
+    static const float32 DefaultRestitution;
+    static const float32 DefaultLinearDamping;
+    static const float32 DefaultAngularDamping;
+    static const std::string Name;
 
-  extern Settings gSettings;
+  };
+
 }
 
+#endif // __BODYBALL_H_
 
-#endif // __GLOBALS_H_
