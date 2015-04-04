@@ -102,7 +102,7 @@ namespace Impact {
       ShaderPool(void)
       {
 #ifndef NDEBUG
-        std::cout << "ShaderPool()" << std::flush;
+        std::cout << "ShaderPool() ..." << std::endl;
 #endif
         if (gSettings.useShaders)
           init();
@@ -110,7 +110,7 @@ namespace Impact {
       static void init(void)
       {
 #ifndef NDEBUG
-        std::cout << "ShaderPool::init()" << std::flush;
+        std::cout << "ShaderPool::init() ..." << std::endl;
 #endif
         std::ifstream inFile;
         inFile.open(ShadersDir + "/explosion.fs");
@@ -122,9 +122,6 @@ namespace Impact {
           shader->loadFromMemory(fragmentShaderCode, sf::Shader::Fragment);
           sShaders.push_back(shader);
         }
-#ifndef NDEBUG
-        std::cout << std::endl;
-#endif
       }
       static sf::Shader *getNext(void)
       {

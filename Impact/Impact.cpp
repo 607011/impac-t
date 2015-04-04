@@ -25,10 +25,15 @@
 
 #include <zlib.h>
 
+#if defined(WIN32)
 #include <Shlwapi.h>
 #include <commdlg.h>
 #include <Objbase.h>
 #include <Windows.h>
+#endif
+
+#include "Recorder.h"
+
 
 namespace Impact {
 
@@ -162,8 +167,23 @@ namespace Impact {
     , mGLSLVersionMajor(0)
     , mGLSLVersionMinor(0)
     , mShadersAvailable(sf::Shader::isAvailable())
+    , mRec(nullptr)
   {
     bool ok;
+
+#if defined(WIN32)
+    HRESULT hr = S_OK;
+    hr = CoInitialize(NULL);
+    if (FAILED(hr)) {
+      std::cerr << "CoInitialize failed: hr = "
+        << std::showbase << std::internal << std::setfill('0') << std::setw(8) << std::hex
+        << hr << std::endl;
+    }
+    else {
+      mRec = new Recorder;
+    }
+#endif
+
 
     glewInit();
     glGetIntegerv(GL_MAJOR_VERSION, &mGLVersionMajor);
@@ -348,6 +368,13 @@ namespace Impact {
 
   Game::~Game(void)
   {
+#if defined(WIN32)
+    CoUninitialize(); 
+#endif
+    if (mRec != nullptr) {
+      mRec->stop();
+      delete mRec;
+    }
     gSettings.save();
     clearWorld();
   }
@@ -952,6 +979,8 @@ namespace Impact {
             gotoCreditsScreen();
           }
           else if (mMenuExitText.getGlobalBounds().contains(mousePos)) {
+            if (mRec != nullptr)
+              mRec->stop();
             mWindow.close();
           }
           return;

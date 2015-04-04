@@ -186,6 +186,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Recorder.cpp" />
     <ClCompile Include="sha1.cpp" />
     <ClCompile Include="..\zip-utils\unzip.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -234,6 +235,7 @@
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Recorder.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="sha1.h" />
     <ClInclude Include="..\zip-utils\unzip.h" />

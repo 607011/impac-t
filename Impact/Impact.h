@@ -27,6 +27,7 @@
 #include <SFML/OpenGL.hpp>
 
 #include "globals.h"
+#include "Recorder.h"
 #include "Settings.h"
 #include "Level.h"
 #include "Ball.h"
@@ -34,6 +35,8 @@
 #include "Ground.h"
 
 #include <future>
+
+
 
 namespace Impact {
 
@@ -180,6 +183,8 @@ namespace Impact {
     void initSounds(void);
     void initShaderDependants(void);
     void clearEventQueue(void);
+
+    Recorder *mRec;
 
     inline b2World *world(void)
     {
