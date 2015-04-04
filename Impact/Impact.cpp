@@ -322,9 +322,9 @@ namespace Impact {
 
     mCreditsTitleText = sf::Text(tr("Credits"), mFixedFont, 32U);
 
-    mCreditsText = sf::Text(tr("Impac't: Copyright (c) Oliver Lau, Heise Medien GmbH & Co. KG\n"
+    mCreditsText = sf::Text(tr("Impac't: Copyright (c) Oliver Lau <ola@ct.de>, Heise Medien GmbH & Co. KG\n"
       "Music: Hartmut Gieselmann <hag@ct.de>\n"
-      "Sounds: Oliver Lau <ola@ct.de> (made with sfxr)\n"
+      "Sounds made with sfxr by ola@ct.de, remastered by hag@ct.de\n"
       "SFML: Copyright (c) Laurent Gomila\n"
       "Box2D: Copyright (c) Erin Catto\n"
       "boost: see http://opensource.org/licenses/bsl1.0.html\n"
