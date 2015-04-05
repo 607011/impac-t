@@ -32,7 +32,7 @@
 #include <Shlwapi.h>
 #include <memory.h>
 
-// #define NDEBUG 1
+#define NDEBUG 1
 
 namespace Impact {
 
@@ -84,7 +84,7 @@ namespace Impact {
     , mCredits(other.mCredits)
     , mAuthor(other.mAuthor)
     , mCopyright(other.mCopyright)
-    , mMusic(nullptr)
+    , mMusic(other.mMusic)
   {
     // ...
   }
@@ -373,11 +373,14 @@ namespace Impact {
       if (!ok)
         return;
 
-      const std::string &backgroundTextureFilename = levelPath + "/" + pt.get<std::string>("map.imagelayer.image.<xmlattr>.source");
-      mBackgroundTexture.loadFromFile(backgroundTextureFilename);
-      mBackgroundSprite.setTexture(mBackgroundTexture);
-      mBackgroundImageOpacity = pt.get<float>("map.imagelayer.<xmlattr>.opacity", 1.f);
-      mBackgroundSprite.setColor(sf::Color(255, 255, 255, sf::Uint8(mBackgroundImageOpacity * 0xff)));
+      try {
+        const std::string &backgroundTextureFilename = levelPath + "/" + pt.get<std::string>("map.imagelayer.image.<xmlattr>.source");
+        mBackgroundTexture.loadFromFile(backgroundTextureFilename);
+        mBackgroundSprite.setTexture(mBackgroundTexture);
+        mBackgroundImageOpacity = pt.get<float>("map.imagelayer.<xmlattr>.opacity", 1.f);
+        mBackgroundSprite.setColor(sf::Color(255, 255, 255, sf::Uint8(mBackgroundImageOpacity * 0xff)));
+      }
+      catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
 
       mBoundary = Boundary();
       try {
@@ -411,6 +414,7 @@ namespace Impact {
               try {
                 std::string propName = property.get<std::string>("<xmlattr>.name");
                 boost::algorithm::to_lower(propName);
+                //MOD Property1
                 if (propName == "name") {
                   tileParam.textureName = property.get<std::string>("<xmlattr>.value");
                 }
@@ -420,6 +424,7 @@ namespace Impact {
                 else if (propName == "fixed") {
                   tileParam.fixed = property.get<bool>("<xmlattr>.value");
                 }
+                //MOD Property2
                 else if (propName == "friction") {
                   tileParam.friction = property.get<float32>("<xmlattr>.value");
                 }

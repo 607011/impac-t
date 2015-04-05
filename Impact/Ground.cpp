@@ -17,35 +17,26 @@
 
 */
 
-#ifndef __BODYBALL_H_
-#define __BODYBALL_H_
 
-#include "Body.h"
-#include "Impact.h"
-#include "Destructive.h"
-
-#include <string>
+#include "stdafx.h"
 
 namespace Impact {
 
-  class Ball : public Body
+  const std::string Ground::Name = "Ground";
+
+  Ground::Ground(Game *game, float32 width)
+    : Body(Body::BodyType::Ground, game)
   {
-  public:
-    Ball(Game *game);
+    mName = Name;
 
-    // Body implementation
-    virtual void onUpdate(float elapsedSeconds);
-    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
-    virtual BodyType type(void) const { return Body::BodyType::Ball; }
+    b2BodyDef bd;
+    bd.userData = this;
+    mBody = mGame->world()->CreateBody(&bd);
 
-    static const float32 DefaultDensity;
-    static const float32 DefaultFriction;
-    static const float32 DefaultRestitution;
-    static const std::string Name;
-
-  };
+    b2EdgeShape bottomBoundary;
+    bottomBoundary.Set(b2Vec2_zero, b2Vec2(width, 0.f));
+    b2Fixture *f = mBody->CreateFixture(&bottomBoundary, 0.f);
+    f->SetUserData(this);
+  }
 
 }
-
-#endif // __BODYBALL_H_
-

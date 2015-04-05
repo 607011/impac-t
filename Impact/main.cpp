@@ -19,7 +19,9 @@
 
 
 #include "stdafx.h"
+#if defined(WIN32)
 #include <Windows.h>
+#endif
 
 Impact::Game breakout;
 
@@ -27,6 +29,7 @@ Impact::Game breakout;
 int main(int argc, char *argv[])
 {
   if (argc == 2) {
+#if defined(WIN32)
     char szPath[MAX_PATH];
     char *res = _fullpath(szPath, argv[1], MAX_PATH);
     if (res != NULL) {
@@ -34,7 +37,8 @@ int main(int argc, char *argv[])
       if (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY))
         breakout.setLevelZip(szPath);
     }
+#endif
   }
-  breakout.enterLoop();
+  breakout.loop();
   return EXIT_SUCCESS;
 }

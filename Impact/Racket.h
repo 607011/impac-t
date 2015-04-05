@@ -61,7 +61,7 @@ namespace Impact {
 
   private:
     b2RevoluteJoint *mJoint;
-    b2Body *mTeetingBody;
+    b2Body *mTiltingBody;
     b2MouseJoint *mMouseJoint;
     mutable b2AABB mAABB;
   };

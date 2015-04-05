@@ -22,10 +22,13 @@
 
 namespace Impact {
 
-  const std::string Ball::Name = "Ball";
-  const float32 Ball::DefaultDensity = 2.f;
-  const float32 Ball::DefaultFriction = .71f;
-  const float32 Ball::DefaultRestitution = .3f;
+  const std::string Ball::Name = "Ball"; //DO NOT CHANGE UNDER ANY CIRCUMSTANCES!
+
+  const float32 Ball::DefaultDensity = 2.f; //MOD Ballmasse
+  const float32 Ball::DefaultFriction = .7f; //MOD Ballreibung
+  const float32 Ball::DefaultRestitution = .5f; //MOD Ballelastizität
+  const float32 Ball::DefaultLinearDamping = .5f; //MOD Geschwindigkeitsdämpfung
+  const float32 Ball::DefaultAngularDamping = .5f; //MOD Rotationsgeschwindigkeitsdämpfung
 
   Ball::Ball(Game *game)
     : Body(Body::BodyType::Ball, game)
@@ -42,17 +45,14 @@ namespace Impact {
 
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
-    bd.angle = 0.f;
-    bd.linearDamping = .5f;
+    bd.linearDamping = DefaultLinearDamping;
     bd.angularDamping = .21f;
-    bd.gravityScale = 1.f;
     bd.bullet = true;
     bd.allowSleep = true;
     bd.userData = this;
     mBody = game->world()->CreateBody(&bd);
 
     b2CircleShape circle;
-    circle.m_p.SetZero();
     circle.m_radius = halfH * Game::InvScale;
 
     b2FixtureDef fd;
