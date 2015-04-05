@@ -40,11 +40,10 @@ namespace Impact {
     const IID IID_IAudioClient = __uuidof(IAudioClient);
     const IID IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
 
-    mActualDuration = REFTIMES_PER_SEC;
+    mActualDuration = 0;
     UINT32 bufferFrameCount;
     IMMDeviceEnumerator *pEnumerator = nullptr;
     IMMDevice *pDevice = nullptr;
-    WAVEFORMATEX *pwfx = nullptr;
 
     hr = CoCreateInstance(CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL, IID_IMMDeviceEnumerator, (void**)&pEnumerator);
     if (FAILED(hr)) {
@@ -52,7 +51,7 @@ namespace Impact {
       return;
     }
 
-    hr = pEnumerator->GetDefaultAudioEndpoint(eCapture, eConsole, &pDevice);
+    hr = pEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &pDevice);
     if (FAILED(hr)) {
       std::cerr << "pEnumerator->GetDefaultAudioEndpoint() failed in line " << __LINE__ << std::endl;
       return;
@@ -64,13 +63,13 @@ namespace Impact {
       return;
     }
 
-    hr = mAudioClient->GetMixFormat(&pwfx);
+    hr = mAudioClient->GetMixFormat(&mWFX);
     if (FAILED(hr)) {
       std::cerr << "pAudioClient->GetMixFormat() failed in line " << __LINE__ << std::endl;
       return;
     }
 
-    hr = mAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, mActualDuration, 0, pwfx, NULL);
+    hr = mAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, mActualDuration, 0, mWFX, NULL);
     if (FAILED(hr)) {
       std::cerr << "mAudioClient->Initialize() failed in line " << __LINE__ << std::endl;
       return;
@@ -88,16 +87,17 @@ namespace Impact {
       return;
     }
 
-    hr = this->SetFormat(pwfx);
-    if (FAILED(hr)) {
-      std::cerr << "this->SetFormat() failed in line " << __LINE__ << std::endl;
-      return;
-    }
-
-    mActualDuration = (REFERENCE_TIME)((double)REFTIMES_PER_SEC * bufferFrameCount / pwfx->nSamplesPerSec);
+    mActualDuration = 1000 * bufferFrameCount / mWFX->nSamplesPerSec;
 #ifndef NDEBUG
-    std::cout << "samples per second: " << pwfx->nSamplesPerSec << std::endl;
-    std::cout << "mActualDuration: " << mActualDuration << " ms" << std::endl;
+    std::cout
+      << "mActualDuration: " << mActualDuration << std::endl
+      << "wFormatTag:      " << std::showbase << std::internal << std::hex << std::setw(4) << mWFX->wFormatTag << std::endl << std::dec
+      << "nChannels:       " << mWFX->nChannels << std::endl
+      << "nSamplesPerSec:  " << mWFX->nSamplesPerSec << std::endl
+      << "nAvgBytesPerSec: " << mWFX->nAvgBytesPerSec << std::endl
+      << "nBlockAlign:     " << mWFX->nBlockAlign << std::endl
+      << "wBitsPerSample:  " << mWFX->wBitsPerSample << std::endl
+      << "cbSize:          " << mWFX->cbSize << std::endl;
 #endif
 
     hr = this->start();
@@ -106,7 +106,7 @@ namespace Impact {
       return;
     }
 
-    mBuf = new BYTE[100 * 1024 * 1024];
+    mBuf = new BYTE[RecordBufSize];
     mBufPointer = mBuf;
   }
 
@@ -119,12 +119,12 @@ namespace Impact {
   }
 
 
-  void Recorder::Capture(void)
+  void Recorder::capture(void)
   {
     HRESULT hr = S_OK;
     UINT32 packetLength = 0;
     while (!mDoQuit) {
-      Sleep((DWORD)mActualDuration / REFTIMES_PER_MILLISEC / 2);
+      Sleep((DWORD) mActualDuration / 2);
       hr = mCaptureClient->GetNextPacketSize(&packetLength);
       if (FAILED(hr))
         mDoQuit = true;
@@ -137,7 +137,7 @@ namespace Impact {
           std::cerr << "mCaptureClient->GetBuffer() failed on line " << __LINE__ << std::endl;
         if (flags & AUDCLNT_BUFFERFLAGS_SILENT)
           pData = nullptr;
-        hr = this->CopyData(pData, numFramesAvailable, &mDoQuit);
+        hr = this->copyData(pData, numFramesAvailable, &mDoQuit);
         if (FAILED(hr))
           std::cerr << "this->CopyData() failed on line " << __LINE__ << std::endl;
         hr = mCaptureClient->ReleaseBuffer(numFramesAvailable);
@@ -165,7 +165,7 @@ namespace Impact {
       std::cerr << "mAudioClient->Start() failed on line " << __LINE__ << std::endl;
       return S_FALSE;
     }
-    mRecThread = new std::thread(&Recorder::Capture, this);
+    mRecThread = new std::thread(&Recorder::capture, this);
     return S_OK;
   }
 
@@ -182,14 +182,34 @@ namespace Impact {
 #ifndef NDEBUG
       std::cout << "mRecThread returned." << std::endl;
 #endif
-      HANDLE hFile;
-      hFile = CreateFile("blah.wav", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-      DWORD bytesWritten = 0;
-      WriteFile(hFile, mBuf, mBufPointer - mBuf, &bytesWritten, NULL);
+      FILE *file = fopen("blah.wav", "wb+");
+
+      WaveHeader header;
+      header.ChunkSize = sizeof(header) + mBufPointer - mBuf - 8;
+      header.wFormatTag = WAVE_FORMAT_PCM;
+      header.wChannels = mWFX->nChannels;
+      header.dwSamplesPerSec = mWFX->nSamplesPerSec;
+      header.dwAvgBytesPerSec = mWFX->nAvgBytesPerSec;
+      header.wBlockAlign = mWFX->nChannels * mWFX->wBitsPerSample / 8;
+      header.wBitsPerSample = mWFX->wBitsPerSample;
+
 #ifndef NDEBUG
-      std::cout << "bytesWritten: " << bytesWritten << std::endl;
+      std::cout << "sizeof(WaveHeader): " << sizeof(WaveHeader) << std::endl
+        << "header.wFormatTag = " << std::showbase << std::hex << std::setw(4) << std::setfill('0') << header.wFormatTag << std::endl
+        << std::dec
+        << "header.wChannels = " << header.wChannels << std::endl
+        << "header.dwSamplesPerSec = " << header.dwSamplesPerSec << std::endl
+        << "header.dwAvgBytesPerSec = " << header.dwAvgBytesPerSec << std::endl
+        << "header.wBlockAlign = " << header.wBlockAlign << std::endl
+        << "header.wBitsPerSample = " << header.wBitsPerSample << std::endl;
 #endif
-      CloseHandle(hFile);
+      fwrite(&header, sizeof(header), 1, file);
+      fwrite("data", 4, 1, file);
+      uint32_t dataLen = mBufPointer - mBuf - 44;
+      fwrite(&dataLen, 4, 1, file);
+      fwrite(mBuf, mBufPointer - mBuf, 1, file);
+      fclose(file);
+
       safeDelete(mRecThread);
       safeDeleteArray(mBuf);
     }
@@ -198,17 +218,21 @@ namespace Impact {
 
 
 
-  HRESULT Recorder::CopyData(BYTE *pData, UINT32 numFramesAvailable, bool *done)
+  HRESULT Recorder::copyData(BYTE *pData, UINT32 numFramesAvailable, bool *done)
   {
-    CopyMemory(mBufPointer, pData, numFramesAvailable);
-    mBufPointer += numFramesAvailable;
-    return S_OK;
-  }
-
-
-  HRESULT Recorder::SetFormat(WAVEFORMATEX *pwfx)
-  {
-    mWFX = pwfx;
+    const int nBytes = numFramesAvailable * mWFX->nBlockAlign;
+    if (mBufPointer - mBuf + nBytes >= RecordBufSize) {
+      *done = true;
+    }
+    else {
+      if (pData == nullptr) {
+        ZeroMemory(mBufPointer, nBytes);
+      }
+      else {
+        memcpy_s(mBufPointer, RecordBufSize - (mBufPointer - mBuf), pData, nBytes);
+      }
+      mBufPointer += nBytes;
+    }
     return S_OK;
   }
 

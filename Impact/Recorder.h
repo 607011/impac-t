@@ -22,12 +22,37 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #if defined(WIN32)
 #include <Mmdeviceapi.h>
+#include <MMSystem.h>
 #include <Audioclient.h>
 #endif
 
 #include <thread>
 
 namespace Impact {
+
+  __declspec(align(1))
+  struct WaveHeader {
+    // RIFF part
+    __declspec(align(1)) char chunkID[4];
+    __declspec(align(1)) uint32_t ChunkSize;
+    __declspec(align(1)) char riffType[4];
+    // Format part
+    __declspec(align(1)) char fmt[4];
+    __declspec(align(1)) uint32_t fmtLen;
+    __declspec(align(1)) uint16_t wFormatTag;
+    __declspec(align(1)) uint16_t wChannels;
+    __declspec(align(1)) uint32_t dwSamplesPerSec;
+    __declspec(align(1)) uint32_t dwAvgBytesPerSec;
+    __declspec(align(1)) uint16_t wBlockAlign;
+    __declspec(align(1)) uint16_t wBitsPerSample;
+    WaveHeader(void)
+      : fmtLen(16)
+    {
+      memcpy_s(chunkID, 4, "RIFF", 4);
+      memcpy_s(riffType, 4, "WAVE", 4);
+      memcpy_s(fmt, 4, "fmt ", 4);
+    }
+  };
 
   class Recorder {
   public:
@@ -38,18 +63,18 @@ namespace Impact {
     HRESULT stop(void);
 
   private:
-    HRESULT CopyData(BYTE *pData, UINT32 numFramesAvailable, bool *done);
-    HRESULT SetFormat(WAVEFORMATEX *pwfx);
-    void Capture(void);
+    HRESULT copyData(BYTE *pData, UINT32 numFramesAvailable, bool *done);
+    void capture(void);
 
   private:
-    static const REFERENCE_TIME REFTIMES_PER_SEC = 10000000;
-    static const REFERENCE_TIME REFTIMES_PER_MILLISEC = 10000;
+    static const int RecordBufSize = 10 * 1024 * 1024;
 
     IAudioClient *mAudioClient;
     IAudioCaptureClient *mCaptureClient;
     WAVEFORMATEX *mWFX;
     REFERENCE_TIME mActualDuration;
+    HWAVEIN mMicroHandle;
+    WAVEHDR mWaveHeader;
 
     std::thread *mRecThread;
     BYTE *mBuf;
