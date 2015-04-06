@@ -171,20 +171,6 @@ namespace Impact {
   {
     bool ok;
 
-#if defined(WIN32)
-    HRESULT hr = S_OK;
-    hr = CoInitialize(NULL);
-    if (FAILED(hr)) {
-      std::cerr << "CoInitialize failed: hr = "
-        << std::showbase << std::internal << std::setfill('0') << std::setw(8) << std::hex
-        << hr << std::endl;
-    }
-    else {
-      mRec = new Recorder;
-    }
-#endif
-
-
     glewInit();
     glGetIntegerv(GL_MAJOR_VERSION, &mGLVersionMajor);
     glGetIntegerv(GL_MINOR_VERSION, &mGLVersionMinor);
@@ -363,6 +349,10 @@ namespace Impact {
     initShaderDependants();
 
     restart();
+
+#if defined(WIN32)
+    mRec = new Recorder;
+#endif
   }
 
 
@@ -1071,6 +1061,9 @@ namespace Impact {
       mWelcomeLevel = 5;
       enumerateAllLevels();
     }
+
+    if (mWallClock.getElapsedTime() > sf::seconds(30))
+      mWindow.close();
   }
 
 
