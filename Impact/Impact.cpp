@@ -1062,7 +1062,7 @@ namespace Impact {
       enumerateAllLevels();
     }
 
-    if (mWallClock.getElapsedTime() > sf::seconds(30))
+    if (mWallClock.getElapsedTime() > sf::seconds(5))
       mWindow.close();
   }
 

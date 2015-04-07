@@ -197,7 +197,7 @@ namespace Impact {
         if (FAILED(hr))
           std::cerr << "mCaptureClient->GetNextPacketSize() failed on line " << __LINE__ << std::endl;
       }
-      // Sleep((DWORD)mActualDuration / 2);
+      Sleep((DWORD)mActualDuration / 2);
     }
     hr = mAudioClient->Stop();
     if (FAILED(hr))
@@ -333,16 +333,37 @@ namespace Impact {
 
   HRESULT Recorder::copyData(BYTE *pData, UINT32 numFramesAvailable, bool *done)
   {
+    int ret;
     if (pData == nullptr)
       return S_OK;
-    //float t = 0.f;
-    //const float tincr = 2 * float(M_PI) * 46.5f / mAudioCodec->sample_rate;
-    //for (int j = 0; j < mAudioCodec->frame_size; ++j) {
-    //  mSamples[2 * j] = (int)(sin(t) * 18000);
-    //  for (int k = 1; k < mAudioCodec->channels; ++k)
-    //    mSamples[2 * j + k] = mSamples[2 * j];
+
+#if 1
+    float t = 0.f;
+    const float tincr = 2 * float(M_PI) * 440.0f / mAudioCodec->sample_rate;
+
+    //int16_t *dst = reinterpret_cast<int16_t*>(mCurrentFrame);
+    //const int16_t *const dst0 = dst;
+    //const float32 *src = reinterpret_cast<float32*>(pData);
+    //for (UINT32 i = 0; i < mAudioCodec->frame_size; ++i) {
+    //  for (WORD j = 0; j < mWFX->nChannels; ++j) {
+    //    dst[j] = (int)(sin(t) * 18000);
+    //  }
+    //  dst += mWFX->nChannels;
     //  t += tincr;
     //}
+
+
+    uint16_t *samples = (uint16_t*)mSamples;
+    const int nChan = mAudioCodec->channels;
+    for (int j = 0; j < mAudioCodec->frame_size; ++j) {
+      const int idx = nChan * j;
+      samples[idx] = (int)(sin(t) * 18000);
+      for (int k = 1; k < nChan; ++k)
+        samples[idx + k] = samples[idx];
+      t += tincr;
+    }
+
+#else
 
     /* float -> short
     1b d9 b4 b9 | 1b d9 b4 b9 | da 45 90 3c | da 45 90 3c | 9a ef 11 3d | 9a ef 11 3d | 4d 0e 5c 3d | 4d 0e 5c 3d |
@@ -357,14 +378,17 @@ namespace Impact {
         for (WORD j = 0; j < mWFX->nChannels; ++j) {
           *dst = int16_t((2 << 15) * (*src));
           ++dst;
-          ++src;
         }
+        ++src;
       }
     }
     else {
       memset(dst, 0, numFramesAvailable * mWFX->nBlockAlign);
     }
-    mCurrentFrame += numFramesAvailable * mWFX->nBlockAlign;
+
+#endif
+
+    //mCurrentFrame += numFramesAvailable * mWFX->nBlockAlign;
 
     const int overhead = mCurrentFrame - mSamplesEnd;
 
@@ -375,8 +399,8 @@ namespace Impact {
       << std::endl;
 #endif
 
-    if (overhead < 0)
-      return S_OK;
+    //if (overhead < 0)
+    //  return S_OK;
 
 #ifndef NDEBUG
     std::cout << "****ENCODING****" << std::endl;
@@ -387,7 +411,7 @@ namespace Impact {
     pkt.data = NULL;
     pkt.size = 0;
     int gotOutput = 0;
-    int ret = avcodec_encode_audio2(mAudioCodec, &pkt, mFrame, &gotOutput);
+    ret = avcodec_encode_audio2(mAudioCodec, &pkt, mFrame, &gotOutput);
     if (ret < 0) {
       std::cerr << "Error encoding frame in line " << __LINE__ << std::endl;
       return S_FALSE;
@@ -397,8 +421,8 @@ namespace Impact {
       av_free_packet(&pkt);
     }
 
-    memcpy(mSamples, mSamplesEnd, overhead);
-    mCurrentFrame = mSamples + overhead;
+    //memcpy(mSamples, mSamplesEnd, overhead);
+    //mCurrentFrame = mSamples;
 
     do {
       ret = avcodec_encode_audio2(mAudioCodec, &pkt, NULL, &gotOutput);
