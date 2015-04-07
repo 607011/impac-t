@@ -377,7 +377,7 @@ namespace Impact {
     setSoundFXVolume(gSettings.soundfxVolume);
     setMusicVolume(gSettings.musicVolume);
 
-    sf::Listener::setPosition(DefaultCenter.x, DefaultCenter.y, 0.f);
+    sf::Listener::setPosition(DefaultCenter.x, 0.f, 0.f);
 
     ok = mMusic[Music::WelcomeMusic].openFromFile(gSettings.musicDir + "/hag5.ogg");
     if (!ok)
