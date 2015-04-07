@@ -110,7 +110,6 @@ namespace Impact {
     "CreditsScreen",
     "OptionsScreen",
     "AchievementsScreen",
-    "SplashScreenBeforePlaying",
     "Playing",
     "LevelCompleted",
     "SelectLevelScreen",
