@@ -123,6 +123,7 @@ namespace Impact {
     a = obj;
   }
 
+#if defined(WIN32)
   template <class T>
   inline void safeRelease(T &a) {
     if (a) {
@@ -130,6 +131,7 @@ namespace Impact {
       a = nullptr;
     }
   }
+#endif
 
   template <typename T>
   class DynamicValue {
