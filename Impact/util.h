@@ -95,22 +95,25 @@ namespace Impact {
   }
   template <class T>
   inline void safeDelete(T &a) {
-    if (a)
+    if (a) {
       delete a;
-    a = nullptr;
+      a = nullptr;
+    }
   }
   template <class T>
   inline void safeFree(T &a) {
-    if (a)
+    if (a) {
       free(a);
-    a = nullptr;
+      a = nullptr;
+    }
   }
 
   template <class T>
   inline void safeDeleteArray(T &a) {
-    if (a)
-      delete [] a;
-    a = nullptr;
+    if (a) {
+      delete[] a;
+      a = nullptr;
+    }
   }
 
   template <class T>
@@ -119,6 +122,16 @@ namespace Impact {
       delete a;
     a = obj;
   }
+
+#if defined(WIN32)
+  template <class T>
+  inline void safeRelease(T &a) {
+    if (a) {
+      a->Release();
+      a = nullptr;
+    }
+  }
+#endif
 
   template <typename T>
   class DynamicValue {
