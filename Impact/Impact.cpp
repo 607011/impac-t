@@ -351,7 +351,17 @@ namespace Impact {
     restart();
 
 #if defined(WIN32)
-    mRec = new Recorder;
+    HRESULT hr = S_OK;
+    hr = CoInitialize(NULL);
+    if (FAILED(hr)) {
+      std::cerr << "CoInitialize failed: hr = "
+        << std::showbase << std::internal << std::setfill('0') << std::setw(8) << std::hex
+        << hr << std::endl;
+
+    }
+    else {
+      mRec = new Recorder;
+    }
 #endif
   }
 

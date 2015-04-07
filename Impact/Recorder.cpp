@@ -83,6 +83,7 @@ namespace Impact {
     , mAudioCodec(nullptr)
     , mCodec(nullptr)
     , mSamples(nullptr)
+    , mSamplesEnd(nullptr)
     , mCurrentFrame(nullptr)
     , mFrame(nullptr)
     , mBufferSize(0)
@@ -233,7 +234,7 @@ namespace Impact {
     }
 
     mAudioCodec->sample_rate = mWFX->nSamplesPerSec;
-    // mAudioCodec->profile = FF_PROFILE_AAC_MAIN;
+    mAudioCodec->profile = FF_PROFILE_AAC_MAIN;
     mAudioCodec->channel_layout = AV_CH_FRONT_LEFT | AV_CH_FRONT_RIGHT; // select_channel_layout(mCodec);
     mAudioCodec->channels = 2; // av_get_channel_layout_nb_channels(mAudioCodec->channel_layout);
 
@@ -248,6 +249,12 @@ namespace Impact {
       std::cerr << "fopen() failed in line " << __LINE__ << std::endl;
       return S_FALSE;
     }
+
+#ifndef NDEBUG
+    mDebugFile1.open("blah1.csv", std::ofstream::trunc);
+    mDebugFile2.open("blah2.csv", std::ofstream::trunc);
+    mRawFile.open("blah.raw", std::ofstream::trunc | std::ofstream::binary);
+#endif
 
     mFrame = av_frame_alloc();
     if (!mFrame) {
@@ -323,6 +330,12 @@ namespace Impact {
 
       fclose(mFile);
 
+#ifndef NDEBUG
+      mDebugFile1.close();
+      mDebugFile2.close();
+      mRawFile.close();
+#endif
+
       av_free(mSamples);
       av_frame_free(&mFrame);
       avcodec_close(mAudioCodec);
@@ -331,87 +344,61 @@ namespace Impact {
     return S_OK;
   }
 
-  HRESULT Recorder::copyData(BYTE *pData, UINT32 numFramesAvailable, bool *done)
+  HRESULT Recorder::copyData(BYTE *pData, UINT32 nFrames, bool *done)
   {
-    int ret;
-    if (pData == nullptr)
-      return S_OK;
-
-#if 1
-    float t = 0.f;
-    const float tincr = 2 * float(M_PI) * 440.0f / mAudioCodec->sample_rate;
-
-    //int16_t *dst = reinterpret_cast<int16_t*>(mCurrentFrame);
-    //const int16_t *const dst0 = dst;
-    //const float32 *src = reinterpret_cast<float32*>(pData);
-    //for (UINT32 i = 0; i < mAudioCodec->frame_size; ++i) {
-    //  for (WORD j = 0; j < mWFX->nChannels; ++j) {
-    //    dst[j] = (int)(sin(t) * 18000);
-    //  }
-    //  dst += mWFX->nChannels;
-    //  t += tincr;
-    //}
-
-
-    uint16_t *samples = (uint16_t*)mSamples;
-    const int nChan = mAudioCodec->channels;
-    for (int j = 0; j < mAudioCodec->frame_size; ++j) {
-      const int idx = nChan * j;
-      samples[idx] = (int)(sin(t) * 18000);
-      for (int k = 1; k < nChan; ++k)
-        samples[idx + k] = samples[idx];
-      t += tincr;
-    }
-
-#else
-
     /* float -> short
     1b d9 b4 b9 | 1b d9 b4 b9 | da 45 90 3c | da 45 90 3c | 9a ef 11 3d | 9a ef 11 3d | 4d 0e 5c 3d | 4d 0e 5c 3d |
     12 33 93 3d | 12 33 93 3d | 58 59 b8 3d | 58 59 b8 3d | 08 56 dd 3d | 08 56 dd 3d | 6b f0 00 3e | 6b f0 00 3e | ...
     */
 
-    int16_t *dst = reinterpret_cast<int16_t*>(mCurrentFrame);
-    const int16_t *const dst0 = dst;
+    const int nBytesPerOutputFrame = sizeof(sample_t) * mWFX->nChannels;
+    const int nOutputBufSize = nFrames * nBytesPerOutputFrame;
+    sample_t *dst = reinterpret_cast<sample_t*>(mCurrentFrame);
     if (pData != nullptr) {
       const float32 *src = reinterpret_cast<float32*>(pData);
-      for (UINT32 i = 0; i < numFramesAvailable; ++i) {
+      for (UINT32 i = 0; i < nFrames; ++i) {
         for (WORD j = 0; j < mWFX->nChannels; ++j) {
-          *dst = int16_t((2 << 15) * (*src));
-          ++dst;
+          const sample_t sample = int(std::numeric_limits<sample_t>::max() * (*src++));
+#ifndef NDEBUG
+          mDebugFile1 << sample;
+          if (j < mWFX->nChannels - 1)
+            mDebugFile1 << ";";
+#endif
+          *dst++ = sample;
         }
-        ++src;
+#ifndef NDEBUG
+        mDebugFile1 << std::endl;
+#endif
       }
     }
     else {
-      memset(dst, 0, numFramesAvailable * mWFX->nBlockAlign);
+      memset(dst, 0, nOutputBufSize);
     }
 
+#ifndef NDEBUG
+    mRawFile.write((const char*)mCurrentFrame, nOutputBufSize);
 #endif
 
-    //mCurrentFrame += numFramesAvailable * mWFX->nBlockAlign;
+    mCurrentFrame += nOutputBufSize;
 
     const int overhead = mCurrentFrame - mSamplesEnd;
 
 #ifndef NDEBUG
-    std::cout << std::dec << numFramesAvailable << " " << mBufferSize << " "
+    std::cout << std::dec << nFrames << " " << mBufferSize << " "
       << std::showbase << std::internal << std::hex << std::setfill('0')
       << std::setw(8) << (void*)mCurrentFrame << " - " << (void*)mSamplesEnd << " = " << std::dec << overhead
       << std::endl;
 #endif
 
-    //if (overhead < 0)
-    //  return S_OK;
-
-#ifndef NDEBUG
-    std::cout << "****ENCODING****" << std::endl;
-#endif
+    if (overhead < 0)
+      return S_OK;
 
     AVPacket pkt;
     av_init_packet(&pkt);
-    pkt.data = NULL;
+    pkt.data = nullptr;
     pkt.size = 0;
     int gotOutput = 0;
-    ret = avcodec_encode_audio2(mAudioCodec, &pkt, mFrame, &gotOutput);
+    int ret = avcodec_encode_audio2(mAudioCodec, &pkt, mFrame, &gotOutput);
     if (ret < 0) {
       std::cerr << "Error encoding frame in line " << __LINE__ << std::endl;
       return S_FALSE;
@@ -421,8 +408,20 @@ namespace Impact {
       av_free_packet(&pkt);
     }
 
-    //memcpy(mSamples, mSamplesEnd, overhead);
-    //mCurrentFrame = mSamples;
+#ifndef NDEBUG
+    const sample_t *src = reinterpret_cast<sample_t*>(mSamples);
+    for (UINT32 i = 0; i < mAudioCodec->frame_size; ++i) {
+      for (WORD j = 0; j < mWFX->nChannels; ++j) {
+        mDebugFile2 << *src++;
+        if (j < mWFX->nChannels - 1)
+          mDebugFile2 << ";";
+      }
+      mDebugFile2 << std::endl;
+    }
+#endif
+
+    memcpy(mSamples, mSamplesEnd, overhead);
+    mCurrentFrame = mSamples + overhead;
 
     do {
       ret = avcodec_encode_audio2(mAudioCodec, &pkt, NULL, &gotOutput);

@@ -47,10 +47,15 @@ namespace Impact {
     void capture(void);
 
   private:
-    static const int RecordBufSize = 10 * 1024 * 1024;
+#ifndef NDEBUG
+    std::ofstream mDebugFile1;
+    std::ofstream mDebugFile2;
+    std::ofstream mRawFile;
+#endif
+
+    typedef int16_t sample_t;
 
     FILE *mFile;
-
     AVCodecContext *mAudioCodec;
     AVCodec *mCodec;
     uint8_t *mSamples;
