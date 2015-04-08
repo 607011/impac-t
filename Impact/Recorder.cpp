@@ -41,7 +41,8 @@ namespace Impact {
     , mAudioFile(nullptr)
     , mVideoCtx(nullptr)
     , mVideoCodec(nullptr)
-    , mVideoFile(nullptr)
+    , mVideoOutContainer(nullptr)
+    , mVideoOutStream(nullptr)
     , mSamples(nullptr)
     , mSamplesEnd(nullptr)
     , mCurrentFrame(nullptr)
@@ -247,38 +248,68 @@ namespace Impact {
       return S_FALSE;
     }
 
-    mVideoCtx = avcodec_alloc_context3(mVideoCodec);
-    if (!mVideoCtx) {
-      std::cerr << "avcodec_alloc_context3() failed in line " << __LINE__ << std::endl;
-      return S_FALSE;
-    }
-
-    mVideoCtx->bit_rate = 400000;
-    mVideoCtx->width = 640;
-    mVideoCtx->height = 480;
-    mVideoCtx->time_base = av_make_q(1, 25);
-    /* emit one intra frame every ten frames
-    * check frame pict_type before passing frame
-    * to encoder, if frame->pict_type is AV_PICTURE_TYPE_I
-    * then gop_size is ignored and the output of encoder
-    * will always be I frame irrespective to gop_size
-    */
-    mVideoCtx->gop_size = 10;
-    mVideoCtx->max_b_frames = 1;
-    mVideoCtx->pix_fmt = AV_PIX_FMT_YUV420P;
-
-    av_opt_set(mVideoCtx->priv_data, "preset", "slow", 0);
-
-    if (avcodec_open2(mVideoCtx, mVideoCodec, NULL) < 0) {
+    ret = avcodec_open2(mVideoCtx, mVideoCodec, NULL);
+    if (ret < 0) {
       std::cerr << "Could not open video codec in line " << __LINE__ << std::endl;
       return S_FALSE;
     }
 
-    mVideoFile = fopen("recordings/blah.mp4", "wb+");
-    if (!mVideoFile) {
-      std::cerr << "fopen() failed in line " << __LINE__ << std::endl;
+    static const char *VideoOutFilename = "recordings/blah.avi";
+    ret = avformat_alloc_output_context2(&mVideoOutContainer, NULL, "avi", VideoOutFilename);
+    if (ret < 0) {
+      std::cerr << "avformat_alloc_output_context2() failed in line " << __LINE__ << std::endl;
       return S_FALSE;
     }
+
+    mVideoOutStream = avformat_new_stream(mVideoOutContainer, mVideoCodec);
+    if (!mVideoOutStream) {
+      std::cerr << "avformat_new_stream() failed in line " << __LINE__ << std::endl;
+      return S_FALSE;
+    }
+
+    avcodec_get_context_defaults3(mVideoOutStream->codec, mVideoCodec);
+    if (mVideoOutContainer->oformat->flags & AVFMT_GLOBALHEADER)
+      mVideoOutStream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
+
+    mVideoOutStream->codec->coder_type = AVMEDIA_TYPE_VIDEO;
+    mVideoOutStream->codec->pix_fmt = AV_PIX_FMT_YUV420P;
+    mVideoOutStream->codec->width = 640;
+    mVideoOutStream->codec->height = 480;
+    mVideoOutStream->codec->codec_id = mVideoCodec->id;
+    mVideoOutStream->codec->bit_rate = 400000;
+    mVideoOutStream->codec->time_base = av_make_q(1, 25);
+    mVideoOutStream->codec->gop_size = 250;
+    mVideoOutStream->codec->keyint_min = 25;
+    mVideoOutStream->codec->max_b_frames = 3;
+    mVideoOutStream->codec->b_frame_strategy = 1;
+    mVideoOutStream->codec->scenechange_threshold = 40;
+    mVideoOutStream->codec->refs = 6;
+    mVideoOutStream->codec->qmin = 10;
+    mVideoOutStream->codec->qmax = 61;
+    mVideoOutStream->codec->qcompress = 0.6f;
+    mVideoOutStream->codec->max_qdiff = 4;
+    mVideoOutStream->codec->i_quant_factor = 1.4f;
+    mVideoOutStream->codec->refs = 1;
+    mVideoOutStream->codec->chromaoffset = -2;
+    mVideoOutStream->codec->thread_count = 1;
+    mVideoOutStream->codec->trellis = 1;
+    mVideoOutStream->codec->me_range = 16;
+    mVideoOutStream->codec->me_method = ME_HEX;
+    mVideoOutStream->codec->flags2 |= CODEC_FLAG2_FAST;
+    mVideoOutStream->codec->coder_type = 1;
+
+    av_opt_set(mVideoOutStream->codec->priv_data, "preset", "slow", 0);
+
+    if (avcodec_open2(mVideoOutStream->codec, mVideoCodec, NULL) < 0) {
+      std::cerr << "avcodec_open2() failed in line " << __LINE__ << std::endl;
+      return S_FALSE;
+    }
+
+    if (avio_open(&mVideoOutContainer->pb, VideoOutFilename, AVIO_FLAG_WRITE) < 0) {
+      std::cerr << "avio_open() failed in line " << __LINE__ << std::endl;
+      return S_FALSE;
+    }
+    avformat_write_header(mVideoOutContainer, NULL);
 
     mVideoFrame = av_frame_alloc();
     if (!mVideoFrame) {
@@ -289,8 +320,6 @@ namespace Impact {
     mVideoFrame->width = mVideoCtx->width;
     mVideoFrame->height = mVideoCtx->height;
 
-    /* the image can be allocated by any means and av_image_alloc() is
-    * just the most convenient way if av_malloc() is to be used */
     ret = av_image_alloc(mVideoFrame->data, mVideoFrame->linesize, mVideoCtx->width, mVideoCtx->height, mVideoCtx->pix_fmt, 32);
     if (ret < 0) {
       std::cerr << "Could not allocate raw picture buffer in line " << __LINE__ << std::endl;
@@ -347,13 +376,13 @@ namespace Impact {
       avcodec_close(mAudioCtx);
       av_free(mAudioCtx);
 
-      static const uint8_t endcode[4] = { 0, 0, 1, 0xb7 };
-      fwrite(endcode, 1, sizeof(endcode), mVideoFile);
-      fclose(mVideoFile);
+      av_write_trailer(mVideoOutContainer);
+      avio_close(mVideoOutContainer->pb);
 
       avcodec_close(mVideoCtx);
       av_frame_free(&mVideoFrame);
       av_free(mVideoCtx);
+      avformat_free_context(mVideoOutContainer);
     }
     return S_OK;
   }
@@ -449,26 +478,34 @@ namespace Impact {
 
         mVideoFrame->pts = mVideoFrameNumber;
 
-        ret = avcodec_encode_video2(mVideoCtx, &pkt, mVideoFrame, &gotOutput);
+        ret = avcodec_encode_video2(mVideoOutStream->codec, &pkt, mVideoFrame, &gotOutput);
         if (ret < 0) {
           std::cerr << "Error encoding frame in line " << __LINE__ << std::endl;
           return S_FALSE;
         }
 
         if (gotOutput) {
-          fwrite(pkt.data, pkt.size, 1, mVideoFile);
+          ret = av_interleaved_write_frame(mVideoOutContainer, &pkt);
+          if (ret < 0) {
+            std::cerr << "Error writing frame in line " << __LINE__ << std::endl;
+            return S_FALSE;
+          }
           av_free_packet(&pkt);
           ++mVideoFrameNumber;
         }
 
         do {
-          ret = avcodec_encode_video2(mVideoCtx, &pkt, NULL, &gotOutput);
+          ret = avcodec_encode_video2(mVideoOutStream->codec, &pkt, NULL, &gotOutput);
           if (ret < 0) {
             std::cerr << "Error encoding frame in line " << __LINE__ << std::endl;
             return S_FALSE;
           }
           if (gotOutput) {
-            fwrite(pkt.data, pkt.size, 1, mVideoFile);
+            ret = av_interleaved_write_frame(mVideoOutContainer, &pkt);
+            if (ret < 0) {
+              std::cerr << "Error writing frame in line " << __LINE__ << std::endl;
+              return S_FALSE;
+            }
             av_free_packet(&pkt);
             ++mVideoFrameNumber;
           }

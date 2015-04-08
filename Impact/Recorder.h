@@ -65,7 +65,6 @@ namespace Impact {
     AVFrame *mAudioFrame;
     int mBufferSize;
 
-    FILE *mVideoFile;
     AVStream *mVideoOutStream;
     AVFormatContext* mVideoOutContainer;
     AVCodecContext *mVideoCtx;
