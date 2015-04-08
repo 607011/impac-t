@@ -204,6 +204,17 @@ namespace Impact {
   public: // slots
     void onBodyKilled(Body *body);
 
+  private: // signals
+    typedef boost::signals2::signal<void(const sf::Image*)> frame_signal_t;
+    typedef frame_signal_t::slot_type FrameAvailableSlotType;
+
+    frame_signal_t signalFrameAvailable;
+    boost::signals2::connection doOnFrameAvailable(const FrameAvailableSlotType &slot)
+    {
+      return signalFrameAvailable.connect(slot);
+    }
+
+
   private:
     DWORD mNumProcessors;
     HANDLE mMyProcessHandle;
@@ -222,6 +233,9 @@ namespace Impact {
 
     // SFML
     sf::RenderWindow mWindow;
+    bool mRecorderEnabled;
+    sf::Image *mScreenshot;
+    sf::Clock mRecorderClock;
     sf::View mDefaultView;
     sf::View mPlaygroundView;
     sf::View mStatsView;

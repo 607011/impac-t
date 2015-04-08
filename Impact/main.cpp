@@ -29,7 +29,7 @@ Impact::Game breakout;
 int main(int argc, char *argv[])
 {
   if (argc == 2) {
-#if defined(WIN32)
+#if defined(WIN32) && defined(CT_VERSION_INTERNAL)
     char szPath[MAX_PATH];
     char *res = _fullpath(szPath, argv[1], MAX_PATH);
     if (res != NULL) {

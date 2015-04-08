@@ -168,6 +168,8 @@ namespace Impact {
     , mGLSLVersionMinor(0)
     , mShadersAvailable(sf::Shader::isAvailable())
     , mRec(nullptr)
+    , mRecorderEnabled(true)
+    , mScreenshot(new sf::Image)
   {
     bool ok;
 
@@ -350,6 +352,8 @@ namespace Impact {
 
     restart();
 
+    mRecorderClock.restart();
+
 #if defined(WIN32)
     HRESULT hr = S_OK;
     hr = CoInitialize(NULL);
@@ -360,7 +364,8 @@ namespace Impact {
 
     }
     else {
-      mRec = new Recorder;
+      mRec = new Recorder(this);
+      doOnFrameAvailable(boost::bind(&Recorder::onFrame, mRec, mScreenshot));
     }
 #endif
   }
@@ -648,6 +653,7 @@ namespace Impact {
     std::cout << "antialiasing level: " << settings.antialiasingLevel << std::endl;
     std::cout << "OpenGL version: " << settings.majorVersion << "." << settings.minorVersion << std::endl;
 #endif
+    mScreenshot->create(Game::DefaultWindowWidth, Game::DefaultWindowHeight);
   }
 
 
@@ -779,8 +785,15 @@ namespace Impact {
 #endif
 
     while (mWindow.isOpen()) {
-
       mElapsed = mClock.restart();
+
+      if (mRecorderEnabled) {
+        if (mRecorderClock.getElapsedTime() > sf::milliseconds(20)) {
+          *mScreenshot = mWindow.capture();
+          signalFrameAvailable(mScreenshot);
+          mRecorderClock.restart();
+        }
+      }
 
       switch (mState) {
       case State::Playing:
@@ -2206,11 +2219,11 @@ namespace Impact {
         mMixShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
         mMixShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
       }
+
       sf::Sprite sprite(mRenderTexture0.getTexture());
       sf::RenderStates states;
       states.shader = &mMixShader;
       mWindow.draw(sprite, states);
-
     }
     else { // !gSettings.useShaders
       mWindow.clear(mLevel.backgroundColor());

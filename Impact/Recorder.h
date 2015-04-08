@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 extern "C" {
 #include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
 }
 
 #if defined(WIN32)
@@ -30,39 +31,50 @@ extern "C" {
 #include <Audioclient.h>
 #endif
 
+#include <SFML/Graphics/Image.hpp>
+
 #include <thread>
 
 namespace Impact {
 
   class Recorder {
   public:
-    Recorder(void);
+    Recorder(Game *game);
     ~Recorder();
 
     HRESULT start(void);
     HRESULT stop(void);
 
+  public: // slots
+    void onFrame(const sf::Image *);
+
   private:
-    HRESULT copyData(BYTE *pData, UINT32 numFramesAvailable, bool *done);
+    HRESULT copyData(BYTE *pData, UINT32 nFrames, bool *done);
     void capture(void);
 
   private:
-#ifndef NDEBUG
-    std::ofstream mDebugFile1;
-    std::ofstream mDebugFile2;
-    std::ofstream mRawFile;
-#endif
+    Game *mGame;
 
     typedef int16_t sample_t;
 
-    FILE *mFile;
-    AVCodecContext *mAudioCodec;
-    AVCodec *mCodec;
+    FILE *mAudioFile;
+    AVCodecContext *mAudioCtx;
+    AVCodec *mAudioCodec;
     uint8_t *mSamples;
     uint8_t *mSamplesEnd;
     uint8_t *mCurrentFrame;
-    AVFrame *mFrame;
+    AVFrame *mAudioFrame;
     int mBufferSize;
+
+    FILE *mVideoFile;
+    AVStream *mVideoOutStream;
+    AVFormatContext* mVideoOutContainer;
+    AVCodecContext *mVideoCtx;
+    AVCodec *mVideoCodec;
+    AVFrame *mVideoFrame;
+    int64_t mVideoFrameNumber;
+    sf::Image mCurrentVideoFrame;
+    bool mNewVideoFrameAvailable;
 
     IAudioClient *mAudioClient;
     IAudioCaptureClient *mCaptureClient;

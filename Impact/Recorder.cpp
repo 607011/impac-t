@@ -21,72 +21,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "util.h"
 #include "Recorder.h"
 
-#include <cmath>
-
 extern "C" {
-#include <libavcodec/avcodec.h>
+#include <libavutil/opt.h>
+#include <libavutil/samplefmt.h>
+#include <libavutil/imgutils.h>
 }
+
 
 namespace Impact {
 
-  static int check_sample_fmt(AVCodec *codec, enum AVSampleFormat sample_fmt)
-  {
-    const enum AVSampleFormat *p = codec->sample_fmts;
-    while (*p != AV_SAMPLE_FMT_NONE) {
-      if (*p == sample_fmt)
-        return 1;
-      p++;
-    }
-    return 0;
-  }
-
-  static int select_sample_rate(AVCodec *codec)
-  {
-    const int *p;
-    int best_samplerate = 0;
-    if (!codec->supported_samplerates)
-      return 44100;
-    p = codec->supported_samplerates;
-    while (*p) {
-      best_samplerate = FFMAX(*p, best_samplerate);
-      p++;
-    }
-    return best_samplerate;
-  }
-
-  /* select layout with the highest channel count */
-  static uint64_t select_channel_layout(AVCodec *codec)
-  {
-    const uint64_t *p;
-    uint64_t best_ch_layout = 0;
-    int best_nb_channels = 0;
-    if (!codec->channel_layouts)
-      return AV_CH_LAYOUT_STEREO;
-    p = codec->channel_layouts;
-    while (*p) {
-      int nb_channels = av_get_channel_layout_nb_channels(*p);
-      if (nb_channels > best_nb_channels) {
-        best_ch_layout = *p;
-        best_nb_channels = nb_channels;
-      }
-      p++;
-    }
-    return best_ch_layout;
-  }
-
-
-  Recorder::Recorder(void)
-    : mDoQuit(false)
+  Recorder::Recorder(Game *game)
+    : mGame(game)
+    , mDoQuit(false)
     , mAudioClient(nullptr)
     , mCaptureClient(nullptr)
     , mRecThread(nullptr)
+    , mAudioCtx(nullptr)
     , mAudioCodec(nullptr)
-    , mCodec(nullptr)
+    , mAudioFile(nullptr)
+    , mVideoCtx(nullptr)
+    , mVideoCodec(nullptr)
+    , mVideoFile(nullptr)
     , mSamples(nullptr)
     , mSamplesEnd(nullptr)
     , mCurrentFrame(nullptr)
-    , mFrame(nullptr)
+    , mAudioFrame(nullptr)
     , mBufferSize(0)
+    , mNewVideoFrameAvailable(false)
   {
     avcodec_register_all();
 
@@ -161,6 +122,9 @@ namespace Impact {
 
   Recorder::~Recorder()
   {
+#ifndef NDEBUG
+    std::cout << "Recorder::~Recorder()" << std::endl;
+#endif
     this->stop();
     safeDelete(mRecThread);
 #if defined(WIN32)
@@ -180,25 +144,26 @@ namespace Impact {
       if (FAILED(hr))
         mDoQuit = true;
       BYTE *pData;
-      UINT32 numFramesAvailable;
+      UINT32 numAudioFramesAvailable;
       DWORD flags;
-      while (packetLength != 0) {
-        hr = mCaptureClient->GetBuffer(&pData, &numFramesAvailable, &flags, NULL, NULL);
+      while (packetLength != 0 && !mDoQuit) {
+        hr = mCaptureClient->GetBuffer(&pData, &numAudioFramesAvailable, &flags, NULL, NULL);
         if (FAILED(hr))
           std::cerr << "mCaptureClient->GetBuffer() failed on line " << __LINE__ << std::endl;
         if (flags & AUDCLNT_BUFFERFLAGS_SILENT)
           pData = nullptr;
-        hr = this->copyData(pData, numFramesAvailable, &mDoQuit);
+        hr = this->copyData(pData, numAudioFramesAvailable, &mDoQuit);
         if (FAILED(hr))
           std::cerr << "this->CopyData() failed on line " << __LINE__ << std::endl;
-        hr = mCaptureClient->ReleaseBuffer(numFramesAvailable);
+        hr = mCaptureClient->ReleaseBuffer(numAudioFramesAvailable);
         if (FAILED(hr))
           std::cerr << "mCaptureClient->ReleaseBuffer() failed on line " << __LINE__ << std::endl;
         hr = mCaptureClient->GetNextPacketSize(&packetLength);
         if (FAILED(hr))
           std::cerr << "mCaptureClient->GetNextPacketSize() failed on line " << __LINE__ << std::endl;
       }
-      Sleep((DWORD)mActualDuration / 2);
+      // Sleep(mActualDuration / 2);
+      Sleep(1000 / 50);
     }
     hr = mAudioClient->Stop();
     if (FAILED(hr))
@@ -213,59 +178,50 @@ namespace Impact {
     if (mRecThread != nullptr)
       return S_FALSE;
 
-    mCodec = avcodec_find_encoder(AV_CODEC_ID_AAC);
-    if (mCodec == nullptr) {
+    mDoQuit = false;
+    mRecThread = new std::thread(&Recorder::capture, this);
+
+    mAudioCodec = avcodec_find_encoder(AV_CODEC_ID_AAC);
+    if (mAudioCodec == nullptr) {
       std::cerr << "avcodec_find_encoder() failed in line " << __LINE__ << std::endl;
       return S_FALSE;
     }
 
-    mAudioCodec = avcodec_alloc_context3(mCodec);
-    if (!mAudioCodec) {
+    mAudioCtx = avcodec_alloc_context3(mAudioCodec);
+    if (!mAudioCtx) {
       std::cerr << "avcodec_alloc_context3() failed in line " << __LINE__ << std::endl;
       return S_FALSE;
     }
 
-    mAudioCodec->bit_rate = 160 * 1000;
+    mAudioCtx->bit_rate = 160 * 1000;
+    mAudioCtx->sample_fmt = AV_SAMPLE_FMT_S16;
+    mAudioCtx->sample_rate = mWFX->nSamplesPerSec;
+    mAudioCtx->profile = FF_PROFILE_AAC_MAIN;
+    mAudioCtx->channel_layout = AV_CH_LAYOUT_STEREO;
+    mAudioCtx->channels = av_get_channel_layout_nb_channels(mAudioCtx->channel_layout);
 
-    mAudioCodec->sample_fmt = AV_SAMPLE_FMT_S16;
-    if (!check_sample_fmt(mCodec, mAudioCodec->sample_fmt)) {
-      std::cerr << "Encoder does not support sample format " << av_get_sample_fmt_name(mAudioCodec->sample_fmt) << " in line " << __LINE__ << std::endl;
-      return S_FALSE;
-    }
-
-    mAudioCodec->sample_rate = mWFX->nSamplesPerSec;
-    mAudioCodec->profile = FF_PROFILE_AAC_MAIN;
-    mAudioCodec->channel_layout = AV_CH_FRONT_LEFT | AV_CH_FRONT_RIGHT; // select_channel_layout(mCodec);
-    mAudioCodec->channels = 2; // av_get_channel_layout_nb_channels(mAudioCodec->channel_layout);
-
-    ret = avcodec_open2(mAudioCodec, mCodec, NULL);
+    ret = avcodec_open2(mAudioCtx, mAudioCodec, NULL);
     if (ret < 0) {
       std::cerr << "avcodec_open2() failed in line " << __LINE__ << std::endl;
       return S_FALSE;
     }
 
-    mFile = fopen("blah.aac", "wb+");
-    if (!mFile) {
+    mAudioFile = fopen("recordings/blah.aac", "wb+");
+    if (!mAudioFile) {
       std::cerr << "fopen() failed in line " << __LINE__ << std::endl;
       return S_FALSE;
     }
 
-#ifndef NDEBUG
-    mDebugFile1.open("blah1.csv", std::ofstream::trunc);
-    mDebugFile2.open("blah2.csv", std::ofstream::trunc);
-    mRawFile.open("blah.raw", std::ofstream::trunc | std::ofstream::binary);
-#endif
-
-    mFrame = av_frame_alloc();
-    if (!mFrame) {
+    mAudioFrame = av_frame_alloc();
+    if (!mAudioFrame) {
       std::cerr << "Could not allocate audio frame in line " << __LINE__ << std::endl;
       return S_FALSE;
     }
-    mFrame->nb_samples = mAudioCodec->frame_size;
-    mFrame->format = mAudioCodec->sample_fmt;
-    mFrame->channel_layout = mAudioCodec->channel_layout;
+    mAudioFrame->nb_samples = mAudioCtx->frame_size;
+    mAudioFrame->format = mAudioCtx->sample_fmt;
+    mAudioFrame->channel_layout = mAudioCtx->channel_layout;
 
-    mBufferSize = av_samples_get_buffer_size(NULL, mAudioCodec->channels, mAudioCodec->frame_size, mAudioCodec->sample_fmt, 0);
+    mBufferSize = av_samples_get_buffer_size(NULL, mAudioCtx->channels, mAudioCtx->frame_size, mAudioCtx->sample_fmt, 0);
     if (mBufferSize < 0) {
       std::cerr << "Could not get sample buffer size in line " << __LINE__ << std::endl;
       return S_FALSE;
@@ -279,20 +235,76 @@ namespace Impact {
     mSamplesEnd = mSamples + mBufferSize;
     mCurrentFrame = mSamples;
 
-    ret = avcodec_fill_audio_frame(mFrame, mAudioCodec->channels, mAudioCodec->sample_fmt, (const uint8_t*)mSamples, mBufferSize, 0);
+    ret = avcodec_fill_audio_frame(mAudioFrame, mAudioCtx->channels, mAudioCtx->sample_fmt, (const uint8_t*)mSamples, mBufferSize, 0);
     if (ret < 0) {
       std::cerr << "Could not setup audio frame in line " << __LINE__ << std::endl;
       return S_FALSE;
     }
 
+    mVideoCodec = avcodec_find_encoder(AV_CODEC_ID_H264);
+    if (mVideoCodec == nullptr) {
+      std::cerr << "avcodec_find_encoder(AV_CODEC_ID_H264) failed in line " << __LINE__ << std::endl;
+      return S_FALSE;
+    }
+
+    mVideoCtx = avcodec_alloc_context3(mVideoCodec);
+    if (!mVideoCtx) {
+      std::cerr << "avcodec_alloc_context3() failed in line " << __LINE__ << std::endl;
+      return S_FALSE;
+    }
+
+    mVideoCtx->bit_rate = 400000;
+    mVideoCtx->width = 640;
+    mVideoCtx->height = 480;
+    mVideoCtx->time_base = av_make_q(1, 25);
+    /* emit one intra frame every ten frames
+    * check frame pict_type before passing frame
+    * to encoder, if frame->pict_type is AV_PICTURE_TYPE_I
+    * then gop_size is ignored and the output of encoder
+    * will always be I frame irrespective to gop_size
+    */
+    mVideoCtx->gop_size = 10;
+    mVideoCtx->max_b_frames = 1;
+    mVideoCtx->pix_fmt = AV_PIX_FMT_YUV420P;
+
+    av_opt_set(mVideoCtx->priv_data, "preset", "slow", 0);
+
+    if (avcodec_open2(mVideoCtx, mVideoCodec, NULL) < 0) {
+      std::cerr << "Could not open video codec in line " << __LINE__ << std::endl;
+      return S_FALSE;
+    }
+
+    mVideoFile = fopen("recordings/blah.mp4", "wb+");
+    if (!mVideoFile) {
+      std::cerr << "fopen() failed in line " << __LINE__ << std::endl;
+      return S_FALSE;
+    }
+
+    mVideoFrame = av_frame_alloc();
+    if (!mVideoFrame) {
+      std::cerr << "Could not allocate video frame in line " << __LINE__ << std::endl;
+      return S_FALSE;
+    }
+    mVideoFrame->format = mVideoCtx->pix_fmt;
+    mVideoFrame->width = mVideoCtx->width;
+    mVideoFrame->height = mVideoCtx->height;
+
+    /* the image can be allocated by any means and av_image_alloc() is
+    * just the most convenient way if av_malloc() is to be used */
+    ret = av_image_alloc(mVideoFrame->data, mVideoFrame->linesize, mVideoCtx->width, mVideoCtx->height, mVideoCtx->pix_fmt, 32);
+    if (ret < 0) {
+      std::cerr << "Could not allocate raw picture buffer in line " << __LINE__ << std::endl;
+      return S_FALSE;
+    }
+
+    mVideoFrameNumber = 0;
+
     HRESULT hr;
     hr = mAudioClient->Start();
-    mDoQuit = false;
     if (FAILED(hr)) {
       std::cerr << "mAudioClient->Start() failed on line " << __LINE__ << std::endl;
       return S_FALSE;
     }
-    mRecThread = new std::thread(&Recorder::capture, this);
 
 #ifndef NDEBUG
     std::cout << "AUDIO INPUT:" << std::endl
@@ -305,9 +317,9 @@ namespace Impact {
       << "wBitsPerSample:  " << mWFX->wBitsPerSample << std::endl
       << "cbSize:          " << mWFX->cbSize << std::endl;
     std::cout << "AUDIO OUTPUT:" << std::endl
-      << "mAudioCodec->frame_size:       " << mAudioCodec->frame_size << std::endl
-      << "mAudioCodec->channels:         " << mAudioCodec->channels << std::endl
-      << "mAudioCodec->channel_layout:   " << mAudioCodec->channel_layout << std::endl
+      << "mAudioCtx->frame_size:       " << mAudioCtx->frame_size << std::endl
+      << "mAudioCtx->channels:         " << mAudioCtx->channels << std::endl
+      << "mAudioCtx->channel_layout:   " << mAudioCtx->channel_layout << std::endl
       << "mBufferSize:     " << mBufferSize << std::endl;
 #endif
 
@@ -328,21 +340,25 @@ namespace Impact {
 #endif
       safeDelete(mRecThread);
 
-      fclose(mFile);
-
-#ifndef NDEBUG
-      mDebugFile1.close();
-      mDebugFile2.close();
-      mRawFile.close();
-#endif
+      fclose(mAudioFile);
 
       av_free(mSamples);
-      av_frame_free(&mFrame);
-      avcodec_close(mAudioCodec);
-      av_free(mAudioCodec);
+      av_frame_free(&mAudioFrame);
+      avcodec_close(mAudioCtx);
+      av_free(mAudioCtx);
+
+      static const uint8_t endcode[4] = { 0, 0, 1, 0xb7 };
+      fwrite(endcode, 1, sizeof(endcode), mVideoFile);
+      fclose(mVideoFile);
+
+      avcodec_close(mVideoCtx);
+      av_frame_free(&mVideoFrame);
+      av_free(mVideoCtx);
     }
     return S_OK;
   }
+
+
 
   HRESULT Recorder::copyData(BYTE *pData, UINT32 nFrames, bool *done)
   {
@@ -350,7 +366,6 @@ namespace Impact {
     1b d9 b4 b9 | 1b d9 b4 b9 | da 45 90 3c | da 45 90 3c | 9a ef 11 3d | 9a ef 11 3d | 4d 0e 5c 3d | 4d 0e 5c 3d |
     12 33 93 3d | 12 33 93 3d | 58 59 b8 3d | 58 59 b8 3d | 08 56 dd 3d | 08 56 dd 3d | 6b f0 00 3e | 6b f0 00 3e | ...
     */
-
     const int nBytesPerOutputFrame = sizeof(sample_t) * mWFX->nChannels;
     const int nOutputBufSize = nFrames * nBytesPerOutputFrame;
     sample_t *dst = reinterpret_cast<sample_t*>(mCurrentFrame);
@@ -359,37 +374,17 @@ namespace Impact {
       for (UINT32 i = 0; i < nFrames; ++i) {
         for (WORD j = 0; j < mWFX->nChannels; ++j) {
           const sample_t sample = int(std::numeric_limits<sample_t>::max() * (*src++));
-#ifndef NDEBUG
-          mDebugFile1 << sample;
-          if (j < mWFX->nChannels - 1)
-            mDebugFile1 << ";";
-#endif
           *dst++ = sample;
         }
-#ifndef NDEBUG
-        mDebugFile1 << std::endl;
-#endif
       }
     }
     else {
       memset(dst, 0, nOutputBufSize);
     }
 
-#ifndef NDEBUG
-    mRawFile.write((const char*)mCurrentFrame, nOutputBufSize);
-#endif
-
     mCurrentFrame += nOutputBufSize;
 
     const int overhead = mCurrentFrame - mSamplesEnd;
-
-#ifndef NDEBUG
-    std::cout << std::dec << nFrames << " " << mBufferSize << " "
-      << std::showbase << std::internal << std::hex << std::setfill('0')
-      << std::setw(8) << (void*)mCurrentFrame << " - " << (void*)mSamplesEnd << " = " << std::dec << overhead
-      << std::endl;
-#endif
-
     if (overhead < 0)
       return S_OK;
 
@@ -398,48 +393,107 @@ namespace Impact {
     pkt.data = nullptr;
     pkt.size = 0;
     int gotOutput = 0;
-    int ret = avcodec_encode_audio2(mAudioCodec, &pkt, mFrame, &gotOutput);
+    int ret = avcodec_encode_audio2(mAudioCtx, &pkt, mAudioFrame, &gotOutput);
     if (ret < 0) {
       std::cerr << "Error encoding frame in line " << __LINE__ << std::endl;
       return S_FALSE;
     }
     if (gotOutput) {
-      fwrite(pkt.data, pkt.size, 1, mFile);
+      fwrite(pkt.data, pkt.size, 1, mAudioFile);
       av_free_packet(&pkt);
     }
-
-#ifndef NDEBUG
-    const sample_t *src = reinterpret_cast<sample_t*>(mSamples);
-    for (UINT32 i = 0; i < mAudioCodec->frame_size; ++i) {
-      for (WORD j = 0; j < mWFX->nChannels; ++j) {
-        mDebugFile2 << *src++;
-        if (j < mWFX->nChannels - 1)
-          mDebugFile2 << ";";
-      }
-      mDebugFile2 << std::endl;
-    }
-#endif
 
     memcpy(mSamples, mSamplesEnd, overhead);
     mCurrentFrame = mSamples + overhead;
 
     do {
-      ret = avcodec_encode_audio2(mAudioCodec, &pkt, NULL, &gotOutput);
+      ret = avcodec_encode_audio2(mAudioCtx, &pkt, NULL, &gotOutput);
       if (ret < 0) {
         std::cerr << "Error encoding frame in line " << __LINE__ << std::endl;
         return S_FALSE;
       }
       if (gotOutput) {
-        fwrite(pkt.data, pkt.size, 1, mFile);
+        fwrite(pkt.data, pkt.size, 1, mAudioFile);
         av_free_packet(&pkt);
-#ifndef NDEBUG
-        std::cout << "*************delayed frame" << std::endl;
-#endif
       }
 
     } while (gotOutput);
 
+
+    if (mNewVideoFrameAvailable) {
+#if 0
+      const sf::Image &image = mCurrentVideoFrame;
+      if (image.getSize().x > 0 && image.getSize().y > 0) {
+        av_init_packet(&pkt);
+        pkt.data = nullptr;
+        pkt.size = 0;
+        const sf::Uint8 *pImage = image.getPixelsPtr();
+        for (int y = 0; y < mVideoCtx->height; ++y) {
+          // TODO optimize loop and indexing mVideoFrame->data
+          for (int x = 0; x < mVideoCtx->width; ++x) {
+            const sf::Color &pixel = image.getPixel(x, y);
+            mVideoFrame->data[0][y * mVideoFrame->linesize[0] + x] =
+              uint8_t((0.257f * pixel.r) + (0.504f * pixel.g) + (0.098f * pixel.b) + 16);
+          }
+        }
+        for (int y = 0; y < mVideoCtx->height / 2; ++y) {
+          // TODO optimize loop and indexing mVideoFrame->data
+          for (int x = 0; x < mVideoCtx->width / 2; ++x) {
+            const sf::Color &pixel = image.getPixel(x, y);
+            mVideoFrame->data[1][y * mVideoFrame->linesize[1] + x] =
+              uint8_t((0.439f * pixel.r) - (0.368f * pixel.g) - (0.071f * pixel.b) + 128);
+            mVideoFrame->data[2][y * mVideoFrame->linesize[2] + x] =
+              uint8_t(-(0.148f * pixel.r) - (0.291f * pixel.g) + (0.439f * pixel.b) + 128);
+          }
+        }
+
+        mVideoFrame->pts = mVideoFrameNumber;
+
+        ret = avcodec_encode_video2(mVideoCtx, &pkt, mVideoFrame, &gotOutput);
+        if (ret < 0) {
+          std::cerr << "Error encoding frame in line " << __LINE__ << std::endl;
+          return S_FALSE;
+        }
+
+        if (gotOutput) {
+          fwrite(pkt.data, pkt.size, 1, mVideoFile);
+          av_free_packet(&pkt);
+          ++mVideoFrameNumber;
+        }
+
+        do {
+          ret = avcodec_encode_video2(mVideoCtx, &pkt, NULL, &gotOutput);
+          if (ret < 0) {
+            std::cerr << "Error encoding frame in line " << __LINE__ << std::endl;
+            return S_FALSE;
+          }
+          if (gotOutput) {
+            fwrite(pkt.data, pkt.size, 1, mVideoFile);
+            av_free_packet(&pkt);
+            ++mVideoFrameNumber;
+          }
+        } while (gotOutput);
+
+
+#ifndef NDEBUG
+        std::cout << mVideoFrameNumber << std::endl;
+#endif
+      }
+#endif
+      std::ostringstream ssFrameNum;
+      ssFrameNum << std::dec << std::setfill('0') << std::setw(8) << mVideoFrameNumber;
+      mCurrentVideoFrame.saveToFile(std::string("recordings/snap-") + ssFrameNum.str() + ".jpg");
+      ++mVideoFrameNumber;
+      mNewVideoFrameAvailable = false;
+    }
+
     return S_OK;
   }
 
+
+  void Recorder::onFrame(const sf::Image *image)
+  {
+    mCurrentVideoFrame = *image;
+    mNewVideoFrameAvailable = true;
+  }
 }
