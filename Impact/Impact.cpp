@@ -781,13 +781,15 @@ namespace Impact {
       loadLevelFromZip(mLevelZipFilename);
 #endif
 
+    mRecorderWallClock.restart();
+
     while (mWindow.isOpen()) {
       mElapsed = mClock.restart();
 
       if (mRecorderEnabled) {
         if (mRecorderClock.getElapsedTime() > sf::milliseconds(1000 * mRec->timeBase().num / mRec->timeBase().den)) {
-          const sf::Time &dt = mRecorderClock.restart();
-          mRec->setFrame(mWindow.capture(), dt);
+          mRecorderClock.restart();
+          mRec->setFrame(mWindow.capture(), mRecorderWallClock.getElapsedTime());
         }
       }
 

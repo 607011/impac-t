@@ -473,6 +473,7 @@ namespace Impact {
       mNewVideoFrameAvailable = false;
       const sf::Image &image = mCurrentVideoFrame;
       if (image.getSize().x > 0 && image.getSize().y > 0) {
+
         av_init_packet(&pkt);
         pkt.data = nullptr;
         pkt.size = 0;
@@ -489,7 +490,9 @@ namespace Impact {
         pkt.dts = pkt.pts;
         pkt.duration = int(mFrameTime.asSeconds() * mVideoOutStream->time_base.den / mVideoOutStream->time_base.num);
 
-        std::cout << pkt.duration << " " << mVideoFrameNumber << " lasted " << mFrameTime.asMilliseconds() << " ms." << std::endl;
+        std::cout << mVideoFrameNumber << " " << mVideoFrame->pts
+          << " " << pkt.duration << " " << " lasted " << mFrameTime.asMilliseconds() << " ms."
+          << std::endl;
 
         ret = avcodec_encode_video2(mVideoOutStream->codec, &pkt, mVideoFrame, &gotOutput);
         if (ret < 0) {
@@ -506,23 +509,6 @@ namespace Impact {
           av_free_packet(&pkt);
         }
 
-        //do {
-        //  ret = avcodec_encode_video2(mVideoOutStream->codec, &pkt, NULL, &gotOutput);
-        //  if (ret < 0) {
-        //    std::cerr << "Error encoding frame in line " << __LINE__ << std::endl;
-        //    return S_FALSE;
-        //  }
-        //  if (gotOutput) {
-        //    ret = av_interleaved_write_frame(mVideoOutContainer, &pkt);
-        //    if (ret < 0) {
-        //      std::cerr << "Error writing frame in line " << __LINE__ << std::endl;
-        //      return S_FALSE;
-        //    }
-        //    av_free_packet(&pkt);
-        //    ++mVideoFrameNumber;
-        //  }
-        //} while (gotOutput);
-
       }
 
     }
@@ -531,10 +517,11 @@ namespace Impact {
   }
 
 
-  void Recorder::setFrame(const sf::Image &image, const sf::Time &dt)
+  void Recorder::setFrame(const sf::Image &image, const sf::Time &pts)
   {
     mCurrentVideoFrame = image;
     mNewVideoFrameAvailable = true;
-    mFrameTime = dt;
+    mFrameTime = pts - mPTS;
+    mPTS = pts;
   }
 }

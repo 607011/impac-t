@@ -224,6 +224,7 @@ namespace Impact {
     sf::RenderWindow mWindow;
     bool mRecorderEnabled;
     sf::Clock mRecorderClock;
+    sf::Clock mRecorderWallClock;
     sf::View mDefaultView;
     sf::View mPlaygroundView;
     sf::View mStatsView;

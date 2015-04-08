@@ -47,7 +47,7 @@ namespace Impact {
     HRESULT start(void);
     HRESULT stop(void);
 
-    void setFrame(const sf::Image &frame, const sf::Time &dt);
+    void setFrame(const sf::Image &frame, const sf::Time &wallClock);
 
     AVRational timeBase(void) const;
 
@@ -79,6 +79,7 @@ namespace Impact {
     int64_t mVideoFrameNumber;
     sf::Image mCurrentVideoFrame;
     sf::Time mFrameTime;
+    sf::Time mPTS;
     bool mNewVideoFrameAvailable;
 
     IAudioClient *mAudioClient;
