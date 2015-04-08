@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Recorder.h"
 
 extern "C" {
+#include <libavcodec/avcodec.h>
 #include <libavutil/opt.h>
 #include <libavutil/samplefmt.h>
 #include <libavutil/imgutils.h>
@@ -51,6 +52,7 @@ namespace Impact {
     , mNewVideoFrameAvailable(false)
   {
     avcodec_register_all();
+    av_register_all();
 
     HRESULT hr;
 #ifndef NDEBUG
@@ -136,6 +138,12 @@ namespace Impact {
   }
 
 
+  AVRational Recorder::timeBase(void) const
+  {
+    return av_make_q(1, 25);
+  }
+
+
   void Recorder::capture(void)
   {
     HRESULT hr = S_OK;
@@ -153,7 +161,7 @@ namespace Impact {
           std::cerr << "mCaptureClient->GetBuffer() failed on line " << __LINE__ << std::endl;
         if (flags & AUDCLNT_BUFFERFLAGS_SILENT)
           pData = nullptr;
-        hr = copyAudioData(pData, numAudioFramesAvailable);
+        hr = copyAudioData(reinterpret_cast<float32*>(pData), numAudioFramesAvailable);
         if (FAILED(hr))
           std::cerr << "copyAudioData() failed on line " << __LINE__ << std::endl;
         hr = mCaptureClient->ReleaseBuffer(numAudioFramesAvailable);
@@ -164,7 +172,7 @@ namespace Impact {
           std::cerr << "mCaptureClient->GetNextPacketSize() failed on line " << __LINE__ << std::endl;
       }
       // Sleep(mActualDuration / 2);
-      Sleep(1000 / 50);
+      // Sleep(1000 / 100);
     }
     hr = mAudioClient->Stop();
     if (FAILED(hr))
@@ -242,21 +250,14 @@ namespace Impact {
       return S_FALSE;
     }
 
-#if 0
     mVideoCodec = avcodec_find_encoder(AV_CODEC_ID_H264);
     if (mVideoCodec == nullptr) {
       std::cerr << "avcodec_find_encoder(AV_CODEC_ID_H264) failed in line " << __LINE__ << std::endl;
       return S_FALSE;
     }
 
-    ret = avcodec_open2(mVideoCtx, mVideoCodec, NULL);
-    if (ret < 0) {
-      std::cerr << "Could not open video codec in line " << __LINE__ << std::endl;
-      return S_FALSE;
-    }
-
     static const char *VideoOutFilename = "recordings/blah.avi";
-    ret = avformat_alloc_output_context2(&mVideoOutContainer, NULL, "avi", VideoOutFilename);
+    ret = avformat_alloc_output_context2(&mVideoOutContainer, NULL, NULL, VideoOutFilename);
     if (ret < 0) {
       std::cerr << "avformat_alloc_output_context2() failed in line " << __LINE__ << std::endl;
       return S_FALSE;
@@ -268,9 +269,14 @@ namespace Impact {
       return S_FALSE;
     }
 
+    mVideoCtx = mVideoOutStream->codec;
+
+#if 1
+
     avcodec_get_context_defaults3(mVideoOutStream->codec, mVideoCodec);
     if (mVideoOutContainer->oformat->flags & AVFMT_GLOBALHEADER)
       mVideoOutStream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
+    mVideoOutStream->time_base = timeBase();
 
     mVideoOutStream->codec->coder_type = AVMEDIA_TYPE_VIDEO;
     mVideoOutStream->codec->pix_fmt = AV_PIX_FMT_YUV420P;
@@ -278,7 +284,6 @@ namespace Impact {
     mVideoOutStream->codec->height = 480;
     mVideoOutStream->codec->codec_id = mVideoCodec->id;
     mVideoOutStream->codec->bit_rate = 400000;
-    mVideoOutStream->codec->time_base = av_make_q(1, 25);
     mVideoOutStream->codec->gop_size = 250;
     mVideoOutStream->codec->keyint_min = 25;
     mVideoOutStream->codec->max_b_frames = 3;
@@ -292,22 +297,23 @@ namespace Impact {
     mVideoOutStream->codec->i_quant_factor = 1.4f;
     mVideoOutStream->codec->refs = 1;
     mVideoOutStream->codec->chromaoffset = -2;
-    mVideoOutStream->codec->thread_count = 1;
+    mVideoOutStream->codec->thread_count = 0;
     mVideoOutStream->codec->trellis = 1;
     mVideoOutStream->codec->me_range = 16;
     mVideoOutStream->codec->me_method = ME_HEX;
     mVideoOutStream->codec->flags2 |= CODEC_FLAG2_FAST;
     mVideoOutStream->codec->coder_type = 1;
 
-    av_opt_set(mVideoOutStream->codec->priv_data, "preset", "slow", 0);
+    av_opt_set(mVideoOutStream->codec->priv_data, "profile", "main", 0);
+    av_opt_set(mVideoOutStream->codec->priv_data, "preset", "medium", 0);
 
     if (avcodec_open2(mVideoOutStream->codec, mVideoCodec, NULL) < 0) {
       std::cerr << "avcodec_open2() failed in line " << __LINE__ << std::endl;
       return S_FALSE;
     }
 
-    if (avio_open(&mVideoOutContainer->pb, VideoOutFilename, AVIO_FLAG_WRITE) < 0) {
-      std::cerr << "avio_open() failed in line " << __LINE__ << std::endl;
+    if (avio_open2(&mVideoOutContainer->pb, VideoOutFilename, AVIO_FLAG_WRITE, nullptr, nullptr) < 0) {
+      std::cerr << "avio_open2() failed in line " << __LINE__ << std::endl;
       return S_FALSE;
     }
     avformat_write_header(mVideoOutContainer, NULL);
@@ -320,6 +326,17 @@ namespace Impact {
     mVideoFrame->format = mVideoCtx->pix_fmt;
     mVideoFrame->width = mVideoCtx->width;
     mVideoFrame->height = mVideoCtx->height;
+
+    mRGBFrame = av_frame_alloc();
+    if (!mRGBFrame) {
+      std::cerr << "Could not allocate video frame in line " << __LINE__ << std::endl;
+      return S_FALSE;
+    }
+
+    mSwsCtx = sws_getCachedContext(nullptr,
+      mVideoCtx->width, mVideoCtx->height, PIX_FMT_RGBA,
+      mVideoCtx->width, mVideoCtx->height, PIX_FMT_YUV420P,
+      SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
 
     ret = av_image_alloc(mVideoFrame->data, mVideoFrame->linesize, mVideoCtx->width, mVideoCtx->height, mVideoCtx->pix_fmt, 32);
     if (ret < 0) {
@@ -354,6 +371,9 @@ namespace Impact {
       << "mBufferSize:     " << mBufferSize << std::endl;
 #endif
 
+
+    av_dump_format(mVideoOutContainer, 0, 0, 1);
+
     return S_OK;
   }
 
@@ -378,25 +398,23 @@ namespace Impact {
       avcodec_close(mAudioCtx);
       av_free(mAudioCtx);
 
-    //  av_write_trailer(mVideoOutContainer);
-    //  avio_close(mVideoOutContainer->pb);
+      av_write_trailer(mVideoOutContainer);
+      avio_close(mVideoOutContainer->pb);
 
-    //  avcodec_close(mVideoCtx);
-    //  av_frame_free(&mVideoFrame);
-    //  av_free(mVideoCtx);
-    //  avformat_free_context(mVideoOutContainer);
+      av_frame_free(&mVideoFrame);
+      av_frame_free(&mRGBFrame);
+      
+      // av_free(mVideoCtx);
+      // avformat_free_context(mVideoOutContainer);
     }
     return S_OK;
   }
 
 
 
-  HRESULT Recorder::copyAudioData(BYTE *pData, UINT32 nFrames)
+  HRESULT Recorder::copyAudioData(float32 *pData, UINT32 nFrames)
   {
-    /* float -> short
-    1b d9 b4 b9 | 1b d9 b4 b9 | da 45 90 3c | da 45 90 3c | 9a ef 11 3d | 9a ef 11 3d | 4d 0e 5c 3d | 4d 0e 5c 3d |
-    12 33 93 3d | 12 33 93 3d | 58 59 b8 3d | 58 59 b8 3d | 08 56 dd 3d | 08 56 dd 3d | 6b f0 00 3e | 6b f0 00 3e | ...
-    */
+    // pData contains nFrames frames of float32 samples
     const int nBytesPerOutputFrame = sizeof(sample_t) * mWFX->nChannels;
     const int nOutputBufSize = nFrames * nBytesPerOutputFrame;
     sample_t *dst = reinterpret_cast<sample_t*>(mCurrentFrame);
@@ -409,7 +427,7 @@ namespace Impact {
         }
       }
     }
-    else {
+    else { // pData == 0, write silence
       memset(dst, 0, nOutputBufSize);
     }
 
@@ -452,40 +470,26 @@ namespace Impact {
 
 
     if (mNewVideoFrameAvailable) {
-      std::ostringstream ssFrameNum;
-      ssFrameNum << std::dec << std::setfill('0') << std::setw(8) << mVideoFrameNumber;
-      mCurrentVideoFrame.saveToFile(std::string("recordings/snap-") + ssFrameNum.str() + ".jpg");
-
-      ++mVideoFrameNumber;
       mNewVideoFrameAvailable = false;
-
-#if 0
       const sf::Image &image = mCurrentVideoFrame;
       if (image.getSize().x > 0 && image.getSize().y > 0) {
         av_init_packet(&pkt);
         pkt.data = nullptr;
         pkt.size = 0;
-        const sf::Uint8 *pImage = image.getPixelsPtr();
-        for (int y = 0; y < mVideoCtx->height; ++y) {
-          // TODO optimize loop and indexing mVideoFrame->data
-          for (int x = 0; x < mVideoCtx->width; ++x) {
-            const sf::Color &pixel = image.getPixel(x, y);
-            mVideoFrame->data[0][y * mVideoFrame->linesize[0] + x] =
-              uint8_t((0.257f * pixel.r) + (0.504f * pixel.g) + (0.098f * pixel.b) + 16);
-          }
-        }
-        for (int y = 0; y < mVideoCtx->height / 2; ++y) {
-          // TODO optimize loop and indexing mVideoFrame->data
-          for (int x = 0; x < mVideoCtx->width / 2; ++x) {
-            const sf::Color &pixel = image.getPixel(x, y);
-            mVideoFrame->data[1][y * mVideoFrame->linesize[1] + x] =
-              uint8_t((0.439f * pixel.r) - (0.368f * pixel.g) - (0.071f * pixel.b) + 128);
-            mVideoFrame->data[2][y * mVideoFrame->linesize[2] + x] =
-              uint8_t(-(0.148f * pixel.r) - (0.291f * pixel.g) + (0.439f * pixel.b) + 128);
-          }
-        }
 
-        mVideoFrame->pts = mVideoFrameNumber;
+        ret = avpicture_fill((AVPicture *)mRGBFrame, image.getPixelsPtr(), PIX_FMT_RGBA, mVideoCtx->width, mVideoCtx->height);
+        if (ret < 0) {
+          std::cerr << "avpicture_fill() failed in line " << __LINE__ << std::endl;
+          return S_FALSE;
+        }
+        ret = sws_scale(mSwsCtx, mRGBFrame->data, mRGBFrame->linesize, 0, mVideoCtx->height, mVideoFrame->data, mVideoFrame->linesize);
+
+        mVideoFrame->pts = mVideoFrameNumber++;
+        pkt.pts = mVideoFrame->pts;
+        pkt.dts = pkt.pts;
+        pkt.duration = int(mFrameTime.asSeconds() * mVideoOutStream->time_base.den / mVideoOutStream->time_base.num);
+
+        std::cout << pkt.duration << " " << mVideoFrameNumber << " lasted " << mFrameTime.asMilliseconds() << " ms." << std::endl;
 
         ret = avcodec_encode_video2(mVideoOutStream->codec, &pkt, mVideoFrame, &gotOutput);
         if (ret < 0) {
@@ -500,41 +504,37 @@ namespace Impact {
             return S_FALSE;
           }
           av_free_packet(&pkt);
-          ++mVideoFrameNumber;
         }
 
-        do {
-          ret = avcodec_encode_video2(mVideoOutStream->codec, &pkt, NULL, &gotOutput);
-          if (ret < 0) {
-            std::cerr << "Error encoding frame in line " << __LINE__ << std::endl;
-            return S_FALSE;
-          }
-          if (gotOutput) {
-            ret = av_interleaved_write_frame(mVideoOutContainer, &pkt);
-            if (ret < 0) {
-              std::cerr << "Error writing frame in line " << __LINE__ << std::endl;
-              return S_FALSE;
-            }
-            av_free_packet(&pkt);
-            ++mVideoFrameNumber;
-          }
-        } while (gotOutput);
+        //do {
+        //  ret = avcodec_encode_video2(mVideoOutStream->codec, &pkt, NULL, &gotOutput);
+        //  if (ret < 0) {
+        //    std::cerr << "Error encoding frame in line " << __LINE__ << std::endl;
+        //    return S_FALSE;
+        //  }
+        //  if (gotOutput) {
+        //    ret = av_interleaved_write_frame(mVideoOutContainer, &pkt);
+        //    if (ret < 0) {
+        //      std::cerr << "Error writing frame in line " << __LINE__ << std::endl;
+        //      return S_FALSE;
+        //    }
+        //    av_free_packet(&pkt);
+        //    ++mVideoFrameNumber;
+        //  }
+        //} while (gotOutput);
 
-
-#ifndef NDEBUG
-        std::cout << mVideoFrameNumber << std::endl;
-#endif
       }
-#endif
+
     }
 
     return S_OK;
   }
 
 
-  void Recorder::setFrame(const sf::Image &image)
+  void Recorder::setFrame(const sf::Image &image, const sf::Time &dt)
   {
     mCurrentVideoFrame = image;
     mNewVideoFrameAvailable = true;
+    mFrameTime = dt;
   }
 }

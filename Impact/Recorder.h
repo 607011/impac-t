@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
 }
 
 #if defined(WIN32)
@@ -32,6 +33,7 @@ extern "C" {
 #endif
 
 #include <SFML/Graphics/Image.hpp>
+#include <SFML/System/Time.hpp>
 
 #include <thread>
 
@@ -45,10 +47,12 @@ namespace Impact {
     HRESULT start(void);
     HRESULT stop(void);
 
-    void setFrame(const sf::Image &);
+    void setFrame(const sf::Image &frame, const sf::Time &dt);
+
+    AVRational timeBase(void) const;
 
   private:
-    HRESULT copyAudioData(BYTE *pData, UINT32 nFrames);
+    HRESULT copyAudioData(float32 *pData, UINT32 nFrames);
     void capture(void);
 
   private:
@@ -70,8 +74,11 @@ namespace Impact {
     AVCodecContext *mVideoCtx;
     AVCodec *mVideoCodec;
     AVFrame *mVideoFrame;
+    AVFrame *mRGBFrame;
+    SwsContext *mSwsCtx;
     int64_t mVideoFrameNumber;
     sf::Image mCurrentVideoFrame;
+    sf::Time mFrameTime;
     bool mNewVideoFrameAvailable;
 
     IAudioClient *mAudioClient;

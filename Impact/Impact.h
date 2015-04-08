@@ -158,7 +158,7 @@ namespace Impact {
     static const unsigned int DefaultWindowWidth = DefaultPlaygroundWidth;
     static const unsigned int DefaultWindowHeight = DefaultPlaygroundHeight + DefaultStatsHeight;
     static const unsigned int ColorDepth = 32U;
-    static const unsigned int DefaultFramerateLimit = 120U;
+    static const unsigned int DefaultFramerateLimit = 0U;
     static const unsigned int DefaultLives;
     static const unsigned int NewLiveAfterSoManyPointsDefault;
     static const unsigned int NewLiveAfterSoManyPoints[];

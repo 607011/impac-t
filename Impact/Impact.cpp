@@ -168,7 +168,7 @@ namespace Impact {
     , mGLSLVersionMinor(0)
     , mShadersAvailable(sf::Shader::isAvailable())
     , mRec(nullptr)
-    , mRecorderEnabled(false)
+    , mRecorderEnabled(true)
   {
     bool ok;
 
@@ -336,8 +336,8 @@ namespace Impact {
       "SFML: Copyright (c) Laurent Gomila\n"
       "Box2D: Copyright (c) Erin Catto\n"
       "boost: see http://opensource.org/licenses/bsl1.0.html\n"
-      "zlib: Copyright (c) Jean-loup Gailly and Mark Adler\n"
-      "GLEW: Copyright (c)  Milan Ikits, Marcelo Magallon et al.\n"
+      "zlib: Copyright (c) Jean-Loup Gailly and Mark Adler\n"
+      "GLEW: Copyright (c) Milan Ikits, Marcelo Magallon et al.\n"
       "easings: https://github.com/jesusgollonet/ofpennereasing\n"
       "\n"), mFixedFont, 16U);
 
@@ -390,7 +390,7 @@ namespace Impact {
     setSoundFXVolume(gSettings.soundfxVolume);
     setMusicVolume(gSettings.musicVolume);
 
-    sf::Listener::setPosition(DefaultCenter.x, 0.f, 0.f);
+    sf::Listener::setPosition(DefaultCenter.x, DefaultCenter.y, 0.f);
 
     ok = mMusic[Music::WelcomeMusic].openFromFile(gSettings.musicDir + "/hag5.ogg");
     if (!ok)
@@ -785,9 +785,9 @@ namespace Impact {
       mElapsed = mClock.restart();
 
       if (mRecorderEnabled) {
-        if (mRecorderClock.getElapsedTime() > sf::milliseconds(20)) {
-          mRec->setFrame(mWindow.capture());
-          mRecorderClock.restart();
+        if (mRecorderClock.getElapsedTime() > sf::milliseconds(1000 * mRec->timeBase().num / mRec->timeBase().den)) {
+          const sf::Time &dt = mRecorderClock.restart();
+          mRec->setFrame(mWindow.capture(), dt);
         }
       }
 
@@ -1081,7 +1081,7 @@ namespace Impact {
       enumerateAllLevels();
     }
 
-    if (mWallClock.getElapsedTime() > sf::seconds(5))
+    if (mWallClock.getElapsedTime() > sf::seconds(30))
       mWindow.close();
   }
 
