@@ -27,6 +27,7 @@
 #include <SFML/OpenGL.hpp>
 
 #include "globals.h"
+#include "Recorder.h"
 #include "Settings.h"
 #include "Level.h"
 #include "Ball.h"
@@ -34,6 +35,8 @@
 #include "Ground.h"
 
 #include <future>
+
+
 
 namespace Impact {
 
@@ -181,6 +184,8 @@ namespace Impact {
     void initShaderDependants(void);
     void clearEventQueue(void);
 
+    Recorder *mRec;
+
     inline b2World *world(void)
     {
       return mWorld;
@@ -217,6 +222,8 @@ namespace Impact {
 
     // SFML
     sf::RenderWindow mWindow;
+    bool mRecorderEnabled;
+    sf::Clock mRecorderClock;
     sf::View mDefaultView;
     sf::View mPlaygroundView;
     sf::View mStatsView;

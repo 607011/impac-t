@@ -25,10 +25,15 @@
 
 #include <zlib.h>
 
+#if defined(WIN32)
 #include <Shlwapi.h>
 #include <commdlg.h>
 #include <Objbase.h>
 #include <Windows.h>
+#endif
+
+#include "Recorder.h"
+
 
 namespace Impact {
 
@@ -162,6 +167,8 @@ namespace Impact {
     , mGLSLVersionMajor(0)
     , mGLSLVersionMinor(0)
     , mShadersAvailable(sf::Shader::isAvailable())
+    , mRec(nullptr)
+    , mRecorderEnabled(true)
   {
     bool ok;
 
@@ -343,11 +350,34 @@ namespace Impact {
     initShaderDependants();
 
     restart();
+
+    mRecorderClock.restart();
+
+#if defined(WIN32)
+    HRESULT hr = S_OK;
+    hr = CoInitialize(NULL);
+    if (FAILED(hr)) {
+      std::cerr << "CoInitialize failed: hr = "
+        << std::showbase << std::internal << std::setfill('0') << std::setw(8) << std::hex
+        << hr << std::endl;
+
+    }
+    else {
+      mRec = new Recorder(this);
+    }
+#endif
   }
 
 
   Game::~Game(void)
   {
+#if defined(WIN32)
+    CoUninitialize(); 
+#endif
+    if (mRec != nullptr) {
+      mRec->stop();
+      delete mRec;
+    }
     gSettings.save();
     clearWorld();
   }
@@ -360,7 +390,7 @@ namespace Impact {
     setSoundFXVolume(gSettings.soundfxVolume);
     setMusicVolume(gSettings.musicVolume);
 
-    sf::Listener::setPosition(DefaultCenter.x, DefaultCenter.y, 0.f);
+    sf::Listener::setPosition(DefaultCenter.x, 0.f, 0.f);
 
     ok = mMusic[Music::WelcomeMusic].openFromFile(gSettings.musicDir + "/hag5.ogg");
     if (!ok)
@@ -752,8 +782,14 @@ namespace Impact {
 #endif
 
     while (mWindow.isOpen()) {
-
       mElapsed = mClock.restart();
+
+      if (mRecorderEnabled) {
+        if (mRecorderClock.getElapsedTime() > sf::milliseconds(20)) {
+          mRec->setFrame(mWindow.capture());
+          mRecorderClock.restart();
+        }
+      }
 
       switch (mState) {
       case State::Playing:
@@ -952,6 +988,8 @@ namespace Impact {
             gotoCreditsScreen();
           }
           else if (mMenuExitText.getGlobalBounds().contains(mousePos)) {
+            if (mRec != nullptr)
+              mRec->stop();
             mWindow.close();
           }
           return;
@@ -1042,6 +1080,9 @@ namespace Impact {
       mWelcomeLevel = 5;
       enumerateAllLevels();
     }
+
+    if (mWallClock.getElapsedTime() > sf::seconds(5))
+      mWindow.close();
   }
 
 
@@ -2174,11 +2215,11 @@ namespace Impact {
         mMixShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
         mMixShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
       }
+
       sf::Sprite sprite(mRenderTexture0.getTexture());
       sf::RenderStates states;
       states.shader = &mMixShader;
       mWindow.draw(sprite, states);
-
     }
     else { // !gSettings.useShaders
       mWindow.clear(mLevel.backgroundColor());

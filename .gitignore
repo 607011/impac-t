@@ -6,6 +6,7 @@ deploy/*.exe
 Impact/*.aps
 Impact/Debug
 Impact/Release
+Impact/recordings
 glfw/Debug
 glfw/Release
 glew/Debug

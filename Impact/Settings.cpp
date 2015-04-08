@@ -28,7 +28,7 @@ namespace Impact {
 
   Settings::Settings(void)
     : useShaders(ENABLE_SHADERS)
-    , particlesPerExplosion(50)
+    , particlesPerExplosion(50U)
     , lastCampaignLevel(1)
     , campaignScore(0)
     , musicVolume(50)

@@ -32,7 +32,7 @@
 #include <Shlwapi.h>
 #include <memory.h>
 
-// #define NDEBUG 1
+#define NDEBUG 1
 
 namespace Impact {
 
@@ -84,7 +84,7 @@ namespace Impact {
     , mCredits(other.mCredits)
     , mAuthor(other.mAuthor)
     , mCopyright(other.mCopyright)
-    , mMusic(nullptr)
+    , mMusic(other.mMusic)
   {
     // ...
   }

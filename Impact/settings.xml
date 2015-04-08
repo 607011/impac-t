@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <impact>
-  <use-shaders>false</use-shaders>
+  <use-shaders>true</use-shaders>
   <last-open-dir></last-open-dir>
   <frame-rate-limit>0</frame-rate-limit>
   <velocity-iterations>32</velocity-iterations>
@@ -14,7 +14,7 @@
     <score>0</score>
   </campaign>
   <volume>
-    <music>20</music>
-    <soundfx>40</soundfx>
+    <music>50</music>
+    <soundfx>50</soundfx>
   </volume>
 </impact>
