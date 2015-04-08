@@ -263,6 +263,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\deploy\Impact.nsi" />
+    <None Include="resources\shaders\motionblur.fs" />
     <None Include="resources\shaders\vignette.fs" />
     <None Include="resources\shaders\keyhole.fs" />
     <None Include="resources\shaders\toon.fs" />

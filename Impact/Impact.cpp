@@ -168,7 +168,7 @@ namespace Impact {
     , mGLSLVersionMinor(0)
     , mShadersAvailable(sf::Shader::isAvailable())
     , mRec(nullptr)
-    , mRecorderEnabled(true)
+    , mRecorderEnabled(false)
   {
     bool ok;
 

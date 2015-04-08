@@ -35,13 +35,23 @@ namespace Impact {
   {
     mName = Name;
     setEnergy(1);
-    mTexture = mGame->level()->texture(mName);
+    const sf::Texture &texture = mGame->level()->texture(mName);
+    sf::Image img;
+    img.create(texture.getSize().x + 2 * TextureMargin, texture.getSize().y + 2 * TextureMargin, sf::Color(0, 0, 0, 0));
+    img.copy(texture.copyToImage(), TextureMargin, TextureMargin, sf::IntRect(0, 0, 0, 0), true);
+    mTexture.loadFromImage(img);
 
     const float32 halfW = .5f * mTexture.getSize().x;
     const float32 halfH = .5f * mTexture.getSize().y;
 
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(halfW, halfH);
+
+    if (gSettings.useShaders) {
+      mShader.loadFromFile(ShadersDir + "/motionblur.fs", sf::Shader::Fragment);
+      mShader.setParameter("uBlur", 0.f);
+      mShader.setParameter("uResolution", float(mTexture.getSize().x), float(mTexture.getSize().y));
+    }
 
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
@@ -53,7 +63,7 @@ namespace Impact {
     mBody = game->world()->CreateBody(&bd);
 
     b2CircleShape circle;
-    circle.m_radius = halfH * Game::InvScale;
+    circle.m_radius = .5f * texture.getSize().x * Game::InvScale;
 
     b2FixtureDef fd;
     fd.shape = &circle;
@@ -69,6 +79,10 @@ namespace Impact {
   void Ball::onUpdate(float elapsedSeconds)
   {
     UNUSED(elapsedSeconds);
+    if (gSettings.useShaders) {
+      const sf::Vector2f v(mBody->GetLinearVelocity().x, mBody->GetLinearVelocity().y);
+      mShader.setParameter("uV", v);
+    }
     mSprite.setPosition(Game::Scale * mBody->GetPosition().x, Game::Scale * mBody->GetPosition().y);
     mSprite.setRotation(rad2deg(mBody->GetAngle()));
   }
@@ -76,6 +90,9 @@ namespace Impact {
 
   void Ball::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
   {
+    if (gSettings.useShaders) {
+      states.shader = &mShader;
+    }
     target.draw(mSprite, states);
   }
 

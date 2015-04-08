@@ -242,6 +242,7 @@ namespace Impact {
       return S_FALSE;
     }
 
+#if 0
     mVideoCodec = avcodec_find_encoder(AV_CODEC_ID_H264);
     if (mVideoCodec == nullptr) {
       std::cerr << "avcodec_find_encoder(AV_CODEC_ID_H264) failed in line " << __LINE__ << std::endl;
@@ -325,6 +326,7 @@ namespace Impact {
       std::cerr << "Could not allocate raw picture buffer in line " << __LINE__ << std::endl;
       return S_FALSE;
     }
+#endif
 
     mVideoFrameNumber = 0;
 
@@ -376,13 +378,13 @@ namespace Impact {
       avcodec_close(mAudioCtx);
       av_free(mAudioCtx);
 
-      av_write_trailer(mVideoOutContainer);
-      avio_close(mVideoOutContainer->pb);
+    //  av_write_trailer(mVideoOutContainer);
+    //  avio_close(mVideoOutContainer->pb);
 
-      avcodec_close(mVideoCtx);
-      av_frame_free(&mVideoFrame);
-      av_free(mVideoCtx);
-      avformat_free_context(mVideoOutContainer);
+    //  avcodec_close(mVideoCtx);
+    //  av_frame_free(&mVideoFrame);
+    //  av_free(mVideoCtx);
+    //  avformat_free_context(mVideoOutContainer);
     }
     return S_OK;
   }

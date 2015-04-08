@@ -45,6 +45,9 @@ namespace Impact {
     static const float32 DefaultAngularDamping;
     static const std::string Name;
 
+  private:
+    static const int TextureMargin = 16;
+
   };
 
 }
