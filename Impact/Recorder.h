@@ -48,7 +48,7 @@ namespace Impact {
     void setFrame(const sf::Image &);
 
   private:
-    HRESULT copyData(BYTE *pData, UINT32 nFrames, bool *done);
+    HRESULT copyAudioData(BYTE *pData, UINT32 nFrames);
     void capture(void);
 
   private:

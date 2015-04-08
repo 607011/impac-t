@@ -153,9 +153,9 @@ namespace Impact {
           std::cerr << "mCaptureClient->GetBuffer() failed on line " << __LINE__ << std::endl;
         if (flags & AUDCLNT_BUFFERFLAGS_SILENT)
           pData = nullptr;
-        hr = this->copyData(pData, numAudioFramesAvailable, &mDoQuit);
+        hr = copyAudioData(pData, numAudioFramesAvailable);
         if (FAILED(hr))
-          std::cerr << "this->CopyData() failed on line " << __LINE__ << std::endl;
+          std::cerr << "copyAudioData() failed on line " << __LINE__ << std::endl;
         hr = mCaptureClient->ReleaseBuffer(numAudioFramesAvailable);
         if (FAILED(hr))
           std::cerr << "mCaptureClient->ReleaseBuffer() failed on line " << __LINE__ << std::endl;
@@ -391,7 +391,7 @@ namespace Impact {
 
 
 
-  HRESULT Recorder::copyData(BYTE *pData, UINT32 nFrames, bool *done)
+  HRESULT Recorder::copyAudioData(BYTE *pData, UINT32 nFrames)
   {
     /* float -> short
     1b d9 b4 b9 | 1b d9 b4 b9 | da 45 90 3c | da 45 90 3c | 9a ef 11 3d | 9a ef 11 3d | 4d 0e 5c 3d | 4d 0e 5c 3d |
@@ -452,6 +452,13 @@ namespace Impact {
 
 
     if (mNewVideoFrameAvailable) {
+      std::ostringstream ssFrameNum;
+      ssFrameNum << std::dec << std::setfill('0') << std::setw(8) << mVideoFrameNumber;
+      mCurrentVideoFrame.saveToFile(std::string("recordings/snap-") + ssFrameNum.str() + ".jpg");
+
+      ++mVideoFrameNumber;
+      mNewVideoFrameAvailable = false;
+
 #if 0
       const sf::Image &image = mCurrentVideoFrame;
       if (image.getSize().x > 0 && image.getSize().y > 0) {
@@ -519,11 +526,6 @@ namespace Impact {
 #endif
       }
 #endif
-      std::ostringstream ssFrameNum;
-      ssFrameNum << std::dec << std::setfill('0') << std::setw(8) << mVideoFrameNumber;
-      mCurrentVideoFrame.saveToFile(std::string("recordings/snap-") + ssFrameNum.str() + ".jpg");
-      ++mVideoFrameNumber;
-      mNewVideoFrameAvailable = false;
     }
 
     return S_OK;
