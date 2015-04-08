@@ -491,9 +491,9 @@ namespace Impact {
   }
 
 
-  void Recorder::onFrame(const sf::Image *image)
+  void Recorder::setFrame(const sf::Image &image)
   {
-    mCurrentVideoFrame = *image;
+    mCurrentVideoFrame = image;
     mNewVideoFrameAvailable = true;
   }
 }

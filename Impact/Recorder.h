@@ -45,8 +45,7 @@ namespace Impact {
     HRESULT start(void);
     HRESULT stop(void);
 
-  public: // slots
-    void onFrame(const sf::Image *);
+    void setFrame(const sf::Image &);
 
   private:
     HRESULT copyData(BYTE *pData, UINT32 nFrames, bool *done);

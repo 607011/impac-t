@@ -169,7 +169,6 @@ namespace Impact {
     , mShadersAvailable(sf::Shader::isAvailable())
     , mRec(nullptr)
     , mRecorderEnabled(true)
-    , mScreenshot(new sf::Image)
   {
     bool ok;
 
@@ -365,7 +364,6 @@ namespace Impact {
     }
     else {
       mRec = new Recorder(this);
-      doOnFrameAvailable(boost::bind(&Recorder::onFrame, mRec, mScreenshot));
     }
 #endif
   }
@@ -653,7 +651,6 @@ namespace Impact {
     std::cout << "antialiasing level: " << settings.antialiasingLevel << std::endl;
     std::cout << "OpenGL version: " << settings.majorVersion << "." << settings.minorVersion << std::endl;
 #endif
-    mScreenshot->create(Game::DefaultWindowWidth, Game::DefaultWindowHeight);
   }
 
 
@@ -789,8 +786,7 @@ namespace Impact {
 
       if (mRecorderEnabled) {
         if (mRecorderClock.getElapsedTime() > sf::milliseconds(20)) {
-          *mScreenshot = mWindow.capture();
-          signalFrameAvailable(mScreenshot);
+          mRec->setFrame(mWindow.capture());
           mRecorderClock.restart();
         }
       }
