@@ -1,12 +1,9 @@
 !define VERSIONMAJOR "1"
 !define VERSIONMINOR "0"
-!define VERSION "${VERSIONMAJOR}.${VERSIONMINOR}-BETA28"
+!define VERSION "${VERSIONMAJOR}.${VERSIONMINOR}-BETA29"
 !define GUID "{95E41A25-7E41-45CA-A1F6-0FFAB66A1B2F}"
 !define APP "Impact"
 !define PUBLISHER "Heise Medien GmbH & Co. KG - Redaktion c't"
-
-!include "LogicLib.nsh"
-!include "FileFunc.nsh"
 
 Name "${APP} ${VERSION}"
 OutFile "${APP}-${VERSION}-setup.exe"
@@ -15,6 +12,21 @@ InstallDirRegKey HKLM "Software\${PUBLISHER}\${APP}" "Install_Dir"
 RequestExecutionLevel admin
 SetCompressor lzma
 ShowInstDetails show
+
+# !include "MUI2.nsh"
+!include "LogicLib.nsh"
+!include "FileFunc.nsh"
+
+# !define MUI_FINISHPAGE_RUN "$INSTDIR\${APP}.exe"
+# !define MUI_FINISHPAGE_RUN_FUNCTION "LaunchLink"
+# !define MUI_FINISHPAGE_RUN_TEXT "${APP} starten"
+
+# Function LaunchLink
+#   SetOutPath $INSTDIR
+#   ExecShell "" '"$INSTDIR\${APP}.exe"'
+# FunctionEnd
+
+
 
 Page license
 
@@ -61,6 +73,11 @@ Section "${APP}"
   File "..\Release\sfml-graphics-2.dll"
   File "..\Release\sfml-system-2.dll"
   File "..\Release\sfml-window-2.dll"
+  File "..\ffmpeg\bin\avcodec-56.dll"
+  File "..\ffmpeg\bin\avformat-56.dll"
+  File "..\ffmpeg\bin\swscale-3.dll"
+  File "..\ffmpeg\bin\swresample-1.dll"
+  File "..\ffmpeg\bin\avutil-54.dll"
   WriteUninstaller "$INSTDIR\uninstall.exe"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "DisplayName" "${APP}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}" "DisplayVersion" "${VERSION}"
@@ -114,6 +131,8 @@ Section "Desktop Icon"
 SectionEnd
 
 
+# !insertmacro MUI_PAGE_FINISH
+
 Section "Uninstall"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${GUID}"
   DeleteRegKey HKLM "SOFTWARE\${APP}"
@@ -128,6 +147,11 @@ Section "Uninstall"
   Delete "$INSTDIR\sfml-graphics-2.dll"
   Delete "$INSTDIR\sfml-system-2.dll"
   Delete "$INSTDIR\sfml-window-2.dll"
+  Delete "$INSTDIR\avcodec-56.dll"
+  Delete "$INSTDIR\avformat-56.dll"
+  Delete "$INSTDIR\avutil-54.dll"
+  Delete "$INSTDIR\swscale-3.dll"
+  Delete "$INSTDIR\swresample-1.dll"
   Delete "$INSTDIR\exe-icon.ico"
   Delete "$INSTDIR\${APP}.exe"
   Delete "$INSTDIR\uninstall.exe"

@@ -168,7 +168,11 @@ namespace Impact {
     , mGLSLVersionMinor(0)
     , mShadersAvailable(sf::Shader::isAvailable())
     , mRec(nullptr)
-    , mRecorderEnabled(true)
+#ifndef NDEBUG
+    , mRecorderEnabled(false)
+#else
+    , mRecorderEnabled(false)
+#endif
   {
     bool ok;
 
@@ -363,7 +367,8 @@ namespace Impact {
 
     }
     else {
-      mRec = new Recorder(this);
+      if (mRecorderEnabled)
+        mRec = new Recorder(this);
     }
 #endif
   }
@@ -789,7 +794,8 @@ namespace Impact {
       if (mRecorderEnabled) {
         if (mRecorderClock.getElapsedTime() > sf::milliseconds(1000 * mRec->timeBase().num / mRec->timeBase().den)) {
           mRecorderClock.restart();
-          mRec->setFrame(mWindow.capture(), mRecorderWallClock.getElapsedTime());
+          if (mRec != nullptr)
+            mRec->setFrame(mWindow.capture(), mRecorderWallClock.getElapsedTime());
         }
       }
 
@@ -1076,15 +1082,20 @@ namespace Impact {
       }
     }
 
-    if (mWelcomeLevel == 4) {
-      if (mMusic.at(WelcomeMusic).getStatus() != sf::Music::Playing)
-        playMusic(WelcomeMusic);
-      mWelcomeLevel = 5;
-      enumerateAllLevels();
+    if (t > 1060) {
+      if (mWelcomeLevel == 4) {
+        mWelcomeLevel = 5;
+        if (mMusic.at(WelcomeMusic).getStatus() != sf::Music::Playing)
+          playMusic(WelcomeMusic);
+      }
     }
 
-    if (mWallClock.getElapsedTime() > sf::seconds(30))
-      mWindow.close();
+    if (t > 1200) {
+      if (mWelcomeLevel == 5) {
+        mWelcomeLevel = 6;
+        enumerateAllLevels();
+      }
+    }
   }
 
 
