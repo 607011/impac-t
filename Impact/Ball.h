@@ -38,6 +38,8 @@ namespace Impact {
     virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
     virtual BodyType type(void) const { return Body::BodyType::Ball; }
 
+    virtual void setPosition(const b2Vec2 &);
+
     static const float32 DefaultDensity;
     static const float32 DefaultFriction;
     static const float32 DefaultRestitution;

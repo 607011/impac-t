@@ -1364,7 +1364,7 @@ namespace Impact {
         else if (event.key.code == mKeyMapping[RecoverBallAction] || event.key.code == sf::Keyboard::Space) {
           if (mBall != nullptr) {
             const b2Vec2 &padPos = mRacket->position();
-            mBall->setPosition(padPos.x, padPos.y - 3.5f);
+            mBall->setPosition(b2Vec2(padPos.x, padPos.y - 3.5f));
             showScore(-DefaultForceNewBallPenalty, mBall->position());
           }
           else {
@@ -2702,7 +2702,7 @@ namespace Impact {
     safeRenew(mBall, new Ball(this));
     if (mBallHasBeenLost) {
       const b2Vec2 &padPos = mRacket->position();
-      mBall->setPosition(padPos.x, padPos.y - 1.2f * sign(mLevel.gravity()));
+      mBall->setPosition(b2Vec2(padPos.x, padPos.y - 1.2f * sign(mLevel.gravity())));
     }
     else {
       mBall->setPosition(pos);
