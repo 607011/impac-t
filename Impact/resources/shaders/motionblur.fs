@@ -27,16 +27,19 @@ uniform float uRot;
 
 void main(void) {
   vec2 center = vec2(0.5);
-  vec2 v = uV / 100.0;
+  vec2 v = uV / 1000.0;
   float blur = uBlur / uResolution.x;
   mat2 rot = mat2(cos(uRot), -sin(uRot), sin(uRot), cos(uRot));
   vec2 pos = (gl_TexCoord[0].xy - center) * rot + center;
-  vec2 blurPos = gl_TexCoord[0].xy + v;
   vec4 sum = vec4(0.0);
-  sum += texture2D(uTexture, blurPos + vec2(0.0, 0.0 * blur)) * 0.2270270270;
-  sum += texture2D(uTexture, blurPos + vec2(0.0, 1.0 * blur)) * 0.1945945946;
-  sum += texture2D(uTexture, blurPos + vec2(0.0, 2.0 * blur)) * 0.1216216216;
-  sum += texture2D(uTexture, blurPos + vec2(0.0, 3.0 * blur)) * 0.0540540541;
-  sum += texture2D(uTexture, blurPos + vec2(0.0, 4.0 * blur)) * 0.0162162162;
-  gl_FragColor = texture2D(uTexture, pos) + sum * 0.6135135135;
+  const int MaxIterations = 5;
+  for (int i = 1; i < MaxIterations; ++i) {
+    vec2 blurPos = gl_TexCoord[0].xy + v * float(i);
+    sum += float(MaxIterations - i) * texture2D(uTexture, blurPos + vec2(0.0, 0.0 * blur)) * 0.2270270270;
+    sum += float(MaxIterations - i) * texture2D(uTexture, blurPos + vec2(0.0, 1.0 * blur)) * 0.1945945946;
+    sum += float(MaxIterations - i) * texture2D(uTexture, blurPos + vec2(0.0, 2.0 * blur)) * 0.1216216216;
+    sum += float(MaxIterations - i) * texture2D(uTexture, blurPos + vec2(0.0, 3.0 * blur)) * 0.0540540541;
+    sum += float(MaxIterations - i) * texture2D(uTexture, blurPos + vec2(0.0, 4.0 * blur)) * 0.0162162162;
+  }
+  gl_FragColor = texture2D(uTexture, pos) + sum * 0.6135135135 / float(MaxIterations * (MaxIterations - 1));
 }
