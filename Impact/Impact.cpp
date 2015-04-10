@@ -167,8 +167,10 @@ namespace Impact {
     , mGLSLVersionMajor(0)
     , mGLSLVersionMinor(0)
     , mShadersAvailable(sf::Shader::isAvailable())
+#ifndef NO_RECORDER
     , mRec(nullptr)
     , mRecorderEnabled(false)
+#endif
   {
     bool ok;
 
@@ -353,6 +355,7 @@ namespace Impact {
 
     mRecorderClock.restart();
 
+#ifndef NO_RECORDER
 #if defined(WIN32)
     HRESULT hr = S_OK;
     hr = CoInitialize(NULL);
@@ -367,6 +370,7 @@ namespace Impact {
         mRec = new Recorder(this);
     }
 #endif
+#endif
   }
 
 
@@ -375,10 +379,12 @@ namespace Impact {
 #if defined(WIN32)
     CoUninitialize(); 
 #endif
+#ifndef NO_RECORDER
     if (mRec != nullptr) {
       mRec->stop();
       delete mRec;
     }
+#endif
     gSettings.save();
     clearWorld();
   }
@@ -787,6 +793,7 @@ namespace Impact {
     while (mWindow.isOpen()) {
       mElapsed = mClock.restart();
 
+#ifndef NO_RECORDER
       if (mRecorderEnabled) {
         if (mRecorderClock.getElapsedTime() > sf::milliseconds(1000 * mRec->timeBase().num / mRec->timeBase().den)) {
           mRecorderClock.restart();
@@ -794,6 +801,7 @@ namespace Impact {
             mRec->setFrame(mWindow.capture(), mRecorderWallClock.getElapsedTime());
         }
       }
+#endif
 
       switch (mState) {
       case State::Playing:
@@ -992,8 +1000,10 @@ namespace Impact {
             gotoCreditsScreen();
           }
           else if (mMenuExitText.getGlobalBounds().contains(mousePos)) {
+#ifndef NO_RECORDER
             if (mRec != nullptr)
               mRec->stop();
+#endif
             mWindow.close();
           }
           return;

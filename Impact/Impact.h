@@ -27,12 +27,15 @@
 #include <SFML/OpenGL.hpp>
 
 #include "globals.h"
-#include "Recorder.h"
 #include "Settings.h"
 #include "Level.h"
 #include "Ball.h"
 #include "Racket.h"
 #include "Ground.h"
+
+#ifndef NO_RECORDER
+#include "Recorder.h"
+#endif
 
 #include <future>
 
@@ -184,7 +187,9 @@ namespace Impact {
     void initShaderDependants(void);
     void clearEventQueue(void);
 
+#ifndef NO_RECORDER
     Recorder *mRec;
+#endif
 
     inline b2World *world(void)
     {

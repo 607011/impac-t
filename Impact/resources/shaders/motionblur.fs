@@ -27,7 +27,7 @@ uniform float uRot;
 
 void main(void) {
   vec2 center = vec2(0.5);
-  vec2 v = uV / 1000.0;
+  vec2 v = uV / 600.0;
   float blur = uBlur / uResolution.x;
   mat2 rot = mat2(cos(uRot), -sin(uRot), sin(uRot), cos(uRot));
   vec2 pos = (gl_TexCoord[0].xy - center) * rot + center;
