@@ -66,6 +66,9 @@
     <ClCompile Include="Wall.cpp">
       <Filter>Quelltexte</Filter>
     </ClCompile>
+    <ClCompile Include="Recorder.cpp">
+      <Filter>Quelltexte</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -132,6 +135,9 @@
       <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="Wall.h">
+      <Filter>Header-Dateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Recorder.h">
       <Filter>Header-Dateien</Filter>
     </ClInclude>
   </ItemGroup>

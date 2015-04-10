@@ -28,11 +28,12 @@ extern "C" {
 #include <libavutil/imgutils.h>
 }
 
+#ifdef WIN32
 #pragma comment(lib, "swscale")
 #pragma comment(lib, "avutil")
 #pragma comment(lib, "avformat")
 #pragma comment(lib, "avcodec")
-
+#endif
 
 namespace Impact {
 
