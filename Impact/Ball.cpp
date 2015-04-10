@@ -49,7 +49,7 @@ namespace Impact {
 
     if (gSettings.useShaders) {
       mShader.loadFromFile(ShadersDir + "/motionblur.fs", sf::Shader::Fragment);
-      mShader.setParameter("uBlur", 0.f);
+      mShader.setParameter("uBlur", 2.f);
       mShader.setParameter("uResolution", float(mTexture.getSize().x), float(mTexture.getSize().y));
     }
 
@@ -82,9 +82,12 @@ namespace Impact {
     if (gSettings.useShaders) {
       const sf::Vector2f v(mBody->GetLinearVelocity().x, mBody->GetLinearVelocity().y);
       mShader.setParameter("uV", v);
+      mShader.setParameter("uRot", mBody->GetAngle());
+    }
+    else {
+      mSprite.setRotation(rad2deg(mBody->GetAngle()));
     }
     mSprite.setPosition(Game::Scale * mBody->GetPosition().x, Game::Scale * mBody->GetPosition().y);
-    mSprite.setRotation(rad2deg(mBody->GetAngle()));
   }
 
 

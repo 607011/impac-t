@@ -23,15 +23,20 @@ uniform sampler2D uTexture;
 uniform float uBlur;
 uniform vec2 uV;
 uniform vec2 uResolution;
+uniform float uRot;
 
 void main(void) {
+  vec2 center = vec2(0.5);
+  vec2 v = uV / 100.0;
   float blur = uBlur / uResolution.x;
-  vec2 pos = gl_TexCoord[0].xy;
+  mat2 rot = mat2(cos(uRot), -sin(uRot), sin(uRot), cos(uRot));
+  vec2 pos = (gl_TexCoord[0].xy - center) * rot + center;
+  vec2 blurPos = gl_TexCoord[0].xy + v;
   vec4 sum = vec4(0.0);
-  sum += 2.0 * texture2D(uTexture, vec2(pos.x, pos.y)) * 0.227027027;
-  sum += 2.0 * texture2D(uTexture, vec2(pos.x + 1.0 * blur, pos.y)) * 0.1945945946;
-  sum += 2.0 * texture2D(uTexture, vec2(pos.x + 2.0 * blur, pos.y)) * 0.1216216216;
-  sum += 2.0 * texture2D(uTexture, vec2(pos.x + 3.0 * blur, pos.y)) * 0.0540540541;
-  sum += 2.0 * texture2D(uTexture, vec2(pos.x + 4.0 * blur, pos.y)) * 0.0162162162;
-  gl_FragColor = sum;
+  sum += texture2D(uTexture, blurPos + vec2(0.0, 0.0 * blur)) * 0.2270270270;
+  sum += texture2D(uTexture, blurPos + vec2(0.0, 1.0 * blur)) * 0.1945945946;
+  sum += texture2D(uTexture, blurPos + vec2(0.0, 2.0 * blur)) * 0.1216216216;
+  sum += texture2D(uTexture, blurPos + vec2(0.0, 3.0 * blur)) * 0.0540540541;
+  sum += texture2D(uTexture, blurPos + vec2(0.0, 4.0 * blur)) * 0.0162162162;
+  gl_FragColor = texture2D(uTexture, pos) + sum * 0.6135135135;
 }
