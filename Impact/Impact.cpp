@@ -2643,6 +2643,9 @@ namespace Impact {
     mLevelAuthorText.setString(mLevel.author());
     mLevelAuthorText.setPosition(4, 62);
 
+    std::remove(mBodies.begin(), mBodies.end(), mRacket);
+    addBody(mRacket);
+
     setCursorOnRacket();
   }
 
