@@ -167,6 +167,7 @@ namespace Impact {
     , mGLSLVersionMajor(0)
     , mGLSLVersionMinor(0)
     , mShadersAvailable(sf::Shader::isAvailable())
+    , mQuitEnumeration(false)
 #ifndef NO_RECORDER
     , mRec(nullptr)
     , mRecorderEnabled(false)
@@ -378,6 +379,8 @@ namespace Impact {
 
   Game::~Game(void)
   {
+    mQuitEnumeration = true;
+
 #if defined(WIN32)
     CoUninitialize(); 
 #endif
@@ -2894,7 +2897,7 @@ namespace Impact {
 #endif
       if (mLevels.empty()) {
         Level level;
-        for (int l = 1; ; ++l) {
+        for (int l = 1; !mQuitEnumeration; ++l) {
           level = Level(l);
           if (level.isAvailable()) {
             mEnumerateMutex.lock();
