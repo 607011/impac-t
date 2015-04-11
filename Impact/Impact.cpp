@@ -371,6 +371,8 @@ namespace Impact {
     }
 #endif
 #endif
+
+    enumerateAllLevels();
   }
 
 
@@ -1093,13 +1095,6 @@ namespace Impact {
         mWelcomeLevel = 5;
         if (mMusic.at(WelcomeMusic).getStatus() != sf::Music::Playing)
           playMusic(WelcomeMusic);
-      }
-    }
-
-    if (t > 1200) {
-      if (mWelcomeLevel == 5) {
-        mWelcomeLevel = 6;
-        enumerateAllLevels();
       }
     }
   }
@@ -2889,6 +2884,7 @@ namespace Impact {
     std::cout << std::endl << "Game::enumerateAllLevels()" << std::endl << std::endl;
 #endif
     std::packaged_task<bool()> task([this]{
+      sf::sleep(sf::milliseconds(1000));
 #if defined(WIN32)
       const int prio = GetThreadPriority(GetCurrentThread());
       SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
