@@ -29,14 +29,15 @@ varying mat2 vRot;
 varying vec2 vTexCoord;
 
 void main(void) {
-  vec2 v = uV / 600.0;
+  vec2 v = 0.5 * uV / uResolution.x;
   float blur = uBlur / uResolution.x;
   vec2 pos = vTexCoord;
   vec4 sum = texture2D(uTexture, pos);
-  const int MaxIterations = 5;
-  for (int i = 1; i < MaxIterations; ++i) {
-    vec2 offset = v * (float(i) / float(MaxIterations - 1));
-    sum += texture2D(uTexture, pos - offset * vRot);
-  }
-  gl_FragColor = sum / float(MaxIterations);
+  const float N = 5.0;
+  sum += texture2D(uTexture, pos + v * (1.0 / N) * vRot) * 0.39894228;
+  sum += texture2D(uTexture, pos + v * (2.0 / N) * vRot) * 0.35206533;
+  sum += texture2D(uTexture, pos + v * (3.0 / N) * vRot) * 0.24197072;
+  sum += texture2D(uTexture, pos + v * (4.0 / N) * vRot) * 0.12951760;
+  sum += texture2D(uTexture, pos + v * (5.0 / N) * vRot) * 0.05399097;
+  gl_FragColor = sum / 2.176486894;
 }
