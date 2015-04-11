@@ -192,6 +192,9 @@
     <None Include="resources\shaders\motionblur.fs">
       <Filter>Fragment Shaders</Filter>
     </None>
+    <None Include="resources\shaders\motionblur.vs">
+      <Filter>Fragment Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="settings.xml" />

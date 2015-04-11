@@ -48,7 +48,7 @@ namespace Impact {
     mSprite.setOrigin(halfW, halfH);
 
     if (gSettings.useShaders) {
-      mShader.loadFromFile(ShadersDir + "/motionblur.fs", sf::Shader::Fragment);
+      mShader.loadFromFile(ShadersDir + "/motionblur.vs", ShadersDir + "/motionblur.fs");
       mShader.setParameter("uBlur", 2.f);
       mShader.setParameter("uResolution", float(mTexture.getSize().x), float(mTexture.getSize().y));
     }
@@ -80,8 +80,7 @@ namespace Impact {
   {
     UNUSED(elapsedSeconds);
     if (gSettings.useShaders) {
-      const sf::Vector2f v(mBody->GetLinearVelocity().x, mBody->GetLinearVelocity().y);
-      mShader.setParameter("uV", v);
+      mShader.setParameter("uV", mBody->GetLinearVelocity().x, mBody->GetLinearVelocity().y);
       mShader.setParameter("uRot", mBody->GetAngle());
     }
     else {

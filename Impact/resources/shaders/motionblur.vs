@@ -19,24 +19,16 @@
 
 */
 
-uniform sampler2D uTexture;
-uniform float uBlur;
 uniform float uRot;
-uniform vec2 uV;
-uniform vec2 uResolution;
 
-varying mat2 vRot;
 varying vec2 vTexCoord;
+varying mat2 vRot;
 
-void main(void) {
-  vec2 v = uV / 600.0;
-  float blur = uBlur / uResolution.x;
-  vec2 pos = vTexCoord;
-  vec4 sum = texture2D(uTexture, pos);
-  const int MaxIterations = 5;
-  for (int i = 1; i < MaxIterations; ++i) {
-    vec2 offset = v * (float(i) / float(MaxIterations - 1));
-    sum += texture2D(uTexture, pos - offset * vRot);
-  }
-  gl_FragColor = sum / float(MaxIterations);
+void main() {
+  const vec2 center = vec2(0.5);
+  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+  vec4 texCoord = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+  vRot = mat2(cos(uRot), sin(uRot), -sin(uRot), cos(uRot));
+  vTexCoord = (texCoord.st - center) * vRot + center;
+  gl_FrontColor = gl_Color;
 }
