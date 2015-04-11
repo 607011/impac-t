@@ -2891,16 +2891,15 @@ namespace Impact {
 #endif
       if (mLevels.empty()) {
         Level level;
-        int l = 1;
-        do {
+        for (int l = 1; ; ++l) {
           level = Level(l);
           if (level.isAvailable()) {
             mEnumerateMutex.lock();
             mLevels.push_back(level);
             mEnumerateMutex.unlock();
-            ++l;
           }
-        } while (level.isAvailable());
+          else break;
+        }
       }
 #if defined(WIN32)
       SetThreadPriority(GetCurrentThread(), prio);
