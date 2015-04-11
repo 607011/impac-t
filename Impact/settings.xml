@@ -1,20 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
-<impact>
-  <use-shaders>false</use-shaders>
-  <last-open-dir></last-open-dir>
+<impact class_id="0" tracking_level="1" version="0" object_id="_0">
+  <use-shaders>1</use-shaders>
+  <use-shaders-for-explosions>1</use-shaders-for-explosions>
+  <explosion-particle-count>66</explosion-particle-count>
+  <highscores class_id="1" tracking_level="0" version="0">
+    <count>0</count>
+    <item_version>0</item_version>
+  </highscores>
   <frame-rate-limit>0</frame-rate-limit>
   <velocity-iterations>32</velocity-iterations>
   <position-iterations>64</position-iterations>
-  <explosion>
-    <particle-count>50</particle-count>
-    <use-shaders>false</use-shaders>
-  </explosion>
-  <campaign>
-    <last-level>1</last-level>
-    <score>0</score>
-  </campaign>
-  <volume>
-    <music>25</music>
-    <soundfx>50</soundfx>
-  </volume>
+  <last-open-dir></last-open-dir>
+  <campaign-last-level>1</campaign-last-level>
+  <campaign-highscore>100000</campaign-highscore>
+  <music-volume>50</music-volume>
+  <soundfx-volume>100</soundfx-volume>
 </impact>

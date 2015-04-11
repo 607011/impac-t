@@ -21,10 +21,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define __SETTINGS_H_
 
 #include <string>
-
-#define ENABLE_SHADERS (false)
+#include <map>
+#include <boost/archive/xml_oarchive.hpp>
+#include <memory>
 
 namespace Impact {
+
+  class SettingsPrivate;
 
   class Settings {
   public:
@@ -33,23 +36,36 @@ namespace Impact {
     bool save(void);
     bool load(void);
 
-    bool useShaders;
-    bool useShadersForExplosions;
-    unsigned int particlesPerExplosion;
-    std::string lastOpenDir;
-    int lastCampaignLevel;
-    int campaignScore;
-    float musicVolume;
-    float soundfxVolume;
-    unsigned int framerateLimit;
-    int velocityIterations;
-    int positionIterations;
+    void setUseShaders(bool);
+    bool useShaders(void) const;
+    void setUseShadersForExplosions(bool);
+    bool useShadersForExplosions(void) const;
+    void setLastOpenDir(std::string);
+    const std::string &lastOpenDir(void) const;
+    const std::string &levelsDir(void) const;
+    const std::string &musicDir(void) const;
+    const std::string &soundFXDir(void) const;
+    void setMusicVolume(float);
+    float musicVolume(void) const;
+    void setSoundFXVolume(float);
+    float soundFXVolume(void) const;
+    void setParticlesPerExplosion(unsigned int);
+    unsigned int particlesPerExplosion(void) const;
+    void setLastCampaignLevel(int) const;
+    int lastCampaignLevel(void) const;
+    void setFramerateLimit(int);
+    int framerateLimit(void) const;
+    void setPositionIterations(int);
+    int positionIterations(void) const;
+    void setVelocityIterations(int);
+    int velocityIterations(void) const;
 
-    std::string appData;
-    std::string settingsFile;
-    std::string levelsDir;
-    std::string soundFXDir;
-    std::string musicDir;
+  private:
+    std::shared_ptr<SettingsPrivate> d;
+
+    friend class boost::serialization::access;
+    template<class archive>
+    void serialize(archive& ar, const unsigned int version);
   };
 
 }

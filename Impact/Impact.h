@@ -388,6 +388,7 @@ namespace Impact {
 
     std::vector<Level> mLevels;
     std::mutex mEnumerateMutex;
+    bool mQuitEnumeration;
     void enumerateAllLevels(void);
     std::packaged_task<bool()> mEnumerateTask;
     std::future<bool> mEnumerateFuture;

@@ -43,7 +43,7 @@ namespace Impact {
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(.5f * mTexture.getSize().x, .5f * mTexture.getSize().y);
 
-    if (gSettings.useShaders) {
+    if (gSettings.useShaders()) {
       mShader.loadFromFile(ShadersDir + "/fallingblock.fs", sf::Shader::Fragment);
       mShader.setParameter("uAge", 0.f);
       mShader.setParameter("uBlur", 0.f);
@@ -112,14 +112,14 @@ namespace Impact {
     UNUSED(elapsedSeconds);
     mSprite.setPosition(Game::Scale * mBody->GetPosition().x, Game::Scale * mBody->GetPosition().y);
     mSprite.setRotation(rad2deg(mBody->GetAngle()));
-    if (gSettings.useShaders)
+    if (gSettings.useShaders())
       mShader.setParameter("uAge", age().asSeconds());
   }
 
 
   void Block::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
   {
-    if (gSettings.useShaders)
+    if (gSettings.useShaders())
       states.shader = &mShader;
     target.draw(mSprite, states);
   }
@@ -132,7 +132,7 @@ namespace Impact {
     if (!destroyed && v > mMinimumHitImpulse) {
       mBody->SetLinearDamping(0.f);
       mBody->SetGravityScale(mGravityScale);
-      if (gSettings.useShaders) {
+      if (gSettings.useShaders()) {
         mShader.setParameter("uColor", sf::Color(sf::Color(255, 255, 255, 230)));
         mShader.setParameter("uBlur", 2.28f);
       }
