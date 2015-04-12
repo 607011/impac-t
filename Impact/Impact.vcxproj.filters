@@ -39,9 +39,6 @@
     <ClCompile Include="Explosion.cpp">
       <Filter>Quelltexte</Filter>
     </ClCompile>
-    <ClCompile Include="Settings.cpp">
-      <Filter>Quelltexte</Filter>
-    </ClCompile>
     <ClCompile Include="..\zip-utils\unzip.cpp">
       <Filter>Quelltexte</Filter>
     </ClCompile>
@@ -67,6 +64,9 @@
       <Filter>Quelltexte</Filter>
     </ClCompile>
     <ClCompile Include="Recorder.cpp">
+      <Filter>Quelltexte</Filter>
+    </ClCompile>
+    <ClCompile Include="LocalSettings.cpp">
       <Filter>Quelltexte</Filter>
     </ClCompile>
   </ItemGroup>
@@ -104,9 +104,6 @@
     <ClInclude Include="Explosion.h">
       <Filter>Header-Dateien</Filter>
     </ClInclude>
-    <ClInclude Include="Settings.h">
-      <Filter>Header-Dateien</Filter>
-    </ClInclude>
     <ClInclude Include="..\zip-utils\unzip.h">
       <Filter>Header-Dateien</Filter>
     </ClInclude>
@@ -138,6 +135,9 @@
       <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="Recorder.h">
+      <Filter>Header-Dateien</Filter>
+    </ClInclude>
+    <ClInclude Include="LocalSettings.h">
       <Filter>Header-Dateien</Filter>
     </ClInclude>
   </ItemGroup>

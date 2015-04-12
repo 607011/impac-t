@@ -22,26 +22,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/nvp.hpp>
-
+#include <boost/serialization/version.hpp>
 #include <boost/serialization/map.hpp>
 
 #if defined(WIN32)
 #include <ShlObj.h>
 #endif
 
+BOOST_CLASS_VERSION(Impact::LocalSettings, 1)
+
 namespace Impact {
 
-  class SettingsPrivate {
+  class LocalSettingsPrivate {
   public:
-    SettingsPrivate(void)
+    LocalSettingsPrivate(void)
       : useShaders(false)
       , particlesPerExplosion(50U)
       , lastCampaignLevel(1)
-      , campaignScore(0)
+      , campaignHighscore(0ULL)
       , musicVolume(50)
       , soundfxVolume(100)
       , framerateLimit(0)
-      , velocityIterations(16)
+      , velocityIterations(32)
       , positionIterations(64)
     { /* ... */ }
     bool useShaders;
@@ -49,7 +51,7 @@ namespace Impact {
     unsigned int particlesPerExplosion;
     std::string lastOpenDir;
     int lastCampaignLevel;
-    int campaignScore;
+    uint64_t campaignHighscore;
     float musicVolume;
     float soundfxVolume;
     unsigned int framerateLimit;
@@ -62,14 +64,13 @@ namespace Impact {
     std::string soundFXDir;
     std::string musicDir;
 
-    std::map<int, int> highscores;
+    std::map<int, uint64_t> highscores;
   };
 
+  LocalSettings gLocalSettings;
 
-  Settings gSettings;
-
-  Settings::Settings(void)
-    : d(new SettingsPrivate)
+  LocalSettings::LocalSettings(void)
+    : d(new LocalSettingsPrivate)
   {
 #if defined(WIN32)
     TCHAR szPath[MAX_PATH];
@@ -89,7 +90,7 @@ namespace Impact {
   }
 
 
-  bool Settings::save(void)
+  bool LocalSettings::save(void)
   {
     bool ok = true;
 #ifndef NDEBUG
@@ -104,7 +105,7 @@ namespace Impact {
 
 
 #pragma warning(disable : 4503)
-  bool Settings::load(void)
+  bool LocalSettings::load(void)
   {
     bool ok = fileExists(d->settingsFile);
     if (!ok)
@@ -131,7 +132,7 @@ namespace Impact {
       d->lastCampaignLevel = pt.get<int>("impact.campaign-last-level", 1);
       if (d->lastCampaignLevel < 1)
         d->lastCampaignLevel = 1;
-      d->campaignScore = pt.get<int>("impact.campaign-highscore", 0);
+      d->campaignHighscore = pt.get<uint64_t>("impact.campaign-highscore", 0ULL);
       d->soundfxVolume = b2Clamp(pt.get<float>("impact.soundfx-volume", 100.f), 0.f, 100.f);
       d->musicVolume = b2Clamp(pt.get<float>("impact.music-volume", 50.f), 0.f, 100.f);
     }
@@ -141,7 +142,22 @@ namespace Impact {
     }
 
     try {
-
+#ifndef NDEBUG
+      std::cout << "****HIGHSCORES****" << std::endl;
+#endif
+      const boost::property_tree::ptree &highscores = pt.get_child("impact.highscores");
+      boost::property_tree::ptree::const_iterator pi;
+      for (pi = highscores.begin(); pi != highscores.end(); ++pi) {
+        boost::property_tree::ptree property = pi->second;
+        if (pi->first == "item") {
+          const int level = pi->second.get<int>("first", 0);
+          const uint64_t highscore = pi->second.get<uint64_t>("second", 0ULL);
+          d->highscores[level] = highscore;
+#ifndef NDEBUG
+          std::cout << "level " << std::dec << std::setw(4) << level << ": " << std::setw(15) << highscore << std::endl;
+#endif
+        }
+      }
     }
     catch (const boost::property_tree::xml_parser::xml_parser_error &ex) {
       std::cerr << "XML parser error: " << ex.what() << " (line " << ex.line() << ")" << std::endl;
@@ -157,7 +173,7 @@ namespace Impact {
     std::cout << "positionIterations: " << d->positionIterations << std::endl;
     std::cout << "lastOpenDir: " << d->lastOpenDir << std::endl;
     std::cout << "lastCampaignLevel: " << d->lastCampaignLevel << std::endl;
-    std::cout << "campaignScore: " << d->campaignScore << std::endl;
+    std::cout << "campaignHighscore: " << d->campaignHighscore << std::endl;
     std::cout << "soundfxVolume: " << d->soundfxVolume << std::endl;
     std::cout << "musicVolume: " << d->musicVolume << std::endl;
 #endif
@@ -169,7 +185,7 @@ namespace Impact {
 
 
   template<class archive>
-  void Settings::serialize(archive& ar, const unsigned int version)
+  void LocalSettings::serialize(archive& ar, const unsigned int version)
   {
     ar & boost::serialization::make_nvp("use-shaders", d->useShaders);
     ar & boost::serialization::make_nvp("use-shaders-for-explosions", d->useShadersForExplosions);
@@ -180,147 +196,175 @@ namespace Impact {
     ar & boost::serialization::make_nvp("position-iterations", d->positionIterations);
     ar & boost::serialization::make_nvp("last-open-dir", d->lastOpenDir);
     ar & boost::serialization::make_nvp("campaign-last-level", d->lastCampaignLevel);
-    ar & boost::serialization::make_nvp("campaign-highscore", d->campaignScore);
+    ar & boost::serialization::make_nvp("campaign-highscore", d->campaignHighscore);
     ar & boost::serialization::make_nvp("music-volume", d->musicVolume);
     ar & boost::serialization::make_nvp("soundfx-volume", d->soundfxVolume);
   }
 
 
-  void Settings::setUseShaders(bool use)
+  void LocalSettings::setUseShaders(bool use)
   {
     d->useShaders = use;
   }
 
 
-  bool Settings::useShaders(void) const
+  bool LocalSettings::useShaders(void) const
   {
     return d->useShaders;
   }
 
 
-  void Settings::setUseShadersForExplosions(bool use)
+  void LocalSettings::setUseShadersForExplosions(bool use)
   {
     d->useShadersForExplosions = use;
   }
 
 
-  bool Settings::useShadersForExplosions(void) const
+  bool LocalSettings::useShadersForExplosions(void) const
   {
     return d->useShadersForExplosions;
   }
 
 
-  void Settings::setLastOpenDir(std::string lastOpenDir)
+  void LocalSettings::setLastOpenDir(std::string lastOpenDir)
   {
     d->lastOpenDir = lastOpenDir;
   }
 
 
-  const std::string &Settings::lastOpenDir(void) const
+  const std::string &LocalSettings::lastOpenDir(void) const
   {
     return d->lastOpenDir;
   }
 
 
-  const std::string &Settings::levelsDir(void) const
+  const std::string &LocalSettings::levelsDir(void) const
   {
     return d->levelsDir;
   }
 
 
-  const std::string &Settings::musicDir(void) const
+  const std::string &LocalSettings::musicDir(void) const
   {
     return d->musicDir;
   }
 
 
-  const std::string &Settings::soundFXDir(void) const
+  const std::string &LocalSettings::soundFXDir(void) const
   {
     return d->soundFXDir;
   }
 
 
-  void Settings::setMusicVolume(float volume)
+  void LocalSettings::setMusicVolume(float volume)
   {
     d->musicVolume = volume;
   }
 
 
-  float Settings::musicVolume(void) const
+  float LocalSettings::musicVolume(void) const
   {
     return d->musicVolume;
   }
 
 
-  void Settings::setSoundFXVolume(float volume)
+  void LocalSettings::setSoundFXVolume(float volume)
   {
     d->musicVolume = volume;
   }
 
 
-  float Settings::soundFXVolume(void) const
+  float LocalSettings::soundFXVolume(void) const
   {
     return d->soundfxVolume;
   }
 
 
-  void Settings::setParticlesPerExplosion(unsigned int n)
+  void LocalSettings::setParticlesPerExplosion(unsigned int n)
   {
     d->particlesPerExplosion = n;
   }
 
 
-  unsigned int Settings::particlesPerExplosion(void) const
+  unsigned int LocalSettings::particlesPerExplosion(void) const
   {
     return d->particlesPerExplosion;
   }
 
 
-  void Settings::setLastCampaignLevel(int level) const
+  void LocalSettings::setLastCampaignLevel(int level) const
   {
     d->lastCampaignLevel = level;
   }
 
 
-  int Settings::lastCampaignLevel(void) const
+  int LocalSettings::lastCampaignLevel(void) const
   {
     return d->lastCampaignLevel;
   }
 
 
-  void Settings::setFramerateLimit(int limit)
+  void LocalSettings::setFramerateLimit(int limit)
   {
     d->framerateLimit = limit;
   }
 
 
-  int Settings::framerateLimit(void) const
+  int LocalSettings::framerateLimit(void) const
   {
     return d->framerateLimit;
   }
 
 
-  void Settings::setPositionIterations(int n)
+  void LocalSettings::setPositionIterations(int n)
   {
     d->positionIterations = n;
   }
 
 
-  int Settings::positionIterations(void) const
+  int LocalSettings::positionIterations(void) const
   {
     return d->positionIterations;
   }
 
 
-  void Settings::setVelocityIterations(int n)
+  void LocalSettings::setVelocityIterations(int n)
   {
     d->velocityIterations = n;
   }
 
 
-  int Settings::velocityIterations(void) const
+  int LocalSettings::velocityIterations(void) const
   {
     return d->velocityIterations;
   }
+
+
+  void LocalSettings::setHighscore(int level, uint64_t score)
+  {
+    d->highscores[level] = score;
+  }
+
+
+  void LocalSettings::setHighscore(uint64_t score)
+  {
+    d->campaignHighscore = score;
+  }
+
+
+  bool LocalSettings::isHighscore(uint64_t score) const
+  {
+    return score > d->campaignHighscore;
+  }
+
+
+  bool LocalSettings::isHighscore(int level, uint64_t score) const
+  {
+    std::map<int, uint64_t>::const_iterator h = d->highscores.find(level);
+    if (h == d->highscores.end())
+      return true;
+    return score > h->second;
+  }
+
 
 }

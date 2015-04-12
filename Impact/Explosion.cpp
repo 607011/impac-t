@@ -42,7 +42,7 @@ namespace Impact {
     setLifetime(def.maxLifetime);
     mTexture = def.texture;
 
-    if (gSettings.useShaders() && gSettings.useShadersForExplosions()) {
+    if (gLocalSettings.useShaders() && gLocalSettings.useShadersForExplosions()) {
       mShader = ShaderPool::getNext();
       mShader->setParameter("uTexture", sf::Shader::CurrentTexture);
       mShader->setParameter("uMaxAge", def.maxLifetime.asSeconds());

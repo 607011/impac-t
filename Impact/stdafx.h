@@ -62,7 +62,7 @@
 #include <Box2D/Box2D.h>
 
 #include "util.h"
-#include "Settings.h"
+#include "LocalSettings.h"
 #include "globals.h"
 #include "Easings.h"
 #include "Timer.h"

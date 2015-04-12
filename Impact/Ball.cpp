@@ -47,7 +47,7 @@ namespace Impact {
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(halfW, halfH);
 
-    if (gSettings.useShaders()) {
+    if (gLocalSettings.useShaders()) {
       mShader.loadFromFile(ShadersDir + "/motionblur.vs", ShadersDir + "/motionblur.fs");
       mShader.setParameter("uBlur", 2.f);
       mShader.setParameter("uResolution", float(mTexture.getSize().x), float(mTexture.getSize().y));
@@ -79,7 +79,7 @@ namespace Impact {
   void Ball::onUpdate(float elapsedSeconds)
   {
     UNUSED(elapsedSeconds);
-    if (gSettings.useShaders()) {
+    if (gLocalSettings.useShaders()) {
       mShader.setParameter("uV", mBody->GetLinearVelocity().x, mBody->GetLinearVelocity().y);
       mShader.setParameter("uRot", mBody->GetAngle());
     }
@@ -92,7 +92,7 @@ namespace Impact {
 
   void Ball::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
   {
-    if (gSettings.useShaders()) {
+    if (gLocalSettings.useShaders()) {
       states.shader = &mShader;
     }
     target.draw(mSprite, states);

@@ -17,8 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef __SETTINGS_H_
-#define __SETTINGS_H_
+#ifndef __LOCALSETTINGS_H_
+#define __LOCALSETTINGS_H_
 
 #include <string>
 #include <map>
@@ -27,11 +27,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace Impact {
 
-  class SettingsPrivate;
+  class LocalSettingsPrivate;
 
-  class Settings {
+  class LocalSettings {
   public:
-    Settings(void);
+    LocalSettings(void);
 
     bool save(void);
     bool load(void);
@@ -60,14 +60,18 @@ namespace Impact {
     void setVelocityIterations(int);
     int velocityIterations(void) const;
 
+    void setHighscore(int level, uint64_t score);
+    void setHighscore(uint64_t score);
+    bool isHighscore(uint64_t score) const;
+    bool isHighscore(int level, uint64_t score) const;
+
   private:
-    std::shared_ptr<SettingsPrivate> d;
+    std::shared_ptr<LocalSettingsPrivate> d;
 
     friend class boost::serialization::access;
-    template<class archive>
-    void serialize(archive& ar, const unsigned int version);
+    template<class archive>void serialize(archive& ar, const unsigned int version);
   };
 
 }
 
-#endif // __SETTINGS_H_
+#endif // __LOCALSETTINGS_H_

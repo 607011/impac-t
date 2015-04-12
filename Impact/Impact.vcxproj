@@ -138,6 +138,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="LocalSettings.cpp" />
     <ClCompile Include="Recorder.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -155,9 +156,6 @@
       </PrecompiledHeaderOutputFile>
       <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4996</DisableSpecificWarnings>
       <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4996</DisableSpecificWarnings>
-    </ClCompile>
-    <ClCompile Include="Settings.cpp">
-      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <ClCompile Include="Explosion.cpp" />
     <ClCompile Include="Body.cpp" />
@@ -179,13 +177,13 @@
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LocalSettings.h" />
     <ClInclude Include="Recorder.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="resource.h" />
     <ClInclude Include="sha1.h" />
     <ClInclude Include="..\zip-utils\unzip.h" />
-    <ClInclude Include="Settings.h" />
     <ClInclude Include="Explosion.h" />
     <ClInclude Include="Body.h" />
     <ClInclude Include="Ball.h" />

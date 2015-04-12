@@ -27,7 +27,7 @@
 #include <SFML/OpenGL.hpp>
 
 #include "globals.h"
-#include "Settings.h"
+#include "LocalSettings.h"
 #include "Level.h"
 #include "Ball.h"
 #include "Racket.h"
@@ -320,6 +320,8 @@ namespace Impact {
     sf::Clock mScaleBallDensityClock;
     sf::Time mScaleBallDensityDuration;
     bool mScaleBallDensityEnabled;
+    bool mNewHighscore;
+    sf::Text mNewHighscoreMsg;
     sf::Text mLevelCompletedMsg;
     sf::Text mGameOverMsg;
     sf::Text mPlayerWonMsg;
@@ -327,7 +329,6 @@ namespace Impact {
     sf::Text mCurrentScoreMsg;
     sf::Text mYourScoreMsg;
     sf::Text mTotalScoreMsg;
-    sf::Text mTotalScorePointsMsg;
     sf::Text mStatMsg;
     sf::Text mStartMsg;
     sf::Text mProgramInfoMsg;
@@ -365,8 +366,8 @@ namespace Impact {
     State mState;
     State mLastState;
     Playmode mPlaymode;
-    int mLevelScore;
-    int mTotalScore;
+    int64_t mLevelScore;
+    int64_t mTotalScore;
     unsigned int mLives;
     BodyList mBodies;
     int mBlockCount;
@@ -398,13 +399,16 @@ namespace Impact {
     void playSound(const sf::SoundBuffer &buffer, const b2Vec2 &pos = DefaultCenter);
     void setMusicVolume(float volume);
     void playMusic(Music music, bool loop = true);
-    int calcPenalty(void) const;
-    int deductPenalty(int score) const;
+    int64_t calcPenalty(void) const;
+    int64_t deductPenalty(int64_t score) const;
     void createStatsViewRectangle(void);
     void addSpecialEffect(const SpecialEffect &);
     void createMainWindow(void);
-    void showScore(int score, const b2Vec2 &atPos, int factor = 1);
-    void addToScore(int);
+    void displayHighscoreMessage(void);
+    void checkHighscoreForCampaign(void);
+    void checkHighscore(void);
+    void showScore(int64_t score, const b2Vec2 &atPos, int factor = 1);
+    void addToScore(int64_t);
     void newBall(const b2Vec2 &pos = b2Vec2_zero);
 	  sf::Vector2f getCursorPosition(void) const;
     void setCursorOnRacket(void);

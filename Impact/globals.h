@@ -23,11 +23,11 @@
 
 #include <string>
 #include <random>
-#include "Settings.h"
+#include "LocalSettings.h"
 
 namespace Impact {
 
-#define IMPACT_VERSION "1.0"
+#define IMPACT_VERSION "1.0.1"
 
 #define ResourcesDir std::string("resources")
 #define ImagesDir ResourcesDir + "/images"
@@ -37,7 +37,7 @@ namespace Impact {
   extern std::mt19937 gRNG;
   extern void warmupRNG(void);
 
-  extern Settings gSettings;
+  extern LocalSettings gLocalSettings;
 }
 
 
