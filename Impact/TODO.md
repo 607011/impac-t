@@ -32,11 +32,9 @@
  - new playmode: best score in given time
  - new level option: constrain racket to bottom of screen as in the original Breakout game
  - new block property: racket grows or shrinks
- - new block property: multi-ball
  - new block property: ball sticks to racket and can be shot straight upwards
  - new block property: racket can shoot like a laser gun
  - two player mode as in the classic Pong game with blocks in between the players
- - special tiles that act like a bumper in pinball games
 
 
 ## Maybe
