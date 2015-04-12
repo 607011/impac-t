@@ -48,7 +48,7 @@ namespace Impact {
     static const std::string Name;
 
   private:
-    static const int TextureMargin = 120;
+    static const int TextureMargin = 24;
 
   };
 
