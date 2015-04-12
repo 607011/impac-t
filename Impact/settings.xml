@@ -1,10 +1,14 @@
-<impact class_id="0" tracking_level="1" version="0" object_id="_0">
+<impact class_id="0" tracking_level="1" version="1" object_id="_0">
   <use-shaders>1</use-shaders>
   <use-shaders-for-explosions>1</use-shaders-for-explosions>
   <explosion-particle-count>66</explosion-particle-count>
   <highscores class_id="1" tracking_level="0" version="0">
-    <count>0</count>
+    <count>1</count>
     <item_version>0</item_version>
+    <item class_id="2" tracking_level="0" version="0">
+      <first>1</first>
+      <second>25151</second>
+    </item>
   </highscores>
   <frame-rate-limit>0</frame-rate-limit>
   <velocity-iterations>32</velocity-iterations>
