@@ -1391,11 +1391,6 @@ namespace Impact {
             newBall();
           }
         }
-        else if (event.key.code == sf::Keyboard::P) {
-          std::time_t result = std::time(nullptr);
-          mLevelScore = result;
-          gotoPlayerWon();
-        }
         break;
       }
     }
