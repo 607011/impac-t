@@ -130,7 +130,6 @@ namespace Impact {
     : mWorld(nullptr)
     , mDisplayCount(0)
     , mBallHasBeenLost(false)
-    , mBall(nullptr)
     , mRacket(nullptr)
     , mGround(nullptr)
     , mContactPointCount(0)
@@ -734,7 +733,7 @@ namespace Impact {
 
   void Game::clearWorld(void)
   {
-    safeDelete(mBall);
+    mBalls.clear();
     if (mWorld != nullptr) {
       b2Body *node = mWorld->GetBodyList();
       while (node) {
@@ -1371,7 +1370,7 @@ namespace Impact {
         }
         break;
       case sf::Event::MouseButtonPressed:
-        if (mBall == nullptr)
+        if (mBalls.empty())
           newBall();
         break;
       case sf::Event::KeyPressed:
@@ -1381,29 +1380,41 @@ namespace Impact {
           else
             resume();
         }
+        else if (event.key.code == sf::Keyboard::X) {
+          const b2Vec2 &racketPos = mRacket->position();
+          newBall(b2Vec2(racketPos.x, racketPos.y - 1.2f * sign(mLevel.gravity())));
+        }
         else if (event.key.code == mKeyMapping[RecoverBallAction] || event.key.code == sf::Keyboard::Space) {
-          if (mBall != nullptr) {
-            const b2Vec2 &padPos = mRacket->position();
-            mBall->setPosition(b2Vec2(padPos.x, padPos.y - 3.5f));
-            showScore(-DefaultForceNewBallPenalty, mBall->position());
+          if (mBalls.empty()) {
+            newBall();
           }
           else {
-            newBall();
+            const b2Vec2 &padPos = mRacket->position();
+            for (std::vector<Ball*>::iterator b = mBalls.begin(); b != mBalls.end(); ++b) {
+              Ball *ball = *b;
+              ball->setPosition(b2Vec2(padPos.x, padPos.y - 3.5f));
+              showScore(-DefaultForceNewBallPenalty, ball->position());
+            }
           }
         }
         break;
       }
     }
 
-    if (mBall != nullptr) { // check if ball has been kicked out of the screen
-      const float ballX = mBall->position().x;
-      const float ballY = mBall->position().y;
-      if (0 > ballX || ballX > float(mLevel.width()) || 0 > ballY) {
-        mBall->kill();
-      }
-      else if (ballY > mLevel.height()) {
-        mBall->lethalHit();
-        mBall->kill();
+    if (!mBalls.empty()) { // check if ball has been kicked out of the screen
+      for (std::vector<Ball*>::iterator b = mBalls.begin(); b != mBalls.end(); ++b) {
+        Ball *ball = *b;
+        if (ball != nullptr) {
+          const float ballX = ball->position().x;
+          const float ballY = ball->position().y;
+          if (0 > ballX || ballX > float(mLevel.width()) || 0 > ballY) {
+            ball->kill();
+          }
+          else if (ballY > mLevel.height()) {
+            ball->lethalHit();
+            ball->kill();
+          }
+        }
       }
     }
 
@@ -1455,8 +1466,11 @@ namespace Impact {
     }
 
     if (mScaleBallDensityEnabled && mScaleBallDensityClock.getElapsedTime() > mScaleBallDensityDuration) {
-      if (mBall && mBall->isAlive()) {
-        mBall->setDensity(mBall->tileParam().density.get());
+      for (std::vector<Ball*>::iterator b = mBalls.begin(); b != mBalls.end(); ++b) {
+        Ball *ball = *b;
+        if (ball != nullptr && ball->isAlive()) {
+          ball->setDensity(ball->tileParam().density.get());
+        }
       }
       mScaleBallDensityEnabled = false;
 #ifndef NDEBUG
@@ -2010,7 +2024,7 @@ namespace Impact {
   inline void Game::executeVignette(sf::RenderTexture &out, sf::RenderTexture &in, bool copyBack)
   {
     if (gLocalSettings.useShaders()) {
-      if (mRacket != nullptr && mBall != nullptr) {
+      if (mRacket != nullptr && !mBalls.empty()) {
         mVignetteShader.setParameter("uHSV", mHSVShift);
         sf::RenderStates states;
         sf::Sprite sprite(in.getTexture());
@@ -2469,8 +2483,11 @@ namespace Impact {
           remainingBodies.push_back(body);
         }
         else {
-          if (body->type() == Body::BodyType::Ball)
-            mBall = nullptr;
+          if (body->type() == Body::BodyType::Ball) {
+            for (std::vector<Ball*>::iterator b = mBalls.begin(); b != mBalls.end(); ++b)
+              *b = nullptr;
+            std::remove_if(mBalls.begin(), mBalls.end(), [](Ball* ball) { return ball == nullptr; });
+          }
           delete body;
         }
       }
@@ -2617,11 +2634,14 @@ namespace Impact {
         if (tileId >= mLevel.firstGID()) {
           if (tileParam.textureName == Ball::Name) {
             newBall(pos);
-            mBall->setDensity(tileParam.density.get());
-            mBall->setRestitution(tileParam.restitution.get());
-            mBall->setFriction(tileParam.friction.get());
-            mBall->setSmooth(tileParam.smooth);
-            mBall->setTileParam(tileParam);
+            for (std::vector<Ball*>::iterator b = mBalls.begin(); b != mBalls.end(); ++b) {
+              Ball *ball = *b;
+              ball->setDensity(tileParam.density.get());
+              ball->setRestitution(tileParam.restitution.get());
+              ball->setFriction(tileParam.friction.get());
+              ball->setSmooth(tileParam.smooth);
+              ball->setTileParam(tileParam);
+            }
           }
           else if (tileParam.textureName == Racket::Name) {
             mRacket = new Racket(this, pos, mGround->body());
@@ -2750,15 +2770,16 @@ namespace Impact {
   void Game::newBall(const b2Vec2 &pos)
   {
     playSound(mNewBallSound);
-    safeRenew(mBall, new Ball(this));
+    Ball *ball = new Ball(this);
+    mBalls.push_back(ball);
     if (mBallHasBeenLost) {
-      const b2Vec2 &padPos = mRacket->position();
-      mBall->setPosition(b2Vec2(padPos.x, padPos.y - 1.2f * sign(mLevel.gravity())));
+      const b2Vec2 &racketPos = mRacket->position();
+      ball->setPosition(b2Vec2(racketPos.x, racketPos.y - 1.2f * sign(mLevel.gravity())));
     }
     else {
-      mBall->setPosition(pos);
+      ball->setPosition(pos);
     }
-    addBody(mBall);
+    addBody(ball);
   }
 
 
@@ -2892,6 +2913,9 @@ namespace Impact {
         startEarthquake(tileParam.earthquakeIntensity, tileParam.earthquakeDuration);
         addSpecialEffect(SpecialEffect(mEarthquakeDuration, &mEarthquakeClock, killedBody->texture()));
       }
+      if (tileParam.multiball) {
+        newBall(killedBody->position());
+      }
       //MOD Tileparam
       if (tileParam.scaleGravityDuration > sf::Time::Zero) {
         mWorld->SetGravity(tileParam.scaleGravityBy * mWorld->GetGravity());
@@ -2906,7 +2930,10 @@ namespace Impact {
         addSpecialEffect(SpecialEffect(mScaleGravityDuration, &mScaleGravityClock, killedBody->texture()));
       }
       if (tileParam.scaleBallDensityDuration > sf::Time::Zero) {
-        mBall->setDensity(tileParam.scaleBallDensityBy * mBall->tileParam().density.get());
+        for (std::vector<Ball*>::iterator b = mBalls.begin(); b != mBalls.end(); ++b) {
+          Ball *ball = *b;
+          ball->setDensity(tileParam.scaleBallDensityBy * ball->tileParam().density.get());
+        }
         mScaleBallDensityEnabled = true;
         mScaleBallDensityClock.restart();
         mScaleBallDensityDuration = tileParam.scaleBallDensityDuration;
@@ -2919,8 +2946,10 @@ namespace Impact {
         playSound(mBallOutSound, killedBody->position());
         mBallHasBeenLost = true;
         if (killedBody->energy() == 0) {
-          if (mLives-- == 0) {
-            gotoGameOver();
+          if (mBalls.size() == 1) {
+            if (mLives-- == 0) {
+              gotoGameOver();
+            }
           }
         }
       }
@@ -2940,9 +2969,8 @@ namespace Impact {
       SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
 #endif
       if (mLevels.empty()) {
-        Level level;
         for (int l = 1; !mQuitEnumeration; ++l) {
-          level = Level(l);
+          Level level(l);
           if (level.isAvailable()) {
             mEnumerateMutex.lock();
             mLevels.push_back(level);

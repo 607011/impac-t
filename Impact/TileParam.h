@@ -40,6 +40,7 @@ namespace Impact {
       , minimumHitImpulse(5)
       , minimumKillImpulse(50)
       , earthquakeIntensity(.1f)
+      , multiball(false)
       //MOD Keyhole2
     { /* ... */ }
     TileParam(const TileParam &other)
@@ -58,6 +59,7 @@ namespace Impact {
       , scaleBallDensityBy(other.scaleBallDensityBy)
       , earthquakeDuration(other.earthquakeDuration)
       , earthquakeIntensity(other.earthquakeIntensity)
+      , multiball(other.multiball)
     { /* ... */ }
     int score;
     std::string textureName;
@@ -76,6 +78,7 @@ namespace Impact {
     float32 scaleBallDensityBy;
     sf::Time earthquakeDuration;
     float32 earthquakeIntensity;
+    bool multiball;
     //MOD Keyhole1
   };
 

@@ -422,10 +422,10 @@ namespace Impact {
                   tileParam.textureName = property.get<std::string>("<xmlattr>.value");
                 }
                 else if (propName == "points") {
-                  tileParam.score = property.get<int>("<xmlattr>.value");
+                  tileParam.score = property.get<int>("<xmlattr>.value", 0);
                 }
                 else if (propName == "fixed") {
-                  tileParam.fixed = property.get<bool>("<xmlattr>.value");
+                  tileParam.fixed = property.get<bool>("<xmlattr>.value", false);
                 }
                 //MOD Property2
                 else if (propName == "friction") {
@@ -438,36 +438,40 @@ namespace Impact {
                   tileParam.density = property.get<float32>("<xmlattr>.value");
                 }
                 else if (propName == "gravityscale") {
-                  tileParam.gravityScale = property.get<float32>("<xmlattr>.value");
+                  tileParam.gravityScale = property.get<float32>("<xmlattr>.value", 1.f);
                 }
                 else if (propName == "scalegravityby") {
-                  tileParam.scaleGravityBy = property.get<float32>("<xmlattr>.value");
+                  tileParam.scaleGravityBy = property.get<float32>("<xmlattr>.value", 0.f);
                 }
                 else if (propName == "scalegravityseconds") {
-                  tileParam.scaleGravityDuration = sf::seconds(property.get<float32>("<xmlattr>.value"));
+                  tileParam.scaleGravityDuration = sf::seconds(property.get<float32>("<xmlattr>.value", 0.f));
                 }
                 else if (propName == "scaleballdensityby") {
-                  tileParam.scaleBallDensityBy = property.get<float32>("<xmlattr>.value");
+                  tileParam.scaleBallDensityBy = property.get<float32>("<xmlattr>.value", 0.f);
                 }
                 else if (propName == "scaleballdensityseconds") {
-                  tileParam.scaleBallDensityDuration = sf::seconds(property.get<float32>("<xmlattr>.value"));
+                  tileParam.scaleBallDensityDuration = sf::seconds(property.get<float32>("<xmlattr>.value", 0.f));
                 }
                 else if (propName == "minimumhitimpulse") {
-                  tileParam.minimumHitImpulse = property.get<int>("<xmlattr>.value");
+                  tileParam.minimumHitImpulse = property.get<int>("<xmlattr>.value", 5);
                 }
                 else if (propName == "minimumkillimpulse") {
-                  tileParam.minimumKillImpulse = property.get<int>("<xmlattr>.value");
+                  tileParam.minimumKillImpulse = property.get<int>("<xmlattr>.value", 50);
                 }
                 else if (propName == "smooth") {
-                  tileParam.smooth = property.get<bool>("<xmlattr>.value");
+                  tileParam.smooth = property.get<bool>("<xmlattr>.value", true);
                 }
                 else if (propName == "earthquakeseconds") {
-                  tileParam.earthquakeDuration = sf::seconds(property.get<float32>("<xmlattr>.value"));
+                  tileParam.earthquakeDuration = sf::seconds(property.get<float32>("<xmlattr>.value", 0));
                 }
                 else if (propName == "earthquakeintensity") {
-                  tileParam.earthquakeIntensity = .05f * property.get<float32>("<xmlattr>.value") ;
+                  tileParam.earthquakeIntensity = .05f * property.get<float32>("<xmlattr>.value", 0.f) ;
                 }
-              } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
+                else if (propName == "multiball") {
+                  tileParam.multiball = property.get<bool>("<xmlattr>.value", false);
+                }
+              }
+              catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
             }
           }
           if (!tileParam.fixed.isValid())
