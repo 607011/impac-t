@@ -345,6 +345,8 @@ namespace Impact {
     sf::SoundBuffer mNewLifeSound;
     sf::SoundBuffer mLevelCompleteSound;
     sf::SoundBuffer mKillingSpreeSound;
+    sf::SoundBuffer mMultiballSound;
+    sf::SoundBuffer mHighscoreSound;
 
     std::vector<sf::Music> mMusic;
     std::vector<int> mFPSArray;
@@ -384,6 +386,7 @@ namespace Impact {
     std::vector<sf::Time> mLastKillings;
     int mLastKillingsIndex;
     std::vector<SpecialEffect> mSpecialEffects;
+    bool mHighscoreReached;
 
     std::string mLevelZipFilename;
     int mDisplayCount;

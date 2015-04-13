@@ -170,6 +170,7 @@ namespace Impact {
     , mGLSLVersionMinor(0)
     , mShadersAvailable(sf::Shader::isAvailable())
     , mQuitEnumeration(false)
+    , mHighscoreReached(false)
 #ifndef NO_RECORDER
     , mRec(nullptr)
     , mRecorderEnabled(false)
@@ -481,6 +482,13 @@ namespace Impact {
     if (!ok)
       std::cerr << gLocalSettings.soundFXDir() + "/killing-spree.ogg failed to load." << std::endl;
 
+    ok = mMultiballSound.loadFromFile(gLocalSettings.soundFXDir() + "/multiball.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gLocalSettings.soundFXDir() + "/multiball-spree.ogg failed to load." << std::endl;
+
+    ok = mHighscoreSound.loadFromFile(gLocalSettings.soundFXDir() + "/highscore.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gLocalSettings.soundFXDir() + "/highscore.ogg failed to load." << std::endl;
   }
 
 
@@ -1313,6 +1321,7 @@ namespace Impact {
       buildLevel();
       mHighscoreMsg.setString("highscore: " + std::to_string(gLocalSettings.highscore(mLevel.num())));
       mHighscoreMsg.setPosition(mStatsView.getSize().x - mHighscoreMsg.getLocalBounds().width - 4, 36);
+      mHighscoreReached = false;
       stopBlurEffect();
       mFadeEffectsActive = 0;
       mEarthquakeDuration = sf::Time::Zero;
@@ -2747,6 +2756,16 @@ namespace Impact {
       }
     }
     mLevelScore = std::max(0LL, newScore);
+    if (!mHighscoreReached) {
+      const int level = mLevel.num();
+      const uint64_t totalScore = deductPenalty(mLevelScore);
+      const uint64_t highscore = gLocalSettings.highscore(level);
+      if (totalScore > highscore && highscore != 0) {
+        gLocalSettings.setHighscore(level, totalScore);
+        playSound(mHighscoreSound);
+        mHighscoreReached = true;
+      }
+    }
   }
 
 
@@ -2777,7 +2796,6 @@ namespace Impact {
   {
     playSound(mNewBallSound);
     Ball *ball = new Ball(this);
-    mBalls.push_back(ball);
     if (mBallHasBeenLost) {
       const b2Vec2 &racketPos = mRacket->position();
       ball->setPosition(b2Vec2(racketPos.x, racketPos.y - 1.2f * sign(mLevel.gravity())));
@@ -2921,6 +2939,7 @@ namespace Impact {
       }
       if (tileParam.multiball) {
         newBall(killedBody->position());
+        playSound(mMultiballSound);
       }
       //MOD Tileparam
       if (tileParam.scaleGravityDuration > sf::Time::Zero) {
