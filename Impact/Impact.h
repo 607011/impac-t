@@ -327,6 +327,7 @@ namespace Impact {
     sf::Text mPlayerWonMsg;
     sf::Text mScoreMsg;
     sf::Text mCurrentScoreMsg;
+    sf::Text mHighscoreMsg;
     sf::Text mYourScoreMsg;
     sf::Text mTotalScoreMsg;
     sf::Text mStatMsg;

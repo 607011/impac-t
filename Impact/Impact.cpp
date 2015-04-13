@@ -272,6 +272,9 @@ namespace Impact {
     mCurrentScoreMsg.setFont(mFixedFont);
     mCurrentScoreMsg.setCharacterSize(16U);
 
+    mHighscoreMsg.setFont(mFixedFont);
+    mHighscoreMsg.setCharacterSize(16U);
+
     mTotalScoreMsg.setFont(mFixedFont);
     mTotalScoreMsg.setCharacterSize(64U);
 
@@ -1308,6 +1311,8 @@ namespace Impact {
       if (mPlaymode == Campaign)
         gLocalSettings.setLastCampaignLevel(mLevel.num());
       buildLevel();
+      mHighscoreMsg.setString("highscore: " + std::to_string(gLocalSettings.highscore(mLevel.num())));
+      mHighscoreMsg.setPosition(mStatsView.getSize().x - mHighscoreMsg.getLocalBounds().width - 4, 36);
       stopBlurEffect();
       mFadeEffectsActive = 0;
       mEarthquakeDuration = sf::Time::Zero;
@@ -2308,6 +2313,7 @@ namespace Impact {
     if (mState == State::Playing) {
       mWindow.draw(mScoreMsg);
       mWindow.draw(mCurrentScoreMsg);
+      mWindow.draw(mHighscoreMsg);
       for (unsigned int life = 0; life < mLives; ++life) {
         const sf::Texture &ballTexture = mLevel.texture(Ball::Name);
         sf::Sprite lifeSprite(ballTexture);
