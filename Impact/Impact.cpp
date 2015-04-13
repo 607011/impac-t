@@ -2467,13 +2467,13 @@ namespace Impact {
           if (cp.normalImpulse > 20)
             playSound(mRacketHitSound, ball->position());
         }
-        else if (a->type() == Body::BodyType::Wall || b->type() == Body::BodyType::Wall) {
-          Wall *wall = reinterpret_cast<Wall*>(a->type() == Body::BodyType::Wall ? a : b);
-          if (wall->tileParam().fixed.get() /* && wall is bumper */) {
-            // TODO: bumper effect
-            ball->body()->ApplyLinearImpulse(+2.f * ball->body()->GetLinearVelocity(), ball->body()->GetPosition(), true);
-          }
-        }
+      }
+      if (a->type() == Body::BodyType::Bumper || b->type() == Body::BodyType::Bumper) {
+        Bumper *bumper = reinterpret_cast<Bumper*>(a->type() == Body::BodyType::Bumper ? a : b);
+        Body *other = a->type() != Body::BodyType::Bumper ? a : b;
+        b2Vec2 impulse = other->position() - bumper->position();
+        impulse.Normalize();
+        other->body()->ApplyLinearImpulse(bumper->tileParam().bumperImpulse * impulse, other->body()->GetPosition(), true);
       }
     }
   }
@@ -2656,21 +2656,24 @@ namespace Impact {
         const TileParam &tileParam = mLevel.tileParam(tileId);
         if (tileId >= mLevel.firstGID()) {
           if (tileParam.textureName == Ball::Name) {
-            newBall(pos);
-            for (std::vector<Ball*>::iterator b = mBalls.begin(); b != mBalls.end(); ++b) {
-              Ball *ball = *b;
-              ball->setDensity(tileParam.density.get());
-              ball->setRestitution(tileParam.restitution.get());
-              ball->setFriction(tileParam.friction.get());
-              ball->setSmooth(tileParam.smooth);
-              ball->setTileParam(tileParam);
-            }
+            Ball *ball = newBall(pos);
+            ball->setDensity(tileParam.density.get());
+            ball->setRestitution(tileParam.restitution.get());
+            ball->setFriction(tileParam.friction.get());
+            ball->setSmooth(tileParam.smooth);
+            ball->setTileParam(tileParam);
           }
           else if (tileParam.textureName == Racket::Name) {
             mRacket = new Racket(this, pos, mGround->body());
             mRacket->setSmooth(tileParam.smooth);
             // mRacket->setXAxisConstraint(mLevel.height() - .5f);
             addBody(mRacket);
+          }
+          else if (tileParam.textureName == Bumper::Name) {
+            Bumper *bumper = new Bumper(tileId, this);
+            bumper->setSmooth(tileParam.smooth);
+            bumper->setPosition(pos);
+            addBody(bumper);
           }
           else if (tileParam.fixed.get()) {
             Wall *wall = new Wall(tileId, this);
@@ -2800,7 +2803,7 @@ namespace Impact {
   }
 
 
-  void Game::newBall(const b2Vec2 &pos)
+  Ball *Game::newBall(const b2Vec2 &pos)
   {
     playSound(mNewBallSound);
     Ball *ball = new Ball(this);
@@ -2813,6 +2816,7 @@ namespace Impact {
     else {
       ball->setPosition(pos);
     }
+    return ball;
   }
 
 

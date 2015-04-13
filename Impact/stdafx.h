@@ -72,6 +72,7 @@
 #include "Body.h"
 #include "Text.h"
 #include "Block.h"
+#include "Bumper.h"
 #include "Ball.h"
 #include "Racket.h"
 #include "Ground.h"

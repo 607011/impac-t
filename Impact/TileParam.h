@@ -40,6 +40,7 @@ namespace Impact {
       , minimumHitImpulse(5)
       , minimumKillImpulse(50)
       , earthquakeIntensity(.1f)
+      , bumperImpulse(20.f)
       , multiball(false)
       //MOD Keyhole2
     { /* ... */ }
@@ -59,6 +60,7 @@ namespace Impact {
       , scaleBallDensityBy(other.scaleBallDensityBy)
       , earthquakeDuration(other.earthquakeDuration)
       , earthquakeIntensity(other.earthquakeIntensity)
+      , bumperImpulse(other.bumperImpulse)
       , multiball(other.multiball)
     { /* ... */ }
     int score;
@@ -78,6 +80,7 @@ namespace Impact {
     float32 scaleBallDensityBy;
     sf::Time earthquakeDuration;
     float32 earthquakeIntensity;
+    float32 bumperImpulse;
     bool multiball;
     //MOD Keyhole1
   };

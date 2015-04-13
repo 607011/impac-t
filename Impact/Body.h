@@ -42,6 +42,7 @@ namespace Impact {
     typedef enum _BodyType {
       // misc
       Nobody,
+      Bumper,
       Block,
       BlockGreen,
       BlockYellow,

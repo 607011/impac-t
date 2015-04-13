@@ -29,10 +29,12 @@
 #include "../zip-utils/unzip.h"
 #include "sha1.h"
 
+#if defined(WIN32)
 #include <Shlwapi.h>
-#include <memory.h>
+#endif
 
-#define NDEBUG 1
+
+// #define NDEBUG 1
 
 namespace Impact {
 
@@ -417,10 +419,10 @@ namespace Impact {
               try {
                 std::string propName = property.get<std::string>("<xmlattr>.name");
                 boost::algorithm::to_lower(propName);
-                //MOD Property1
                 if (propName == "name") {
                   tileParam.textureName = property.get<std::string>("<xmlattr>.value");
                 }
+                //MOD Property1
                 else if (propName == "points") {
                   tileParam.score = property.get<int>("<xmlattr>.value", 0);
                 }
@@ -467,6 +469,9 @@ namespace Impact {
                 else if (propName == "earthquakeintensity") {
                   tileParam.earthquakeIntensity = .05f * property.get<float32>("<xmlattr>.value", 0.f) ;
                 }
+                else if (propName == "impulse") {
+                  tileParam.bumperImpulse = property.get<float32>("<xmlattr>.value", 20.f);
+                }
                 else if (propName == "multiball") {
                   tileParam.multiball = property.get<bool>("<xmlattr>.value", false);
                 }
@@ -475,7 +480,7 @@ namespace Impact {
             }
           }
           if (!tileParam.fixed.isValid())
-            tileParam.fixed = tileParam.textureName == Wall::Name;
+            tileParam.fixed = tileParam.textureName == Wall::Name || tileParam.textureName == Bumper::Name;
           if (!tileParam.density.isValid()) {
             if (tileParam.textureName == Ball::Name)
               tileParam.density = Ball::DefaultDensity;
