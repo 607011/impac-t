@@ -2485,8 +2485,8 @@ namespace Impact {
         else {
           if (body->type() == Body::BodyType::Ball) {
             const Ball *const ball = reinterpret_cast<Ball*>(body);
-            std::vector<Ball*>::const_iterator body2remove = std::find(mBalls.cbegin(), mBalls.cend(), ball);
-            mBalls.erase(body2remove);
+            std::vector<Ball*>::const_iterator ball2remove = std::find(mBalls.cbegin(), mBalls.cend(), ball);
+            mBalls.erase(ball2remove);
           }
           delete body;
         }
