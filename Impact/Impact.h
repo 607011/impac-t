@@ -165,7 +165,7 @@ namespace Impact {
     static const unsigned int DefaultLives;
     static const unsigned int NewLiveAfterSoManyPointsDefault;
     static const unsigned int NewLiveAfterSoManyPoints[];
-    static const int MaxSoundFX = 8;
+    static const int MaxSoundFX = 16;
     static const int DefaultForceNewBallPenalty;
     static const int32 MaxContactPoints = 512;
     static const sf::Time DefaultFadeEffectDuration;
