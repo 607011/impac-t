@@ -48,8 +48,8 @@ namespace Impact {
     { /* ... */
     }
     BodyType type(void) const { return Body::BodyType::LeftBoundary; }
-    virtual void onUpdate(float elapsedSeconds) { UNUSED(elapsedSeconds); }
-    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const  { UNUSED(target); UNUSED(states); };
+    virtual void onUpdate(float) { /* ... */ }
+    virtual void onDraw(sf::RenderTarget &, sf::RenderStates) const  { /* ... */ };
   };
 
   class RightBoundary : public Body
@@ -60,8 +60,8 @@ namespace Impact {
     { /* ... */
     }
     BodyType type(void) const { return Body::BodyType::RightBoundary; }
-    virtual void onUpdate(float elapsedSeconds) { UNUSED(elapsedSeconds); }
-    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const  { UNUSED(target); UNUSED(states); };
+    virtual void onUpdate(float) { /* ... */ }
+    virtual void onDraw(sf::RenderTarget &, sf::RenderStates) const  { /* ... */ };
   };
 
   class TopBoundary : public Body
@@ -72,8 +72,8 @@ namespace Impact {
     { /* ... */
     }
     BodyType type(void) const { return Body::BodyType::TopBoundary; }
-    virtual void onUpdate(float elapsedSeconds) { UNUSED(elapsedSeconds); }
-    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const  { UNUSED(target); UNUSED(states); };
+    virtual void onUpdate(float) {/* ... */ }
+    virtual void onDraw(sf::RenderTarget &, sf::RenderStates) const  { /* ... */ };
   };
 
   class BottomBoundary : public Body
@@ -84,8 +84,8 @@ namespace Impact {
     { /* ... */
     }
     BodyType type(void) const { return Body::BodyType::BottomBoundary; }
-    virtual void onUpdate(float elapsedSeconds) { UNUSED(elapsedSeconds); }
-    virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const  { UNUSED(target); UNUSED(states); };
+    virtual void onUpdate(float) { /* ... */ }
+    virtual void onDraw(sf::RenderTarget &, sf::RenderStates) const  { /* ... */ };
   };
 
 
