@@ -270,7 +270,7 @@ namespace Impact {
 
   void LocalSettings::setSoundFXVolume(float volume)
   {
-    d->musicVolume = volume;
+    d->soundfxVolume = volume;
   }
 
 
