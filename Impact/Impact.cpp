@@ -2347,12 +2347,12 @@ namespace Impact {
     if (mStatsClock.getElapsedTime() > sf::milliseconds(33)) {
       mLevelMsg.setString(tr("Level") + " " + std::to_string(mLevel.num()));
       mFPSText.setString(std::to_string(mFPS) + " fps\nCPU: " + std::to_string(int(getCurrentCPULoadPercentage())) + "%");
-      mFPSText.setPosition(mStatsView.getSize().x - b2Max(mFPSText.getGlobalBounds().width - 4, 60.f), mStatsView.getSize().y - 8 - mFPSText.getGlobalBounds().height);
+      mFPSText.setPosition(mStatsView.getSize().x - std::max(mFPSText.getGlobalBounds().width - 4, 60.f), mStatsView.getSize().y - 8 - mFPSText.getGlobalBounds().height);
       if (mState == State::Playing) {
         const int64_t penalty = calcPenalty();
         mScoreMsg.setString(std::to_string(mLevelScore) + (penalty > 0 ? " " + std::to_string(-penalty) : ""));
         mScoreMsg.setPosition(mStatsView.getSize().x - mScoreMsg.getLocalBounds().width - 4, 4);
-        mCurrentScoreMsg.setString("total: " + std::to_string(b2Max(0LL, mTotalScore + mLevelScore - penalty)));
+        mCurrentScoreMsg.setString("total: " + std::to_string(std::max(0LL, mTotalScore + mLevelScore - penalty)));
         mCurrentScoreMsg.setPosition(mStatsView.getSize().x - mCurrentScoreMsg.getLocalBounds().width - 4, 20);
       }
       mStatsClock.restart();
@@ -2740,7 +2740,7 @@ namespace Impact {
         extraBall();
       }
     }
-    mLevelScore = b2Max(0LL, newScore);
+    mLevelScore = std::max(0LL, newScore);
   }
 
 
@@ -2883,7 +2883,7 @@ namespace Impact {
 
   int64_t Game::deductPenalty(int64_t score) const
   {
-    return b2Max(0LL, score - calcPenalty());
+    return std::max(0LL, score - calcPenalty());
   }
 
 
