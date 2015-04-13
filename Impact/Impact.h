@@ -374,7 +374,7 @@ namespace Impact {
     int mWelcomeLevel;
     int mExtraLifeIndex;
     bool mBallHasBeenLost;
-    Ball *mBall;
+    std::vector<Ball*> mBalls;
     Racket *mRacket;
     Level mLevel;
     Timer mLevelTimer;
