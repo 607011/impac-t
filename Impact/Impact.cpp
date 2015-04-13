@@ -170,6 +170,7 @@ namespace Impact {
     , mGLSLVersionMinor(0)
     , mShadersAvailable(sf::Shader::isAvailable())
     , mQuitEnumeration(false)
+    , mHighscoreReached(false)
 #ifndef NO_RECORDER
     , mRec(nullptr)
     , mRecorderEnabled(false)
@@ -271,6 +272,9 @@ namespace Impact {
 
     mCurrentScoreMsg.setFont(mFixedFont);
     mCurrentScoreMsg.setCharacterSize(16U);
+
+    mHighscoreMsg.setFont(mFixedFont);
+    mHighscoreMsg.setCharacterSize(16U);
 
     mTotalScoreMsg.setFont(mFixedFont);
     mTotalScoreMsg.setCharacterSize(64U);
@@ -478,6 +482,13 @@ namespace Impact {
     if (!ok)
       std::cerr << gLocalSettings.soundFXDir() + "/killing-spree.ogg failed to load." << std::endl;
 
+    ok = mMultiballSound.loadFromFile(gLocalSettings.soundFXDir() + "/multiball.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gLocalSettings.soundFXDir() + "/multiball-spree.ogg failed to load." << std::endl;
+
+    ok = mHighscoreSound.loadFromFile(gLocalSettings.soundFXDir() + "/highscore.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gLocalSettings.soundFXDir() + "/highscore.ogg failed to load." << std::endl;
   }
 
 
@@ -1201,13 +1212,14 @@ namespace Impact {
 
   void Game::gotoGameOver(void)
   {
+    mTotalScore = deductPenalty(mLevelScore);
+    checkHighscore();
     mStartMsg.setString(tr("Click to continue"));
     setState(State::GameOver);
     startBlurEffect();
     if (gLocalSettings.useShaders()) {
       mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 220));
     }
-    mTotalScore = deductPenalty(mLevelScore);
     mWindow.setFramerateLimit(DefaultFramerateLimit);
   }
 
@@ -1308,6 +1320,9 @@ namespace Impact {
       if (mPlaymode == Campaign)
         gLocalSettings.setLastCampaignLevel(mLevel.num());
       buildLevel();
+      mHighscoreMsg.setString("highscore: " + std::to_string(gLocalSettings.highscore(mLevel.num())));
+      mHighscoreMsg.setPosition(mStatsView.getSize().x - mHighscoreMsg.getLocalBounds().width - 4, 36);
+      mHighscoreReached = false;
       stopBlurEffect();
       mFadeEffectsActive = 0;
       mEarthquakeDuration = sf::Time::Zero;
@@ -2308,6 +2323,7 @@ namespace Impact {
     if (mState == State::Playing) {
       mWindow.draw(mScoreMsg);
       mWindow.draw(mCurrentScoreMsg);
+      mWindow.draw(mHighscoreMsg);
       for (unsigned int life = 0; life < mLives; ++life) {
         const sf::Texture &ballTexture = mLevel.texture(Ball::Name);
         sf::Sprite lifeSprite(ballTexture);
@@ -2451,6 +2467,13 @@ namespace Impact {
           if (cp.normalImpulse > 20)
             playSound(mRacketHitSound, ball->position());
         }
+        else if (a->type() == Body::BodyType::Wall || b->type() == Body::BodyType::Wall) {
+          Wall *wall = reinterpret_cast<Wall*>(a->type() == Body::BodyType::Wall ? a : b);
+          if (wall->tileParam().fixed.get() /* && wall is bumper */) {
+            // TODO: bumper effect
+            ball->body()->ApplyLinearImpulse(+2.f * ball->body()->GetLinearVelocity(), ball->body()->GetPosition(), true);
+          }
+        }
       }
     }
   }
@@ -2484,9 +2507,9 @@ namespace Impact {
         }
         else {
           if (body->type() == Body::BodyType::Ball) {
-            for (std::vector<Ball*>::iterator b = mBalls.begin(); b != mBalls.end(); ++b)
-              *b = nullptr;
-            std::remove_if(mBalls.begin(), mBalls.end(), [](Ball* ball) { return ball == nullptr; });
+            const Ball *const ball = reinterpret_cast<Ball*>(body);
+            std::vector<Ball*>::const_iterator ball2remove = std::find(mBalls.cbegin(), mBalls.cend(), ball);
+            mBalls.erase(ball2remove);
           }
           delete body;
         }
@@ -2741,6 +2764,16 @@ namespace Impact {
       }
     }
     mLevelScore = std::max(0LL, newScore);
+    const int level = mLevel.num();
+    const uint64_t totalScore = deductPenalty(mLevelScore);
+    const uint64_t highscore = gLocalSettings.highscore(level);
+    if (totalScore > highscore && highscore != 0) {
+      gLocalSettings.setHighscore(level, totalScore);
+      if (!mHighscoreReached) {
+        playSound(mHighscoreSound);
+        mHighscoreReached = true;
+      }
+    }
   }
 
 
@@ -2772,6 +2805,7 @@ namespace Impact {
     playSound(mNewBallSound);
     Ball *ball = new Ball(this);
     mBalls.push_back(ball);
+    addBody(ball);
     if (mBallHasBeenLost) {
       const b2Vec2 &racketPos = mRacket->position();
       ball->setPosition(b2Vec2(racketPos.x, racketPos.y - 1.2f * sign(mLevel.gravity())));
@@ -2779,7 +2813,6 @@ namespace Impact {
     else {
       ball->setPosition(pos);
     }
-    addBody(ball);
   }
 
 
@@ -2915,6 +2948,7 @@ namespace Impact {
       }
       if (tileParam.multiball) {
         newBall(killedBody->position());
+        playSound(mMultiballSound);
       }
       //MOD Tileparam
       if (tileParam.scaleGravityDuration > sf::Time::Zero) {

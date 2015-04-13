@@ -1,7 +1,7 @@
 <impact class_id="0" tracking_level="1" version="1" object_id="_0">
   <use-shaders>1</use-shaders>
   <use-shaders-for-explosions>1</use-shaders-for-explosions>
-  <explosion-particle-count>66</explosion-particle-count>
+  <explosion-particle-count>50</explosion-particle-count>
   <highscores class_id="1" tracking_level="0" version="0">
     <count>1</count>
     <item_version>0</item_version>
@@ -16,6 +16,6 @@
   <last-open-dir></last-open-dir>
   <campaign-last-level>1</campaign-last-level>
   <campaign-highscore>100000</campaign-highscore>
-  <music-volume>50</music-volume>
-  <soundfx-volume>100</soundfx-volume>
+  <music-volume>15</music-volume>
+  <soundfx-volume>60</soundfx-volume>
 </impact>

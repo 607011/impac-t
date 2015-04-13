@@ -61,7 +61,9 @@ namespace Impact {
     int velocityIterations(void) const;
 
     void setHighscore(int level, uint64_t score);
+    uint64_t highscore(int level) const;
     void setHighscore(uint64_t score);
+    uint64_t highscore(void) const;
     bool isHighscore(uint64_t score) const;
     bool isHighscore(int level, uint64_t score) const;
 

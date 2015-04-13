@@ -165,7 +165,7 @@ namespace Impact {
     static const unsigned int DefaultLives;
     static const unsigned int NewLiveAfterSoManyPointsDefault;
     static const unsigned int NewLiveAfterSoManyPoints[];
-    static const int MaxSoundFX = 8;
+    static const int MaxSoundFX = 16;
     static const int DefaultForceNewBallPenalty;
     static const int32 MaxContactPoints = 512;
     static const sf::Time DefaultFadeEffectDuration;
@@ -327,6 +327,7 @@ namespace Impact {
     sf::Text mPlayerWonMsg;
     sf::Text mScoreMsg;
     sf::Text mCurrentScoreMsg;
+    sf::Text mHighscoreMsg;
     sf::Text mYourScoreMsg;
     sf::Text mTotalScoreMsg;
     sf::Text mStatMsg;
@@ -344,6 +345,8 @@ namespace Impact {
     sf::SoundBuffer mNewLifeSound;
     sf::SoundBuffer mLevelCompleteSound;
     sf::SoundBuffer mKillingSpreeSound;
+    sf::SoundBuffer mMultiballSound;
+    sf::SoundBuffer mHighscoreSound;
 
     std::vector<sf::Music> mMusic;
     std::vector<int> mFPSArray;
@@ -383,6 +386,7 @@ namespace Impact {
     std::vector<sf::Time> mLastKillings;
     int mLastKillingsIndex;
     std::vector<SpecialEffect> mSpecialEffects;
+    bool mHighscoreReached;
 
     std::string mLevelZipFilename;
     int mDisplayCount;

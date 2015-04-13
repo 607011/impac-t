@@ -141,6 +141,7 @@
     <ClCompile Include="LocalSettings.cpp" />
     <ClCompile Include="Recorder.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="sha1.cpp" />
     <ClCompile Include="..\zip-utils\unzip.cpp">
@@ -180,6 +181,7 @@
     <ClInclude Include="LocalSettings.h" />
     <ClInclude Include="Recorder.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="resource.h" />
     <ClInclude Include="sha1.h" />
