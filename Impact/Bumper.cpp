@@ -28,14 +28,8 @@ namespace Impact {
     : Body(Body::BodyType::Bumper, game)
   {
     mName = Name;
-
     mTexture = mGame->level()->tileParam(index).texture;
-
-    const unsigned int W = mTexture.getSize().x;
-    const unsigned int H = mTexture.getSize().y;
-
     mSprite.setTexture(mTexture);
-    mSprite.setOrigin(0, 0);
 
     b2BodyDef bd;
     bd.type = b2_staticBody;
@@ -44,8 +38,6 @@ namespace Impact {
 
     b2CircleShape circle;
     circle.m_radius = .5f * mTexture.getSize().x * Game::InvScale;
-
-    std::cout << "Bumper name: " << mName << ", radius: " << mTexture.getSize().x << std::endl;
 
     b2FixtureDef fd;
     fd.shape = &circle;
@@ -72,5 +64,4 @@ namespace Impact {
     const b2Vec2 &p = mBody->GetPosition();
     mSprite.setPosition(Game::Scale * pos.x, Game::Scale * pos.y);
   }
-
 }

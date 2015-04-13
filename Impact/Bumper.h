@@ -37,8 +37,9 @@ namespace Impact {
     virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
     virtual BodyType type(void) const { return Body::BodyType::Bumper; }
 
-    virtual void setPosition(const b2Vec2 &pos);
     static const std::string Name;
+
+    virtual void setPosition(const b2Vec2 &pos);
   };
 
 }
