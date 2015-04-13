@@ -175,11 +175,14 @@ namespace Impact {
 
     safeDelete(mMusic);
 
+#if defined(WIN32)
     char szPath[MAX_PATH];
     strcpy_s(szPath, MAX_PATH, zipFilename.c_str());
     PathStripPath(szPath);
     PathRemoveExtension(szPath);
     mName = szPath;
+#endif
+
 #ifndef NDEBUG
     std::cout << "LEVEL NAME: " << mName << std::endl;
 #endif
