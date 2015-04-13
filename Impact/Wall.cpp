@@ -25,7 +25,7 @@ namespace Impact {
   const std::string Wall::Name = "Wall";
   const float32 Wall::DefaultDensity = 0.f;
   const float32 Wall::DefaultFriction = .2f;
-  const float32 Wall::DefaultRestitution = 0.5f;
+  const float32 Wall::DefaultRestitution = .5f;
 
 
   Wall::Wall(int index, Game *game)
@@ -42,6 +42,7 @@ namespace Impact {
 
     b2BodyDef bd;
     bd.type = b2_staticBody;
+    bd.userData = this;
     mBody = game->world()->CreateBody(&bd);
 
     b2PolygonShape polygon;
@@ -52,6 +53,7 @@ namespace Impact {
     fd.restitution = DefaultRestitution;
     fd.friction = DefaultFriction;
     fd.shape = &polygon;
+    fd.userData = this;
     mBody->CreateFixture(&fd);
   }
 
