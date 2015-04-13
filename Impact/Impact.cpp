@@ -2467,6 +2467,13 @@ namespace Impact {
           if (cp.normalImpulse > 20)
             playSound(mRacketHitSound, ball->position());
         }
+        else if (a->type() == Body::BodyType::Wall || b->type() == Body::BodyType::Wall) {
+          Wall *wall = reinterpret_cast<Wall*>(a->type() == Body::BodyType::Wall ? a : b);
+          if (wall->tileParam().fixed.get() /* && wall is bumper */) {
+            // TODO: bumper effect
+            ball->body()->ApplyLinearImpulse(+2.f * ball->body()->GetLinearVelocity(), ball->body()->GetPosition(), true);
+          }
+        }
       }
     }
   }
