@@ -1212,13 +1212,14 @@ namespace Impact {
 
   void Game::gotoGameOver(void)
   {
+    mTotalScore = deductPenalty(mLevelScore);
+    checkHighscore();
     mStartMsg.setString(tr("Click to continue"));
     setState(State::GameOver);
     startBlurEffect();
     if (gLocalSettings.useShaders()) {
       mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 220));
     }
-    mTotalScore = deductPenalty(mLevelScore);
     mWindow.setFramerateLimit(DefaultFramerateLimit);
   }
 
@@ -2756,12 +2757,12 @@ namespace Impact {
       }
     }
     mLevelScore = std::max(0LL, newScore);
-    if (!mHighscoreReached) {
-      const int level = mLevel.num();
-      const uint64_t totalScore = deductPenalty(mLevelScore);
-      const uint64_t highscore = gLocalSettings.highscore(level);
-      if (totalScore > highscore && highscore != 0) {
-        gLocalSettings.setHighscore(level, totalScore);
+    const int level = mLevel.num();
+    const uint64_t totalScore = deductPenalty(mLevelScore);
+    const uint64_t highscore = gLocalSettings.highscore(level);
+    if (totalScore > highscore && highscore != 0) {
+      gLocalSettings.setHighscore(level, totalScore);
+      if (!mHighscoreReached) {
         playSound(mHighscoreSound);
         mHighscoreReached = true;
       }
@@ -2796,6 +2797,8 @@ namespace Impact {
   {
     playSound(mNewBallSound);
     Ball *ball = new Ball(this);
+    mBalls.push_back(ball);
+    addBody(ball);
     if (mBallHasBeenLost) {
       const b2Vec2 &racketPos = mRacket->position();
       ball->setPosition(b2Vec2(racketPos.x, racketPos.y - 1.2f * sign(mLevel.gravity())));
@@ -2803,7 +2806,6 @@ namespace Impact {
     else {
       ball->setPosition(pos);
     }
-    addBody(ball);
   }
 
 
