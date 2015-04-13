@@ -2913,6 +2913,9 @@ namespace Impact {
         startEarthquake(tileParam.earthquakeIntensity, tileParam.earthquakeDuration);
         addSpecialEffect(SpecialEffect(mEarthquakeDuration, &mEarthquakeClock, killedBody->texture()));
       }
+      if (tileParam.multiball) {
+        newBall(killedBody->position());
+      }
       //MOD Tileparam
       if (tileParam.scaleGravityDuration > sf::Time::Zero) {
         mWorld->SetGravity(tileParam.scaleGravityBy * mWorld->GetGravity());
