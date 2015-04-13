@@ -346,9 +346,21 @@ namespace Impact {
   }
 
 
+  uint64_t LocalSettings::highscore(int level) const
+  {
+    return d->highscores[level];
+  }
+
+
   void LocalSettings::setHighscore(uint64_t score)
   {
     d->campaignHighscore = score;
+  }
+
+
+  uint64_t LocalSettings::highscore(void) const
+  {
+    return d->campaignHighscore;
   }
 
 
