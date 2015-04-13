@@ -2386,7 +2386,7 @@ namespace Impact {
 
     auto isAlive = [&killedBodies](Body *body) {
       return std::find(killedBodies.cbegin(), killedBodies.cend(), body) == killedBodies.cend();
-    }; // Obscure syntax? Google "c++ lambda functions closures" ;-)
+    }; // You find this a somewhat obscure syntax? Google "c++ lambda functions closures" ;-)
 
     for (int i = 0; i < mContactPointCount; ++i) {
       ContactPoint &cp = mPoints[i];
