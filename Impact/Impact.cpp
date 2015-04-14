@@ -2474,10 +2474,12 @@ namespace Impact {
       }
       if (a->type() == Body::BodyType::Bumper || b->type() == Body::BodyType::Bumper) {
         Bumper *bumper = reinterpret_cast<Bumper*>(a->type() == Body::BodyType::Bumper ? a : b);
-        playSound(mBumperSound, bumper->position());
-        bumper->activate();
         Body *other = a->type() != Body::BodyType::Bumper ? a : b;
-        b2Vec2 impulse = cp.point - bumper->position();
+        playSound(mBumperSound, bumper->position());
+        if (other->type() == Body::BodyType::Ball)
+          addToScore(bumper->getScore());
+        bumper->activate();
+        b2Vec2 impulse = other->position() - bumper->position();
         impulse.Normalize();
         other->body()->ApplyLinearImpulse(bumper->tileParam().bumperImpulse * impulse, other->body()->GetPosition(), true);
       }
@@ -2678,8 +2680,10 @@ namespace Impact {
           }
           else if (tileParam.textureName == Bumper::Name) {
             Bumper *bumper = new Bumper(tileId, this);
-            bumper->setSmooth(tileParam.smooth);
             bumper->setPosition(pos);
+            bumper->setScore(tileParam.score);
+            bumper->setSmooth(tileParam.smooth);
+            bumper->setTileParam(tileParam);
             addBody(bumper);
           }
           else if (tileParam.fixed.get()) {
