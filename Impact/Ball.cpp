@@ -99,9 +99,16 @@ namespace Impact {
   }
 
 
+  void Ball::setPosition(float32 x, float32 y)
+  {
+    setPosition(b2Vec2(x, y));
+  }
+
+
   void Ball::setPosition(const b2Vec2 &p)
   {
     mBody->SetTransform(p + .5f * Game::InvScale * b2Vec2(float32(mTexture.getSize().x - 2 * TextureMargin), float32(mTexture.getSize().y - 2 * TextureMargin)), mBody->GetAngle());
+    onUpdate(0);
   }
 
 
