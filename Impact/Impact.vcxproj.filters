@@ -201,6 +201,7 @@
     <None Include="resources\shaders\motionblur.vs">
       <Filter>Fragment Shaders</Filter>
     </None>
+    <None Include="..\.gitignore" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="settings.xml" />
