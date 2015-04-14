@@ -347,6 +347,7 @@ namespace Impact {
     sf::SoundBuffer mKillingSpreeSound;
     sf::SoundBuffer mMultiballSound;
     sf::SoundBuffer mHighscoreSound;
+    sf::SoundBuffer mBumperSound;
 
     std::vector<sf::Music> mMusic;
     std::vector<int> mFPSArray;

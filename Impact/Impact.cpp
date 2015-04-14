@@ -489,6 +489,10 @@ namespace Impact {
     ok = mHighscoreSound.loadFromFile(gLocalSettings.soundFXDir() + "/highscore.ogg"); //MOD Sound
     if (!ok)
       std::cerr << gLocalSettings.soundFXDir() + "/highscore.ogg failed to load." << std::endl;
+
+    ok = mBumperSound.loadFromFile(gLocalSettings.soundFXDir() + "/bumper.ogg"); //MOD Sound
+    if (!ok)
+      std::cerr << gLocalSettings.soundFXDir() + "/bumper.ogg failed to load." << std::endl;
   }
 
 
@@ -2470,6 +2474,7 @@ namespace Impact {
       }
       if (a->type() == Body::BodyType::Bumper || b->type() == Body::BodyType::Bumper) {
         Bumper *bumper = reinterpret_cast<Bumper*>(a->type() == Body::BodyType::Bumper ? a : b);
+        playSound(mBumperSound, bumper->position());
         bumper->activate();
         Body *other = a->type() != Body::BodyType::Bumper ? a : b;
         b2Vec2 impulse = other->position() - bumper->position();
