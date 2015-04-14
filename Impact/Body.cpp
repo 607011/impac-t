@@ -129,6 +129,7 @@ namespace Impact {
   void Body::setPosition(const b2Vec2 &p)
   {
     mBody->SetTransform(p + .5f * Game::InvScale * b2Vec2(float32(mTexture.getSize().x), float32(mTexture.getSize().y)), mBody->GetAngle());
+    onUpdate(0);
   }
 
 
