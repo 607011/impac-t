@@ -26,6 +26,7 @@ namespace Impact {
 
   Bumper::Bumper(int index, Game *game)
     : Body(Body::BodyType::Bumper, game)
+    , mActivated(false)
   {
     mName = Name;
     const sf::Texture &texture = mGame->level()->tileParam(index).texture;
@@ -55,6 +56,17 @@ namespace Impact {
   void Bumper::onUpdate(float elapsedSeconds)
   {
     UNUSED(elapsedSeconds);
+    static const float MaxT = 0.05f;
+    if (mActivated) {
+      auto forthAndBack = [](float t, float b, float c) {
+        return std::sin(b2_pi * t / MaxT) * (c - b) + b;
+      };
+      const float t = mActivationTimer.getElapsedTime().asSeconds();
+      const float scale = forthAndBack(t, 1.f, 1.2f);
+      mSprite.setScale(scale, scale);
+      if (t > MaxT)
+        mActivated = false;
+    }
   }
 
 
@@ -75,5 +87,12 @@ namespace Impact {
     mBody->SetTransform(pos + .5f * Game::InvScale * b2Vec2(float32(mTexture.getSize().x - 2 * TextureMargin), float32(mTexture.getSize().y - 2 * TextureMargin)), mBody->GetAngle());
     const b2Vec2 &p = mBody->GetPosition();
     mSprite.setPosition(Game::Scale * p.x, Game::Scale * p.y);
+  }
+
+
+  void Bumper::activate(void)
+  {
+    mActivationTimer.restart();
+    mActivated = true;
   }
 }

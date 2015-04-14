@@ -42,8 +42,13 @@ namespace Impact {
     virtual void setPosition(float32 x, float32 y);
     virtual void setPosition(const b2Vec2 &pos);
 
+    void activate(void);
+
   private:
     static const int TextureMargin = 8;
+
+    sf::Clock mActivationTimer;
+    bool mActivated;
 
   };
 

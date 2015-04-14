@@ -2470,6 +2470,7 @@ namespace Impact {
       }
       if (a->type() == Body::BodyType::Bumper || b->type() == Body::BodyType::Bumper) {
         Bumper *bumper = reinterpret_cast<Bumper*>(a->type() == Body::BodyType::Bumper ? a : b);
+        bumper->activate();
         Body *other = a->type() != Body::BodyType::Bumper ? a : b;
         b2Vec2 impulse = other->position() - bumper->position();
         impulse.Normalize();
