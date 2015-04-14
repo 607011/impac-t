@@ -63,7 +63,7 @@ namespace Impact {
       , bumperImpulse(other.bumperImpulse)
       , multiball(other.multiball)
     { /* ... */ }
-    int score;
+    int64_t score;
     std::string textureName;
     sf::Texture texture;
     DynamicValue<bool> fixed;

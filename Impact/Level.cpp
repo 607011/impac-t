@@ -424,7 +424,7 @@ namespace Impact {
                 }
                 //MOD Property1
                 else if (propName == "points") {
-                  tileParam.score = property.get<int>("<xmlattr>.value", 0);
+                  tileParam.score = property.get<int64_t>("<xmlattr>.value", 0);
                 }
                 else if (propName == "fixed") {
                   tileParam.fixed = property.get<bool>("<xmlattr>.value", false);

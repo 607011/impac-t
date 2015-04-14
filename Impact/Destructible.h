@@ -23,6 +23,7 @@
 
 #include <algorithm>
 #include <limits.h>
+#include <cstddef>
 
 namespace Impact {
 
@@ -32,11 +33,11 @@ namespace Impact {
       : mEnergy(energy)
       , mScore(0)
     { /* ... */ }
-    virtual int getScore(void) const
+    virtual int64_t getScore(void) const
     {
       return mScore;
     }
-    virtual void setScore(int score)
+    virtual void setScore(int64_t score)
     {
       mScore = score;
     }
@@ -60,7 +61,7 @@ namespace Impact {
 
   private:
     int mEnergy;
-    int mScore;
+    int64_t mScore;
   };
 
 }
