@@ -2925,7 +2925,7 @@ namespace Impact {
 
   int64_t Game::calcPenalty(void) const
   {
-    return 5 * mLevelTimer.accumulatedMilliseconds() / 1000; //MOD PenaltyPerSecond
+    return 5LL * mLevelTimer.accumulatedMilliseconds() / 1000LL; //MOD PenaltyPerSecond
   }
 
 
@@ -2961,10 +2961,6 @@ namespace Impact {
         startEarthquake(tileParam.earthquakeIntensity, tileParam.earthquakeDuration);
         addSpecialEffect(SpecialEffect(mEarthquakeDuration, &mEarthquakeClock, killedBody->texture()));
       }
-      if (tileParam.multiball) {
-        newBall(killedBody->position());
-        playSound(mMultiballSound);
-      }
       //MOD Tileparam
       if (tileParam.scaleGravityDuration > sf::Time::Zero) {
         mWorld->SetGravity(tileParam.scaleGravityBy * mWorld->GetGravity());
@@ -2987,6 +2983,10 @@ namespace Impact {
         mScaleBallDensityClock.restart();
         mScaleBallDensityDuration = tileParam.scaleBallDensityDuration;
       }
+      if (tileParam.multiball) {
+        newBall(killedBody->position());
+        playSound(mMultiballSound);
+      }
       if (--mBlockCount == 0)
         gotoLevelCompleted();
     }
@@ -2994,11 +2994,9 @@ namespace Impact {
       if (mState == State::Playing) {
         playSound(mBallOutSound, killedBody->position());
         mBallHasBeenLost = true;
-        if (killedBody->energy() == 0) {
-          if (mBalls.size() == 1) {
-            if (mLives-- == 0) {
-              gotoGameOver();
-            }
+        if (killedBody->energy() == 0 && mBalls.size() == 1) {
+          if (mLives-- == 0) {
+            gotoGameOver();
           }
         }
       }
