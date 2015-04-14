@@ -2477,7 +2477,7 @@ namespace Impact {
         playSound(mBumperSound, bumper->position());
         bumper->activate();
         Body *other = a->type() != Body::BodyType::Bumper ? a : b;
-        b2Vec2 impulse = other->position() - bumper->position();
+        b2Vec2 impulse = cp.point - bumper->position();
         impulse.Normalize();
         other->body()->ApplyLinearImpulse(bumper->tileParam().bumperImpulse * impulse, other->body()->GetPosition(), true);
       }
@@ -2566,6 +2566,7 @@ namespace Impact {
       Body *bodyB = reinterpret_cast<Body*>(cp.fixtureB->GetUserData());
       if (bodyA != nullptr && bodyB != nullptr) {
         b2Manifold *manifold = contact->GetManifold();
+        cp.point = manifold->localPoint;
         cp.normal = manifold->localNormal;
         cp.normalImpulse = impulse->normalImpulses[0];
         ++mContactPointCount;

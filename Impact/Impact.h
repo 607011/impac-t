@@ -75,6 +75,7 @@ namespace Impact {
     b2Fixture *fixtureB;
     b2Vec2 normal;
     float32 normalImpulse;
+    b2Vec2 point;
   };
 
 
