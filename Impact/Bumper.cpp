@@ -81,10 +81,8 @@ namespace Impact {
 
   void Bumper::setPosition(const b2Vec2 &pos)
   {
-    const sf::Vector2u &txSz = mTexture.getSize();
-    mBody->SetTransform(pos + b2Vec2(mHalfTextureSize.x, 1 - mHalfTextureSize.y), 0.f);
-    const b2Vec2 &p = mBody->GetPosition();
-    mSprite.setPosition(Game::Scale * p.x, Game::Scale * p.y);
+    Body::setPosition(pos);
+    mSprite.setPosition(Game::Scale * mBody->GetPosition().x, Game::Scale * mBody->GetPosition().y);
   }
 
 
