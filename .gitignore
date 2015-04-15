@@ -7,8 +7,10 @@ Impact/*.aps
 Impact/Debug
 Impact/Release
 Impact/recordings
-Impact/testlevels/bumper*/*
 Impact/testlevels/multiball/*
+Impact/testlevels/bumper/*
+Impact/testlevels/bumper2/*
+Impact/testlevels/bigbumper/*
 glfw/Debug
 glfw/Release
 glew/Debug
