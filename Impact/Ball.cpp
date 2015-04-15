@@ -41,6 +41,8 @@ namespace Impact {
     img.copy(texture.copyToImage(), TextureMargin, TextureMargin, sf::IntRect(0, 0, 0, 0), true);
     mTexture.loadFromImage(img);
 
+    setHalfTextureSize(texture);
+
     const float32 halfW = .5f * mTexture.getSize().x;
     const float32 halfH = .5f * mTexture.getSize().y;
 
@@ -99,15 +101,9 @@ namespace Impact {
   }
 
 
-  void Ball::setPosition(float32 x, float32 y)
-  {
-    setPosition(b2Vec2(x, y));
-  }
-
-
   void Ball::setPosition(const b2Vec2 &p)
   {
-    mBody->SetTransform(p + .5f * Game::InvScale * b2Vec2(float32(mTexture.getSize().x - 2 * TextureMargin), float32(mTexture.getSize().y - 2 * TextureMargin)), mBody->GetAngle());
+    Body::setPosition(p);
     onUpdate(0);
   }
 

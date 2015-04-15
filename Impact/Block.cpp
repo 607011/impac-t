@@ -40,6 +40,8 @@ namespace Impact {
     img.copy(texture.copyToImage(), TextureMargin, TextureMargin, sf::IntRect(0, 0, 0, 0), true);
     mTexture.loadFromImage(img);
 
+    setHalfTextureSize(texture);
+    
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(.5f * mTexture.getSize().x, .5f * mTexture.getSize().y);
 
@@ -141,12 +143,6 @@ namespace Impact {
       }
     }
     return destroyed;
-  }
-
-
-  void Block::setPosition(const b2Vec2 &p)
-  {
-    mBody->SetTransform(p + .5f * Game::InvScale * b2Vec2(float32(mTexture.getSize().x - 2 * TextureMargin), float32(mTexture.getSize().y - 2 * TextureMargin)), mBody->GetAngle());
   }
 
 

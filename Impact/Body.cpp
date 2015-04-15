@@ -128,8 +128,14 @@ namespace Impact {
 
   void Body::setPosition(const b2Vec2 &p)
   {
-    mBody->SetTransform(p + .5f * Game::InvScale * b2Vec2(float32(mTexture.getSize().x), float32(mTexture.getSize().y)), mBody->GetAngle());
+    mBody->SetTransform(p + b2Vec2(mHalfTextureSize.x, 1 - mHalfTextureSize.y), mBody->GetAngle());
     onUpdate(0);
+  }
+
+
+  void Body::setHalfTextureSize(const sf::Texture &texture)
+  {
+    mHalfTextureSize = .5f * b2Vec2(Game::InvScale * texture.getSize().x, Game::InvScale * texture.getSize().y);
   }
 
 

@@ -158,6 +158,7 @@ namespace Impact {
     sf::Sprite mSprite;
     sf::Shader mShader;
     b2Body *mBody;
+    b2Vec2 mHalfTextureSize;
 
     int mZIndex;
     sf::Clock mSpawned; // milliseconds
@@ -170,6 +171,8 @@ namespace Impact {
     virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const = 0;
 
     TileParam mTileParam;
+
+    void setHalfTextureSize(const sf::Texture &texture);
 
   private:
     bool mAlive;

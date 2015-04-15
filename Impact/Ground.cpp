@@ -39,4 +39,21 @@ namespace Impact {
     f->SetUserData(this);
   }
 
+
+  void Ground::setPosition(int x, int y)
+  {
+    setPosition(b2Vec2(float32(x), float32(y)));
+  }
+
+
+  void Ground::setPosition(float32 x, float32 y)
+  {
+    setPosition(b2Vec2(x, y));
+  }
+
+
+  void Ground::setPosition(const b2Vec2 &pos)
+  {
+    mBody->SetTransform(pos, 0.f);
+  }
 }

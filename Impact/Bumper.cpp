@@ -29,14 +29,11 @@ namespace Impact {
     , mActivated(false)
   {
     mName = Name;
-    const sf::Texture &texture = mGame->level()->tileParam(index).texture;
-    sf::Image img;
-    img.create(texture.getSize().x + 2 * TextureMargin, texture.getSize().y + 2 * TextureMargin, sf::Color(0, 0, 0, 0));
-    img.copy(texture.copyToImage(), TextureMargin, TextureMargin, sf::IntRect(0, 0, 0, 0), true);
-    mTexture.loadFromImage(img);
-
+    mTexture = mGame->level()->tileParam(index).texture;
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(.5f * mTexture.getSize().x, .5f * mTexture.getSize().y);
+
+    setHalfTextureSize(mTexture);
 
     b2BodyDef bd;
     bd.type = b2_staticBody;
@@ -44,7 +41,7 @@ namespace Impact {
     mBody = game->world()->CreateBody(&bd);
 
     b2CircleShape circle;
-    circle.m_radius = .5f * texture.getSize().x * Game::InvScale;
+    circle.m_radius = .5f * mTexture.getSize().x * Game::InvScale;
 
     b2FixtureDef fd;
     fd.shape = &circle;
@@ -84,7 +81,8 @@ namespace Impact {
 
   void Bumper::setPosition(const b2Vec2 &pos)
   {
-    mBody->SetTransform(pos + .5f * Game::InvScale * b2Vec2(float32(mTexture.getSize().x - 2 * TextureMargin), float32(mTexture.getSize().y - 2 * TextureMargin)), mBody->GetAngle());
+    const sf::Vector2u &txSz = mTexture.getSize();
+    mBody->SetTransform(pos + b2Vec2(mHalfTextureSize.x, 1 - mHalfTextureSize.y), 0.f);
     const b2Vec2 &p = mBody->GetPosition();
     mSprite.setPosition(Game::Scale * p.x, Game::Scale * p.y);
   }

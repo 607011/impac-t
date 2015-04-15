@@ -45,8 +45,6 @@ namespace Impact {
     void activate(void);
 
   private:
-    static const int TextureMargin = 8;
-
     sf::Clock mActivationTimer;
     bool mActivated;
 

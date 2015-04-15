@@ -35,6 +35,8 @@ namespace Impact {
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(sf::Vector2f(.5f * mTexture.getSize().x, .5f * mTexture.getSize().y));
 
+    setHalfTextureSize(mTexture);
+
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
     bd.gravityScale = 0.f;
