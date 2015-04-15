@@ -41,7 +41,6 @@ namespace Impact {
     virtual void setRestitution(float32);
     virtual void setFriction(float32);
     virtual void setDensity(float32);
-    virtual void setPosition(float32 x, float32 y);
     virtual void setPosition(const b2Vec2 &pos);
     virtual const b2Vec2 &position(void) const;
     virtual void moveTo(const b2Vec2 &pos);

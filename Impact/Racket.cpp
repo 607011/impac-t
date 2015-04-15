@@ -128,12 +128,6 @@ namespace Impact {
   }
 
 
-  void Racket::setPosition(float32 x, float32 y)
-  {
-    setPosition(b2Vec2(x, y));
-  }
-
-
   void Racket::setPosition(const b2Vec2 &pos)
   {
     Body::setPosition(pos);

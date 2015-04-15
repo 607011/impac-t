@@ -1455,11 +1455,11 @@ namespace Impact {
         const float racketX = mRacket->position().x;
         const float racketY = mRacket->position().y;
         if (racketY > mLevel.height())
-          mRacket->setPosition(racketX, mLevel.height() - .5f);
+          mRacket->setPosition(b2Vec2(racketX, mLevel.height() - .5f));
         if (racketX < 0.f)
-          mRacket->setPosition(1.5f, racketY);
+          mRacket->setPosition(b2Vec2(1.5f, racketY));
         else if (racketX > mLevel.width())
-          mRacket->setPosition(mLevel.width() - 1.5f, racketY);
+          mRacket->setPosition(b2Vec2(mLevel.width() - 1.5f, racketY));
 
         const b2AABB &aabb = mRacket->aabb();
         const float32 w = aabb.upperBound.x - aabb.lowerBound.x;
