@@ -34,7 +34,7 @@
 #endif
 
 
-// #define NDEBUG 1
+#define NDEBUG 1
 
 namespace Impact {
 
