@@ -179,6 +179,7 @@ namespace Impact {
     bool mAlive;
     bool mVisible;
 
+    bool mSetHalfTextureSizeCalled;
   };
 
 

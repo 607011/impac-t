@@ -30,6 +30,7 @@ namespace Impact {
     , mVisible(true)
     , mZIndex(0)
     , mBody(nullptr)
+    , mSetHalfTextureSizeCalled(false)
   {
     setGame(game);
     mSpawned.restart();
@@ -128,6 +129,8 @@ namespace Impact {
 
   void Body::setPosition(const b2Vec2 &p)
   {
+    if (!mSetHalfTextureSizeCalled)
+      throw "Body::setHalfTextureSize() must be called before first call to Body::setPosition()";
     mBody->SetTransform(p + b2Vec2(mHalfTextureSize.x, 1 - mHalfTextureSize.y), mBody->GetAngle());
     onUpdate(0);
   }
@@ -136,6 +139,7 @@ namespace Impact {
   void Body::setHalfTextureSize(const sf::Texture &texture)
   {
     mHalfTextureSize = .5f * b2Vec2(Game::InvScale * texture.getSize().x, Game::InvScale * texture.getSize().y);
+    mSetHalfTextureSizeCalled = true;
   }
 
 
