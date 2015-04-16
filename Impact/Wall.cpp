@@ -34,6 +34,8 @@ namespace Impact {
     mName = Name;
     mTexture = mGame->level()->tileParam(index).texture;
 
+    setHalfTextureSize(mTexture);
+
     const float halfW = .5f * mTexture.getSize().x;
     const float halfH = .5f * mTexture.getSize().y;
 
