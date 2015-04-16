@@ -2,4 +2,4 @@
 
 **Breakout/Bolo-Klon plus Physik**
 
-Siehe [Impac't-Projekthomepage](http://ola-ct.github.io/impac-t) für Details.
+Siehe das [Impac't-Wiki](https://github.com/ola-ct/impac-t/wiki/ für Details.
