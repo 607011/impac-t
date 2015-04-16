@@ -20,6 +20,7 @@
 #include "stdafx.h"
 
 #include <boost/random/uniform_real_distribution.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 
@@ -1323,6 +1324,7 @@ namespace Impact {
     if (mLevel.isAvailable()) {
       if (mPlaymode == Campaign)
         gLocalSettings.setLastCampaignLevel(mLevel.num());
+      static boost::random::uniform_int_distribution<int> randomMusic(LevelMusic1, LevelMusic5);
       buildLevel();
       mHighscoreMsg.setString("highscore: " + std::to_string(gLocalSettings.highscore(mLevel.num())));
       mHighscoreMsg.setPosition(mStatsView.getSize().x - mHighscoreMsg.getLocalBounds().width - 4, 36);
@@ -1339,7 +1341,7 @@ namespace Impact {
         mLevel.music()->setVolume(gLocalSettings.musicVolume());
       }
       else {
-        playMusic(Game::Music(LevelMusic1 + std::rand() % (LevelMusic5 - LevelMusic1)));
+        playMusic(Game::Music(randomMusic(gRNG)));
       }
       setState(State::Playing);
       mLevelTimer.restart();
