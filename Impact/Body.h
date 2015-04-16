@@ -27,6 +27,7 @@
 #include <Box2D/Box2D.h>
 
 #include "Destructible.h"
+#include "util.h"
 #include "TileParam.h"
 
 #include <cstdint>

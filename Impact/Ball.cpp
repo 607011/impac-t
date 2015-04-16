@@ -28,9 +28,9 @@ namespace Impact {
   const float32 Ball::DefaultFriction = .7f; //MOD Ballreibung
   const float32 Ball::DefaultRestitution = .5f; //MOD Ballelastizität
   const float32 Ball::DefaultLinearDamping = .5f; //MOD Geschwindigkeitsdämpfung
-  const float32 Ball::DefaultAngularDamping = .5f; //MOD Rotationsgeschwindigkeitsdämpfung
+  const float32 Ball::DefaultAngularDamping = .21f; //MOD Rotationsgeschwindigkeitsdämpfung
 
-  Ball::Ball(Game *game)
+  Ball::Ball(Game *game, BodyShapeType shapeType)
     : Body(Body::BodyType::Ball, game)
   {
     mName = Name;
@@ -58,23 +58,38 @@ namespace Impact {
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
     bd.linearDamping = DefaultLinearDamping;
-    bd.angularDamping = .21f;
+    bd.angularDamping = DefaultAngularDamping;
     bd.bullet = true;
-    bd.allowSleep = true;
     bd.userData = this;
     mBody = game->world()->CreateBody(&bd);
 
-    b2CircleShape circle;
-    circle.m_radius = .5f * texture.getSize().x * Game::InvScale;
-
     b2FixtureDef fd;
-    fd.shape = &circle;
     fd.density = DefaultDensity;
     fd.friction = DefaultFriction;
     fd.restitution = DefaultRestitution;
     fd.userData = this;
     fd.filter.categoryBits = Body::BallMask;
-    mBody->CreateFixture(&fd);
+
+    switch (shapeType) {
+    case BodyShapeType::CircleShape:
+    {
+      b2CircleShape circle;
+      circle.m_radius = .5f * texture.getSize().x * Game::InvScale;
+      fd.shape = &circle;
+      mBody->CreateFixture(&fd);
+      break;
+    }
+    case BodyShapeType::PolygonShape:
+    {
+      b2PolygonShape square;
+      const float edge = .5f * Game::InvScale * texture.getSize().x;
+      square.SetAsBox(edge, edge);
+      fd.shape = &square;
+      mBody->CreateFixture(&fd);
+      break;
+    }
+    }
+
   }
 
 

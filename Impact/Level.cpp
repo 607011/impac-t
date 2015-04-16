@@ -475,6 +475,9 @@ namespace Impact {
                 else if (propName == "multiball") {
                   tileParam.multiball = property.get<bool>("<xmlattr>.value", false);
                 }
+                else if (propName == "shape") {
+                  tileParam.shapeType = property.get<BodyShapeType>("<xmlattr>.value", BodyShapeType::CircleShape);
+                }
               }
               catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
             }

@@ -27,13 +27,13 @@
 
 #include "util.h"
 
-
 namespace Impact {
 
   struct TileParam {
     TileParam(void)
       : score(0)
       , smooth(true)
+      , shapeType(BodyShapeType::CircleShape)
       , gravityScale(1.f)
       , scaleBallDensityBy(1.f)
       , scaleGravityBy(1.f)
@@ -50,6 +50,7 @@ namespace Impact {
       , friction(other.friction)
       , restitution(other.restitution)
       , density(other.density)
+      , shapeType(other.shapeType)
       , gravityScale(other.gravityScale)
       , smooth(other.smooth)
       , minimumHitImpulse(other.minimumHitImpulse)
@@ -70,6 +71,7 @@ namespace Impact {
     DynamicValue<float32> friction;
     DynamicValue<float32> restitution;
     DynamicValue<float32> density;
+    BodyShapeType shapeType;
     float32 gravityScale;
     bool smooth;
     int minimumHitImpulse;

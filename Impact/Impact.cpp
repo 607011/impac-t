@@ -1465,10 +1465,10 @@ namespace Impact {
         const float32 w = aabb.upperBound.x - aabb.lowerBound.x;
         const float32 h = aabb.upperBound.y - aabb.lowerBound.y;
         if (mousePos.x < 0) {
-          mousePos.x = int(Scale * w);
+          mousePos.x = int(Game::Scale * w);
         }
         if (mousePos.x > int(mWindow.getSize().x)) {
-          mousePos.x = int(mWindow.getSize().x) - int(Scale * w);
+          mousePos.x = int(mWindow.getSize().x - Game::Scale * w);
         }
         sf::Mouse::setPosition(mousePos, mWindow);
       }
@@ -2665,7 +2665,7 @@ namespace Impact {
         const TileParam &tileParam = mLevel.tileParam(tileId);
         if (tileId >= mLevel.firstGID()) {
           if (tileParam.textureName == Ball::Name) {
-            Ball *ball = newBall(pos);
+            Ball *ball = newBall(pos, tileParam.shapeType);
             ball->setDensity(tileParam.density.get());
             ball->setRestitution(tileParam.restitution.get());
             ball->setFriction(tileParam.friction.get());
@@ -2814,10 +2814,10 @@ namespace Impact {
   }
 
 
-  Ball *Game::newBall(const b2Vec2 &pos)
+  Ball *Game::newBall(const b2Vec2 &pos, BodyShapeType shapeType)
   {
     playSound(mNewBallSound);
-    Ball *ball = new Ball(this);
+    Ball *ball = new Ball(this, shapeType);
     mBalls.push_back(ball);
     addBody(ball);
     if (mBallHasBeenLost) {

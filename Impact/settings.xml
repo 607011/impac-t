@@ -1,5 +1,5 @@
 <impact class_id="0" tracking_level="1" version="1" object_id="_0">
-  <use-shaders>1</use-shaders>
+  <use-shaders>0</use-shaders>
   <use-shaders-for-explosions>1</use-shaders-for-explosions>
   <explosion-particle-count>50</explosion-particle-count>
   <highscores class_id="1" tracking_level="0" version="0">

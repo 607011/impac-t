@@ -34,6 +34,14 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
 
+namespace Impact {
+  typedef enum _BodyShapeType {
+    UnknownShape = -1,
+    CircleShape = 1,
+    PolygonShape,
+    RoundedRectangleShape,
+  } BodyShapeType;
+}
 
 struct BoolTranslator
 {
@@ -60,14 +68,62 @@ struct BoolTranslator
   }
 };
 
+
+struct BodyShapeTypeTranslator
+{
+  typedef std::string internal_type;
+  typedef Impact::BodyShapeType external_type;
+
+  // Converts a string to bool
+  boost::optional<external_type> get_value(const internal_type& str)
+  {
+    if (!str.empty()) {
+      if (boost::algorithm::iequals(str, "circle")) {
+        return boost::optional<external_type>(Impact::BodyShapeType::CircleShape);
+      }
+      else if (boost::algorithm::iequals(str, "polygon") || boost::algorithm::iequals(str, "square") || boost::algorithm::iequals(str, "rectangle")) {
+        return boost::optional<external_type>(Impact::BodyShapeType::PolygonShape);
+      }
+      else if (boost::algorithm::iequals(str, "roundedrectangle")) {
+        return boost::optional<external_type>(Impact::BodyShapeType::RoundedRectangleShape);
+      }
+      else {
+        return boost::optional<external_type>(Impact::BodyShapeType::UnknownShape);
+      }
+    }
+    else
+      return boost::optional<external_type>(Impact::BodyShapeType::UnknownShape);
+  }
+
+  // Converts a bool to string
+  boost::optional<internal_type> put_value(const external_type& b)
+  {
+    switch (b) {
+    case Impact::BodyShapeType::CircleShape:
+       return boost::optional<internal_type>("circle"); 
+    case Impact::BodyShapeType::PolygonShape:
+      return boost::optional<internal_type>("polygon");
+    case Impact::BodyShapeType::RoundedRectangleShape:
+      return boost::optional<internal_type>("roundedrectangle");
+    default:
+      return boost::optional<internal_type>("unknown");
+    }
+  }
+};
+
 // Specialize translator_between so that it uses our custom translator for
 // bool value types. Specialization must be in boost::property_tree namespace.
 namespace boost {
   namespace property_tree {
     template<typename Ch, typename Traits, typename Alloc>
-    struct translator_between<std::basic_string< Ch, Traits, Alloc >, bool>
+    struct translator_between<std::basic_string<Ch, Traits, Alloc>, bool>
     {
       typedef BoolTranslator type;
+    };
+    template<typename Ch, typename Traits, typename Alloc>
+    struct translator_between<std::basic_string<Ch, Traits, Alloc>, Impact::BodyShapeType>
+    {
+      typedef BodyShapeTypeTranslator type;
     };
   }
 }

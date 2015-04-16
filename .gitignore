@@ -7,10 +7,6 @@ Impact/*.aps
 Impact/Debug
 Impact/Release
 Impact/recordings
-Impact/testlevels/multiball/*
-Impact/testlevels/bumper/*
-Impact/testlevels/bumper2/*
-Impact/testlevels/bigbumper/*
 glfw/Debug
 glfw/Release
 glew/Debug
@@ -27,3 +23,8 @@ Debug/*
 Box2D/Box2D/Debug
 Box2D/Box2D/Release
 *.xesc
+Impact/testlevels/multiball/*
+Impact/testlevels/bumper/*
+Impact/testlevels/bumper2/*
+Impact/testlevels/bigbumper/*
+Impact/testlevels/squareball/*
