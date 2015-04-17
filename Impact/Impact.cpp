@@ -235,7 +235,7 @@ namespace Impact {
     if (!ok)
       std::cerr << FontsDir + "/Dimitri.ttf failed to load." << std::endl;
 
-    mParticleTexture.loadFromFile(ImagesDir + "/particle.png"); //MOD Explosionspartikel
+    mParticleTexture.loadFromFile(ImagesDir + "/round-soft-particle.png"); //MOD Explosionspartikel
 
     mScrollbarTexture.loadFromFile(ImagesDir + "/white-pixel.png");
     mScrollbarSprite.setTexture(mScrollbarTexture);
@@ -262,7 +262,7 @@ namespace Impact {
 
     mStartMsg.setFont(mFixedFont);
     mStartMsg.setCharacterSize(16U);
-    mStartMsg.setPosition(mDefaultView.getCenter().x - 0.5f * mStartMsg.getLocalBounds().width, 1.4f * mDefaultView.getCenter().y);
+    mStartMsg.setPosition(mDefaultView.getCenter().x - .5f * mStartMsg.getLocalBounds().width, 1.4f * mDefaultView.getCenter().y);
 
     mStatMsg.setFont(mFixedFont);
     mStatMsg.setCharacterSize(8U);
