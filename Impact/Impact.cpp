@@ -3020,12 +3020,11 @@ namespace Impact {
       if (mLevels.empty()) {
         for (int l = 1; !mQuitEnumeration; ++l) {
           Level level(l);
-          if (level.isAvailable()) {
-            mEnumerateMutex.lock();
-            mLevels.push_back(level);
-            mEnumerateMutex.unlock();
-          }
-          else break;
+          if (!level.isAvailable())
+            break;
+          mEnumerateMutex.lock();
+          mLevels.push_back(level);
+          mEnumerateMutex.unlock();
         }
       }
 #if defined(WIN32)
