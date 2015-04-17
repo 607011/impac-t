@@ -88,6 +88,8 @@ namespace Impact {
       mBody->CreateFixture(&fd);
       break;
     }
+    default:
+      throw "Unknown BodyShapeType:" + std::to_string((int)shapeType);
     }
 
   }
