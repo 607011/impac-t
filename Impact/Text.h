@@ -23,7 +23,6 @@
 
 #include "Body.h"
 #include "Impact.h"
-#include "Destructive.h"
 
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>

@@ -22,7 +22,6 @@
 
 #include "Body.h"
 #include "Impact.h"
-#include "Destructive.h"
 
 #include <string>
 

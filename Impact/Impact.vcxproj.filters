@@ -86,9 +86,6 @@
     <ClInclude Include="Destructible.h">
       <Filter>Header-Dateien</Filter>
     </ClInclude>
-    <ClInclude Include="Destructive.h">
-      <Filter>Header-Dateien</Filter>
-    </ClInclude>
     <ClInclude Include="Level.h">
       <Filter>Header-Dateien</Filter>
     </ClInclude>

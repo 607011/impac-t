@@ -198,7 +198,6 @@
     <ClInclude Include="Impact.h" />
     <ClInclude Include="Wall.h" />
     <ClInclude Include="Destructible.h" />
-    <ClInclude Include="Destructive.h" />
     <ClInclude Include="Easings.h" />
     <ClInclude Include="globals.h" />
     <ClInclude Include="Level.h" />
