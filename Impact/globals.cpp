@@ -27,7 +27,10 @@
 
 namespace Impact {
 
-  std::mt19937 gRNG;
+  std::mt19937& gRNG() {
+     static std::mt19937* rng = new std::mt19937();
+     return *rng;
+  }
 
   void warmupRNG(void)
   {
@@ -38,7 +41,7 @@ namespace Impact {
     std::random_device r;
     std::generate_n(seed_data.data(), seed_data.size(), std::ref(r));
     std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
-    gRNG.seed(seq);
+    gRNG().seed(seq);
   }
 
 }

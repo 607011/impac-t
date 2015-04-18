@@ -158,7 +158,7 @@ namespace Impact {
     std::ostringstream levelStrBuf;
     levelStrBuf << std::setw(4) << std::setfill('0') << mLevelNum;
     const std::string levelStr = levelStrBuf.str();
-    levelFilename = gLocalSettings.levelsDir() + "/" + levelStr + ".zip";
+    levelFilename = gLocalSettings().levelsDir() + "/" + levelStr + ".zip";
 #ifndef NDEBUG
     std::cout << "Level ZIP filename: " << levelFilename << "." << std::endl;
 #endif
@@ -190,7 +190,7 @@ namespace Impact {
 #endif
     HZIP hz = OpenZip(zipFilename.c_str(), nullptr);
     if (hz) {
-      levelPath = gLocalSettings.levelsDir() + "/" + mName;
+      levelPath = gLocalSettings().levelsDir() + "/" + mName;
       SetUnzipBaseDir(hz, levelPath.c_str());
       ZIPENTRY ze;
       GetZipItem(hz, -1, &ze);
@@ -208,7 +208,7 @@ namespace Impact {
             bool musicLoaded = mMusic->openFromFile(levelPath + "/" + currentItemName);
             if (musicLoaded) {
               mMusic->setLoop(true);
-              mMusic->setVolume(gLocalSettings.musicVolume());
+              mMusic->setVolume(gLocalSettings().musicVolume());
             }
           }
         }

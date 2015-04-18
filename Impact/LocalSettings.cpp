@@ -67,7 +67,10 @@ namespace Impact {
     std::map<int, uint64_t> highscores;
   };
 
-  LocalSettings gLocalSettings;
+  LocalSettings& gLocalSettings() {
+     static LocalSettings* localSettings = new LocalSettings();
+     return *localSettings;
+  }
 
   LocalSettings::LocalSettings(void)
     : d(new LocalSettingsPrivate)

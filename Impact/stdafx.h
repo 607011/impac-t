@@ -52,7 +52,7 @@
 #include <sys/stat.h>
 
 #include <GL/glew.h>
-#include <GL/GLU.h>
+#include <GL/glu.h>
 
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
