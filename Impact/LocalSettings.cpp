@@ -29,6 +29,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <ShlObj.h>
 #endif
 
+#if defined(LINUX_AMD64)
+#include <X11/Xlib.h>
+#endif
+
 BOOST_CLASS_VERSION(Impact::LocalSettings, 1)
 
 namespace Impact {
@@ -87,9 +91,29 @@ namespace Impact {
 #ifndef NDEBUG
       std::cout << "settingsFile = '" << d->settingsFile << "'" << std::endl;
 #endif
-#endif
+#endif //WIN32
       load();
+#if defined(WIN32)
     }
+#endif
+
+#if defined(LINUX_AMD64)
+    XInitThreads(); // workaround for SFML threading issue, need to call this as early as possible
+    // see also: http://en.sfml-dev.org/forums/index.php?topic=14853.0
+    // this constructor is a good candidate for early, as gLocalSettings() is called from everywhere ;-)
+
+    char* home = getenv("HOME");
+    d->appData = home;
+    d->appData += "/.impact";
+    d->settingsFile = d->appData + "/settings.xml";
+    d->levelsDir = d->appData + "/levels";
+    d->soundFXDir = d->appData + "/soundfx";
+    d->musicDir = d->appData + "/music";
+#ifndef NDEBUG
+    std::cout << "settingsFile = '" << d->settingsFile << "'" << std::endl;
+#endif
+    load();
+#endif //LINUX_AMD64
   }
 
 
@@ -97,7 +121,7 @@ namespace Impact {
   {
     bool ok = true;
 #ifndef NDEBUG
-    std::cout << "Settings::save()" << std::endl;
+    std::cout << "Settings::save(" << d->settingsFile << ")" << std::endl;
 #endif
     std::ofstream ofs(d->settingsFile);
     unsigned int flags = boost::archive::no_header | boost::archive::no_tracking | boost::archive::no_xml_tag_checking;

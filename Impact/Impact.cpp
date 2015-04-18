@@ -35,7 +35,9 @@
 
 #include <ctime>
 
+#ifndef NO_RECORDER
 #include "Recorder.h"
+#endif
 
 
 namespace Impact {
@@ -613,6 +615,7 @@ namespace Impact {
 
   void Game::initCPULoadMonitor(void)
   {
+#if defined(WIN32)
     SYSTEM_INFO sysInfo;
     FILETIME ftime, fsys, fuser;
     GetSystemInfo(&sysInfo);
@@ -626,11 +629,13 @@ namespace Impact {
     mLastCPU.HighPart = fsys.dwHighDateTime;
     mLastCPU.LowPart = fuser.dwLowDateTime;
     mLastCPU.HighPart = fuser.dwHighDateTime;
+#endif
   }
 
 
   float Game::getCurrentCPULoadPercentage(void)
   {
+#if defined(WIN32)
     FILETIME ftime, fsys, fuser, fexit;
     ULARGE_INTEGER now, sys, user;
     GetSystemTimeAsFileTime(&ftime);
@@ -648,6 +653,10 @@ namespace Impact {
     mLastCPU.QuadPart = now.QuadPart;
     mLastUserCPU.QuadPart = user.QuadPart;
     mLastSysCPU.QuadPart = sys.QuadPart;
+#endif
+#if defined(LINUX_AMD64)
+    const float percent = 0.0f; // to be implemented
+#endif
     return percent;
   }
 
@@ -960,18 +969,18 @@ namespace Impact {
     ZeroMemory(&szCwd, sizeof(szCwd));
     GetCurrentDirectory(MAX_PATH, szCwd);
     BOOL ok = GetOpenFileName(&ofn);
+#else
+    BOOL ok = 0;
 #endif
 
     if (ok == TRUE) {
 #if defined(WIN32)
       SetCurrentDirectory(szCwd); // GetOpenFileName() changed current directory, so restore it afterwards
-#endif
       std::string zipFilename = ofn.lpstrFile;
-#if defined(WIN32)
       PathRemoveFileSpec(ofn.lpstrFile);
-#endif
-      gLocalSettings.setLastOpenDir(ofn.lpstrFile);
+      gLocalSettings().setLastOpenDir(ofn.lpstrFile);
       loadLevelFromZip(zipFilename);
+#endif
     }
   }
 
@@ -2518,8 +2527,8 @@ namespace Impact {
         else {
           if (body->type() == Body::BodyType::Ball) {
             const Ball *const ball = reinterpret_cast<Ball*>(body);
-            std::vector<Ball*>::const_iterator ball2remove = std::find(mBalls.cbegin(), mBalls.cend(), ball);
-            //mBalls.erase(ball2remove); // fixme
+            std::vector<Ball*>::iterator ball2remove = std::find(mBalls.begin(), mBalls.end(), ball);
+            mBalls.erase(ball2remove);
           }
           delete body;
         }

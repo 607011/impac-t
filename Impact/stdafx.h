@@ -22,6 +22,10 @@
 #pragma once
 #endif
 
+#ifdef LINUX_AMD64
+#include "linux_amd64.h"
+#endif
+
 #ifndef __STDAFX_H_
 #define __STDAFX_H_
 
