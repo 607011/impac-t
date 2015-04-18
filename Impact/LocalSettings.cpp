@@ -91,13 +91,9 @@ namespace Impact {
 #ifndef NDEBUG
       std::cout << "settingsFile = '" << d->settingsFile << "'" << std::endl;
 #endif
-#endif //WIN32
       load();
-#if defined(WIN32)
     }
-#endif
-
-#if defined(LINUX_AMD64)
+#elif defined(LINUX_AMD64)
     XInitThreads(); // workaround for SFML threading issue, need to call this as early as possible
     // see also: http://en.sfml-dev.org/forums/index.php?topic=14853.0
     // this constructor is a good candidate for early, as gLocalSettings() is called from everywhere ;-)
@@ -120,9 +116,6 @@ namespace Impact {
   bool LocalSettings::save(void)
   {
     bool ok = true;
-#ifndef NDEBUG
-    std::cout << "Settings::save(" << d->settingsFile << ")" << std::endl;
-#endif
     std::ofstream ofs(d->settingsFile);
     unsigned int flags = boost::archive::no_header | boost::archive::no_tracking | boost::archive::no_xml_tag_checking;
     boost::archive::xml_oarchive xml(ofs, flags);
