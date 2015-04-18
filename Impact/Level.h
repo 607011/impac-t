@@ -27,7 +27,9 @@
 #include "globals.h"
 #include "TileParam.h"
 
+#ifdef WIN32
 #include "../zip-utils/unzip.h"
+#endif
 
 namespace Impact {
 

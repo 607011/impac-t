@@ -34,10 +34,10 @@ namespace Impact {
 #define FontsDir ResourcesDir + "/fonts"
 #define ShadersDir ResourcesDir + "/shaders"
 
-  extern std::mt19937 gRNG;
+  std::mt19937& gRNG();
   extern void warmupRNG(void);
 
-  extern LocalSettings gLocalSettings;
+  LocalSettings& gLocalSettings();
 }
 
 

@@ -22,6 +22,10 @@
 #pragma once
 #endif
 
+#ifdef LINUX_AMD64
+#include "linux_amd64.h"
+#endif
+
 #ifndef __STDAFX_H_
 #define __STDAFX_H_
 
@@ -52,7 +56,7 @@
 #include <sys/stat.h>
 
 #include <GL/glew.h>
-#include <GL/GLU.h>
+#include <GL/glu.h>
 
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>

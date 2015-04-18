@@ -42,7 +42,7 @@ namespace Impact {
     setLifetime(def.maxLifetime);
     mTexture = def.texture;
 
-    if (gLocalSettings.useShaders() && gLocalSettings.useShadersForExplosions()) {
+    if (gLocalSettings().useShaders() && gLocalSettings().useShadersForExplosions()) {
       mShader = ShaderPool::getNext();
       mShader->setParameter("uTexture", sf::Shader::CurrentTexture);
       mShader->setParameter("uMaxAge", def.maxLifetime.asSeconds());
@@ -57,7 +57,7 @@ namespace Impact {
     for (int i = 0; i < N; ++i) {
       SimpleParticle &p = mParticles[i];
       p.dead = false;
-      p.lifeTime = sf::milliseconds(randomLifetime(gRNG));
+      p.lifeTime = sf::milliseconds(randomLifetime(gRNG()));
       p.sprite.setTexture(mTexture);
       mTexture.setRepeated(false);
       mTexture.setSmooth(true);
@@ -65,7 +65,7 @@ namespace Impact {
 
       b2BodyDef bd;
       bd.type = b2_dynamicBody;
-      bd.position = def.pos + Game::InvScale * b2Vec2(randomOffset(gRNG), randomOffset(gRNG));
+      bd.position = def.pos + Game::InvScale * b2Vec2(randomOffset(gRNG()), randomOffset(gRNG()));
 #ifdef EXPLOSION_PARTICLES_CANNOT_ROTATE
       bd.fixedRotation = true;
 #else
@@ -76,7 +76,7 @@ namespace Impact {
       bd.userData = this;
       bd.gravityScale = def.gravityScale;
       bd.linearDamping = def.linearDamping;
-      bd.linearVelocity = randomSpeed(gRNG) * b2Vec2(randomOffset(gRNG), randomOffset(gRNG));
+      bd.linearVelocity = randomSpeed(gRNG()) * b2Vec2(randomOffset(gRNG()), randomOffset(gRNG()));
       p.body = world->CreateBody(&bd);
 
       b2CircleShape circleShape;

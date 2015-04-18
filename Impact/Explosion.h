@@ -104,7 +104,7 @@ namespace Impact {
 #ifndef NDEBUG
         std::cout << "ShaderPool() ..." << std::endl;
 #endif
-        if (gLocalSettings.useShaders())
+        if (gLocalSettings().useShaders())
           init();
       }
       static void init(void)
@@ -125,7 +125,7 @@ namespace Impact {
       }
       static sf::Shader *getNext(void)
       {
-        if (!gLocalSettings.useShaders())
+        if (!gLocalSettings().useShaders())
           return nullptr;
         if (sShaders.size() == 0)
           ShaderPool::init();

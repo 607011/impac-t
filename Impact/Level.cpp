@@ -26,7 +26,16 @@
 
 #include <zlib.h>
 
+#if defined(WIN32)
 #include "../zip-utils/unzip.h"
+#endif
+#if defined(LINUX_AMD64)
+#include <libgen.h>
+extern "C" {
+#include "../minizip/miniunz.h"
+}
+#endif
+
 #include "sha1.h"
 
 #if defined(WIN32)
@@ -158,7 +167,7 @@ namespace Impact {
     std::ostringstream levelStrBuf;
     levelStrBuf << std::setw(4) << std::setfill('0') << mLevelNum;
     const std::string levelStr = levelStrBuf.str();
-    levelFilename = gLocalSettings.levelsDir() + "/" + levelStr + ".zip";
+    levelFilename = gLocalSettings().levelsDir() + "/" + levelStr + ".zip";
 #ifndef NDEBUG
     std::cout << "Level ZIP filename: " << levelFilename << "." << std::endl;
 #endif
@@ -169,6 +178,9 @@ namespace Impact {
 #pragma warning(disable : 4503)
   void Level::loadZip(const std::string &zipFilename)
   {
+#ifndef NDEBUG
+    std::cout << "Level::loadZip(" << zipFilename << ")" << std::endl;
+#endif
     mSuccessfullyLoaded = false;
     bool ok = true;
 
@@ -184,13 +196,25 @@ namespace Impact {
     PathRemoveExtension(szPath);
     mName = szPath;
 #endif
+#if defined(LINUX_AMD64)
+    char szPath[MAX_PATH];
+    strncpy(szPath, zipFilename.c_str(), MAX_PATH);
+    char* fName = basename(szPath);
+    char* dot = index(fName, '.');
+    if (dot) {
+       *dot = 0;
+    }
+    mName = basename(fName);
+#endif
 
 #ifndef NDEBUG
     std::cout << "LEVEL NAME: " << mName << std::endl;
 #endif
+
+#if defined(WIN32)
     HZIP hz = OpenZip(zipFilename.c_str(), nullptr);
     if (hz) {
-      levelPath = gLocalSettings.levelsDir() + "/" + mName;
+      levelPath = gLocalSettings().levelsDir() + "/" + mName;
       SetUnzipBaseDir(hz, levelPath.c_str());
       ZIPENTRY ze;
       GetZipItem(hz, -1, &ze);
@@ -208,7 +232,7 @@ namespace Impact {
             bool musicLoaded = mMusic->openFromFile(levelPath + "/" + currentItemName);
             if (musicLoaded) {
               mMusic->setLoop(true);
-              mMusic->setVolume(gLocalSettings.musicVolume());
+              mMusic->setVolume(gLocalSettings().musicVolume());
             }
           }
         }
@@ -219,9 +243,55 @@ namespace Impact {
       CloseZip(hz);
       calcSHA1(zipFilename);
     }
+#endif
 
 #ifndef NDEBUG
     std::cout << "Level::load() " << levelFilename << " ..." << std::endl;
+#endif
+
+#if defined(LINUX_AMD64)
+    unzFile hz = unzOpen(zipFilename.c_str());
+    if (hz) {
+        levelPath = gLocalSettings().levelsDir() + "/" + mName;
+	char curwd[MAX_PATH];
+	getcwd(curwd, MAX_PATH);
+	mkdir(levelPath.c_str(), 0775);
+	chdir(levelPath.c_str());
+	unz_global_info gInfo;
+	unzGetGlobalInfo(hz, &gInfo);
+	int nItems = gInfo.number_entry;
+	int extractWithoutPath = 0;
+	int extractOverwrite = 1;
+	for (int i = 0; i < nItems; ++i) {
+	   char zeName[MAX_PATH];
+	   unz_file_info fi;
+	   unzGetCurrentFileInfo(hz, &fi, zeName, MAX_PATH, NULL, 0, NULL, 0);
+	   std::string currentItemName = zeName;
+
+           if (boost::algorithm::ends_with(currentItemName, ".tmx")) {
+             levelFilename = levelPath + "/" + currentItemName;
+           }
+           else if (boost::algorithm::ends_with(currentItemName, ".ogg")) {
+             mMusic = new sf::Music;
+             if (mMusic != nullptr) {
+               bool musicLoaded = mMusic->openFromFile(levelPath + "/" + currentItemName);
+               if (musicLoaded) {
+                 mMusic->setLoop(true);
+                 mMusic->setVolume(gLocalSettings().musicVolume());
+               }
+             }
+           }
+#ifndef NDEBUG
+           std::cout << "Unzipping " << currentItemName << " ..." << std::endl;
+#endif
+	   do_extract_currentfile(hz, &extractWithoutPath, &extractOverwrite, NULL);
+	   if ((i+1)<nItems) {
+	      unzGoToNextFile(hz);
+	   }
+	}
+	chdir(curwd);
+	unzClose(hz);
+    }
 #endif
 
     ok = fileExists(levelFilename);
