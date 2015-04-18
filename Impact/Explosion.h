@@ -101,17 +101,11 @@ namespace Impact {
       static const std::vector<sf::Shader*>::size_type N = 8; // maximum number of concurrent explosions
       ShaderPool(void)
       {
-#ifndef NDEBUG
-        std::cout << "ShaderPool() ..." << std::endl;
-#endif
         if (gLocalSettings().useShaders())
           init();
       }
       static void init(void)
       {
-#ifndef NDEBUG
-        std::cout << "ShaderPool::init() ..." << std::endl;
-#endif
         std::ifstream inFile;
         inFile.open(ShadersDir + "/explosion.fs");
         std::stringstream strStream;
