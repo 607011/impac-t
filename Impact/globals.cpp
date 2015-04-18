@@ -21,22 +21,16 @@
 #include "stdafx.h"
 
 #include <array>
-#ifndef NDEBUG
-#include <iostream>
-#endif
 
 namespace Impact {
 
-  std::mt19937& gRNG() {
-     static std::mt19937* rng = new std::mt19937();
+  std::mt19937 &gRNG() {
+     static std::mt19937 *rng = new std::mt19937;
      return *rng;
   }
 
   void warmupRNG(void)
   {
-#ifndef NDEBUG
-    std::cout << "warmupRNG()" << std::endl;
-#endif
     std::array<int, std::mt19937::state_size> seed_data;
     std::random_device r;
     std::generate_n(seed_data.data(), seed_data.size(), std::ref(r));
