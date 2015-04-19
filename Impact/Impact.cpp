@@ -678,7 +678,6 @@ namespace Impact {
   void Game::createMainWindow(void)
   {
     sf::ContextSettings requestedContextSettings(24U, 0U, 16U, 3U, 0U);
-    requestedContextSettings.antialiasingLevel = 0;
     mWindow.create(
       sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth),
       std::string("Impac't") + " v" + std::string(IMPACT_VERSION),
