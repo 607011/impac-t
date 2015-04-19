@@ -2352,7 +2352,7 @@ namespace Impact {
         const int64_t penalty = calcPenalty();
         mScoreMsg.setString(std::to_string(mLevelScore) + (penalty > 0 ? " " + std::to_string(-penalty) : ""));
         mScoreMsg.setPosition(mStatsView.getSize().x - mScoreMsg.getLocalBounds().width - 4, 4);
-        mCurrentScoreMsg.setString("total: " + std::to_string(std::max((long int)0LL, (long int)(mTotalScore + mLevelScore - penalty))));
+        mCurrentScoreMsg.setString("total: " + std::to_string(std::max<int64_t>(0, mTotalScore + mLevelScore - penalty)));
         mCurrentScoreMsg.setPosition(mStatsView.getSize().x - mCurrentScoreMsg.getLocalBounds().width - 4, 20);
       }
       mStatsClock.restart();
@@ -2745,7 +2745,7 @@ namespace Impact {
     const int64_t newScore = mLevelScore + points;
     if (points > 0) {
       const int64_t threshold = NewLifeAfterSoManyPoints[mExtraLifeIndex];
-      if (threshold > 0LL && newScore > threshold) {
+      if (threshold > 0 && newScore > threshold) {
         ++mExtraLifeIndex;
         extraBall();
       }
@@ -2753,7 +2753,7 @@ namespace Impact {
         extraBall();
       }
     }
-    mLevelScore = std::max(0LL, newScore);
+    mLevelScore = std::max<int64_t>(0, newScore);
     const int level = mLevel.num();
     const int64_t totalScore = deductPenalty(mLevelScore);
     const int64_t highscore = gLocalSettings().highscore(level);
@@ -2901,7 +2901,7 @@ namespace Impact {
 
   int64_t Game::deductPenalty(int64_t score) const
   {
-    return std::max((long int)0LL, (long int)(score - calcPenalty()));
+    return std::max<int64_t>(0, score - calcPenalty());
   }
 
 
