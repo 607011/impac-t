@@ -2223,7 +2223,7 @@ namespace Impact {
 
   inline void Game::executeCopy(sf::RenderTexture &out, sf::RenderTexture &in)
   {
-	  sf::Sprite sprite(in.getTexture());
+    sf::Sprite sprite(in.getTexture());
     out.draw(sprite);
   }
 
@@ -2804,8 +2804,8 @@ namespace Impact {
 
   sf::Vector2f Game::getCursorPosition(void) const
   {
-	  const sf::Vector2i &mousePos = sf::Mouse::getPosition(mWindow);
-	  return sf::Vector2f(float(mousePos.x), float(mousePos.y));
+    const sf::Vector2i &mousePos = sf::Mouse::getPosition(mWindow);
+    return sf::Vector2f(float(mousePos.x), float(mousePos.y));
   }
 
 
