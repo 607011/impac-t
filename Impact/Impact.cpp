@@ -789,9 +789,6 @@ namespace Impact {
   void Game::setState(State state)
   {
     mLastState = mState;
-#ifndef NDEBUG
-    std::cout << "Game::setState(" << StateNames[state] << "), lastState = " << StateNames[mLastState] << std::endl;
-#endif
     mState = state;
     if (mState == State::Playing)
       mWindow.setMouseCursorVisible(false);
@@ -934,9 +931,6 @@ namespace Impact {
 
   void Game::loadLevelFromZip(const std::string &zipFilename)
   {
-#ifndef NDEBUG
-    std::cout << "loadLevelFromZip(\"" << zipFilename << "\")" << std::endl;
-#endif
     mLevel.loadZip(zipFilename);
     if (mLevel.isAvailable())
       gotoCurrentLevel();
@@ -946,9 +940,6 @@ namespace Impact {
   void Game::openLevelZip(void)
   {
     playSound(mRacketHitSound);
-#ifndef NDEBUG
-    std::cout << "openLevelZip()" << std::endl;
-#endif
 #if defined(WIN32)
     char szFile[MAX_PATH];
     ZeroMemory(szFile, sizeof(szFile));
@@ -1317,9 +1308,6 @@ namespace Impact {
 
   void Game::gotoCurrentLevel(void)
   {
-#ifndef NDEBUG
-    std::cout << "Game::gotoCurrentLevel(), level = " << mLevel.num() << std::endl;
-#endif
     stopAllMusic();
     clearWorld();
     mBallHasBeenLost = false;
@@ -1368,9 +1356,6 @@ namespace Impact {
 
   void Game::gotoNextLevel(void)
   {
-#ifndef NDEBUG
-    std::cout << "Game::gotoNextLevel()" << std::endl;
-#endif
     if (mPlaymode == Campaign)
       mLevel.gotoNext();
     gotoCurrentLevel();
@@ -1489,9 +1474,6 @@ namespace Impact {
     if (mScaleGravityEnabled && mScaleGravityClock.getElapsedTime() > mScaleGravityDuration) {
       mWorld->SetGravity(b2Vec2(0.f, mLevel.gravity()));
       mScaleGravityEnabled = false;
-#ifndef NDEBUG
-      std::cout << "Gravity back to normal." << std::endl;
-#endif
     }
 
     if (mScaleBallDensityEnabled && mScaleBallDensityClock.getElapsedTime() > mScaleBallDensityDuration) {
@@ -1502,9 +1484,6 @@ namespace Impact {
         }
       }
       mScaleBallDensityEnabled = false;
-#ifndef NDEBUG
-      std::cout << "Ball density back to normal." << std::endl;
-#endif
     }
 
     update();
@@ -1922,16 +1901,6 @@ namespace Impact {
       else if (event.type == sf::Event::MouseButtonReleased) {
         mMouseButtonDown = false;
       }
-      else if (event.type == sf::Event::MouseMoved) {
-        if (mMouseButtonDown) {
-#ifndef NDEBUG
-          const sf::Vector2f &mousePos = sf::Vector2f(float(event.mouseMove.x), float(event.mouseMove.y));
-          const sf::Vector2f &d = mousePos - mLastMousePos;
-          mLevelsRenderView.move(0.f, d.y * (scrollAreaHeight / totalHeight));
-          mLastMousePos = mousePos;
-#endif
-        }
-      }
       else if (event.type == sf::Event::MouseWheelMoved) {
         if ((event.mouseWheel.delta < 0 && mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y > 0.f) || (event.mouseWheel.delta > 0 && mLevelsRenderView.getCenter().y + .5f * mLevelsRenderView.getSize().y < float(marginTop + marginBottom + lineHeight * mLevels.size())))
           mLevelsRenderView.move(0.f, 62.f * (event.mouseWheel.delta));
@@ -2097,9 +2066,6 @@ namespace Impact {
 
   void Game::startAberrationEffect(float32 gravityScale, const sf::Time &duration, const sf::Vector2f &center)
   {
-#ifndef NDEBUG
-    std::cout << "startAberrationEffect(" << gravityScale << ", " << duration.asSeconds() << ")" << std::endl;
-#endif
     if (!gLocalSettings().useShaders())
       return;
     const sf::Time &elapsed = mAberrationClock.restart();
@@ -2363,9 +2329,6 @@ namespace Impact {
       }
     }
     for (std::vector<std::vector<SpecialEffect>::iterator>::const_iterator i = expiredEffects.cbegin(); i != expiredEffects.cend(); ++i) {
-#ifndef NDEBUG
-      std::cout << "Expired effect 0x" << std::hex << std::setfill('0') << std::setw(8) << (*i)->clock << std::endl;
-#endif
       mSpecialEffects.erase(*i);
     }
 
@@ -2599,10 +2562,6 @@ namespace Impact {
 
   void Game::buildLevel(void)
   {
-#ifndef NDEBUG
-    std::cout << "Game::buildLevel()" << std::endl;
-#endif
-
     mLastKillings = std::vector<sf::Time>(mLevel.killingsPerKillingSpree(), sf::milliseconds(INT_MIN));
 
     const float32 g = mLevel.gravity();
@@ -2843,9 +2802,6 @@ namespace Impact {
 
   void Game::pause(void)
   {
-#ifndef NDEBUG
-    std::cout << "pause()" << std::endl;
-#endif
     mPaused = true;
     setState(State::Pausing);
     mLevelTimer.pause();
@@ -2857,9 +2813,6 @@ namespace Impact {
 
   void Game::resume(void)
   {
-#ifndef NDEBUG
-    std::cout << "resume()" << std::endl;
-#endif
     mPaused = false;
     mLevelTimer.resume();
     stopBlurEffect();
@@ -3016,9 +2969,6 @@ namespace Impact {
 
   void Game::enumerateAllLevels(void)
   {
-#ifndef NDEBUG
-    std::cout << std::endl << "Game::enumerateAllLevels()" << std::endl << std::endl;
-#endif
     std::packaged_task<bool()> task([this]{
       // sf::sleep(sf::milliseconds(1000));
 #if defined(WIN32)
