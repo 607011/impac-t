@@ -1,9 +1,9 @@
 CC=gcc
 CXX=g++
 RM=rm -f
-CFLAGS=-g -pthread
-CXXFLAGS=-g -pthread -std=c++11 -DNO_RECORDER -DLINUX_AMD64
-LDFLAGS=-g
+CFLAGS=-g -O2 -pthread
+CXXFLAGS=-g -O2 -Ofast -pthread -std=c++11 -DNO_RECORDER -DLINUX_AMD64
+LDFLAGS=-g -O3
 LDLIBS=-pthread -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-system -lm -lGLEW -lGL -lz -lBox2D -lboost_serialization -lboost_regex -lX11
 
 SRCS=Ball.cpp Block.cpp Body.cpp Bumper.cpp Explosion.cpp globals.cpp Ground.cpp \
