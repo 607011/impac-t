@@ -21,4 +21,4 @@ impact: $(OBJS) $(MINIZIP_OBJS)
 	$(CXX) $(LDFLAGS) -o impact $(OBJS) $(MINIZIP_OBJS) $(LDLIBS) 
 
 clean:
-	rm -f *.o ../minizip/*.o impact
+	$(RM) *.o ../minizip/*.o impact
