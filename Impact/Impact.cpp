@@ -99,8 +99,8 @@ namespace Impact {
   const sf::Time Game::DefaultKillingSpreeInterval = sf::milliseconds(2500); //MOD Multikill
   const unsigned int Game::DefaultKillingsPerKillingSpree = 5; //MOD Multikill
   const unsigned int Game::DefaultKillingSpreeBonus = 1000; //MOD Multikill
-  const unsigned int Game::NewLiveAfterSoManyPoints[] = { 10000, 25000, 50000, 100000, -1 }; //MOD Extraball
-  const unsigned int Game::NewLiveAfterSoManyPointsDefault = 100000; //MOD Extraball
+  const int64_t Game::NewLifeAfterSoManyPoints[] = { 10000LL, 25000LL, 50000LL, 100000LL, -1LL }; //MOD Extraball
+  const int64_t Game::NewLifeAfterSoManyPointsDefault = 100000LL; //MOD Extraball
   const int Game::DefaultForceNewBallPenalty = 500;
   const sf::Time Game::DefaultPenaltyInterval = sf::milliseconds(100); //MOD Strafe
 
@@ -2744,19 +2744,19 @@ namespace Impact {
   {
     const int64_t newScore = mLevelScore + points;
     if (points > 0) {
-      const int threshold = NewLiveAfterSoManyPoints[mExtraLifeIndex];
-      if (threshold > 0 && newScore > threshold) {
+      const int64_t threshold = NewLifeAfterSoManyPoints[mExtraLifeIndex];
+      if (threshold > 0LL && newScore > threshold) {
         ++mExtraLifeIndex;
         extraBall();
       }
-      else if ((mLevelScore % NewLiveAfterSoManyPointsDefault) > (newScore % NewLiveAfterSoManyPointsDefault)) {
+      else if ((mLevelScore % NewLifeAfterSoManyPointsDefault) > (newScore % NewLifeAfterSoManyPointsDefault)) {
         extraBall();
       }
     }
-    mLevelScore = std::max((long int)0LL, (long int)newScore);
+    mLevelScore = std::max(0LL, newScore);
     const int level = mLevel.num();
-    const uint64_t totalScore = deductPenalty(mLevelScore);
-    const uint64_t highscore = gLocalSettings().highscore(level);
+    const int64_t totalScore = deductPenalty(mLevelScore);
+    const int64_t highscore = gLocalSettings().highscore(level);
     if (totalScore > highscore && highscore != 0) {
       gLocalSettings().setHighscore(level, totalScore);
       if (!mHighscoreReached) {

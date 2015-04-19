@@ -164,8 +164,8 @@ namespace Impact {
     static const unsigned int ColorDepth = 32U;
     static const unsigned int DefaultFramerateLimit = 0U;
     static const unsigned int DefaultLives;
-    static const unsigned int NewLiveAfterSoManyPointsDefault;
-    static const unsigned int NewLiveAfterSoManyPoints[];
+    static const int64_t NewLifeAfterSoManyPointsDefault;
+    static const int64_t NewLifeAfterSoManyPoints[];
     static const int MaxSoundFX = 16;
     static const int DefaultForceNewBallPenalty;
     static const int32 MaxContactPoints = 512;

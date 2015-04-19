@@ -43,7 +43,7 @@ namespace Impact {
       : useShaders(false)
       , particlesPerExplosion(50U)
       , lastCampaignLevel(1)
-      , campaignHighscore(0ULL)
+      , campaignHighscore(0LL)
       , musicVolume(50)
       , soundfxVolume(100)
       , framerateLimit(0)
@@ -55,7 +55,7 @@ namespace Impact {
     unsigned int particlesPerExplosion;
     std::string lastOpenDir;
     int lastCampaignLevel;
-    uint64_t campaignHighscore;
+    int64_t campaignHighscore;
     float musicVolume;
     float soundfxVolume;
     unsigned int framerateLimit;
@@ -68,7 +68,7 @@ namespace Impact {
     std::string soundFXDir;
     std::string musicDir;
 
-    std::map<int, uint64_t> highscores;
+    std::map<int, int64_t> highscores;
   };
 
   LocalSettings& gLocalSettings() {
@@ -152,7 +152,7 @@ namespace Impact {
       d->lastCampaignLevel = pt.get<int>("impact.campaign-last-level", 1);
       if (d->lastCampaignLevel < 1)
         d->lastCampaignLevel = 1;
-      d->campaignHighscore = pt.get<uint64_t>("impact.campaign-highscore", 0ULL);
+      d->campaignHighscore = pt.get<int64_t>("impact.campaign-highscore", 0ULL);
       d->soundfxVolume = b2Clamp(pt.get<float>("impact.soundfx-volume", 100.f), 0.f, 100.f);
       d->musicVolume = b2Clamp(pt.get<float>("impact.music-volume", 50.f), 0.f, 100.f);
     }
@@ -171,7 +171,7 @@ namespace Impact {
         boost::property_tree::ptree property = pi->second;
         if (pi->first == "item") {
           const int level = pi->second.get<int>("first", 0);
-          const uint64_t highscore = pi->second.get<uint64_t>("second", 0ULL);
+          const int64_t highscore = pi->second.get<int64_t>("second", 0LL);
           d->highscores[level] = highscore;
 #ifndef NDEBUG
           std::cout << "level " << std::dec << std::setw(4) << level << ": " << std::setw(15) << highscore << std::endl;
@@ -360,39 +360,39 @@ namespace Impact {
   }
 
 
-  void LocalSettings::setHighscore(int level, uint64_t score)
+  void LocalSettings::setHighscore(int level, int64_t score)
   {
     d->highscores[level] = score;
   }
 
 
-  uint64_t LocalSettings::highscore(int level) const
+  int64_t LocalSettings::highscore(int level) const
   {
     return d->highscores[level];
   }
 
 
-  void LocalSettings::setHighscore(uint64_t score)
+  void LocalSettings::setHighscore(int64_t score)
   {
     d->campaignHighscore = score;
   }
 
 
-  uint64_t LocalSettings::highscore(void) const
+  int64_t LocalSettings::highscore(void) const
   {
     return d->campaignHighscore;
   }
 
 
-  bool LocalSettings::isHighscore(uint64_t score) const
+  bool LocalSettings::isHighscore(int64_t score) const
   {
     return score > d->campaignHighscore;
   }
 
 
-  bool LocalSettings::isHighscore(int level, uint64_t score) const
+  bool LocalSettings::isHighscore(int level, int64_t score) const
   {
-    std::map<int, uint64_t>::const_iterator h = d->highscores.find(level);
+    std::map<int, int64_t>::const_iterator h = d->highscores.find(level);
     if (h == d->highscores.end())
       return true;
     return score > h->second;
