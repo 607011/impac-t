@@ -1,10 +1,10 @@
 CC=gcc
 CXX=g++
 RM=rm -f
-CFLAGS=-g
-CXXFLAGS=-g -std=c++11 -DNO_RECORDER -DLINUX_AMD64
+CFLAGS=-g -pthread
+CXXFLAGS=-g -pthread -std=c++11 -DNO_RECORDER -DLINUX_AMD64
 LDFLAGS=-g
-LDLIBS=-lsfml-graphics -lsfml-window -lsfml-audio -lsfml-system -lm -lGLEW -lGL -lz -lBox2D -lboost_serialization -lboost_regex -lX11
+LDLIBS=-pthread -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-system -lm -lGLEW -lGL -lz -lBox2D -lboost_serialization -lboost_regex -lX11
 
 SRCS=Ball.cpp Block.cpp Body.cpp Bumper.cpp Explosion.cpp globals.cpp Ground.cpp \
      Impact.cpp Level.cpp LocalSettings.cpp main.cpp Racket.cpp \
@@ -21,4 +21,4 @@ impact: $(OBJS) $(MINIZIP_OBJS)
 	$(CXX) $(LDFLAGS) -o impact $(OBJS) $(MINIZIP_OBJS) $(LDLIBS) 
 
 clean:
-	rm *.o ../minizip/*.o impact
+	rm -f *.o ../minizip/*.o impact
