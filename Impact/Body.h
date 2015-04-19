@@ -104,7 +104,7 @@ namespace Impact {
       return mMaxAge;
     }
 
-    inline const sf::Time &age(void) const
+    inline const sf::Time age(void) const
     {
       return mSpawned.getElapsedTime();
     }
