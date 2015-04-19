@@ -119,7 +119,7 @@ namespace Impact {
     std::ofstream ofs(d->settingsFile);
     unsigned int flags = boost::archive::no_header | boost::archive::no_tracking | boost::archive::no_xml_tag_checking;
     boost::archive::xml_oarchive xml(ofs, flags);
-    xml << boost::serialization::make_nvp("impact", this);
+    xml << boost::serialization::make_nvp("impact", *this);
     return ok;
   }
 
