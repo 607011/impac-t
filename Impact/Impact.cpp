@@ -1008,10 +1008,12 @@ namespace Impact {
             mPlaymode = Playmode::SingleLevel;
             gotoSelectLevelScreen();
           }
+#if defined(WIN32)
           else if (mMenuLoadLevelText.getGlobalBounds().contains(mousePos)) {
             mPlaymode = Playmode::SingleLevel;
             openLevelZip();
           }
+#endif
           else if (mMenuCampaignText.getGlobalBounds().contains(mousePos)) {
             mPlaymode = Playmode::Campaign;
             gotoCampaignScreen();
@@ -1068,7 +1070,12 @@ namespace Impact {
       mWindow.draw(mMenuSingleLevel);
       mMenuCampaignText.setColor(sf::Color(255, 255, 255, mMenuCampaignText.getGlobalBounds().contains(mousePos) ? 255 : 192));
       mWindow.draw(mMenuCampaignText);
+#if defined(WIN32)
       mMenuLoadLevelText.setColor(sf::Color(255, 255, 255, mMenuLoadLevelText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+#else
+      // TODO: linux port
+      mMenuLoadLevelText.setColor(sf::Color(255, 255, 255, mMenuLoadLevelText.getGlobalBounds().contains(mousePos) ? 16 : 16));
+#endif
       mWindow.draw(mMenuLoadLevelText);
       mMenuAchievementsText.setColor(sf::Color(255, 255, 255, mMenuAchievementsText.getGlobalBounds().contains(mousePos) ? 16 : 16));
       mWindow.draw(mMenuAchievementsText);
