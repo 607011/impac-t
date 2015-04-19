@@ -252,11 +252,14 @@ namespace Impact {
 #if defined(LINUX_AMD64)
     unzFile hz = unzOpen(zipFilename.c_str());
     if (hz) {
+        int rc;
         levelPath = gLocalSettings().levelsDir() + "/" + mName;
 	char curwd[MAX_PATH];
-	getcwd(curwd, MAX_PATH);
+	const char *path = getcwd(curwd, MAX_PATH);
 	mkdir(levelPath.c_str(), 0775);
-	chdir(levelPath.c_str());
+	rc = chdir(levelPath.c_str());
+	if (rc != 0)
+	  return;
 	unz_global_info gInfo;
 	unzGetGlobalInfo(hz, &gInfo);
 	int nItems = gInfo.number_entry;
@@ -289,7 +292,7 @@ namespace Impact {
 	      unzGoToNextFile(hz);
 	   }
 	}
-	chdir(curwd);
+	rc = chdir(curwd);
 	unzClose(hz);
     }
 #endif
