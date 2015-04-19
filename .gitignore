@@ -2,7 +2,9 @@
 *.sdf
 *.opensdf
 *.suo
+*.o
 deploy/*.exe
+Impact/impact
 Impact/*.aps
 Impact/Debug
 Impact/Release
