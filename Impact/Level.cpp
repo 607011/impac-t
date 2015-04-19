@@ -269,8 +269,8 @@ namespace Impact {
 	   char zeName[MAX_PATH];
 	   unz_file_info fi;
 	   unzGetCurrentFileInfo(hz, &fi, zeName, MAX_PATH, NULL, 0, NULL, 0);
+	   do_extract_currentfile(hz, &extractWithoutPath, &extractOverwrite, NULL);
 	   std::string currentItemName = zeName;
-
            if (boost::algorithm::ends_with(currentItemName, ".tmx")) {
              levelFilename = levelPath + "/" + currentItemName;
            }
@@ -287,7 +287,6 @@ namespace Impact {
 #ifndef NDEBUG
            std::cout << "Unzipping " << currentItemName << " ..." << std::endl;
 #endif
-	   do_extract_currentfile(hz, &extractWithoutPath, &extractOverwrite, NULL);
 	   if ((i+1)<nItems) {
 	      unzGoToNextFile(hz);
 	   }

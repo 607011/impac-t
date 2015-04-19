@@ -419,8 +419,6 @@ int do_extract_currentfile(uf,popt_extract_without_path,popt_overwrite,password)
 
         if (fout!=NULL)
         {
-            printf(" extracting: %s\n",write_filename);
-
             do
             {
                 err = unzReadCurrentFile(uf,buf,size_buf);
