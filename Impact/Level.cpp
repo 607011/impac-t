@@ -123,15 +123,6 @@ namespace Impact {
   }
 
 
-  static inline int hexDigit2Int(char c) {
-    if (c < 'A')
-      return int(c - '0');
-    else if (c < 'a')
-      return int(c - 'A');
-    return int(c - 'a');
-  }
-
-
   bool Level::calcSHA1(const std::string &filename)
   {
     std::ifstream is;
@@ -347,12 +338,14 @@ namespace Impact {
       mNumTilesX = pt.get<int>("map.<xmlattr>.width");
       mNumTilesY = pt.get<int>("map.<xmlattr>.height");
       try {
-        const std::string &bgColor = pt.get<std::string>("map.<xmlattr>.backgroundcolor");
+        std::string bgColor = pt.get<std::string>("map.<xmlattr>.backgroundcolor");
         int r = 0, g = 0, b = 0;
         if (bgColor.size() == 7 && bgColor[0] == '#') {
-          r = hexDigit2Int(bgColor[1]) << 8 | hexDigit2Int(bgColor[2]);
-          g = hexDigit2Int(bgColor[3]) << 8 | hexDigit2Int(bgColor[4]);
-          b = hexDigit2Int(bgColor[5]) << 8 | hexDigit2Int(bgColor[6]);
+          bgColor.erase(0, 1);
+          const uint32_t rgb = std::stoul(bgColor, 0, 16);
+          r = (rgb >> 16) & 0xff;
+          g = (rgb >> 8) & 0xff;
+          b = rgb & 0xff;
           mBackgroundColor = sf::Color(r, g, b, 255);
         }
       } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
