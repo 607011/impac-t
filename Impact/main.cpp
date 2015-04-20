@@ -22,12 +22,18 @@
 #if defined(WIN32)
 #include <Windows.h>
 #endif
+#if defined(LINUX_AMD64)   
+#include <gtk/gtk.h>
+#endif
 
 Impact::Game breakout;
 
 
 int main(int argc, char *argv[])
 {
+#if defined(LINUX_AMD64)   
+  gtk_init(&argc, &argv);
+#endif
   if (argc == 2) {
 #if defined(WIN32) && defined(CT_VERSION_INTERNAL)
     char szPath[MAX_PATH];

@@ -4,6 +4,14 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <time.h>
+#include <string>
+
+namespace Impact {
+   namespace Linux_AMD64 {
+      bool choose_file(std::string& fileName);
+   }
+}
+
 #define MAX_PATH FILENAME_MAX
 typedef uint32_t DWORD;
 typedef uint32_t UINT32;
