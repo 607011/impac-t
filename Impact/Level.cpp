@@ -164,9 +164,6 @@ namespace Impact {
     levelStrBuf << std::setw(4) << std::setfill('0') << mLevelNum;
     const std::string levelStr = levelStrBuf.str();
     levelFilename = gLocalSettings().levelsDir() + "/" + levelStr + ".zip";
-#ifndef NDEBUG
-    std::cout << "Level ZIP filename: " << levelFilename << "." << std::endl;
-#endif
     loadZip(levelFilename);
   }
 

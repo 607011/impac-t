@@ -70,9 +70,6 @@ namespace Impact {
     av_register_all();
 
     HRESULT hr;
-#ifndef NDEBUG
-    std::cout << "initRecorder() ..." << std::endl;
-#endif
     const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
     const IID IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
     const IID IID_IAudioClient = __uuidof(IAudioClient);

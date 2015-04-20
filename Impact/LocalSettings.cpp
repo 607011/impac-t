@@ -88,9 +88,6 @@ namespace Impact {
       d->levelsDir = d->appData + "\\levels";
       d->soundFXDir = d->appData + "\\soundfx";
       d->musicDir = d->appData + "\\music";
-#ifndef NDEBUG
-      std::cout << "settingsFile = '" << d->settingsFile << "'" << std::endl;
-#endif
       load();
     }
 #elif defined(LINUX_AMD64)
@@ -183,20 +180,6 @@ namespace Impact {
       std::cerr << "XML parser error: " << ex.what() << " (line " << ex.line() << ")" << std::endl;
       ok = false;
     }
-
-#ifndef NDEBUG
-    std::cout << "useShaders: " << d->useShaders << std::endl;
-    std::cout << "useShadersForExplosions: " << d->useShadersForExplosions << std::endl;
-    std::cout << "particlesPerExplosion: " << d->particlesPerExplosion << std::endl;
-    std::cout << "framerateLimit: " << d->framerateLimit << std::endl;
-    std::cout << "velocityIterations: " << d->velocityIterations << std::endl;
-    std::cout << "positionIterations: " << d->positionIterations << std::endl;
-    std::cout << "lastOpenDir: " << d->lastOpenDir << std::endl;
-    std::cout << "lastCampaignLevel: " << d->lastCampaignLevel << std::endl;
-    std::cout << "campaignHighscore: " << d->campaignHighscore << std::endl;
-    std::cout << "soundfxVolume: " << d->soundfxVolume << std::endl;
-    std::cout << "musicVolume: " << d->musicVolume << std::endl;
-#endif
 
     d->useShaders &= sf::Shader::isAvailable();
     d->useShadersForExplosions &= d->useShaders;
