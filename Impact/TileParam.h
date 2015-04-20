@@ -47,9 +47,11 @@ namespace Impact {
     TileParam(const TileParam &other)
       : score(other.score)
       , fixed(other.fixed)
-      , friction(other.friction)
-      , restitution(other.restitution)
       , density(other.density)
+      , friction(other.friction)
+      , linearDamping(other.linearDamping)
+      , angularDamping(other.angularDamping)
+      , restitution(other.restitution)
       , shapeType(other.shapeType)
       , gravityScale(other.gravityScale)
       , smooth(other.smooth)
@@ -69,6 +71,8 @@ namespace Impact {
     sf::Texture texture;
     DynamicValue<bool> fixed;
     DynamicValue<float32> friction;
+    DynamicValue<float32> linearDamping;
+    DynamicValue<float32> angularDamping;
     DynamicValue<float32> restitution;
     DynamicValue<float32> density;
     BodyShapeType shapeType;
