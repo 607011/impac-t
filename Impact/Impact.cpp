@@ -580,7 +580,7 @@ namespace Impact {
         std::cerr << ShadersDir + "/overlay.fs" << " failed to load/compile." << std::endl;
       mOverlayShader.setParameter("uResolution", windowSize);
 
-      ////MOD Schlüsselloch
+      ////MOD SchlÃ¼sselloch
       //ok = mKeyholeShader.loadFromFile(ShadersDir + "/keyhole.fs", sf::Shader::Fragment);
       //if (!ok)
       //   std::cerr << ShadersDir + "/keyhole.fs" << " failed to load/compile." << std::endl;
@@ -1000,6 +1000,12 @@ namespace Impact {
     while (mWindow.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
         mWindow.close();
+      }
+      else if(event.type == sf::Event::KeyPressed){
+        if(event.key.code == sf::Keyboard::Escape){
+          mWindow.close();
+          return;
+	}
       }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
@@ -1558,6 +1564,12 @@ namespace Impact {
       if (event.type == sf::Event::Closed) {
         mWindow.close();
       }
+      else if(event.type == sf::Event::KeyPressed){
+        if(event.key.code == sf::Keyboard::Escape){
+          gotoWelcomeScreen();
+          return;
+	}
+      }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
           if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
@@ -1626,6 +1638,12 @@ namespace Impact {
     while (mWindow.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
         mWindow.close();
+      }
+      else if(event.type == sf::Event::KeyPressed){
+        if(event.key.code == sf::Keyboard::Escape){
+          gotoWelcomeScreen();
+          return;
+	}
       }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
@@ -1891,6 +1909,12 @@ namespace Impact {
       if (event.type == sf::Event::Closed) {
         mWindow.close();
       }
+      else if(event.type == sf::Event::KeyPressed){
+        if(event.key.code == sf::Keyboard::Escape){
+          gotoWelcomeScreen();
+          return;
+	}
+      }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
           if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
@@ -1953,6 +1977,12 @@ namespace Impact {
     while (mWindow.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
         mWindow.close();
+      }
+      else if(event.type == sf::Event::KeyPressed){
+        if(event.key.code == sf::Keyboard::Escape){
+          gotoWelcomeScreen();
+          return;
+	}
       }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
