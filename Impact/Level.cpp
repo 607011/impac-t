@@ -151,10 +151,6 @@ namespace Impact {
       mSHA1 = strBuf.str();
       delete[] buf;
       mBase62Name = base62_encode<boost::multiprecision::uint256_t>(reinterpret_cast<uint8_t*>(hash), sizeof(hash));
-#ifndef NDEBUG
-      std::cout << "SHA1: " << mSHA1 << std::endl;
-      std::cout << "Base62: " << mBase62Name << std::endl;
-#endif
       return true;
     }
     return false;
@@ -178,9 +174,6 @@ namespace Impact {
 #pragma warning(disable : 4503)
   void Level::loadZip(const std::string &zipFilename)
   {
-#ifndef NDEBUG
-    std::cout << "Level::loadZip(" << zipFilename << ")" << std::endl;
-#endif
     mSuccessfullyLoaded = false;
     bool ok = true;
 
@@ -195,8 +188,7 @@ namespace Impact {
     PathStripPath(szPath);
     PathRemoveExtension(szPath);
     mName = szPath;
-#endif
-#if defined(LINUX_AMD64)
+#elif defined(LINUX_AMD64)
     char szPath[MAX_PATH];
     strncpy(szPath, zipFilename.c_str(), MAX_PATH);
     char* fName = basename(szPath);
@@ -236,73 +228,57 @@ namespace Impact {
             }
           }
         }
-#ifndef NDEBUG
-        std::cout << "Unzipping " << ze.name << " ..." << std::endl;
-#endif
       }
       CloseZip(hz);
       calcSHA1(zipFilename);
     }
-#endif
-
-#ifndef NDEBUG
-    std::cout << "Level::load() " << levelFilename << " ..." << std::endl;
-#endif
-
-#if defined(LINUX_AMD64)
+#elif defined(LINUX_AMD64)
     unzFile hz = unzOpen(zipFilename.c_str());
     if (hz) {
-        int rc;
-        levelPath = gLocalSettings().levelsDir() + "/" + mName;
-	char curwd[MAX_PATH];
-	const char *path = getcwd(curwd, MAX_PATH);
-	mkdir(levelPath.c_str(), 0775);
-	rc = chdir(levelPath.c_str());
-	if (rc != 0)
-	  return;
-	unz_global_info gInfo;
-	unzGetGlobalInfo(hz, &gInfo);
-	int nItems = gInfo.number_entry;
-	int extractWithoutPath = 0;
-	int extractOverwrite = 1;
-	for (int i = 0; i < nItems; ++i) {
-	   char zeName[MAX_PATH];
-	   unz_file_info fi;
-	   unzGetCurrentFileInfo(hz, &fi, zeName, MAX_PATH, NULL, 0, NULL, 0);
-	   do_extract_currentfile(hz, &extractWithoutPath, &extractOverwrite, NULL);
-	   std::string currentItemName = zeName;
-           if (boost::algorithm::ends_with(currentItemName, ".tmx")) {
-             levelFilename = levelPath + "/" + currentItemName;
-           }
-           else if (boost::algorithm::ends_with(currentItemName, ".ogg")) {
-             mMusic = new sf::Music;
-             if (mMusic != nullptr) {
-               bool musicLoaded = mMusic->openFromFile(levelPath + "/" + currentItemName);
-               if (musicLoaded) {
-                 mMusic->setLoop(true);
-                 mMusic->setVolume(gLocalSettings().musicVolume());
-               }
-             }
-           }
-#ifndef NDEBUG
-           std::cout << "Unzipping " << currentItemName << " ..." << std::endl;
-#endif
-	   if ((i+1)<nItems) {
-	      unzGoToNextFile(hz);
-	   }
-	}
-	rc = chdir(curwd);
-	unzClose(hz);
-    }
+      int rc;
+      levelPath = gLocalSettings().levelsDir() + "/" + mName;
+      char curwd[MAX_PATH];
+      const char *path = getcwd(curwd, MAX_PATH);
+      mkdir(levelPath.c_str(), 0775);
+      rc = chdir(levelPath.c_str());
+      if (rc != 0)
+        return;
+      unz_global_info gInfo;
+      unzGetGlobalInfo(hz, &gInfo);
+      int nItems = gInfo.number_entry;
+      int extractWithoutPath = 0;
+      int extractOverwrite = 1;
+      for (int i = 0; i < nItems; ++i) {
+        char zeName[MAX_PATH];
+        unz_file_info fi;
+        unzGetCurrentFileInfo(hz, &fi, zeName, MAX_PATH, NULL, 0, NULL, 0);
+        do_extract_currentfile(hz, &extractWithoutPath, &extractOverwrite, NULL);
+        std::string currentItemName = zeName;
+        if (boost::algorithm::ends_with(currentItemName, ".tmx")) {
+          levelFilename = levelPath + "/" + currentItemName;
+        }
+        else if (boost::algorithm::ends_with(currentItemName, ".ogg")) {
+          mMusic = new sf::Music;
+          if (mMusic != nullptr) {
+            bool musicLoaded = mMusic->openFromFile(levelPath + "/" + currentItemName);
+            if (musicLoaded) {
+              mMusic->setLoop(true);
+              mMusic->setVolume(gLocalSettings().musicVolume());
+            }
+          }
+        }
+        if ((i+1)<nItems) {
+          unzGoToNextFile(hz);
+        }
+      }
+      rc = chdir(curwd);
+      unzClose(hz);
+  }
 #endif
 
     ok = fileExists(levelFilename);
     if (!ok)
       return;
-
-#ifndef NDEBUG
-    std::cout << "Opening " << levelFilename << "..." << std::endl;
-#endif
 
     mBackgroundImageOpacity = 1.f;
     boost::property_tree::ptree pt;
@@ -338,57 +314,30 @@ namespace Impact {
           boost::algorithm::to_lower(propName);
           if (propName == "credits") {
             mCredits = property.get<std::string>("<xmlattr>.value", std::string());
-#ifndef NDEBUG
-            std::cout << "mCredits = " << mCredits << std::endl;
-#endif
           }
           else if (propName == "author") {
             mAuthor = property.get<std::string>("<xmlattr>.value", std::string());
-#ifndef NDEBUG
-            std::cout << "mAuthor = " << mAuthor << std::endl;
-#endif
           }
           else if (propName == "copyright") {
             mCopyright = property.get<std::string>("<xmlattr>.value", std::string());
-#ifndef NDEBUG
-            std::cout << "mCopyright = " << mCopyright << std::endl;
-#endif
           }
           else if (propName == "name") {
             mName = property.get<std::string>("<xmlattr>.value", std::string());
-#ifndef NDEBUG
-            std::cout << "mName = " << mName << std::endl;
-#endif
           }
           else if (propName == "gravity") {
             mGravity = property.get<float32>("<xmlattr>.value", 9.81f);
-#ifndef NDEBUG
-            std::cout << "mGravity = " << mGravity << std::endl;
-#endif
           }
           else if (propName == "explosionparticlescollidewithball") {
             mExplosionParticlesCollideWithBall = property.get<bool>("<xmlattr>.value", false);
-#ifndef NDEBUG
-            std::cout << "mExplosionParticlesCollideWithBall = " << mExplosionParticlesCollideWithBall << std::endl;
-#endif
           }
           else if (propName == "killingspreebonus") {
             mKillingSpreeBonus = property.get<int>("<xmlattr>.value", Game::DefaultKillingSpreeBonus);
-#ifndef NDEBUG
-            std::cout << "mKillingSpreeBonus = " << mKillingSpreeBonus << std::endl;
-#endif
           }
           else if (propName == "killingspreeinterval") {
             mKillingSpreeInterval = sf::milliseconds(property.get<int>("<xmlattr>.value", Game::DefaultKillingSpreeInterval.asMilliseconds()));
-#ifndef NDEBUG
-            std::cout << "mKillingSpreeInterval = " << mKillingSpreeInterval.asMilliseconds() << std::endl;
-#endif
           }
           else if (propName == "killingsperkillingspree") {
             mKillingsPerKillingSpree = property.get<int>("<xmlattr>.value", Game::DefaultKillingsPerKillingSpree);
-#ifndef NDEBUG
-            std::cout << "mKillingsPerKillingSpree = " << mKillingsPerKillingSpree << std::endl;
-#endif
           }
         }
       }
@@ -411,14 +360,11 @@ namespace Impact {
         }
       } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
 
-#ifndef NDEBUG
-      std::cout << "Map size: " << mNumTilesX << "x" << mNumTilesY << std::endl;
-#endif
       uint8_t *compressed = nullptr;
       uLong compressedSize = 0UL;
       base64_decode(mapDataB64, compressed, compressedSize);
       if (compressed != nullptr && compressedSize > 0) {
-        const size_t CHUNKSIZE = 128 * 1024;
+        static const size_t CHUNKSIZE = 128 * 1024; // sizeof(uint32_t) * Game::DefaultPlaygroundWidth * Game::DefaultPlaygroundHeight;
         uint32_t *mapData = new uint32_t[CHUNKSIZE / sizeof(uint32_t)];
         if (mapData != nullptr) {
           uLongf mapDataSize = CHUNKSIZE;
@@ -428,9 +374,6 @@ namespace Impact {
               mMapData.push_back(*(mapData + i));
             }
             delete [] mapData;
-#ifndef NDEBUG
-            std::cout << "map data contains " << mMapData.size() << " elements." << std::endl;
-#endif
           }
           else {
             ok = false;

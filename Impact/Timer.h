@@ -22,10 +22,6 @@
 
 #include <SFML/System.hpp>
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
-
 namespace Impact {
 
   class Timer {
@@ -43,17 +39,11 @@ namespace Impact {
     }
     inline void pause(void)
     {
-#ifndef NDEBUG
-      std::cout << "Timer is paused." << std::endl;
-#endif
       mTime += mClock.restart();
       mActive = false;
     }
     inline void resume(void)
     {
-#ifndef NDEBUG
-      std::cout << "Timer is active." << std::endl;
-#endif
       mActive = true;
       mClock.restart();
     }
