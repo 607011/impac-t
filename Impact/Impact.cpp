@@ -109,8 +109,6 @@ namespace Impact {
   const sf::Time Game::DefaultEarthquakeDuration = sf::milliseconds(10 * 1000);
   const sf::Time Game::DefaultOverlayDuration = sf::milliseconds(300);
 
-  const float Game::DefaultWallRestitution = 1.f;
-
 #ifndef NDEBUG
   const char* Game::StateNames[State::LastState] = {
     "NoState",
@@ -986,6 +984,7 @@ namespace Impact {
     if (gLocalSettings().useShaders()) {
       mTitleShader.setParameter("uMaxT", 1.f);
     }
+    mWorld->SetGravity(b2Vec2(0.f, DefaultGravity));
     mWelcomeLevel = 0;
     mWallClock.restart();
     mWindow.setMouseCursorVisible(true);
@@ -2583,21 +2582,21 @@ namespace Impact {
     b2EdgeShape rightShape;
     rightShape.Set(b2Vec2(W, 0), b2Vec2(W, H));
     b2FixtureDef fdRight;
-    fdRight.restitution = DefaultWallRestitution; //TODO: parametrize wall restitution
+    fdRight.restitution = mLevel.wallRestitution();
     fdRight.shape = &rightShape;
     fdRight.userData = new RightBoundary(this);
     boundaries->CreateFixture(&fdRight);
     b2EdgeShape leftShape;
     leftShape.Set(b2Vec2(0, 0), b2Vec2(0, H));
     b2FixtureDef fdLeft;
-    fdLeft.restitution = DefaultWallRestitution; //TODO: parametrize wall restitution
+    fdLeft.restitution = mLevel.wallRestitution();
     fdLeft.shape = &leftShape;
     fdLeft.userData = new LeftBoundary(this);
     boundaries->CreateFixture(&fdLeft);
     b2EdgeShape topShape;
     topShape.Set(b2Vec2(0, g > 0.f ? 0.f : float32(mLevel.height())), b2Vec2(W, g > 0.f ? 0.f : float32(mLevel.height())));
     b2FixtureDef fdTop;
-    fdTop.restitution = DefaultWallRestitution; //TODO: parametrize wall restitution
+    fdTop.restitution = mLevel.wallRestitution();
     fdTop.shape = &topShape;
     boundaries->CreateFixture(&fdTop);
 
@@ -2606,25 +2605,30 @@ namespace Impact {
     addBody(mGround);
 
 
-    const sf::Texture *bgTex = mLevel.backgroundSprite().getTexture();
-    if (bgTex != nullptr) {
-      const sf::Image &bg = bgTex->copyToImage();
-      unsigned int nPixels = bg.getSize().x * bg.getSize().y;
-      if (nPixels > 0) {
-        const sf::Uint8 *pixels = bg.getPixelsPtr();
-        const sf::Uint8 *pixelsEnd = pixels + (4 * nPixels);
-        sf::Vector3i color;
-        while (pixels < pixelsEnd) {
-          color.x += *(pixels + 0);
-          color.y += *(pixels + 1);
-          color.z += *(pixels + 2);
-          pixels += 4;
+    if (mLevel.backgroundVisible()) {
+      const sf::Texture *bgTex = mLevel.backgroundSprite().getTexture();
+      if (bgTex != nullptr) {
+        const sf::Image &bg = bgTex->copyToImage();
+        unsigned int nPixels = bg.getSize().x * bg.getSize().y;
+        if (nPixels > 0) {
+          const sf::Uint8 *pixels = bg.getPixelsPtr();
+          const sf::Uint8 *pixelsEnd = pixels + (4 * nPixels);
+          sf::Vector3i color;
+          while (pixels < pixelsEnd) {
+            color.x += *(pixels + 0);
+            color.y += *(pixels + 1);
+            color.z += *(pixels + 2);
+            pixels += 4;
+          }
+          mStatsColor = sf::Color(sf::Uint8(color.x / nPixels), sf::Uint8(color.y / nPixels), sf::Uint8(color.z / nPixels), 255U);
         }
-        mStatsColor = sf::Color(sf::Uint8(color.x / nPixels), sf::Uint8(color.y / nPixels), sf::Uint8(color.z / nPixels), 255U);
+        else {
+          mStatsColor = sf::Color::Black;
+        }
       }
-      else {
-        mStatsColor = sf::Color::Black;
-      }
+    }
+    else {
+      mStatsColor = sf::Color::Black;
     }
 
     createStatsViewRectangle();
@@ -2641,48 +2645,27 @@ namespace Impact {
         const TileParam &tileParam = mLevel.tileParam(tileId);
         if (tileId >= mLevel.firstGID()) {
           if (tileParam.textureName == Ball::Name) {
-            Ball *ball = newBall(pos, tileParam.shapeType);
-            ball->setDensity(tileParam.density.get());
-            ball->setRestitution(tileParam.restitution.get());
-            ball->setFriction(tileParam.friction.get());
-            ball->setSmooth(tileParam.smooth);
-            ball->setTileParam(tileParam);
+            mBallTileParam = tileParam;
+            Ball *ball = newBall(pos);
           }
           else if (tileParam.textureName == Racket::Name) {
-            mRacket = new Racket(this, pos, mGround->body());
-            mRacket->setSmooth(tileParam.smooth);
+            mRacket = new Racket(this, pos, mGround->body(), tileParam);
             // mRacket->setXAxisConstraint(mLevel.height() - .5f);
             addBody(mRacket);
           }
           else if (tileParam.textureName == Bumper::Name) {
-            Bumper *bumper = new Bumper(tileId, this);
+            Bumper *bumper = new Bumper(tileId, this, tileParam);
             bumper->setPosition(pos);
-            bumper->setScore(tileParam.score);
-            bumper->setSmooth(tileParam.smooth);
-            bumper->setTileParam(tileParam);
             addBody(bumper);
           }
           else if (tileParam.fixed.get()) {
-            Wall *wall = new Wall(tileId, this);
+            Wall *wall = new Wall(tileId, this, tileParam);
             wall->setPosition(pos);
-            wall->setRestitution(tileParam.restitution.get());
-            wall->setFriction(tileParam.friction.get());
-            wall->setSmooth(tileParam.smooth);
-            wall->setTileParam(tileParam);
             addBody(wall);
           }
           else {
-            Block *block = new Block(tileId, this);
+            Block *block = new Block(tileId, this, tileParam);
             block->setPosition(pos);
-            block->setScore(tileParam.score);
-            block->setGravityScale(tileParam.gravityScale);
-            block->setDensity(tileParam.density.get());
-            block->setRestitution(tileParam.restitution.get());
-            block->setFriction(tileParam.friction.get());
-            block->setSmooth(tileParam.smooth);
-            block->setEnergy(tileParam.minimumKillImpulse);
-            block->setMinimumHitImpulse(tileParam.minimumHitImpulse);
-            block->setTileParam(tileParam);
             addBody(block);
             ++mBlockCount;
           }
@@ -2787,10 +2770,10 @@ namespace Impact {
   }
 
 
-  Ball *Game::newBall(const b2Vec2 &pos, BodyShapeType shapeType)
+  Ball *Game::newBall(const b2Vec2 &pos)
   {
     playSound(mNewBallSound);
-    Ball *ball = new Ball(this, shapeType);
+    Ball *ball = new Ball(this, mBallTileParam);
     mBalls.push_back(ball);
     addBody(ball);
     if (mBallHasBeenLost) {

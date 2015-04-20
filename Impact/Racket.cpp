@@ -27,11 +27,12 @@ namespace Impact {
   const float32 Racket::DefaultFriction = .71f;
   const float32 Racket::DefaultRestitution = .1f;
 
-  Racket::Racket(Game *game, const b2Vec2 &pos, b2Body *ground)
-    : Body(Body::BodyType::Racket, game)
+  Racket::Racket(Game *game, const b2Vec2 &pos, b2Body *ground, const TileParam &tileParam)
+    : Body(Body::BodyType::Racket, game, tileParam)
   {
     mName = Name;
     mTexture = mGame->level()->texture(mName);
+    setSmooth(mTileParam.smooth);
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(sf::Vector2f(.5f * mTexture.getSize().x, .5f * mTexture.getSize().y));
 
@@ -48,11 +49,15 @@ namespace Impact {
     const float32 xoff = hs * (mTexture.getSize().x - mTexture.getSize().y);
     polygon.SetAsBox(xoff, hh);
 
+    const float32 density = tileParam.density.isValid() ? tileParam.density.get() : DefaultDensity;
+    const float32 friction = tileParam.friction.isValid() ? tileParam.friction.get() : DefaultFriction;
+    const float32 restitution = tileParam.restitution.isValid() ? tileParam.restitution.get() : DefaultRestitution;
+
     b2FixtureDef fdBox;
     fdBox.shape = &polygon;
-    fdBox.density = DefaultDensity;
-    fdBox.friction = DefaultFriction;
-    fdBox.restitution = DefaultRestitution;
+    fdBox.density = density;
+    fdBox.friction = friction;
+    fdBox.restitution = restitution;
     fdBox.userData = this;
     mTiltingBody->CreateFixture(&fdBox);
 
@@ -62,9 +67,9 @@ namespace Impact {
 
     b2FixtureDef fdCircleL;
     fdCircleL.shape = &circleL;
-    fdCircleL.density = DefaultDensity;
-    fdCircleL.friction = DefaultFriction;
-    fdCircleL.restitution = DefaultRestitution;
+    fdCircleL.density = density;
+    fdCircleL.friction = friction;
+    fdCircleL.restitution = restitution;
     fdCircleL.userData = this;
     mTiltingBody->CreateFixture(&fdCircleL);
 
@@ -74,9 +79,9 @@ namespace Impact {
 
     b2FixtureDef fdCircleR;
     fdCircleR.shape = &circleR;
-    fdCircleR.density = DefaultDensity;
-    fdCircleR.friction = DefaultFriction;
-    fdCircleR.restitution = DefaultRestitution;
+    fdCircleR.density = density;
+    fdCircleR.friction = friction;
+    fdCircleR.restitution = restitution;
     fdCircleR.userData = this;
     mTiltingBody->CreateFixture(&fdCircleR);
 
@@ -103,28 +108,6 @@ namespace Impact {
     mMouseJoint = reinterpret_cast<b2MouseJoint*>(mGame->world()->CreateJoint(&mjd));
 
     setPosition(pos);
-  }
-
-
-  void Racket::setRestitution(float32 restitution)
-  {
-    for (b2Fixture *f = mTiltingBody->GetFixtureList(); f != nullptr; f = f->GetNext())
-      f->SetRestitution(restitution);
-  }
-
-
-  void Racket::setFriction(float32 friction)
-  {
-    for (b2Fixture *f = mTiltingBody->GetFixtureList(); f != nullptr; f = f->GetNext())
-      f->SetFriction(friction);
-  }
-
-
-  void Racket::setDensity(float32 density)
-  {
-    for (b2Fixture *f = mTiltingBody->GetFixtureList(); f != nullptr; f = f->GetNext())
-      f->SetDensity(density);
-    mTiltingBody->ResetMassData();
   }
 
 

@@ -29,7 +29,7 @@ namespace Impact {
   class Block : public Body
   {
   public:
-    Block(int index, Game *game);
+    Block(int index, Game *game, const TileParam &tileParam);
 
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);
@@ -39,12 +39,13 @@ namespace Impact {
     virtual bool hit(float impulse);
 
     void setGravityScale(float32);
-    void setMinimumHitImpulse(int);
 
     static const std::string Name;
     static const float32 DefaultDensity;
     static const float32 DefaultFriction;
     static const float32 DefaultRestitution;
+    static const float32 DefaultLinearDamping;
+    static const float32 DefaultAngularDamping;
 
   protected:
     static const int TextureMargin = 8;

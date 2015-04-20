@@ -25,12 +25,13 @@
 
 namespace Impact {
 
-  Body::Body(BodyType type, Game *game)
+  Body::Body(BodyType type, Game *game, const TileParam &tileParam)
     : mAlive(true)
     , mVisible(true)
     , mZIndex(0)
     , mBody(nullptr)
     , mSetHalfTextureSizeCalled(false)
+    , mTileParam(tileParam)
   {
     setGame(game);
     mSpawned.restart();

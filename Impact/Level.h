@@ -63,6 +63,8 @@ namespace Impact {
     ~Level();
 
     static const float32 DefaultGravity;
+    static const float32 DefaultWallRestitution;
+
 
     void clear(void);
     bool set(int level, bool doLoad);
@@ -83,6 +85,10 @@ namespace Impact {
     inline uint32_t firstGID(void) const
     {
       return mFirstGID;
+    }
+    inline bool backgroundVisible(void) const
+    {
+      return mBackgroundVisible;
     }
     inline const sf::Color &backgroundColor(void) const
     {
@@ -174,6 +180,10 @@ namespace Impact {
     {
       return mMusic;
     }
+    inline float32 wallRestitution(void) const
+    {
+      return mWallRestitution;
+    }
 
     void load(void);
     void loadZip(const std::string &zipFilename);
@@ -181,7 +191,8 @@ namespace Impact {
   private:
     bool mSuccessfullyLoaded;
     std::string mSHA1;
-    float mBackgroundImageOpacity;
+    float32 mBackgroundImageOpacity;
+    bool mBackgroundVisible;
     sf::Color mBackgroundColor;
     sf::Texture mBackgroundTexture;
     sf::Sprite mBackgroundSprite;
@@ -194,6 +205,7 @@ namespace Impact {
     uint32_t mFirstGID;
     Boundary mBoundary;
     float32 mGravity;
+    float32 mWallRestitution;
     bool mExplosionParticlesCollideWithBall;
     int mKillingsPerKillingSpree;
     int mKillingSpreeBonus;

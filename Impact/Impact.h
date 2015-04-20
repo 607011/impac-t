@@ -382,6 +382,7 @@ namespace Impact {
     std::vector<Ball*> mBalls;
     Racket *mRacket;
     Level mLevel;
+    TileParam mBallTileParam;
     Timer mLevelTimer;
     sf::Clock mStatsClock;
     sf::Clock mPenaltyClock;
@@ -415,7 +416,7 @@ namespace Impact {
     void checkHighscore(void);
     void showScore(int64_t score, const b2Vec2 &atPos, int factor = 1);
     void addToScore(int64_t);
-    Ball *newBall(const b2Vec2 &pos = b2Vec2_zero, BodyShapeType shapeType = BodyShapeType::CircleShape);
+    Ball *newBall(const b2Vec2 &pos = b2Vec2_zero);
 	  sf::Vector2f getCursorPosition(void) const;
     void setCursorOnRacket(void);
     void extraBall(void);

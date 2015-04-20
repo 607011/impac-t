@@ -72,7 +72,7 @@ namespace Impact {
     static const uint16 BoundaryMask = 1 << 5;
     static const uint16 WallMask = 1 << 6;
 
-    Body(BodyType, Game *game);
+    Body(BodyType, Game *game, const TileParam &tileParam = TileParam());
     virtual ~Body();
 
     typedef boost::signals2::signal<void (Body*)> killed_signal_t;

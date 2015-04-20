@@ -30,7 +30,7 @@ namespace Impact {
   class Ball : public Body
   {
   public:
-    Ball(Game *game, BodyShapeType shapeType = CircleShape);
+    Ball(Game *game, const TileParam &tileParam);
 
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);

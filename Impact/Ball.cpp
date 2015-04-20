@@ -30,8 +30,8 @@ namespace Impact {
   const float32 Ball::DefaultLinearDamping = .5f; //MOD Geschwindigkeitsdämpfung
   const float32 Ball::DefaultAngularDamping = .21f; //MOD Rotationsgeschwindigkeitsdämpfung
 
-  Ball::Ball(Game *game, BodyShapeType shapeType)
-    : Body(Body::BodyType::Ball, game)
+  Ball::Ball(Game *game, const TileParam &tileParam)
+    : Body(Body::BodyType::Ball, game, tileParam)
   {
     mName = Name;
     setEnergy(1);
@@ -40,6 +40,7 @@ namespace Impact {
     img.create(texture.getSize().x + 2 * TextureMargin, texture.getSize().y + 2 * TextureMargin, sf::Color(0, 0, 0, 0));
     img.copy(texture.copyToImage(), TextureMargin, TextureMargin, sf::IntRect(0, 0, 0, 0), true);
     mTexture.loadFromImage(img);
+    setSmooth(mTileParam.smooth);
 
     setHalfTextureSize(texture);
 
@@ -57,20 +58,20 @@ namespace Impact {
 
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
-    bd.linearDamping = DefaultLinearDamping;
-    bd.angularDamping = DefaultAngularDamping;
+    bd.linearDamping = tileParam.linearDamping.isValid() ? tileParam.linearDamping.get() : DefaultLinearDamping;
+    bd.angularDamping = tileParam.angularDamping.isValid() ? tileParam.angularDamping.get() : DefaultAngularDamping;
     bd.bullet = true;
     bd.userData = this;
     mBody = game->world()->CreateBody(&bd);
 
     b2FixtureDef fd;
-    fd.density = DefaultDensity;
-    fd.friction = DefaultFriction;
-    fd.restitution = DefaultRestitution;
+    fd.density = tileParam.density.isValid() ? tileParam.density.get() : DefaultDensity;
+    fd.friction = tileParam.friction.isValid() ? tileParam.friction.get() : DefaultFriction;
+    fd.restitution = tileParam.restitution.isValid() ? tileParam.restitution.get() : DefaultRestitution;
     fd.userData = this;
     fd.filter.categoryBits = Body::BallMask;
 
-    switch (shapeType) {
+    switch (tileParam.shapeType) {
     case BodyShapeType::CircleShape:
     {
       b2CircleShape circle;
@@ -89,7 +90,7 @@ namespace Impact {
       break;
     }
     default:
-      throw "Unknown BodyShapeType:" + std::to_string((int)shapeType);
+      throw "Unknown BodyShapeType:" + std::to_string((int)tileParam.shapeType);
     }
 
   }

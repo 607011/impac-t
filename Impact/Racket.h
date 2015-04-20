@@ -32,15 +32,12 @@ namespace Impact {
   class Racket : public Body
   {
   public:
-    Racket(Game *game, const b2Vec2 &pos, b2Body *ground);
+    Racket(Game *game, const b2Vec2 &pos, b2Body *ground, const TileParam &tileParam);
 
     void kickLeft(void);
     void kickRight(void);
     void stopKick(void);
 
-    virtual void setRestitution(float32);
-    virtual void setFriction(float32);
-    virtual void setDensity(float32);
     virtual void setPosition(const b2Vec2 &pos);
     virtual const b2Vec2 &position(void) const;
     virtual void moveTo(const b2Vec2 &pos);

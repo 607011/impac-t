@@ -29,7 +29,7 @@ namespace Impact {
   class Bumper : public Body
   {
   public:
-    Bumper(int index, Game *game);
+    Bumper(int index, Game *game, const TileParam &tileParam);
 
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);

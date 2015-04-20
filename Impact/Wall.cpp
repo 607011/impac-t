@@ -28,8 +28,8 @@ namespace Impact {
   const float32 Wall::DefaultRestitution = .5f;
 
 
-  Wall::Wall(int index, Game *game)
-    : Body(Body::BodyType::Wall, game)
+  Wall::Wall(int index, Game *game, const TileParam &tileParam)
+    : Body(Body::BodyType::Wall, game, tileParam)
   {
     mName = Name;
     mTexture = mGame->level()->tileParam(index).texture;
@@ -51,9 +51,9 @@ namespace Impact {
     polygon.SetAsBox(halfW * Game::InvScale, halfH * Game::InvScale);
 
     b2FixtureDef fd;
-    fd.density = DefaultDensity;
-    fd.restitution = DefaultRestitution;
-    fd.friction = DefaultFriction;
+    fd.density = mTileParam.density.isValid() ? mTileParam.density.get() : DefaultDensity;
+    fd.restitution = mTileParam.restitution.isValid() ? mTileParam.restitution.get() : DefaultRestitution;
+    fd.friction = mTileParam.friction.isValid() ? mTileParam.friction.get() : DefaultFriction;
     fd.shape = &polygon;
     fd.userData = this;
     mBody->CreateFixture(&fd);

@@ -43,14 +43,16 @@ extern "C" {
 #endif
 
 
-#define NDEBUG 1
+// #define NDEBUG 1
 
 namespace Impact {
 
   const float32 Level::DefaultGravity = 9.81f;
+  const float32 Level::DefaultWallRestitution = 1.f;
 
   Level::Level(void)
     : mBackgroundColor(sf::Color::Black)
+    , mBackgroundVisible(true)
     , mFirstGID(0)
     , mNumTilesX(40)
     , mNumTilesY(25)
@@ -58,6 +60,7 @@ namespace Impact {
     , mTileHeight(16)
     , mLevelNum(0)
     , mGravity(DefaultGravity)
+    , mWallRestitution(DefaultWallRestitution)
     , mExplosionParticlesCollideWithBall(false)
     , mKillingsPerKillingSpree(Game::DefaultKillingsPerKillingSpree)
     , mKillingSpreeBonus(Game::DefaultKillingSpreeBonus)
@@ -86,6 +89,7 @@ namespace Impact {
     , mTileHeight(other.mTileHeight)
     , mLevelNum(other.mLevelNum)
     , mGravity(other.mGravity)
+    , mWallRestitution(other.mWallRestitution)
     , mExplosionParticlesCollideWithBall(other.mExplosionParticlesCollideWithBall)
     , mKillingsPerKillingSpree(other.mKillingsPerKillingSpree)
     , mKillingSpreeBonus(other.mKillingSpreeBonus)
@@ -284,6 +288,7 @@ namespace Impact {
     try { // evaluate level properties
       mMapData.clear();
       mGravity = DefaultGravity;
+      mWallRestitution = DefaultWallRestitution;
       mCredits = std::string();
       mAuthor = std::string();
       mCopyright = std::string();
@@ -315,6 +320,9 @@ namespace Impact {
           else if (propName == "gravity") {
             mGravity = property.get<float32>("<xmlattr>.value", 9.81f);
           }
+          else if (propName == "wallrestitution") {
+            mWallRestitution = property.get<float32>("<xmlattr>.value", 1.f);
+          } 
           else if (propName == "explosionparticlescollidewithball") {
             mExplosionParticlesCollideWithBall = property.get<bool>("<xmlattr>.value", false);
           }
@@ -384,11 +392,14 @@ namespace Impact {
         return;
 
       try {
-        const std::string &backgroundTextureFilename = levelPath + "/" + pt.get<std::string>("map.imagelayer.image.<xmlattr>.source");
-        mBackgroundTexture.loadFromFile(backgroundTextureFilename);
-        mBackgroundSprite.setTexture(mBackgroundTexture);
-        mBackgroundImageOpacity = pt.get<float>("map.imagelayer.<xmlattr>.opacity", 1.f);
-        mBackgroundSprite.setColor(sf::Color(255, 255, 255, sf::Uint8(mBackgroundImageOpacity * 0xff)));
+        mBackgroundVisible = pt.get<bool>("map.layer.imagelayer.<xmlattr>.visible", true);
+        if (mBackgroundVisible) {
+          const std::string &backgroundTextureFilename = levelPath + "/" + pt.get<std::string>("map.imagelayer.image.<xmlattr>.source");
+          mBackgroundTexture.loadFromFile(backgroundTextureFilename);
+          mBackgroundSprite.setTexture(mBackgroundTexture);
+          mBackgroundImageOpacity = pt.get<float>("map.imagelayer.<xmlattr>.opacity", 1.f);
+          mBackgroundSprite.setColor(sf::Color(255, 255, 255, sf::Uint8(mBackgroundImageOpacity * 0xff)));
+        }
       }
       catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
 
@@ -436,13 +447,19 @@ namespace Impact {
                 }
                 //MOD Property2
                 else if (propName == "friction") {
-                  tileParam.friction = property.get<float32>("<xmlattr>.value");
+                  tileParam.friction = property.get<float32>("<xmlattr>.value", .5f);
+                }
+                else if (propName == "lineardamping") {
+                  tileParam.linearDamping = property.get<float32>("<xmlattr>.value", 5.f);
+                }
+                else if (propName == "angulardamping") {
+                  tileParam.angularDamping = property.get<float32>("<xmlattr>.value", .4f);
                 }
                 else if (propName == "restitution") {
-                  tileParam.restitution = property.get<float32>("<xmlattr>.value");
+                  tileParam.restitution = property.get<float32>("<xmlattr>.value", 1.f);
                 }
                 else if (propName == "density") {
-                  tileParam.density = property.get<float32>("<xmlattr>.value");
+                  tileParam.density = property.get<float32>("<xmlattr>.value", 20.f);
                 }
                 else if (propName == "gravityscale") {
                   tileParam.gravityScale = property.get<float32>("<xmlattr>.value", 1.f);
@@ -488,31 +505,7 @@ namespace Impact {
             }
           }
           if (!tileParam.fixed.isValid())
-            tileParam.fixed = tileParam.textureName == Wall::Name || tileParam.textureName == Bumper::Name;
-          if (!tileParam.density.isValid()) {
-            if (tileParam.textureName == Ball::Name)
-              tileParam.density = Ball::DefaultDensity;
-            else if (tileParam.textureName == Wall::Name || tileParam.fixed.get())
-              tileParam.density = Wall::DefaultDensity;
-            else
-              tileParam.density = Block::DefaultDensity;
-          }
-          if (!tileParam.friction.isValid()) {
-            if (tileParam.textureName == Ball::Name)
-              tileParam.friction = Ball::DefaultFriction;
-            else if (tileParam.textureName == Wall::Name)
-              tileParam.friction = Wall::DefaultFriction;
-            else
-              tileParam.friction = Block::DefaultFriction;
-          }
-          if (!tileParam.restitution.isValid()) {
-            if (tileParam.textureName == Ball::Name)
-              tileParam.restitution = Ball::DefaultRestitution;
-            else if (tileParam.textureName == Wall::Name || tileParam.fixed.get())
-              tileParam.restitution = Wall::DefaultRestitution;
-            else
-              tileParam.restitution = Block::DefaultRestitution;
-          }
+            tileParam.fixed = (tileParam.textureName == Wall::Name) || (tileParam.textureName == Bumper::Name);
           mTiles[id] = tileParam;
         }
       }

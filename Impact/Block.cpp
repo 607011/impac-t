@@ -26,19 +26,26 @@ namespace Impact {
   const float32 Block::DefaultDensity = 20.f;
   const float32 Block::DefaultFriction = .71f;
   const float32 Block::DefaultRestitution = .04f;
+  const float32 Block::DefaultLinearDamping = 5.f;
+  const float32 Block::DefaultAngularDamping = .5f;
 
-  Block::Block(int index, Game *game)
-    : Body(Body::BodyType::Block, game)
+  Block::Block(int index, Game *game, const TileParam &tileParam)
+    : Body(Body::BodyType::Block, game, tileParam)
     , mGravityScale(2.f)
     , mMinimumHitImpulse(0)
   {
     mName = Name;
+    mMinimumHitImpulse = mTileParam.minimumHitImpulse;
+    setScore(mTileParam.score);
+    setEnergy(mTileParam.minimumKillImpulse);
+    setGravityScale(mTileParam.gravityScale);
 
     const sf::Texture &texture = mGame->level()->tileParam(index).texture;
     sf::Image img;
     img.create(texture.getSize().x + 2 * TextureMargin, texture.getSize().y + 2 * TextureMargin, sf::Color(0, 0, 0, 0));
     img.copy(texture.copyToImage(), TextureMargin, TextureMargin, sf::IntRect(0, 0, 0, 0), true);
     mTexture.loadFromImage(img);
+    setSmooth(mTileParam.smooth);
 
     setHalfTextureSize(texture);
     
@@ -59,8 +66,8 @@ namespace Impact {
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
     bd.angle = .0f;
-    bd.linearDamping = 5.f;
-    bd.angularDamping = .5f;
+    bd.linearDamping = mTileParam.linearDamping.isValid() ? mTileParam.linearDamping.get() : DefaultLinearDamping;
+    bd.angularDamping = mTileParam.angularDamping.isValid() ? mTileParam.angularDamping.get() : DefaultAngularDamping;
     bd.gravityScale = .0f;
     bd.allowSleep = true;
     bd.awake = false;
@@ -75,11 +82,15 @@ namespace Impact {
     const float32 xoff = hs * (W - H);
     polygon.SetAsBox(xoff, hh);
 
+    const float32 density = mTileParam.density.isValid() ? mTileParam.density.get() : DefaultDensity;
+    const float32 friction = mTileParam.friction.isValid() ? mTileParam.friction.get() : DefaultFriction;
+    const float32 restitution = mTileParam.restitution.isValid() ? mTileParam.restitution.get() : DefaultRestitution;
+
     b2FixtureDef fdBox;
     fdBox.shape = &polygon;
-    fdBox.density = DefaultDensity;
-    fdBox.friction = DefaultFriction;
-    fdBox.restitution = DefaultRestitution;
+    fdBox.density = density;
+    fdBox.friction = friction;
+    fdBox.restitution = restitution;
     fdBox.userData = this;
     mBody->CreateFixture(&fdBox);
 
@@ -89,9 +100,9 @@ namespace Impact {
 
     b2FixtureDef fdCircleL;
     fdCircleL.shape = &circleL;
-    fdCircleL.density = DefaultDensity;
-    fdCircleL.friction = DefaultFriction;
-    fdCircleL.restitution = DefaultRestitution;
+    fdCircleL.density = density;
+    fdCircleL.friction = friction;
+    fdCircleL.restitution = restitution;
     fdCircleL.userData = this;
     mBody->CreateFixture(&fdCircleL);
 
@@ -101,9 +112,9 @@ namespace Impact {
 
     b2FixtureDef fdCircleR;
     fdCircleR.shape = &circleR;
-    fdCircleR.density = DefaultDensity;
-    fdCircleR.friction = DefaultFriction;
-    fdCircleR.restitution = DefaultRestitution;
+    fdCircleR.density = density;
+    fdCircleR.friction = friction;
+    fdCircleR.restitution = restitution;
     fdCircleR.userData = this;
     mBody->CreateFixture(&fdCircleR);
   }
@@ -143,12 +154,6 @@ namespace Impact {
       }
     }
     return destroyed;
-  }
-
-
-  void Block::setMinimumHitImpulse(int v)
-  {
-    mMinimumHitImpulse = v;
   }
 
 

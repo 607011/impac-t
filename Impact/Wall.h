@@ -32,7 +32,7 @@ namespace Impact {
   class Wall : public Body
   {
   public:
-    Wall(int index, Game *game);
+    Wall(int index, Game *game, const TileParam &tileParam);
 
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);

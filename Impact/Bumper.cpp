@@ -24,12 +24,15 @@ namespace Impact {
 
   const std::string Bumper::Name = "Bumper";
 
-  Bumper::Bumper(int index, Game *game)
-    : Body(Body::BodyType::Bumper, game)
+  Bumper::Bumper(int index, Game *game, const TileParam &tileParam)
+    : Body(Body::BodyType::Bumper, game, tileParam)
     , mActivated(false)
   {
     mName = Name;
+    setScore(mTileParam.score);
+
     mTexture = mGame->level()->tileParam(index).texture;
+    setSmooth(mTileParam.smooth);
     mSprite.setTexture(mTexture);
     mSprite.setOrigin(.5f * mTexture.getSize().x, .5f * mTexture.getSize().y);
 
