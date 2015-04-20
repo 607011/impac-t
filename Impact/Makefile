@@ -1,9 +1,13 @@
 CC = gcc
 CXX = g++
 RM = rm -f
+PROJECTS = \
+	../minizip
+DEBUGFLAGS = -DDEBUG -ggdb
+RELEASEFLAGS = -DNDEBUG -O3
 CFLAGS = -pthread
 CXXFLAGS = -pthread -std=c++11 -DNO_RECORDER -DLINUX_AMD64
-LDFLAGS =
+LDFLAGS = 
 LDLIBS = -pthread -lsfml-graphics -lsfml-window -lsfml-audio	\
 -lsfml-system -lm -lGLEW -lGL -lz -lBox2D -lboost_serialization	\
 -lboost_regex -lX11
@@ -19,16 +23,14 @@ MINIZIP_SRCS = ../minizip/unzip.c ../minizip/miniunz.c	\
 OBJS=$(subst .cpp,.o,$(SRCS))
 MINIZIP_OBJS=$(subst .c,.o,$(MINIZIP_SRCS))
 
-debug: CXXFLAGS += -ggdb -DDEBUG
-debug: CFLAGS += -ggdb
+all: release
 
-release: CXXFLAGS += -DNDEBUG -O3
-release: CFLAGS += -DNDEBUG -O3
-release: LDFLAGS += -O3
+debug:
+	$(MAKE) impact CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS) $(DEBUGFLAGS)" CXXFLAGS="$(CXXFLAGS) $(DEBUGFLAGS)" LDFLAGS="$(LDFLAGS)"
 
-release: all
+release:
+	$(MAKE) impact CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS) $(RELEASEFLAGS)" CXXFLAGS="$(CXXFLAGS) $(RELEASEFLAGS)" LDFLAGS="$(LDFLAGS)"
 
-all: impact
 
 impact: $(OBJS) $(MINIZIP_OBJS)
 	$(CXX) $(LDFLAGS) -o impact $(OBJS) $(MINIZIP_OBJS) $(LDLIBS) 
