@@ -43,7 +43,7 @@ namespace Impact {
     }
     virtual bool hit(int energy)
     {
-      mEnergy = std::max(mEnergy - energy, 0);
+      mEnergy = std::max<int>(mEnergy - energy, 0);
       return 0 == mEnergy;
     }
     virtual void lethalHit(void)
