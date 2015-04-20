@@ -2892,7 +2892,7 @@ namespace Impact {
 
   int64_t Game::calcPenalty(void) const
   {
-    return 5LL * mLevelTimer.accumulatedMilliseconds() / 1000LL; //MOD PenaltyPerSecond
+    return 5 * mLevelTimer.accumulatedMilliseconds() / 1000; //MOD PenaltyPerSecond
   }
 
 
@@ -2974,7 +2974,6 @@ namespace Impact {
   void Game::enumerateAllLevels(void)
   {
     std::packaged_task<bool()> task([this]{
-      // sf::sleep(sf::milliseconds(1000));
 #if defined(WIN32)
       const int prio = GetThreadPriority(GetCurrentThread());
       SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
