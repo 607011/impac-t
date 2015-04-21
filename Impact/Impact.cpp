@@ -33,6 +33,10 @@
 #include <Windows.h>
 #endif
 
+#if defined(LINUX_AMD64)
+#include <libgen.h>
+#endif
+
 #include <ctime>
 
 #ifndef NO_RECORDER
@@ -350,7 +354,9 @@ namespace Impact {
       "zlib: Copyright (c) Jean-Loup Gailly and Mark Adler\n"
       "GLEW: Copyright (c) Milan Ikits, Marcelo Magallon et al.\n"
       "easings: https://github.com/jesusgollonet/ofpennereasing\n"
-      "\n"), mFixedFont, 16U);
+      "Linux port by Kai Schwebke (@schwebke).\n"
+      "With contributions by Torsten Harling and @Daniboy4000.\n"
+      "\n"), mFixedFont, 8U);
 
     mLevelsRenderTexture.create(600, 170);
     mLevelsRenderView = mLevelsRenderTexture.getDefaultView();
@@ -580,7 +586,7 @@ namespace Impact {
         std::cerr << ShadersDir + "/overlay.fs" << " failed to load/compile." << std::endl;
       mOverlayShader.setParameter("uResolution", windowSize);
 
-      ////MOD Schlüsselloch
+      ////MOD SchlÃ¼sselloch
       //ok = mKeyholeShader.loadFromFile(ShadersDir + "/keyhole.fs", sf::Shader::Fragment);
       //if (!ok)
       //   std::cerr << ShadersDir + "/keyhole.fs" << " failed to load/compile." << std::endl;
@@ -938,6 +944,7 @@ namespace Impact {
   void Game::openLevelZip(void)
   {
     playSound(mRacketHitSound);
+
 #if defined(WIN32)
     char szFile[MAX_PATH];
     ZeroMemory(szFile, sizeof(szFile));
@@ -957,19 +964,32 @@ namespace Impact {
     ZeroMemory(&szCwd, sizeof(szCwd));
     GetCurrentDirectory(MAX_PATH, szCwd);
     BOOL ok = GetOpenFileName(&ofn);
-#else
-    BOOL ok = 0;
-#endif
 
     if (ok == TRUE) {
-#if defined(WIN32)
       SetCurrentDirectory(szCwd); // GetOpenFileName() changed current directory, so restore it afterwards
       std::string zipFilename = ofn.lpstrFile;
       PathRemoveFileSpec(ofn.lpstrFile);
       gLocalSettings().setLastOpenDir(ofn.lpstrFile);
       loadLevelFromZip(zipFilename);
-#endif
     }
+#endif
+
+#if defined(LINUX_AMD64)
+    char curwd[MAX_PATH];
+    char* path = getcwd(curwd, MAX_PATH);
+    int rc = chdir(gLocalSettings().lastOpenDir().c_str());
+    std::string zipFilename;
+    bool ok = Linux_AMD64::choose_file(zipFilename);
+    rc = chdir(curwd);
+
+    if (ok) {
+      char szPath[MAX_PATH];
+      strncpy(szPath, zipFilename.c_str(), MAX_PATH);
+      char* dirName = dirname(szPath);
+      gLocalSettings().setLastOpenDir(dirName);
+      loadLevelFromZip(zipFilename);
+    }
+#endif
   }
 
 
@@ -1001,18 +1021,22 @@ namespace Impact {
       if (event.type == sf::Event::Closed) {
         mWindow.close();
       }
+      else if(event.type == sf::Event::KeyPressed){
+        if(event.key.code == sf::Keyboard::Escape){
+          mWindow.close();
+          return;
+	}
+      }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
           if (mMenuSingleLevel.getGlobalBounds().contains(mousePos)) {
             mPlaymode = Playmode::SingleLevel;
             gotoSelectLevelScreen();
           }
-#if defined(WIN32)
           else if (mMenuLoadLevelText.getGlobalBounds().contains(mousePos)) {
             mPlaymode = Playmode::SingleLevel;
             openLevelZip();
           }
-#endif
           else if (mMenuCampaignText.getGlobalBounds().contains(mousePos)) {
             mPlaymode = Playmode::Campaign;
             gotoCampaignScreen();
@@ -1069,12 +1093,7 @@ namespace Impact {
       mWindow.draw(mMenuSingleLevel);
       mMenuCampaignText.setColor(sf::Color(255, 255, 255, mMenuCampaignText.getGlobalBounds().contains(mousePos) ? 255 : 192));
       mWindow.draw(mMenuCampaignText);
-#if defined(WIN32)
       mMenuLoadLevelText.setColor(sf::Color(255, 255, 255, mMenuLoadLevelText.getGlobalBounds().contains(mousePos) ? 255 : 192));
-#else
-      // TODO: linux port
-      mMenuLoadLevelText.setColor(sf::Color(255, 255, 255, mMenuLoadLevelText.getGlobalBounds().contains(mousePos) ? 16 : 16));
-#endif
       mWindow.draw(mMenuLoadLevelText);
       mMenuAchievementsText.setColor(sf::Color(255, 255, 255, mMenuAchievementsText.getGlobalBounds().contains(mousePos) ? 16 : 16));
       mWindow.draw(mMenuAchievementsText);
@@ -1558,6 +1577,12 @@ namespace Impact {
       if (event.type == sf::Event::Closed) {
         mWindow.close();
       }
+      else if(event.type == sf::Event::KeyPressed){
+        if(event.key.code == sf::Keyboard::Escape){
+          gotoWelcomeScreen();
+          return;
+	}
+      }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
           if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
@@ -1626,6 +1651,12 @@ namespace Impact {
     while (mWindow.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
         mWindow.close();
+      }
+      else if(event.type == sf::Event::KeyPressed){
+        if(event.key.code == sf::Keyboard::Escape){
+          gotoWelcomeScreen();
+          return;
+	}
       }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
@@ -1891,6 +1922,12 @@ namespace Impact {
       if (event.type == sf::Event::Closed) {
         mWindow.close();
       }
+      else if(event.type == sf::Event::KeyPressed){
+        if(event.key.code == sf::Keyboard::Escape){
+          gotoWelcomeScreen();
+          return;
+	}
+      }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
           if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
@@ -1953,6 +1990,12 @@ namespace Impact {
     while (mWindow.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
         mWindow.close();
+      }
+      else if(event.type == sf::Event::KeyPressed){
+        if(event.key.code == sf::Keyboard::Escape){
+          gotoWelcomeScreen();
+          return;
+	}
       }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
