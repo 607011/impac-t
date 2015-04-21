@@ -1895,11 +1895,6 @@ namespace Impact {
             gotoWelcomeScreen();
             return;
           }
-          // TODO: move this into ScrollArea class
-          //else if (scrollbarRect.contains(mousePos)) {
-          //  mMouseButtonDown = true;
-          //  mLastMousePos = mousePos;
-          //}
         }
       }
       else if (event.type == sf::Event::MouseButtonReleased) {

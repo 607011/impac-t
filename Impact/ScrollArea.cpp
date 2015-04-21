@@ -36,6 +36,7 @@ namespace Impact {
     , mScrollTop(0.f)
     , mScrollbarVisible(false)
     , mElapsedSeconds(0.f)
+    , mMouseDown(false)
   {
     mScrollbarTexture.loadFromFile(ImagesDir + "/white-pixel.png");
     mScrollbarSprite.setTexture(mScrollbarTexture);
@@ -77,9 +78,14 @@ namespace Impact {
       const float scrollbarHeight = mRenderView.getSize().y * mRenderView.getSize().y / mTotalArea.height;
       const float scrollbarTop = scrollRatio * (mRenderView.getSize().y - scrollbarHeight);
       sf::FloatRect scrollbarRect(mTotalArea.left + scrollbarLeft, mTotalArea.top + scrollbarTop, mScrollbarWidth, scrollbarHeight);
+      bool mouseOverScrollbar = scrollbarRect.contains(mMousePos);
+      if (mouseOverScrollbar && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+        mMouseDown = true;
+        mLastMousePos = mMousePos;
+      }
       mScrollbarSprite.setScale(mScrollbarWidth, scrollbarHeight);
       mScrollbarSprite.setPosition(scrollbarRect.left, scrollbarRect.top);
-      mScrollbarSprite.setColor(sf::Color(255, 255, 255, scrollbarRect.contains(mMousePos) ? 255 : 192));
+      mScrollbarSprite.setColor(sf::Color(255, 255, 255, mouseOverScrollbar ? 255 : 192));
     }
     mContentsSprite.setTexture(mRenderTexture.getTexture());
   }

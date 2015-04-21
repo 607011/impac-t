@@ -55,6 +55,8 @@ namespace Impact {
     sf::FloatRect mSensitiveSectionTop;
     sf::FloatRect mSensitiveSectionBottom;
     sf::Vector2f mMousePos;
+    sf::Vector2f mLastMousePos;
+    bool mMouseDown;
     float mElapsedSeconds;
 
     static const float ScrollSpeed;
