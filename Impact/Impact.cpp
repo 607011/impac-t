@@ -354,7 +354,9 @@ namespace Impact {
       "zlib: Copyright (c) Jean-Loup Gailly and Mark Adler\n"
       "GLEW: Copyright (c) Milan Ikits, Marcelo Magallon et al.\n"
       "easings: https://github.com/jesusgollonet/ofpennereasing\n"
-      "\n"), mFixedFont, 16U);
+      "Linux port by Kai Schwebke (@schwebke).\n"
+      "With contributions by Torsten Harling and @Daniboy4000.\n"
+      "\n"), mFixedFont, 8U);
 
     mLevelsRenderTexture.create(600, 170);
     mLevelsRenderView = mLevelsRenderTexture.getDefaultView();
