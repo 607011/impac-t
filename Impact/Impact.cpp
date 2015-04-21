@@ -19,8 +19,6 @@
 
 #include "stdafx.h"
 
-#include <boost/random/uniform_real_distribution.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 
@@ -1345,7 +1343,7 @@ namespace Impact {
     if (mLevel.isAvailable()) {
       if (mPlaymode == Campaign)
         gLocalSettings().setLastCampaignLevel(mLevel.num());
-      static boost::random::uniform_int_distribution<int> randomMusic(LevelMusic1, LevelMusic5);
+      static std::uniform_int_distribution<int> randomMusic(LevelMusic1, LevelMusic5);
       buildLevel();
       mHighscoreMsg.setString("highscore: " + std::to_string(gLocalSettings().highscore(mLevel.num())));
       mHighscoreMsg.setPosition(mStatsView.getSize().x - mHighscoreMsg.getLocalBounds().width - 4, 36);
@@ -2174,7 +2172,7 @@ namespace Impact {
       sf::RenderStates states;
       states.shader = &mEarthquakeShader;
       const float32 maxIntensity = mEarthquakeIntensity * InvScale;
-      boost::random::uniform_real_distribution<float32> randomShift(-maxIntensity, maxIntensity);
+      std::uniform_real_distribution<float32> randomShift(-maxIntensity, maxIntensity);
       mEarthquakeShader.setParameter("uT", mEarthquakeClock.getElapsedTime().asSeconds());
       mEarthquakeShader.setParameter("uRShift", sf::Vector2f(randomShift(gRNG()), randomShift(gRNG())));
       mEarthquakeShader.setParameter("uGShift", sf::Vector2f(randomShift(gRNG()), randomShift(gRNG())));
