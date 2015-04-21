@@ -72,6 +72,9 @@
     <ClCompile Include="Bumper.cpp">
       <Filter>Quelltexte</Filter>
     </ClCompile>
+    <ClCompile Include="ScrollArea.cpp">
+      <Filter>Quelltexte</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -141,6 +144,9 @@
       <Filter>Header-Dateien</Filter>
     </ClInclude>
     <ClInclude Include="Bumper.h">
+      <Filter>Header-Dateien</Filter>
+    </ClInclude>
+    <ClInclude Include="ScrollArea.h">
       <Filter>Header-Dateien</Filter>
     </ClInclude>
   </ItemGroup>

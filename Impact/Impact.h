@@ -32,6 +32,7 @@
 #include "Ball.h"
 #include "Racket.h"
 #include "Ground.h"
+#include "ScrollArea.h"
 
 #ifndef NO_RECORDER
 #include "Recorder.h"
@@ -303,10 +304,7 @@ namespace Impact {
     sf::Clock mAberrationClock;
     sf::Time mAberrationDuration;
     float32 mAberrationIntensity;
-    sf::RenderTexture mLevelsRenderTexture;
-    sf::View mLevelsRenderView;
-    sf::Texture mScrollbarTexture;
-    sf::Sprite mScrollbarSprite;
+    ScrollArea mLevelsScrollArea;
     sf::Vector2f mLastMousePos;
     bool mMouseButtonDown;
     sf::Time mElapsed;

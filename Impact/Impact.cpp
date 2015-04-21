@@ -41,6 +41,8 @@
 #include "Recorder.h"
 #endif
 
+#include "ScrollArea.h"
+
 
 namespace Impact {
 
@@ -239,9 +241,6 @@ namespace Impact {
 
     mParticleTexture.loadFromFile(ImagesDir + "/round-soft-particle.png"); //MOD Explosionspartikel
 
-    mScrollbarTexture.loadFromFile(ImagesDir + "/white-pixel.png");
-    mScrollbarSprite.setTexture(mScrollbarTexture);
-
     mNewHighscoreMsg.setString(tr("New Highscore"));
     mNewHighscoreMsg.setFont(mFixedFont);
     mNewHighscoreMsg.setCharacterSize(32U);
@@ -356,8 +355,7 @@ namespace Impact {
       "With contributions by Torsten Harling and @Daniboy4000.\n"
       "\n"), mFixedFont, 8U);
 
-    mLevelsRenderTexture.create(600, 170);
-    mLevelsRenderView = mLevelsRenderTexture.getDefaultView();
+    mLevelsScrollArea.create(600, 170);
 
     mKeyMapping[PauseAction] = sf::Keyboard::Escape; //MOD Tasten
     mKeyMapping[RecoverBallAction] = sf::Keyboard::N; //MOD Tasten
@@ -1561,7 +1559,7 @@ namespace Impact {
     const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
 
     mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
-    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), mLevelsRenderTexture.getSize().y + menuTop);
+    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 170 + menuTop);
     mWindow.draw(mMenuBackText);
 
     mCreditsTitleText.setPosition(.5f * (mDefaultView.getSize().x - mCreditsTitleText.getLocalBounds().width), menuTop - 40);
@@ -1796,7 +1794,7 @@ namespace Impact {
 
     const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
     mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
-    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), mLevelsRenderTexture.getSize().y + menuTop);
+    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 170 + menuTop);
     mWindow.draw(mMenuBackText);
 
     updateStats();
@@ -1824,13 +1822,6 @@ namespace Impact {
     const float t = mWallClock.getElapsedTime().asSeconds();
 
 
-    static const int marginTop = 10;
-    static const int marginBottom = 10;
-    static const int lineHeight = 20;
-    static const float scrollSpeed = 64.f;
-
-    const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
-
     mWindow.clear(sf::Color(31, 31, 47));
     mWindow.draw(mBackgroundSprite);
 
@@ -1844,72 +1835,43 @@ namespace Impact {
       mWindow.draw(mTitleText);
     }
 
-    sf::Sprite levelSprite;
-    levelSprite.setTexture(mLevelsRenderTexture.getTexture());
-    levelSprite.setScale(1.f, -1.f);
-    levelSprite.setPosition(20.f, menuTop + mLevelsRenderTexture.getSize().y);
-
-    sf::FloatRect topSection = levelSprite.getGlobalBounds();
-    topSection.height *= .1f;
-    topSection.width -= 10.f;
-    sf::FloatRect bottomSection = levelSprite.getGlobalBounds();
-    bottomSection.height *= .1f;
-    bottomSection.width -= 10.f;
-    bottomSection.top += .9f * levelSprite.getGlobalBounds().height;
-
-    const float totalHeight = float(marginTop + marginBottom + lineHeight * mLevels.size());
-    const float scrollAreaHeight = mLevelsRenderView.getSize().y;
-    const float dt = mElapsed.asSeconds();
-    if (topSection.contains(mousePos)) {
-      if (mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y > 0.f)
-        mLevelsRenderView.move(0.f, -scrollSpeed * dt);
-    }
-    else if (bottomSection.contains(mousePos)) {
-      if (mLevelsRenderView.getCenter().y + .5f * mLevelsRenderView.getSize().y < totalHeight)
-        mLevelsRenderView.move(0.f, +scrollSpeed * dt);
-    }
-
-    const float scrollTop = mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y;
-    const float scrollRatio = 1.f - (totalHeight - scrollTop - scrollAreaHeight) / (totalHeight - scrollAreaHeight);
-    const float scrollbarWidth = 8.f;
-    const float scrollbarLeft = mLevelsRenderView.getCenter().x + .5f * mLevelsRenderView.getSize().x - scrollbarWidth;
-    const float scrollbarHeight = scrollAreaHeight * scrollAreaHeight / totalHeight;
-    const float scrollbarTop = scrollTop + (scrollAreaHeight - scrollbarHeight) * scrollRatio;
-
-    sf::FloatRect scrollbarRect(scrollbarLeft + levelSprite.getPosition().x, scrollbarTop + menuTop, scrollbarWidth, scrollbarHeight);
-
-    mScrollbarSprite.setPosition(scrollbarLeft, scrollbarTop);
-    mScrollbarSprite.setScale(scrollbarWidth, scrollbarHeight);
-    mScrollbarSprite.setColor(sf::Color(255, 255, 255, scrollbarRect.contains(mousePos) ? 255 : 192));
+    const float menuTop = mDefaultView.getCenter().y - 10.f;
+    mLevelsScrollArea.setPosition(sf::Vector2f(0.f, menuTop));
+    mLevelsScrollArea.setMousePosition(mousePos);
+    mLevelsScrollArea.beginUpdate(mElapsed.asSeconds());
 
     if (mEnumerateFuture.valid()) {
       std::future_status status = mEnumerateFuture.wait_for(std::chrono::milliseconds(1));
       if (status != std::future_status::deferred) {
-        mLevelsRenderTexture.setView(mLevelsRenderView);
-        mLevelsRenderTexture.clear(sf::Color(0, 0, 0, 40));
-        mLevelsRenderTexture.draw(mScrollbarSprite);
+        static const int marginTop = 10;
+        static const int marginBottom = 10;
+        static const int lineHeight = 20;
         mEnumerateMutex.lock();
         // TODO: optimize performance by drawing only visible lines
         for (std::vector<Level>::size_type i = 0; i < mLevels.size(); ++i) {
           const std::string &levelName = mLevels.at(i).name();
           sf::Text levelText("Level " + std::to_string(i + 1) + ": " + (levelName.empty() ? "<unnamed>" : levelName), mFixedFont, 16U);
           const float levelTextTop = float(marginTop + lineHeight * i);
-          levelText.setPosition(10.f, levelTextTop);
-          sf::FloatRect levelTextRect(10.f, menuTop + levelTextTop - scrollTop, levelText.getLocalBounds().width, float(lineHeight));
+          levelText.setPosition(10.f, levelTextTop - mLevelsScrollArea.scrollTop());
+          sf::FloatRect levelTextRect(10.f, menuTop + levelTextTop - mLevelsScrollArea.scrollTop(), levelText.getLocalBounds().width, float(lineHeight));
           const bool mouseOver = levelTextRect.contains(mousePos);
           levelText.setColor(sf::Color(255, 255, 255, mouseOver ? 255 : 160));
           if (mouseOver && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
             mLevel.set(i + 1, true);
             gotoCurrentLevel();
           }
-          mLevelsRenderTexture.draw(levelText);
+          mLevelsScrollArea.draw(levelText);
         }
         mEnumerateMutex.unlock();
+        mLevelsScrollArea.setTotalHeight(float(marginTop + marginBottom + lineHeight * mLevels.size()));
       }
     }
 
+    mLevelsScrollArea.finishUpdate();
+    mWindow.draw(mLevelsScrollArea);
+
     mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
-    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), mLevelsRenderTexture.getSize().y + menuTop);
+    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 170 + menuTop);
     mWindow.draw(mMenuBackText);
 
     mMenuSelectLevelText.setPosition(.5f * (mDefaultView.getSize().x - mMenuSelectLevelText.getLocalBounds().width), menuTop - mMenuBackText.getLocalBounds().height - 30);
@@ -1933,23 +1895,22 @@ namespace Impact {
             gotoWelcomeScreen();
             return;
           }
-          else if (scrollbarRect.contains(mousePos)) {
-            mMouseButtonDown = true;
-            mLastMousePos = mousePos;
-          }
+          // TODO: move this into ScrollArea class
+          //else if (scrollbarRect.contains(mousePos)) {
+          //  mMouseButtonDown = true;
+          //  mLastMousePos = mousePos;
+          //}
         }
       }
       else if (event.type == sf::Event::MouseButtonReleased) {
         mMouseButtonDown = false;
       }
-      else if (event.type == sf::Event::MouseWheelMoved) {
-        if ((event.mouseWheel.delta < 0 && mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y > 0.f) || (event.mouseWheel.delta > 0 && mLevelsRenderView.getCenter().y + .5f * mLevelsRenderView.getSize().y < float(marginTop + marginBottom + lineHeight * mLevels.size())))
-          mLevelsRenderView.move(0.f, 62.f * (event.mouseWheel.delta));
-      }
+      // TODO: move this into ScrollArea class
+      //else if (event.type == sf::Event::MouseWheelMoved) {
+      //  if ((event.mouseWheel.delta < 0 && mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y > 0.f) || (event.mouseWheel.delta > 0 && mLevelsRenderView.getCenter().y + .5f * mLevelsRenderView.getSize().y < float(marginTop + marginBottom + lineHeight * mLevels.size())))
+      //    mLevelsRenderView.move(0.f, 62.f * (event.mouseWheel.delta));
+      //}
     }
-
-    levelSprite.setTexture(mLevelsRenderTexture.getTexture());
-    mWindow.draw(levelSprite);
 
     if (mWelcomeLevel == 0) {
       ExplosionDef pd(this, b2Vec2(.5f * DefaultTilesHorizontally, .4f * DefaultTilesVertically));
