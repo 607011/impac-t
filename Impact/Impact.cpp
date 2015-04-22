@@ -637,6 +637,7 @@ namespace Impact {
     struct timeval tod;
     gettimeofday(&tod, NULL);
     mLastCPU = tod.tv_sec * 1000ULL + tod.tv_usec / 1000ULL;
+    struct rusage usage;
     getrusage(RUSAGE_SELF, &usage);
     mLastUserCPU = usage.ru_utime.tv_sec * 1000ULL + usage.ru_utime.tv_usec / 1000ULL;
     mLastSysCPU = usage.ru_stime.tv_sec * 1000ULL + usage.ru_stime.tv_usec / 1000ULL;
