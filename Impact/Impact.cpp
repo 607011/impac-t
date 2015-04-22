@@ -1836,7 +1836,7 @@ namespace Impact {
     }
 
     const float menuTop = mDefaultView.getCenter().y - 10.f;
-    mLevelsScrollArea.setPosition(sf::Vector2f(0.f, menuTop));
+    mLevelsScrollArea.setPosition(sf::Vector2f(20.f, menuTop));
     mLevelsScrollArea.setMousePosition(mousePos);
     mLevelsScrollArea.beginUpdate(mElapsed.asSeconds());
 

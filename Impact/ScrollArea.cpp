@@ -24,11 +24,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace Impact {
 
-  const float ScrollArea::ScrollSpeed = 64.f;
+  const float ScrollArea::ScrollSpeed = 72.f;
   const float ScrollArea::DefaultScrollbarWidth = 8.f;
   const float ScrollArea::LeftPadding = 16.f;
   const float ScrollArea::TopPadding = 2.f;
-  const float ScrollArea::SensitiveScrollAreaRational = .1f;
+  const float ScrollArea::SensitiveScrollAreaRational = .12f;
 
 
   ScrollArea::ScrollArea(void)
@@ -63,13 +63,13 @@ namespace Impact {
   {
     mScrollTop = mRenderView.getCenter().y - .5f * mRenderView.getSize().y;
     mScrollBottom = mRenderView.getCenter().y + .5f * mRenderView.getSize().y;
-    if (mScrollTop > 0.f && mSensitiveSectionTop.contains(mMousePos)) {
-      mRenderView.move(0.f, -ScrollSpeed * mElapsedSeconds);
+
+    if (mSensitiveSectionTop.contains(mMousePos)) {
+      scrollArea(-ScrollSpeed * mElapsedSeconds);
     }
-    else if (mScrollBottom < mTotalArea.height && mSensitiveSectionBottom.contains(mMousePos)) {
-      mRenderView.move(0.f, +ScrollSpeed * mElapsedSeconds);
+    else if (mSensitiveSectionBottom.contains(mMousePos)) {
+      scrollArea(+ScrollSpeed * mElapsedSeconds);
     }
-    mScrollTop = mRenderView.getCenter().y - .5f * mRenderView.getSize().y;
 
     mScrollbarVisible = (mTotalArea.height > mRenderView.getSize().y);
     if (mScrollbarVisible) {
@@ -78,16 +78,39 @@ namespace Impact {
       const float scrollbarHeight = mRenderView.getSize().y * mRenderView.getSize().y / mTotalArea.height;
       const float scrollbarTop = scrollRatio * (mRenderView.getSize().y - scrollbarHeight);
       sf::FloatRect scrollbarRect(mTotalArea.left + scrollbarLeft, mTotalArea.top + scrollbarTop, mScrollbarWidth, scrollbarHeight);
+      if (mMouseDown) {
+        const sf::Vector2f &d = mMousePos - mLastMousePos;
+        scrollArea(d.y);
+      }
       bool mouseOverScrollbar = scrollbarRect.contains(mMousePos);
-      if (mouseOverScrollbar && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
-        mMouseDown = true;
-        mLastMousePos = mMousePos;
+      if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+        if (mouseOverScrollbar) {
+          mMouseDown = true;
+          mLastMousePos = mMousePos;
+        }
+      }
+      else {
+        mMouseDown = false;
       }
       mScrollbarSprite.setScale(mScrollbarWidth, scrollbarHeight);
       mScrollbarSprite.setPosition(scrollbarRect.left, scrollbarRect.top);
-      mScrollbarSprite.setColor(sf::Color(255, 255, 255, mouseOverScrollbar ? 255 : 192));
+      mScrollbarSprite.setColor(sf::Color(255, 255, 255, (mouseOverScrollbar || mMouseDown) ? 224 : 160));
     }
     mContentsSprite.setTexture(mRenderTexture.getTexture());
+  }
+
+
+  void ScrollArea::scrollArea(const float d)
+  {
+    if (d < 0.f) {
+      if (mScrollTop > 0.f) {
+        mRenderView.move(0.f, d);
+      }
+    }
+    else {
+      if (mScrollBottom < mTotalArea.height)
+        mRenderView.move(0.f, d);
+    }
   }
 
 

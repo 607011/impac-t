@@ -42,6 +42,8 @@ namespace Impact {
     float scrollTop(void) const;
 
   private:
+    void scrollArea(const float);
+
     float mScrollTop;
     float mScrollBottom;
     float mScrollbarWidth;
