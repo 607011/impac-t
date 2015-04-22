@@ -63,7 +63,7 @@ namespace Impact {
     Game *game;
     b2Vec2 pos;
     bool ballCollisionEnabled;
-    int count;
+    unsigned int count;
     sf::Time minLifetime;
     sf::Time maxLifetime;
     float32 minSpeed;
