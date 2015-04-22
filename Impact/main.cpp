@@ -19,18 +19,19 @@
 
 
 #include "stdafx.h"
+
 #if defined(WIN32)
 #include <Windows.h>
-#endif
-#if defined(LINUX_AMD64)   
+#elif defined(LINUX_AMD64)
 #include <gtk/gtk.h>
 #endif
-
-Impact::Game breakout;
 
 
 int main(int argc, char *argv[])
 {
+  Impact::Game *breakout = new Impact::Game;
+  if (breakout == nullptr)
+    return EXIT_FAILURE;
 #if defined(LINUX_AMD64)   
   gtk_init(&argc, &argv);
 #endif
@@ -41,10 +42,13 @@ int main(int argc, char *argv[])
     if (res != NULL) {
       DWORD dwAttrib = GetFileAttributes(szPath);
       if (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY))
-        breakout.setLevelZip(szPath);
+        breakout->setLevelZip(szPath);
     }
+#else
+    UNUSED(argv);
 #endif
   }
-  breakout.loop();
+  breakout->loop();
+  delete breakout;
   return EXIT_SUCCESS;
 }
