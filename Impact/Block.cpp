@@ -56,7 +56,7 @@ namespace Impact {
       mShader.loadFromFile(ShadersDir + "/fallingblock.fs", sf::Shader::Fragment);
       mShader.setParameter("uAge", 0.f);
       mShader.setParameter("uBlur", 0.f);
-      mShader.setParameter("uColor", sf::Color(255, 255, 255, 255));
+      mShader.setParameter("uColor", sf::Color(255U, 255U, 255U, 255U));
       mShader.setParameter("uResolution", float(mTexture.getSize().x), float(mTexture.getSize().y));
     }
 
@@ -146,11 +146,11 @@ namespace Impact {
       mBody->SetLinearDamping(0.f);
       mBody->SetGravityScale(mGravityScale);
       if (gLocalSettings().useShaders()) {
-        mShader.setParameter("uColor", sf::Color(sf::Color(255, 255, 255, 230)));
+        mShader.setParameter("uColor", sf::Color(sf::Color(255U, 255U, 255U, 230U)));
         mShader.setParameter("uBlur", 2.28f);
       }
       else {
-        mSprite.setColor(sf::Color(255, 255, 255, 0xa0));
+        mSprite.setColor(sf::Color(255U, 255U, 255U, 160U));
       }
     }
     return destroyed;
