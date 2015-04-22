@@ -212,11 +212,17 @@ namespace Impact {
     void onBodyKilled(Body *body);
 
   private:
-    DWORD mNumProcessors;
+    unsigned int mNumProcessors;
+#if defined(WIN32)
     HANDLE mMyProcessHandle;
     ULARGE_INTEGER mLastCPU;
     ULARGE_INTEGER mLastSysCPU;
     ULARGE_INTEGER mLastUserCPU;
+#elif defined(LINUX_AMD64)
+    uint64_t mLastCPU;
+    uint64_t mLastSysCPU;
+    uint64_t mLastUserCPU;
+#endif
     void initCPULoadMonitor(void);
     float getCurrentCPULoadPercentage(void);
 
