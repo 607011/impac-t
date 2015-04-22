@@ -1696,128 +1696,15 @@ namespace Impact {
       mWelcomeLevel = 1;
     }
 
-    sf::Event event;
-    while (mWindow.pollEvent(event)) {
-      if (event.type == sf::Event::Closed) {
-        mWindow.close();
-      }
-      else if(event.type == sf::Event::KeyPressed){
-        if(event.key.code == sf::Keyboard::Escape){
-          gotoWelcomeScreen();
-          return;
-	}
-      }
-      else if (event.type == sf::Event::MouseButtonPressed) {
-        if (event.mouseButton.button == sf::Mouse::Button::Left) {
-          if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
-            playSound(mBlockHitSound);
-            gotoWelcomeScreen();
-            return;
-          }
-          else if (mShadersAvailable && mMenuUseShadersText.getGlobalBounds().contains(mousePos)) {
-            gLocalSettings().setUseShaders(!gLocalSettings().useShaders());
-            if (gLocalSettings().useShaders())
-              initShaderDependants();
-            createMainWindow();
-            gLocalSettings().save();
-          }
-          else if (mShadersAvailable && gLocalSettings().useShaders() && mMenuUseShadersForExplosionsText.getGlobalBounds().contains(mousePos)) {
-            gLocalSettings().setUseShadersForExplosions(!gLocalSettings().useShadersForExplosions());
-            ExplosionDef pd(this, InvScale * b2Vec2(mousePos.x, mousePos.y));
-            pd.count = gLocalSettings().particlesPerExplosion();
-            pd.texture = mParticleTexture;
-            addBody(new Explosion(pd));
-            gLocalSettings().save();
-          }
-          else if (mMenuParticlesPerExplosionText.getGlobalBounds().contains(mousePos)) {
-            gLocalSettings().setParticlesPerExplosion(gLocalSettings().particlesPerExplosion() + 10U);
-            if (gLocalSettings().particlesPerExplosion() > 200U)
-              gLocalSettings().setParticlesPerExplosion(10U);
-            ExplosionDef pd(this, InvScale * b2Vec2(mousePos.x, mousePos.y));
-            pd.count = gLocalSettings().particlesPerExplosion();
-            pd.texture = mParticleTexture;
-            addBody(new Explosion(pd));
-            gLocalSettings().save();
-          }
-          else if (mMenuMusicVolumeText.getGlobalBounds().contains(mousePos)) {
-            gLocalSettings().setMusicVolume(gLocalSettings().musicVolume() + 5);
-            if (gLocalSettings().musicVolume() > 100.f)
-              gLocalSettings().setMusicVolume(0.f);
-            gLocalSettings().save();
-            setMusicVolume(gLocalSettings().musicVolume());
-          }
-          else if (mMenuSoundFXVolumeText.getGlobalBounds().contains(mousePos)) {
-            gLocalSettings().setSoundFXVolume(gLocalSettings().soundFXVolume() + 5);
-            if (gLocalSettings().soundFXVolume() > 100.f)
-              gLocalSettings().setSoundFXVolume(0.f);
-            gLocalSettings().save();
-            setSoundFXVolume(gLocalSettings().soundFXVolume());
-            playSound(mRacketHitBlockSound);
-          }
-          else if (mMenuFrameRateLimitText.getGlobalBounds().contains(mousePos)) {
-            if (gLocalSettings().framerateLimit() == 0)
-              gLocalSettings().setFramerateLimit(60);
-            else
-              gLocalSettings().setFramerateLimit(gLocalSettings().framerateLimit() * 2);
-            if (gLocalSettings().framerateLimit() > 480)
-              gLocalSettings().setFramerateLimit(0);
-            mWindow.setFramerateLimit(gLocalSettings().framerateLimit());
-            gLocalSettings().save();
-          }
-          else if (mMenuPositionIterationsText.getGlobalBounds().contains(mousePos)) {
-            if (gLocalSettings().positionIterations() > 256)
-              gLocalSettings().setPositionIterations(16);
-            else
-              gLocalSettings().setPositionIterations(gLocalSettings().positionIterations() * 2);
-            gLocalSettings().save();
-          }
-          else if (mMenuVelocityIterationsText.getGlobalBounds().contains(mousePos)) {
-            if (gLocalSettings().velocityIterations() > 256)
-              gLocalSettings().setVelocityIterations(16);
-            else
-              gLocalSettings().setVelocityIterations(gLocalSettings().velocityIterations() * 2);
-            gLocalSettings().save();
-          }
-        }
-      }
-    }
-
-    update();
-    drawWorld(mWindow.getDefaultView());
-
-    mWindow.draw(mOptionsTitleText);
-
+    sf::Text useShadersText(gLocalSettings().useShaders() ? tr("on") : tr("off"), mFixedFont, 16U);
+    useShadersText.setPosition(mDefaultView.getCenter().x + 160, mMenuUseShadersText.getPosition().y);
     if (mShadersAvailable) {
-      mMenuUseShadersText.setColor(sf::Color(255U, 255U, 255U, mMenuUseShadersText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-      sf::Text useShadersText(gLocalSettings().useShaders() ? tr("on") : tr("off"), mFixedFont, 16U);
-      useShadersText.setPosition(mDefaultView.getCenter().x + 160, mMenuUseShadersText.getPosition().y);
       mWindow.draw(useShadersText);
     }
-    mWindow.draw(mMenuUseShadersText);
 
-    mMenuParticlesPerExplosionText.setColor(sf::Color(255U, 255U, 255U, mMenuParticlesPerExplosionText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-    mWindow.draw(mMenuParticlesPerExplosionText);
-
-    mMenuMusicVolumeText.setColor(sf::Color(255U, 255U, 255U, mMenuMusicVolumeText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-    mWindow.draw(mMenuMusicVolumeText);
-
-    mMenuSoundFXVolumeText.setColor(sf::Color(255U, 255U, 255U, mMenuSoundFXVolumeText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-    mWindow.draw(mMenuSoundFXVolumeText);
-
-    mMenuFrameRateLimitText.setColor(sf::Color(255U, 255U, 255U, mMenuFrameRateLimitText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-    mWindow.draw(mMenuFrameRateLimitText);
-
-    mMenuVelocityIterationsText.setColor(sf::Color(255U, 255U, 255U, mMenuVelocityIterationsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-    mWindow.draw(mMenuVelocityIterationsText);
-
-    mMenuPositionIterationsText.setColor(sf::Color(255U, 255U, 255U, mMenuPositionIterationsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-    mWindow.draw(mMenuPositionIterationsText);
-
+    sf::Text useShadersForExplosionsText(gLocalSettings().useShadersForExplosions() ? tr("on") : tr("off"), mFixedFont, 16U);
+    useShadersForExplosionsText.setPosition(mDefaultView.getCenter().x + 160, mMenuUseShadersForExplosionsText.getPosition().y);
     if (mShadersAvailable && gLocalSettings().useShaders()) {
-      mMenuUseShadersForExplosionsText.setColor(sf::Color(255U, 255U, 255U, mMenuUseShadersForExplosionsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
-      sf::Text useShadersForExplosionsText(gLocalSettings().useShadersForExplosions() ? tr("on") : tr("off"), mFixedFont, 16U);
-      useShadersForExplosionsText.setPosition(mDefaultView.getCenter().x + 160, mMenuUseShadersForExplosionsText.getPosition().y);
-      mWindow.draw(mMenuUseShadersForExplosionsText);
       mWindow.draw(useShadersForExplosionsText);
     }
 
@@ -1844,6 +1731,125 @@ namespace Impact {
     sf::Text positionIterationsText(std::to_string(int(gLocalSettings().positionIterations())), mFixedFont, 16U);
     positionIterationsText.setPosition(mDefaultView.getCenter().x + 160, mMenuPositionIterationsText.getPosition().y);
     mWindow.draw(positionIterationsText);
+
+
+
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) {
+        mWindow.close();
+      }
+      else if(event.type == sf::Event::KeyPressed){
+        if(event.key.code == sf::Keyboard::Escape){
+          gotoWelcomeScreen();
+          return;
+	}
+      }
+      else if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Button::Left) {
+          if (mMenuBackText.getGlobalBounds().contains(mousePos)) {
+            playSound(mBlockHitSound);
+            gotoWelcomeScreen();
+            return;
+          }
+          else if (mShadersAvailable && (mMenuUseShadersText.getGlobalBounds().contains(mousePos) || useShadersText.getGlobalBounds().contains(mousePos))) {
+            gLocalSettings().setUseShaders(!gLocalSettings().useShaders());
+            if (gLocalSettings().useShaders())
+              initShaderDependants();
+            createMainWindow();
+            gLocalSettings().save();
+          }
+          else if (mShadersAvailable && gLocalSettings().useShaders() && (mMenuUseShadersForExplosionsText.getGlobalBounds().contains(mousePos) || useShadersForExplosionsText.getGlobalBounds().contains(mousePos))) {
+            gLocalSettings().setUseShadersForExplosions(!gLocalSettings().useShadersForExplosions());
+            ExplosionDef pd(this, InvScale * b2Vec2(mousePos.x, mousePos.y));
+            pd.count = gLocalSettings().particlesPerExplosion();
+            pd.texture = mParticleTexture;
+            addBody(new Explosion(pd));
+            gLocalSettings().save();
+          }
+          else if (mMenuParticlesPerExplosionText.getGlobalBounds().contains(mousePos) || particlesPerExplosionText.getGlobalBounds().contains(mousePos)) {
+            gLocalSettings().setParticlesPerExplosion(gLocalSettings().particlesPerExplosion() + 10U);
+            if (gLocalSettings().particlesPerExplosion() > 200U)
+              gLocalSettings().setParticlesPerExplosion(10U);
+            ExplosionDef pd(this, InvScale * b2Vec2(mousePos.x, mousePos.y));
+            pd.count = gLocalSettings().particlesPerExplosion();
+            pd.texture = mParticleTexture;
+            addBody(new Explosion(pd));
+            gLocalSettings().save();
+          }
+          else if (mMenuMusicVolumeText.getGlobalBounds().contains(mousePos) || musicVolumeText.getGlobalBounds().contains(mousePos)) {
+            gLocalSettings().setMusicVolume(gLocalSettings().musicVolume() + 5);
+            if (gLocalSettings().musicVolume() > 100.f)
+              gLocalSettings().setMusicVolume(0.f);
+            gLocalSettings().save();
+            setMusicVolume(gLocalSettings().musicVolume());
+          }
+          else if (mMenuSoundFXVolumeText.getGlobalBounds().contains(mousePos) || soundfxVolumeText.getGlobalBounds().contains(mousePos)) {
+            gLocalSettings().setSoundFXVolume(gLocalSettings().soundFXVolume() + 5);
+            if (gLocalSettings().soundFXVolume() > 100.f)
+              gLocalSettings().setSoundFXVolume(0.f);
+            gLocalSettings().save();
+            setSoundFXVolume(gLocalSettings().soundFXVolume());
+            playSound(mRacketHitBlockSound);
+          }
+          else if (mMenuFrameRateLimitText.getGlobalBounds().contains(mousePos) || frameRateLimitText.getGlobalBounds().contains(mousePos)) {
+            if (gLocalSettings().framerateLimit() == 0)
+              gLocalSettings().setFramerateLimit(60);
+            else
+              gLocalSettings().setFramerateLimit(gLocalSettings().framerateLimit() * 2);
+            if (gLocalSettings().framerateLimit() > 480)
+              gLocalSettings().setFramerateLimit(0);
+            mWindow.setFramerateLimit(gLocalSettings().framerateLimit());
+            gLocalSettings().save();
+          }
+          else if (mMenuPositionIterationsText.getGlobalBounds().contains(mousePos) || positionIterationsText.getGlobalBounds().contains(mousePos)) {
+            if (gLocalSettings().positionIterations() > 256)
+              gLocalSettings().setPositionIterations(16);
+            else
+              gLocalSettings().setPositionIterations(gLocalSettings().positionIterations() * 2);
+            gLocalSettings().save();
+          }
+          else if (mMenuVelocityIterationsText.getGlobalBounds().contains(mousePos) || velocityIterationsText.getGlobalBounds().contains(mousePos)) {
+            if (gLocalSettings().velocityIterations() > 256)
+              gLocalSettings().setVelocityIterations(16);
+            else
+              gLocalSettings().setVelocityIterations(gLocalSettings().velocityIterations() * 2);
+            gLocalSettings().save();
+          }
+        }
+      }
+    }
+
+    update();
+    drawWorld(mWindow.getDefaultView());
+
+    mWindow.draw(mOptionsTitleText);
+
+    mMenuUseShadersText.setColor(sf::Color(255U, 255U, 255U, mMenuUseShadersText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+    mWindow.draw(mMenuUseShadersText);
+
+    mMenuParticlesPerExplosionText.setColor(sf::Color(255U, 255U, 255U, mMenuParticlesPerExplosionText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+    mWindow.draw(mMenuParticlesPerExplosionText);
+
+    mMenuMusicVolumeText.setColor(sf::Color(255U, 255U, 255U, mMenuMusicVolumeText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+    mWindow.draw(mMenuMusicVolumeText);
+
+    mMenuSoundFXVolumeText.setColor(sf::Color(255U, 255U, 255U, mMenuSoundFXVolumeText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+    mWindow.draw(mMenuSoundFXVolumeText);
+
+    mMenuFrameRateLimitText.setColor(sf::Color(255U, 255U, 255U, mMenuFrameRateLimitText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+    mWindow.draw(mMenuFrameRateLimitText);
+
+    mMenuVelocityIterationsText.setColor(sf::Color(255U, 255U, 255U, mMenuVelocityIterationsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+    mWindow.draw(mMenuVelocityIterationsText);
+
+    mMenuPositionIterationsText.setColor(sf::Color(255U, 255U, 255U, mMenuPositionIterationsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+    mWindow.draw(mMenuPositionIterationsText);
+
+    if (mShadersAvailable && gLocalSettings().useShaders()) {
+      mMenuUseShadersForExplosionsText.setColor(sf::Color(255U, 255U, 255U, mMenuUseShadersForExplosionsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
+      mWindow.draw(mMenuUseShadersForExplosionsText);
+    }
 
     const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
     mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
