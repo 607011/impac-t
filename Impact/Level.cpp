@@ -209,8 +209,8 @@ namespace Impact {
     if (hz) {
       int rc;
       levelPath = gLocalSettings().levelsDir() + "/" + mName;
-      char curwd[MAX_PATH];
-      const char *path = getcwd(curwd, MAX_PATH);
+      char curwd[PATH_MAX];
+      const char *path = getcwd(curwd, PATH_MAX);
       mkdir(levelPath.c_str(), 0775);
       rc = chdir(levelPath.c_str());
       if (rc != 0)
@@ -221,9 +221,9 @@ namespace Impact {
       int extractWithoutPath = 0;
       int extractOverwrite = 1;
       for (int i = 0; i < nItems; ++i) {
-        char zeName[MAX_PATH];
+        char zeName[PATH_MAX];
         unz_file_info fi;
-        unzGetCurrentFileInfo(hz, &fi, zeName, MAX_PATH, NULL, 0, NULL, 0);
+        unzGetCurrentFileInfo(hz, &fi, zeName, PATH_MAX, NULL, 0, NULL, 0);
         do_extract_currentfile(hz, &extractWithoutPath, &extractOverwrite, NULL);
         std::string currentItemName = zeName;
         if (boost::algorithm::ends_with(currentItemName, ".tmx")) {

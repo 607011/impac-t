@@ -1007,16 +1007,16 @@ namespace Impact {
       loadLevelFromZip(zipFilename);
     }
 #elif defined(LINUX_AMD64)
-    char curwd[MAX_PATH];
-    char* path = getcwd(curwd, MAX_PATH);
+    char curwd[PATH_MAX];
+    char* path = getcwd(curwd, PATH_MAX);
     int rc = chdir(gLocalSettings().lastOpenDir().c_str());
     std::string zipFilename;
     bool ok = Linux_AMD64::choose_file(zipFilename);
     rc = chdir(curwd);
 
     if (ok) {
-      char szPath[MAX_PATH];
-      strncpy(szPath, zipFilename.c_str(), MAX_PATH);
+      char szPath[PATH_MAX];
+      strncpy(szPath, zipFilename.c_str(), PATH_MAX);
       char* dirName = dirname(szPath);
       gLocalSettings().setLastOpenDir(dirName);
       loadLevelFromZip(zipFilename);
