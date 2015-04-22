@@ -1901,10 +1901,10 @@ namespace Impact {
         mMouseButtonDown = false;
       }
       // TODO: move this into ScrollArea class
-      //else if (event.type == sf::Event::MouseWheelMoved) {
-      //  if ((event.mouseWheel.delta < 0 && mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y > 0.f) || (event.mouseWheel.delta > 0 && mLevelsRenderView.getCenter().y + .5f * mLevelsRenderView.getSize().y < float(marginTop + marginBottom + lineHeight * mLevels.size())))
-      //    mLevelsRenderView.move(0.f, 62.f * (event.mouseWheel.delta));
-      //}
+      else if (event.type == sf::Event::MouseWheelMoved) {
+        if (mLevelsScrollArea.contains(mousePos))
+          mLevelsScrollArea.scrollAreaVertical(-20.f * event.mouseWheel.delta);
+      }
     }
 
     if (mWelcomeLevel == 0) {

@@ -28,7 +28,6 @@ namespace Impact {
   const float ScrollArea::DefaultScrollbarWidth = 8.f;
   const float ScrollArea::LeftPadding = 16.f;
   const float ScrollArea::TopPadding = 2.f;
-  const float ScrollArea::SensitiveScrollAreaRational = .12f;
 
 
   ScrollArea::ScrollArea(void)
@@ -49,6 +48,7 @@ namespace Impact {
     mRenderTexture.create(width, height);
     mRenderView = mRenderTexture.getDefaultView();
     mTotalArea = sf::FloatRect(sf::Vector2f(), sf::Vector2f(mRenderView.getSize().x, mRenderView.getSize().y));
+    scrollAreaVertical(0.f);
   }
 
 
@@ -61,16 +61,6 @@ namespace Impact {
 
   void ScrollArea::finishUpdate(void)
   {
-    mScrollTop = mRenderView.getCenter().y - .5f * mRenderView.getSize().y;
-    mScrollBottom = mRenderView.getCenter().y + .5f * mRenderView.getSize().y;
-
-    if (mSensitiveSectionTop.contains(mMousePos)) {
-      scrollArea(-ScrollSpeed * mElapsedSeconds);
-    }
-    else if (mSensitiveSectionBottom.contains(mMousePos)) {
-      scrollArea(+ScrollSpeed * mElapsedSeconds);
-    }
-
     mScrollbarVisible = (mTotalArea.height > mRenderView.getSize().y);
     if (mScrollbarVisible) {
       const float scrollRatio = 1.f - ((mTotalArea.height - mScrollTop - mRenderView.getSize().y) / (mTotalArea.height - mRenderView.getSize().y));
@@ -80,7 +70,7 @@ namespace Impact {
       sf::FloatRect scrollbarRect(mTotalArea.left + scrollbarLeft, mTotalArea.top + scrollbarTop, mScrollbarWidth, scrollbarHeight);
       if (mMouseDown) {
         const sf::Vector2f &d = mMousePos - mLastMousePos;
-        scrollArea(d.y);
+        scrollAreaVertical(d.y);
       }
       bool mouseOverScrollbar = scrollbarRect.contains(mMousePos);
       if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
@@ -100,22 +90,24 @@ namespace Impact {
   }
 
 
-  void ScrollArea::scrollArea(float d)
+  void ScrollArea::scrollAreaVertical(float d)
   {
     if (d < 0.f) {
       if (mScrollTop > 0.f) {
         if (mScrollTop + d < 0.f)
-          d = 0;
+          d += mScrollTop;
         mRenderView.move(0.f, d);
       }
     }
     else {
       if (mScrollBottom < mTotalArea.height) {
         if (mScrollBottom + d > mTotalArea.height)
-          d = 0;
+          d += mScrollBottom - mTotalArea.height;
         mRenderView.move(0.f, d);
       }
     }
+    mScrollTop = mRenderView.getCenter().y - .5f * mRenderView.getSize().y;
+    mScrollBottom = mRenderView.getCenter().y + .5f * mRenderView.getSize().y;
   }
 
 
@@ -142,13 +134,6 @@ namespace Impact {
     mTotalArea.left = pos.x;
     mTotalArea.top = pos.y;
     mContentsSprite.setPosition(mTotalArea.left, mTotalArea.top + mRenderView.getSize().y);
-    mSensitiveSectionTop = mContentsSprite.getGlobalBounds();
-    mSensitiveSectionTop.height *= SensitiveScrollAreaRational;
-    mSensitiveSectionTop.width -= mScrollbarWidth;
-    mSensitiveSectionBottom = mContentsSprite.getGlobalBounds();
-    mSensitiveSectionBottom.height *= SensitiveScrollAreaRational;
-    mSensitiveSectionBottom.width -= mScrollbarWidth;
-    mSensitiveSectionBottom.top += (1.f - SensitiveScrollAreaRational) * mContentsSprite.getGlobalBounds().height;
   }
 
 
@@ -167,4 +152,9 @@ namespace Impact {
     mRenderTexture.draw(drawable);
   }
 
+
+  bool ScrollArea::contains(const sf::Vector2f &pos) const
+  {
+    return mTotalArea.contains(pos);
+  }
 }

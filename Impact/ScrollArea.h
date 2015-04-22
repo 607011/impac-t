@@ -40,10 +40,10 @@ namespace Impact {
     void setTotalHeight(float);
     void setMousePosition(const sf::Vector2f &);
     float scrollTop(void) const;
+    void scrollAreaVertical(float);
+    bool contains(const sf::Vector2f &pos) const;
 
   private:
-    void scrollArea(float);
-
     float mScrollTop;
     float mScrollBottom;
     float mScrollbarWidth;
@@ -54,8 +54,6 @@ namespace Impact {
     sf::Sprite mScrollbarSprite;
     bool mScrollbarVisible;
     sf::FloatRect mTotalArea;
-    sf::FloatRect mSensitiveSectionTop;
-    sf::FloatRect mSensitiveSectionBottom;
     sf::Vector2f mMousePos;
     sf::Vector2f mLastMousePos;
     bool mMouseDown;
@@ -65,8 +63,6 @@ namespace Impact {
     static const float DefaultScrollbarWidth;
     static const float LeftPadding;
     static const float TopPadding;
-
-    static const float SensitiveScrollAreaRational;
   };
 
 
