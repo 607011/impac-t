@@ -589,14 +589,13 @@ namespace Impact {
         std::cerr << ShadersDir + "/overlay.fs" << " failed to load/compile." << std::endl;
       mOverlayShader.setParameter("uResolution", windowSize);
 
-      ////MOD Schlüsselloch
-      //ok = mKeyholeShader.loadFromFile(ShadersDir + "/keyhole.fs", sf::Shader::Fragment);
-      //if (!ok)
-      //   std::cerr << ShadersDir + "/keyhole.fs" << " failed to load/compile." << std::endl;
-      //mKeyholeShader.setParameter("uStretch", 0.5f); //MOD Stretch
-      //mKeyholeShader.setParameter("uSharpness", 2.0f); //MOD Sharpness
-      //mKeyholeShader.setParameter("uAspect", mDefaultView.getSize().y / mDefaultView.getSize().x);
-      //mKeyholeShader.setParameter("uCenter", sf::Vector2f(.5f, .5f));
+      ok = mKeyholeShader.loadFromFile(ShadersDir + "/keyhole.fs", sf::Shader::Fragment);
+      if (!ok)
+         std::cerr << ShadersDir + "/keyhole.fs" << " failed to load/compile." << std::endl;
+      mKeyholeShader.setParameter("uStretch", 0.5f); //MOD Stretch
+      mKeyholeShader.setParameter("uSharpness", 2.0f); //MOD Sharpness
+      mKeyholeShader.setParameter("uAspect", mDefaultView.getSize().y / mDefaultView.getSize().x);
+      mKeyholeShader.setParameter("uCenter", sf::Vector2f(.5f, .5f));
 
       ok = mVignetteShader.loadFromFile(ShadersDir + "/vignette.fs", sf::Shader::Fragment);
       if (!ok)
@@ -899,11 +898,11 @@ namespace Impact {
       if (!mLevelZipFilename.empty()) {
         if (mDisplayCount++ > 10) {
           boost::filesystem::path oPath(mLevelZipFilename);
-	  if (boost::filesystem::is_regular_file(oPath)) {
+          if (boost::filesystem::is_regular_file(oPath)) {
             const std::string &cwd = oPath.parent_path().generic_string();
             const std::string &fname = cwd + "/" + mLevel.hash();
             const std::string &newZipFilename = fname + ".zip";
-            if(!boost::filesystem::exists(newZipFilename)) {
+            if (!boost::filesystem::exists(newZipFilename)) {
               mWindow.capture().saveToFile(fname + ".png");
               boost::filesystem::rename(mLevelZipFilename, newZipFilename);
               std::stringstream metadata;
@@ -912,15 +911,15 @@ namespace Impact {
                 << std::endl;
               if (!mLevel.name().empty())
                 metadata << "**" << mLevel.name() << "**" << std::endl
-                  << std::endl;
+                << std::endl;
               if (!mLevel.author().empty())
                 metadata << "Autor: " << mLevel.author() << std::endl
-                  << std::endl;
+                << std::endl;
               if (!mLevel.info().empty())
                 metadata << mLevel.info() << std::endl << std::endl;
               if (!mLevel.credits().empty())
                 metadata << "Credits: " << mLevel.credits() << std::endl
-                  << std::endl;
+                << std::endl;
               if (!mLevel.copyright().empty())
                 metadata << mLevel.copyright() << std::endl << std::endl;
               metadata << "[Level herunterladen](" << mLevel.hash() << ".zip)"
@@ -932,14 +931,16 @@ namespace Impact {
               mdOut << metadata.str() << std::endl;
               mdOut.close();
               mWindow.close();
-            } else {
+            }
+            else {
               std::cerr << "Skipping " << oPath << ", target "
                 << newZipFilename << " already exists!" << std::endl;
-	    }
-	  } else {
+            }
+          }
+          else {
             std::cerr << "Skipping " << oPath << ", not a regular file!"
               << std::endl;
-	  }
+          }
         }
       }
 #endif
