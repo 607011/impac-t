@@ -32,7 +32,12 @@
 
 namespace Impact {
 
-  struct TextBodyDef {
+#ifdef WIN32
+#pragma warning(push)
+#pragma warning(disable : 4512)
+
+  class TextBodyDef {
+  public:
     TextBodyDef(Game *game, const std::string &text, const sf::Font &font, const b2Vec2 &pos)
       : game(game)
       , pos(pos)
@@ -48,6 +53,9 @@ namespace Impact {
     const sf::Font &font;
     sf::Time maxAge;
   };
+
+#pragma warning(pop)
+#endif
 
   class TextBody : public Body
   {

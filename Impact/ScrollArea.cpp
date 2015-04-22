@@ -83,7 +83,7 @@ namespace Impact {
       }
       mScrollbarSprite.setScale(mScrollbarWidth / mScrollbarTexture.getSize().x, scrollbarHeight / mScrollbarTexture.getSize().y);
       mScrollbarSprite.setPosition(scrollbarRect.left, scrollbarRect.top);
-      mScrollbarSprite.setColor(sf::Color(255, 255, 255, (mouseOverScrollbar || mMouseDown) ? 224 : 160));
+      mScrollbarSprite.setColor(sf::Color(255U, 255U, 255U, (mouseOverScrollbar || mMouseDown) ? 224U : 160U));
     }
     mContentsSprite.setTexture(mRenderTexture.getTexture());
   }

@@ -190,6 +190,7 @@ namespace Impact {
   template<class archive>
   void LocalSettings::serialize(archive& ar, const unsigned int version)
   {
+    UNUSED(version);
     ar & boost::serialization::make_nvp("use-shaders", d->useShaders);
     ar & boost::serialization::make_nvp("use-shaders-for-explosions", d->useShadersForExplosions);
     ar & boost::serialization::make_nvp("explosion-particle-count", d->particlesPerExplosion);

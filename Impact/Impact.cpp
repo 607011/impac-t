@@ -1852,7 +1852,7 @@ namespace Impact {
     }
 
     const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
-    mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mMenuBackText.setColor(sf::Color(255U, 255U, 255U, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 170 + menuTop);
     mWindow.draw(mMenuBackText);
 
