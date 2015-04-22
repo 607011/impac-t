@@ -1390,6 +1390,7 @@ namespace Impact {
     }
     mScaleGravityEnabled = false;
     mScaleBallDensityEnabled = false;
+    mKeyholeEffect = false;
     if (mLevel.isAvailable()) {
       if (mPlaymode == Campaign)
         gLocalSettings().setLastCampaignLevel(mLevel.num());
