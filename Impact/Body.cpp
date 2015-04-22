@@ -26,7 +26,8 @@
 namespace Impact {
 
   Body::Body(BodyType type, Game *game, const TileParam &tileParam)
-    : mAlive(true)
+    : mBodyType(type)
+    , mAlive(true)
     , mVisible(true)
     , mZIndex(0)
     , mBody(nullptr)

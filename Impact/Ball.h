@@ -35,7 +35,6 @@ namespace Impact {
     // Body implementation
     virtual void onUpdate(float elapsedSeconds);
     virtual void onDraw(sf::RenderTarget &target, sf::RenderStates states) const;
-    virtual BodyType type(void) const { return Body::BodyType::Ball; }
 
     virtual void setPosition(const b2Vec2 &);
 

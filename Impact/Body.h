@@ -114,7 +114,10 @@ namespace Impact {
       return age() > lifetime();
     }
 
-    virtual BodyType type(void) const = 0;
+    BodyType type(void) const
+    {
+      return mBodyType;
+    }
 
     inline const sf::Texture &texture(void) const
     {
@@ -160,6 +163,7 @@ namespace Impact {
     sf::Shader mShader;
     b2Body *mBody;
     b2Vec2 mHalfTextureSize;
+    BodyType mBodyType;
 
     int mZIndex;
     sf::Clock mSpawned; // milliseconds
