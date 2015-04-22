@@ -12,8 +12,4 @@ namespace Impact {
    }
 }
 
-#define MAX_PATH FILENAME_MAX
-typedef bool BOOL;
-#define TRUE 1
-
 #endif
