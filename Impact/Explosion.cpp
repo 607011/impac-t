@@ -20,10 +20,6 @@
 
 #include "stdafx.h"
 
-#include <boost/random.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
-#include <boost/random/uniform_real_distribution.hpp>
-
 
 namespace Impact {
 
@@ -48,9 +44,9 @@ namespace Impact {
       mShader->setParameter("uMaxAge", def.maxLifetime.asSeconds());
     }
 
-    static boost::random::uniform_int_distribution<sf::Int32> randomLifetime(def.minLifetime.asMilliseconds(), def.maxLifetime.asMilliseconds());
-    static boost::random::uniform_real_distribution<float32> randomSpeed(def.minSpeed, def.maxSpeed);
-    static boost::random::uniform_real_distribution<float32> randomOffset(-1.f, +1.f);
+    static std::uniform_int_distribution<sf::Int32> randomLifetime(def.minLifetime.asMilliseconds(), def.maxLifetime.asMilliseconds());
+    static std::uniform_real_distribution<float32> randomSpeed(def.minSpeed, def.maxSpeed);
+    static std::uniform_real_distribution<float32> randomOffset(-1.f, +1.f);
 
     b2World *world = mGame->world();
     const int N = mParticles.size();

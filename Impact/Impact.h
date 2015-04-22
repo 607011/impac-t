@@ -32,6 +32,7 @@
 #include "Ball.h"
 #include "Racket.h"
 #include "Ground.h"
+#include "ScrollArea.h"
 
 #ifndef NO_RECORDER
 #include "Recorder.h"
@@ -211,11 +212,13 @@ namespace Impact {
     void onBodyKilled(Body *body);
 
   private:
-    DWORD mNumProcessors;
+    unsigned int mNumProcessors;
+#if defined(WIN32)
     HANDLE mMyProcessHandle;
-    ULARGE_INTEGER mLastCPU;
-    ULARGE_INTEGER mLastSysCPU;
-    ULARGE_INTEGER mLastUserCPU;
+#endif
+    uint64_t mLastCPU;
+    uint64_t mLastSysCPU;
+    uint64_t mLastUserCPU;
     void initCPULoadMonitor(void);
     float getCurrentCPULoadPercentage(void);
 
@@ -303,10 +306,7 @@ namespace Impact {
     sf::Clock mAberrationClock;
     sf::Time mAberrationDuration;
     float32 mAberrationIntensity;
-    sf::RenderTexture mLevelsRenderTexture;
-    sf::View mLevelsRenderView;
-    sf::Texture mScrollbarTexture;
-    sf::Sprite mScrollbarSprite;
+    ScrollArea mLevelsScrollArea;
     sf::Vector2f mLastMousePos;
     bool mMouseButtonDown;
     sf::Time mElapsed;

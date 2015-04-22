@@ -17,7 +17,7 @@ LDLIBS = $(GTKLIBS) -pthread -lsfml-graphics -lsfml-window -lsfml-audio	\
 SRCS = Ball.cpp Block.cpp Body.cpp Bumper.cpp Explosion.cpp		\
      globals.cpp Ground.cpp Impact.cpp Level.cpp LocalSettings.cpp	\
      main.cpp Racket.cpp sha1.cpp stdafx.cpp Text.cpp util.cpp		\
-     Wall.cpp linux_amd64.cpp
+     Wall.cpp ScrollArea.cpp linux_amd64.cpp
 
 MINIZIP_SRCS = ../minizip/unzip.c ../minizip/miniunz.c	\
 ../minizip/ioapi.c

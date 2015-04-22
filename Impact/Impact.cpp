@@ -19,8 +19,6 @@
 
 #include "stdafx.h"
 
-#include <boost/random/uniform_real_distribution.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 #include <boost/filesystem.hpp>
@@ -32,6 +30,10 @@
 #include <commdlg.h>
 #include <Objbase.h>
 #include <Windows.h>
+#elif defined(LINUX_AMD64)
+#include <unistd.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #endif
 
 #if defined(LINUX_AMD64)
@@ -43,6 +45,8 @@
 #ifndef NO_RECORDER
 #include "Recorder.h"
 #endif
+
+#include "ScrollArea.h"
 
 
 namespace Impact {
@@ -168,7 +172,9 @@ namespace Impact {
     , mFPSArray(32, 0)
     , mFPS(0)
     , mFPSIndex(0)
+#if defined(WIN32)
     , mMyProcessHandle(0)
+#endif
     , mNumProcessors(0)
     , mGLVersionMajor(0)
     , mGLVersionMinor(0)
@@ -241,9 +247,6 @@ namespace Impact {
       std::cerr << FontsDir + "/Dimitri.ttf failed to load." << std::endl;
 
     mParticleTexture.loadFromFile(ImagesDir + "/round-soft-particle.png"); //MOD Explosionspartikel
-
-    mScrollbarTexture.loadFromFile(ImagesDir + "/white-pixel.png");
-    mScrollbarSprite.setTexture(mScrollbarTexture);
 
     mNewHighscoreMsg.setString(tr("New Highscore"));
     mNewHighscoreMsg.setFont(mFixedFont);
@@ -359,8 +362,7 @@ namespace Impact {
       "With contributions by Torsten Harling and @Daniboy4000.\n"
       "\n"), mFixedFont, 8U);
 
-    mLevelsRenderTexture.create(600, 170);
-    mLevelsRenderView = mLevelsRenderTexture.getDefaultView();
+    mLevelsScrollArea.create(600, 170);
 
     mKeyMapping[PauseAction] = sf::Keyboard::Escape; //MOD Tasten
     mKeyMapping[RecoverBallAction] = sf::Keyboard::N; //MOD Tasten
@@ -622,18 +624,24 @@ namespace Impact {
   {
 #if defined(WIN32)
     SYSTEM_INFO sysInfo;
-    FILETIME ftime, fsys, fuser;
+    FILETIME ftime, fsys, fusr;
     GetSystemInfo(&sysInfo);
     mNumProcessors = sysInfo.dwNumberOfProcessors;
     GetSystemTimeAsFileTime(&ftime);
-    mLastCPU.LowPart = ftime.dwLowDateTime;
-    mLastCPU.HighPart = ftime.dwHighDateTime;
+    mLastCPU = uint64_t(ftime.dwLowDateTime) | uint64_t(ftime.dwHighDateTime) << 32;
     mMyProcessHandle = GetCurrentProcess();
-    GetProcessTimes(mMyProcessHandle, &ftime, &ftime, &fsys, &fuser);
-    mLastCPU.LowPart = fsys.dwLowDateTime;
-    mLastCPU.HighPart = fsys.dwHighDateTime;
-    mLastCPU.LowPart = fuser.dwLowDateTime;
-    mLastCPU.HighPart = fuser.dwHighDateTime;
+    GetProcessTimes(mMyProcessHandle, &ftime, &ftime, &fsys, &fusr);
+    mLastSysCPU = uint64_t(fsys.dwLowDateTime) | uint64_t(fsys.dwHighDateTime) << 32;
+    mLastUserCPU = uint64_t(fusr.dwLowDateTime) | uint64_t(fusr.dwHighDateTime) << 32;
+#elif defined(LINUX_AMD64)
+    mNumProcessors = sysconf(_SC_NPROCESSORS_ONLN);
+    struct timeval tod;
+    gettimeofday(&tod, NULL);
+    mLastCPU = tod.tv_sec * 1000ULL + tod.tv_usec / 1000ULL;
+    struct rusage usage;
+    getrusage(RUSAGE_SELF, &usage);
+    mLastUserCPU = usage.ru_utime.tv_sec * 1000ULL + usage.ru_utime.tv_usec / 1000ULL;
+    mLastSysCPU = usage.ru_stime.tv_sec * 1000ULL + usage.ru_stime.tv_usec / 1000ULL;
 #endif
   }
 
@@ -641,27 +649,26 @@ namespace Impact {
   float Game::getCurrentCPULoadPercentage(void)
   {
 #if defined(WIN32)
-    FILETIME ftime, fsys, fuser, fexit;
-    ULARGE_INTEGER now, sys, user;
+    FILETIME ftime, fsys, fusr, fexit;
+    uint64_t now, sys, usr;
     GetSystemTimeAsFileTime(&ftime);
-    now.LowPart = ftime.dwLowDateTime;
-    now.HighPart = ftime.dwHighDateTime;
-    GetProcessTimes(mMyProcessHandle, &ftime, &fexit, &fsys, &fuser);
-    sys.LowPart = fsys.dwLowDateTime;
-    sys.HighPart = fsys.dwHighDateTime;
-    user.LowPart = fuser.dwLowDateTime;
-    user.HighPart = fuser.dwHighDateTime;
-    const float percent = 1e2f
-      * float(sys.QuadPart - mLastSysCPU.QuadPart + user.QuadPart - mLastUserCPU.QuadPart)
-      / float(now.QuadPart - mLastCPU.QuadPart)
-      / mNumProcessors;
-    mLastCPU.QuadPart = now.QuadPart;
-    mLastUserCPU.QuadPart = user.QuadPart;
-    mLastSysCPU.QuadPart = sys.QuadPart;
+    now = uint64_t(ftime.dwLowDateTime) | uint64_t(ftime.dwHighDateTime) << 32;
+    GetProcessTimes(mMyProcessHandle, &ftime, &fexit, &fsys, &fusr);
+    sys = uint64_t(fsys.dwLowDateTime) | uint64_t(fsys.dwHighDateTime) << 32;
+    usr = uint64_t(fusr.dwLowDateTime) | uint64_t(fusr.dwHighDateTime) << 32;
+#elif defined(LINUX_AMD64)
+    struct timeval tod;
+    gettimeofday(&tod, NULL);
+    uint64_t now = tod.tv_sec * 1000ULL + tod.tv_usec / 1000ULL;
+    struct rusage usage;
+    getrusage(RUSAGE_SELF, &usage);
+    uint64_t usr = usage.ru_utime.tv_sec * 1000ULL + usage.ru_utime.tv_usec / 1000ULL;
+    uint64_t sys = usage.ru_stime.tv_sec * 1000ULL + usage.ru_stime.tv_usec / 1000ULL;
 #endif
-#if defined(LINUX_AMD64)
-    const float percent = 0.0f; // to be implemented
-#endif
+    const float percent = 1e2f * float(sys - mLastSysCPU + usr - mLastUserCPU) / float(now - mLastCPU) / mNumProcessors;
+    mLastCPU = now;
+    mLastUserCPU = usr;
+    mLastSysCPU = sys;
     return percent;
   }
 
@@ -1358,7 +1365,7 @@ namespace Impact {
     if (mLevel.isAvailable()) {
       if (mPlaymode == Campaign)
         gLocalSettings().setLastCampaignLevel(mLevel.num());
-      static boost::random::uniform_int_distribution<int> randomMusic(LevelMusic1, LevelMusic5);
+      static std::uniform_int_distribution<int> randomMusic(LevelMusic1, LevelMusic5);
       buildLevel();
       mHighscoreMsg.setString("highscore: " + std::to_string(gLocalSettings().highscore(mLevel.num())));
       mHighscoreMsg.setPosition(mStatsView.getSize().x - mHighscoreMsg.getLocalBounds().width - 4, 36);
@@ -1576,7 +1583,7 @@ namespace Impact {
     const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
 
     mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
-    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), mLevelsRenderTexture.getSize().y + menuTop);
+    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 170 + menuTop);
     mWindow.draw(mMenuBackText);
 
     mCreditsTitleText.setPosition(.5f * (mDefaultView.getSize().x - mCreditsTitleText.getLocalBounds().width), menuTop - 40);
@@ -1811,7 +1818,7 @@ namespace Impact {
 
     const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
     mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
-    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), mLevelsRenderTexture.getSize().y + menuTop);
+    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 170 + menuTop);
     mWindow.draw(mMenuBackText);
 
     updateStats();
@@ -1839,13 +1846,6 @@ namespace Impact {
     const float t = mWallClock.getElapsedTime().asSeconds();
 
 
-    static const int marginTop = 10;
-    static const int marginBottom = 10;
-    static const int lineHeight = 20;
-    static const float scrollSpeed = 64.f;
-
-    const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
-
     mWindow.clear(sf::Color(31, 31, 47));
     mWindow.draw(mBackgroundSprite);
 
@@ -1859,72 +1859,43 @@ namespace Impact {
       mWindow.draw(mTitleText);
     }
 
-    sf::Sprite levelSprite;
-    levelSprite.setTexture(mLevelsRenderTexture.getTexture());
-    levelSprite.setScale(1.f, -1.f);
-    levelSprite.setPosition(20.f, menuTop + mLevelsRenderTexture.getSize().y);
-
-    sf::FloatRect topSection = levelSprite.getGlobalBounds();
-    topSection.height *= .1f;
-    topSection.width -= 10.f;
-    sf::FloatRect bottomSection = levelSprite.getGlobalBounds();
-    bottomSection.height *= .1f;
-    bottomSection.width -= 10.f;
-    bottomSection.top += .9f * levelSprite.getGlobalBounds().height;
-
-    const float totalHeight = float(marginTop + marginBottom + lineHeight * mLevels.size());
-    const float scrollAreaHeight = mLevelsRenderView.getSize().y;
-    const float dt = mElapsed.asSeconds();
-    if (topSection.contains(mousePos)) {
-      if (mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y > 0.f)
-        mLevelsRenderView.move(0.f, -scrollSpeed * dt);
-    }
-    else if (bottomSection.contains(mousePos)) {
-      if (mLevelsRenderView.getCenter().y + .5f * mLevelsRenderView.getSize().y < totalHeight)
-        mLevelsRenderView.move(0.f, +scrollSpeed * dt);
-    }
-
-    const float scrollTop = mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y;
-    const float scrollRatio = 1.f - (totalHeight - scrollTop - scrollAreaHeight) / (totalHeight - scrollAreaHeight);
-    const float scrollbarWidth = 8.f;
-    const float scrollbarLeft = mLevelsRenderView.getCenter().x + .5f * mLevelsRenderView.getSize().x - scrollbarWidth;
-    const float scrollbarHeight = scrollAreaHeight * scrollAreaHeight / totalHeight;
-    const float scrollbarTop = scrollTop + (scrollAreaHeight - scrollbarHeight) * scrollRatio;
-
-    sf::FloatRect scrollbarRect(scrollbarLeft + levelSprite.getPosition().x, scrollbarTop + menuTop, scrollbarWidth, scrollbarHeight);
-
-    mScrollbarSprite.setPosition(scrollbarLeft, scrollbarTop);
-    mScrollbarSprite.setScale(scrollbarWidth, scrollbarHeight);
-    mScrollbarSprite.setColor(sf::Color(255, 255, 255, scrollbarRect.contains(mousePos) ? 255 : 192));
+    const float menuTop = mDefaultView.getCenter().y - 10.f;
+    mLevelsScrollArea.setPosition(sf::Vector2f(20.f, menuTop));
+    mLevelsScrollArea.setMousePosition(mousePos);
+    mLevelsScrollArea.beginUpdate(mElapsed.asSeconds());
 
     if (mEnumerateFuture.valid()) {
       std::future_status status = mEnumerateFuture.wait_for(std::chrono::milliseconds(1));
       if (status != std::future_status::deferred) {
-        mLevelsRenderTexture.setView(mLevelsRenderView);
-        mLevelsRenderTexture.clear(sf::Color(0, 0, 0, 40));
-        mLevelsRenderTexture.draw(mScrollbarSprite);
+        static const int marginTop = 10;
+        static const int marginBottom = 10;
+        static const int lineHeight = 20;
         mEnumerateMutex.lock();
         // TODO: optimize performance by drawing only visible lines
         for (std::vector<Level>::size_type i = 0; i < mLevels.size(); ++i) {
           const std::string &levelName = mLevels.at(i).name();
           sf::Text levelText("Level " + std::to_string(i + 1) + ": " + (levelName.empty() ? "<unnamed>" : levelName), mFixedFont, 16U);
           const float levelTextTop = float(marginTop + lineHeight * i);
-          levelText.setPosition(10.f, levelTextTop);
-          sf::FloatRect levelTextRect(10.f, menuTop + levelTextTop - scrollTop, levelText.getLocalBounds().width, float(lineHeight));
+          levelText.setPosition(10.f, levelTextTop - mLevelsScrollArea.scrollTop());
+          sf::FloatRect levelTextRect(10.f, menuTop + levelTextTop - mLevelsScrollArea.scrollTop(), levelText.getLocalBounds().width, float(lineHeight));
           const bool mouseOver = levelTextRect.contains(mousePos);
           levelText.setColor(sf::Color(255, 255, 255, mouseOver ? 255 : 160));
           if (mouseOver && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
             mLevel.set(i + 1, true);
             gotoCurrentLevel();
           }
-          mLevelsRenderTexture.draw(levelText);
+          mLevelsScrollArea.draw(levelText);
         }
         mEnumerateMutex.unlock();
+        mLevelsScrollArea.setTotalHeight(float(marginTop + marginBottom + lineHeight * mLevels.size()));
       }
     }
 
+    mLevelsScrollArea.finishUpdate();
+    mWindow.draw(mLevelsScrollArea);
+
     mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
-    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), mLevelsRenderTexture.getSize().y + menuTop);
+    mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 170 + menuTop);
     mWindow.draw(mMenuBackText);
 
     mMenuSelectLevelText.setPosition(.5f * (mDefaultView.getSize().x - mMenuSelectLevelText.getLocalBounds().width), menuTop - mMenuBackText.getLocalBounds().height - 30);
@@ -1935,11 +1906,11 @@ namespace Impact {
       if (event.type == sf::Event::Closed) {
         mWindow.close();
       }
-      else if(event.type == sf::Event::KeyPressed){
-        if(event.key.code == sf::Keyboard::Escape){
+      else if (event.type == sf::Event::KeyPressed){
+        if (event.key.code == sf::Keyboard::Escape){
           gotoWelcomeScreen();
           return;
-	}
+        }
       }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
@@ -1948,23 +1919,17 @@ namespace Impact {
             gotoWelcomeScreen();
             return;
           }
-          else if (scrollbarRect.contains(mousePos)) {
-            mMouseButtonDown = true;
-            mLastMousePos = mousePos;
-          }
         }
       }
       else if (event.type == sf::Event::MouseButtonReleased) {
         mMouseButtonDown = false;
       }
+      // TODO: move this into ScrollArea class
       else if (event.type == sf::Event::MouseWheelMoved) {
-        if ((event.mouseWheel.delta < 0 && mLevelsRenderView.getCenter().y - .5f * mLevelsRenderView.getSize().y > 0.f) || (event.mouseWheel.delta > 0 && mLevelsRenderView.getCenter().y + .5f * mLevelsRenderView.getSize().y < float(marginTop + marginBottom + lineHeight * mLevels.size())))
-          mLevelsRenderView.move(0.f, 62.f * (event.mouseWheel.delta));
+        if (mLevelsScrollArea.contains(mousePos))
+          mLevelsScrollArea.scrollAreaVertical(-20.f * event.mouseWheel.delta);
       }
     }
-
-    levelSprite.setTexture(mLevelsRenderTexture.getTexture());
-    mWindow.draw(levelSprite);
 
     if (mWelcomeLevel == 0) {
       ExplosionDef pd(this, b2Vec2(.5f * DefaultTilesHorizontally, .4f * DefaultTilesVertically));
@@ -2187,7 +2152,7 @@ namespace Impact {
       sf::RenderStates states;
       states.shader = &mEarthquakeShader;
       const float32 maxIntensity = mEarthquakeIntensity * InvScale;
-      boost::random::uniform_real_distribution<float32> randomShift(-maxIntensity, maxIntensity);
+      std::uniform_real_distribution<float32> randomShift(-maxIntensity, maxIntensity);
       mEarthquakeShader.setParameter("uT", mEarthquakeClock.getElapsedTime().asSeconds());
       mEarthquakeShader.setParameter("uRShift", sf::Vector2f(randomShift(gRNG()), randomShift(gRNG())));
       mEarthquakeShader.setParameter("uGShift", sf::Vector2f(randomShift(gRNG()), randomShift(gRNG())));

@@ -27,7 +27,7 @@
 
 namespace Impact {
 
-#define IMPACT_VERSION "1.0.5-patch1"
+#define IMPACT_VERSION "1.0.6"
 
 #define ResourcesDir std::string("resources")
 #define ImagesDir ResourcesDir + "/images"
