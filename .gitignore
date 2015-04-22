@@ -20,10 +20,12 @@ ipch/*
 packages/*
 Impact/nuget.exe
 *.dgml
+Release ct internal/*
 Release/*
 Debug/*
 Box2D/Box2D/Debug
 Box2D/Box2D/Release
+Box2D/Box2D/Release ct internal
 *.xesc
 Impact/testlevels/multiball/*
 Impact/testlevels/bumper/*
