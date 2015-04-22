@@ -985,7 +985,6 @@ namespace Impact {
     ZeroMemory(&szCwd, sizeof(szCwd));
     GetCurrentDirectory(MAX_PATH, szCwd);
     BOOL ok = GetOpenFileName(&ofn);
-
     if (ok == TRUE) {
       SetCurrentDirectory(szCwd); // GetOpenFileName() changed current directory, so restore it afterwards
       std::string zipFilename = ofn.lpstrFile;
@@ -993,9 +992,7 @@ namespace Impact {
       gLocalSettings().setLastOpenDir(ofn.lpstrFile);
       loadLevelFromZip(zipFilename);
     }
-#endif
-
-#if defined(LINUX_AMD64)
+#elif defined(LINUX_AMD64)
     char curwd[MAX_PATH];
     char* path = getcwd(curwd, MAX_PATH);
     int rc = chdir(gLocalSettings().lastOpenDir().c_str());
