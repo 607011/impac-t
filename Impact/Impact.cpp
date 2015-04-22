@@ -31,6 +31,10 @@
 #include <commdlg.h>
 #include <Objbase.h>
 #include <Windows.h>
+#elif defined(LINUX_AMD64)
+#include <unistd.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #endif
 
 #include <ctime>
@@ -163,7 +167,9 @@ namespace Impact {
     , mFPSArray(32, 0)
     , mFPS(0)
     , mFPSIndex(0)
+#if defined(WIN32)
     , mMyProcessHandle(0)
+#endif
     , mNumProcessors(0)
     , mGLVersionMajor(0)
     , mGLVersionMinor(0)
@@ -627,35 +633,46 @@ namespace Impact {
     mLastCPU.HighPart = fsys.dwHighDateTime;
     mLastCPU.LowPart = fuser.dwLowDateTime;
     mLastCPU.HighPart = fuser.dwHighDateTime;
+#elif defined(LINUX_AMD64)
+    mNumProcessors = sysconf(_SC_NPROCESSORS_ONLN);
 #endif
   }
 
 
   float Game::getCurrentCPULoadPercentage(void)
   {
+    float load;
 #if defined(WIN32)
-    FILETIME ftime, fsys, fuser, fexit;
-    ULARGE_INTEGER now, sys, user;
+    FILETIME ftime, fsys, fusr, fexit;
+    ULARGE_INTEGER now, sys, usr;
     GetSystemTimeAsFileTime(&ftime);
     now.LowPart = ftime.dwLowDateTime;
     now.HighPart = ftime.dwHighDateTime;
-    GetProcessTimes(mMyProcessHandle, &ftime, &fexit, &fsys, &fuser);
+    GetProcessTimes(mMyProcessHandle, &ftime, &fexit, &fsys, &fusr);
     sys.LowPart = fsys.dwLowDateTime;
     sys.HighPart = fsys.dwHighDateTime;
-    user.LowPart = fuser.dwLowDateTime;
-    user.HighPart = fuser.dwHighDateTime;
-    const float percent = 1e2f
-      * float(sys.QuadPart - mLastSysCPU.QuadPart + user.QuadPart - mLastUserCPU.QuadPart)
-      / float(now.QuadPart - mLastCPU.QuadPart)
-      / mNumProcessors;
+    usr.LowPart = fusr.dwLowDateTime;
+    usr.HighPart = fusr.dwHighDateTime;
+    load = float(sys.QuadPart - mLastSysCPU.QuadPart + usr.QuadPart - mLastUserCPU.QuadPart)
+      / float(now.QuadPart - mLastCPU.QuadPart) / mNumProcessors;
     mLastCPU.QuadPart = now.QuadPart;
-    mLastUserCPU.QuadPart = user.QuadPart;
+    mLastUserCPU.QuadPart = usr.QuadPart;
     mLastSysCPU.QuadPart = sys.QuadPart;
+#elif defined(LINUX_AMD64)
+    struct timeval tod;
+    gettimeofday(&tod, NULL);
+    int64_t now = tod.tv_sec * 1000LL + tod.tv_usec / 1000LL;
+    struct rusage usage;
+    getrusage(RUSAGE_SELF, &usage);
+    int64_t usr = usage.ru_utime.tv_sec * 1000LL + usage.ru_utime.tv_usec / 1000LL;
+    int64_t sys = usage.ru_stime.tv_sec * 1000LL + usage.ru_stime.tv_usec / 1000LL;
+    load = float(sys - mLastSysCPU + usr - mLastUserCPU)
+      / float(now - mLastCPU) / mNumProcessors;
+    mLastCPU = now;
+    mLastUserCPU = usr;
+    mLastSysCPU = sys;      
 #endif
-#if defined(LINUX_AMD64)
-    const float percent = 0.0f; // to be implemented
-#endif
-    return percent;
+    return 1e2f * load;
   }
 
 
