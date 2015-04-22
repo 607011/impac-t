@@ -1882,11 +1882,11 @@ namespace Impact {
       if (event.type == sf::Event::Closed) {
         mWindow.close();
       }
-      else if(event.type == sf::Event::KeyPressed){
-        if(event.key.code == sf::Keyboard::Escape){
+      else if (event.type == sf::Event::KeyPressed){
+        if (event.key.code == sf::Keyboard::Escape){
           gotoWelcomeScreen();
           return;
-	}
+        }
       }
       else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Button::Left) {
