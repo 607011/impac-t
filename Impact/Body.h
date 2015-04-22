@@ -83,8 +83,6 @@ namespace Impact {
     void update(float elapsedSeconds);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
-    virtual void setRestitution(float32);
-    virtual void setFriction(float32);
     virtual void setDensity(float32);
     virtual void setLinearDamping(float32);
     virtual void setAngularDamping(float32);

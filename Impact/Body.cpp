@@ -77,20 +77,6 @@ namespace Impact {
   }
 
 
-  void Body::setRestitution(float32 restitution)
-  {
-    for (b2Fixture *f = mBody->GetFixtureList(); f != nullptr; f = f->GetNext())
-      f->SetRestitution(restitution);
-  }
-
-
-  void Body::setFriction(float32 friction)
-  {
-    for (b2Fixture *f = mBody->GetFixtureList(); f != nullptr; f = f->GetNext())
-      f->SetFriction(friction);
-  }
-
-
   void Body::setDensity(float32 density)
   {
     for (b2Fixture *f = mBody->GetFixtureList(); f != nullptr; f = f->GetNext())
