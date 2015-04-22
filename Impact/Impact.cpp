@@ -228,10 +228,6 @@ namespace Impact {
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
 
-    mWindow.setActive();
-    mWindow.setFramerateLimit(DefaultFramerateLimit);
-    mWindow.setVerticalSyncEnabled(false);
-    mWindow.setMouseCursorVisible(false);
     resize();
 
     initSounds();
@@ -714,6 +710,10 @@ namespace Impact {
     std::cout << "antialiasing level: " << settings.antialiasingLevel << std::endl;
     std::cout << "OpenGL version: " << settings.majorVersion << "." << settings.minorVersion << std::endl;
 #endif
+    mWindow.setActive();
+    mWindow.setFramerateLimit(DefaultFramerateLimit);
+    mWindow.setVerticalSyncEnabled(false);
+    mWindow.setMouseCursorVisible(false);
   }
 
 
