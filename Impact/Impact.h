@@ -215,14 +215,10 @@ namespace Impact {
     unsigned int mNumProcessors;
 #if defined(WIN32)
     HANDLE mMyProcessHandle;
-    ULARGE_INTEGER mLastCPU;
-    ULARGE_INTEGER mLastSysCPU;
-    ULARGE_INTEGER mLastUserCPU;
-#elif defined(LINUX_AMD64)
+#endif
     uint64_t mLastCPU;
     uint64_t mLastSysCPU;
     uint64_t mLastUserCPU;
-#endif
     void initCPULoadMonitor(void);
     float getCurrentCPULoadPercentage(void);
 
