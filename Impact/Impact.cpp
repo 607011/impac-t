@@ -147,6 +147,7 @@ namespace Impact {
     , mNewHighscore(false)
     , mLives(DefaultLives)
     , mMouseButtonDown(false)
+    , mCursorVisible(true)
     , mPaused(false)
     , mState(State::Initialization)
     , mLastState(State::NoState)
@@ -230,6 +231,7 @@ namespace Impact {
     mWindow.setActive();
     mWindow.setFramerateLimit(DefaultFramerateLimit);
     mWindow.setVerticalSyncEnabled(false);
+    mWindow.setMouseCursorVisible(false);
     resize();
 
     initSounds();
@@ -313,6 +315,10 @@ namespace Impact {
 
     mTitleText = sf::Text("Impac't", mTitleFont, 120U);
     mTitleText.setPosition(.5f * (mDefaultView.getSize().x - mTitleText.getLocalBounds().width), .11f * (mDefaultView.getSize().y - mTitleText.getLocalBounds().height));
+
+    mCursorTexture.loadFromFile(ImagesDir + "/cursor.png");
+    mCursorSprite.setTexture(mCursorTexture);
+    mCursorSprite.setOrigin(27.5f, 17.f);
 
     const float menuTop = std::floor(mDefaultView.getCenter().y - 45.5f);
 
@@ -689,6 +695,9 @@ namespace Impact {
   void Game::createMainWindow(void)
   {
     sf::ContextSettings requestedContextSettings(24U, 0U, 16U, 3U, 0U);
+#ifdef WIN32
+    requestedContextSettings.antialiasingLevel = 0;
+#endif
     mWindow.create(
       sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth),
       std::string("Impac't") + " v" + std::string(IMPACT_VERSION)
@@ -806,7 +815,7 @@ namespace Impact {
     mLastState = mState;
     mState = state;
     if (mState == State::Playing)
-      mWindow.setMouseCursorVisible(false);
+      hideCursor();
   }
 
 
@@ -1029,7 +1038,7 @@ namespace Impact {
     mWorld->SetGravity(b2Vec2(0.f, DefaultGravity));
     mWelcomeLevel = 0;
     mWallClock.restart();
-    mWindow.setMouseCursorVisible(true);
+    showCursor();
     mWindow.setFramerateLimit(DefaultFramerateLimit);
     initCPULoadMonitor();
   }
@@ -1165,6 +1174,17 @@ namespace Impact {
           playMusic(WelcomeMusic);
       }
     }
+
+    drawCursor();
+  }
+
+
+  void Game::drawCursor(void)
+  {
+    if (mCursorVisible) {
+      mCursorSprite.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(mWindow)));
+      mWindow.draw(mCursorSprite);
+    }
   }
 
 
@@ -1212,6 +1232,7 @@ namespace Impact {
     mWindow.draw(mTotalScoreMsg);
 
     drawStartMessage();
+    drawCursor();
   }
 
 
@@ -1258,6 +1279,7 @@ namespace Impact {
     mWindow.draw(mTotalScoreMsg);
 
     drawStartMessage();
+    drawCursor();
   }
 
 
@@ -1301,6 +1323,7 @@ namespace Impact {
     mWindow.draw(mTotalScoreMsg);
 
     drawStartMessage();
+    drawCursor();
   }
 
 
@@ -1350,6 +1373,8 @@ namespace Impact {
         }
       }
     }
+
+    drawCursor();
   }
 
 
@@ -1358,7 +1383,7 @@ namespace Impact {
     stopAllMusic();
     clearWorld();
     mBallHasBeenLost = false;
-    mWindow.setMouseCursorVisible(false);
+    hideCursor();
     if (gLocalSettings().useShaders()) {
       mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
     }
@@ -1556,7 +1581,7 @@ namespace Impact {
     clearWorld();
     setState(State::CreditsScreen);
     mWindow.setView(mDefaultView);
-    mWindow.setMouseCursorVisible(true);
+    showCursor();
     mWindow.setFramerateLimit(DefaultFramerateLimit);
     playSound(mRacketHitSound);
     mWallClock.restart();
@@ -1627,6 +1652,8 @@ namespace Impact {
 
     update();
     drawWorld(mWindow.getDefaultView());
+
+    drawCursor();
   }
 
 
@@ -1823,6 +1850,8 @@ namespace Impact {
     mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 170 + menuTop);
     mWindow.draw(mMenuBackText);
 
+    drawCursor();
+
     updateStats();
     mWindow.setView(mStatsView);
     mWindow.draw(mFPSText);
@@ -1834,7 +1863,7 @@ namespace Impact {
     clearWorld();
     setState(State::SelectLevelScreen);
     mWindow.setView(mDefaultView);
-    mWindow.setMouseCursorVisible(true);
+    showCursor();
     mWindow.setFramerateLimit(DefaultFramerateLimit);
     playSound(mRacketHitSound);
     mWallClock.restart();
@@ -1944,6 +1973,7 @@ namespace Impact {
 
     update();
     drawWorld(mWindow.getDefaultView());
+    drawCursor();
   }
 
 
@@ -1952,7 +1982,7 @@ namespace Impact {
     clearWorld();
     setState(State::CampaignScreen);
     mWindow.setView(mDefaultView);
-    mWindow.setMouseCursorVisible(true);
+    showCursor();
     mWindow.setFramerateLimit(DefaultFramerateLimit);
     playSound(mRacketHitSound);
     mWelcomeLevel = 0;
@@ -2045,6 +2075,8 @@ namespace Impact {
 
     update();
     drawWorld(mWindow.getDefaultView());
+    drawCursor();
+
   }
 
 
@@ -2185,6 +2217,18 @@ namespace Impact {
     od.line1 = std::string("Shake ") + std::to_string(int(10 * mEarthquakeIntensity));
     od.line2 = std::string("for ") + std::to_string(mEarthquakeDuration.asMilliseconds() / 1000) + "s";
     startOverlay(od);
+  }
+
+
+  void Game::showCursor(void)
+  {
+    mCursorVisible = true;
+  }
+
+
+  void Game::hideCursor(void)
+  {
+    mCursorVisible = false;
   }
 
 
@@ -2668,7 +2712,7 @@ namespace Impact {
         if (tileId >= mLevel.firstGID()) {
           if (tileParam.textureName == Ball::Name) {
             mBallTileParam = tileParam;
-            Ball *ball = newBall(pos);
+            newBall(pos);
           }
           else if (tileParam.textureName == Racket::Name) {
             mRacket = new Racket(this, pos, mGround->body(), tileParam);
@@ -2815,7 +2859,7 @@ namespace Impact {
     setState(State::Pausing);
     mLevelTimer.pause();
     startBlurEffect();
-    mWindow.setMouseCursorVisible(true);
+    showCursor();
     pauseAllMusic();
   }
 

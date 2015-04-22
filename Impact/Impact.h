@@ -254,6 +254,9 @@ namespace Impact {
     sf::Shader mVignetteShader;
     sf::Font mFixedFont;
     sf::Font mTitleFont;
+    bool mCursorVisible;
+    sf::Texture mCursorTexture;
+    sf::Sprite mCursorSprite;
     sf::Texture mBackgroundTexture;
     sf::Sprite mBackgroundSprite;
     sf::Shader mTitleShader;
@@ -437,6 +440,9 @@ namespace Impact {
     void buildLevel(void);
     void update(void);
     void evaluateCollisions(void);
+    void showCursor(void);
+    void hideCursor(void);
+    void drawCursor(void);
     void startOverlay(const OverlayDef &);
     void startBlurEffect(void);
     void stopBlurEffect(void);
