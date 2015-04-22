@@ -379,7 +379,7 @@ namespace Impact {
           mBackgroundTexture.loadFromFile(backgroundTextureFilename);
           mBackgroundSprite.setTexture(mBackgroundTexture);
           mBackgroundImageOpacity = pt.get<float>("map.imagelayer.<xmlattr>.opacity", 1.f);
-          mBackgroundSprite.setColor(sf::Color(255, 255, 255, sf::Uint8(mBackgroundImageOpacity * 0xff)));
+          mBackgroundSprite.setColor(sf::Color(255U, 255U, 255U, sf::Uint8(mBackgroundImageOpacity * 0xff)));
         }
       }
       catch (boost::property_tree::ptree_error &e) { UNUSED(e); }

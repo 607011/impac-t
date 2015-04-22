@@ -768,9 +768,9 @@ namespace Impact {
     mContactPointCount = 0;
 
     if (gLocalSettings().useShaders()) {
-      mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
-      mMixShader.setParameter("uColorAdd", sf::Color(0, 0, 0, 0));
-      mMixShader.setParameter("uColorSub", sf::Color(0, 0, 0, 0));
+      mMixShader.setParameter("uColorMix", sf::Color(255U, 255U, 255U, 255U));
+      mMixShader.setParameter("uColorAdd", sf::Color(0U, 0U, 0U, 0U));
+      mMixShader.setParameter("uColorSub", sf::Color(0U, 0U, 0U, 0U));
     }
 
     resume();
@@ -1291,7 +1291,7 @@ namespace Impact {
     setState(State::GameOver);
     startBlurEffect();
     if (gLocalSettings().useShaders()) {
-      mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 220));
+      mMixShader.setParameter("uColorMix", sf::Color(255U, 255U, 255U, 220U));
     }
     mWindow.setFramerateLimit(DefaultFramerateLimit);
   }
@@ -1347,12 +1347,12 @@ namespace Impact {
 
     sf::Text resumeText(tr("Resume playing"), mFixedFont, 32U);
     resumeText.setPosition(mPlaygroundView.getCenter().x - .5f * resumeText.getLocalBounds().width, 32 + mPlaygroundView.getCenter().y);
-    resumeText.setColor(sf::Color(255, 255, 255, resumeText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    resumeText.setColor(sf::Color(255U, 255U, 255U, resumeText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mWindow.draw(resumeText);
 
     sf::Text mainMenuText(tr("Go to main menu"), mFixedFont, 32U);
     mainMenuText.setPosition(mPlaygroundView.getCenter().x - .5f * mainMenuText.getLocalBounds().width, 64 + mPlaygroundView.getCenter().y);
-    mainMenuText.setColor(sf::Color(255, 255, 255, mainMenuText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mainMenuText.setColor(sf::Color(255U, 255U, 255U, mainMenuText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mWindow.draw(mainMenuText);
 
     sf::Event event;
@@ -1385,7 +1385,7 @@ namespace Impact {
     mBallHasBeenLost = false;
     hideCursor();
     if (gLocalSettings().useShaders()) {
-      mMixShader.setParameter("uColorMix", sf::Color(255, 255, 255, 255));
+      mMixShader.setParameter("uColorMix", sf::Color(255U, 255U, 255U, 255U));
     }
     mScaleGravityEnabled = false;
     mScaleBallDensityEnabled = false;
@@ -1609,7 +1609,7 @@ namespace Impact {
 
     const float menuTop = std::floor(mDefaultView.getCenter().y - 10);
 
-    mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mMenuBackText.setColor(sf::Color(255U, 255U, 255U, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 170 + menuTop);
     mWindow.draw(mMenuBackText);
 
@@ -1916,7 +1916,7 @@ namespace Impact {
           levelText.setPosition(10.f, levelTextTop - mLevelsScrollArea.scrollTop());
           sf::FloatRect levelTextRect(10.f, menuTop + levelTextTop - mLevelsScrollArea.scrollTop(), levelText.getLocalBounds().width, float(lineHeight));
           const bool mouseOver = levelTextRect.contains(mousePos);
-          levelText.setColor(sf::Color(255, 255, 255, mouseOver ? 255 : 160));
+          levelText.setColor(sf::Color(255U, 255U, 255U, mouseOver ? 255U : 160U));
           if (mouseOver && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
             mLevel.set(i + 1, true);
             gotoCurrentLevel();
@@ -1931,7 +1931,7 @@ namespace Impact {
     mLevelsScrollArea.finishUpdate();
     mWindow.draw(mLevelsScrollArea);
 
-    mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mMenuBackText.setColor(sf::Color(255U, 255U, 255U, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
     mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 170 + menuTop);
     mWindow.draw(mMenuBackText);
 
@@ -2056,17 +2056,17 @@ namespace Impact {
     campaignLevelText.setPosition(.5f * (mDefaultView.getSize().x - campaignLevelText.getLocalBounds().width), 0 + menuTop);
     mWindow.draw(campaignLevelText);
 
-    mMenuResumeCampaignText.setColor(sf::Color(255, 255, 255, mMenuResumeCampaignText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mMenuResumeCampaignText.setColor(sf::Color(255U, 255U, 255U, mMenuResumeCampaignText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mMenuResumeCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuResumeCampaignText.getLocalBounds().width), 64 + menuTop);
     mWindow.draw(mMenuResumeCampaignText);
 
     if (gLocalSettings().lastCampaignLevel() > 1) {
-      mMenuRestartCampaignText.setColor(sf::Color(255, 255, 255, mMenuRestartCampaignText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mMenuRestartCampaignText.setColor(sf::Color(255U, 255U, 255U, mMenuRestartCampaignText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
       mMenuRestartCampaignText.setPosition(.5f * (mDefaultView.getSize().x - mMenuRestartCampaignText.getLocalBounds().width), 96 + menuTop);
       mWindow.draw(mMenuRestartCampaignText);
     }
 
-    mMenuBackText.setColor(sf::Color(255, 255, 255, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+    mMenuBackText.setColor(sf::Color(255U, 255U, 255U, mMenuBackText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
     mMenuBackText.setPosition(.5f * (mDefaultView.getSize().x - mMenuBackText.getLocalBounds().width), 224 + menuTop);
     mWindow.draw(mMenuBackText);
 
@@ -2258,8 +2258,8 @@ namespace Impact {
       mOverlaySprite.setTexture(mOverlayTexture);
     }
     else {
-      mOverlayText1.setColor(sf::Color(255, 255, 255, 128));
-      mOverlayText2.setColor(sf::Color(255, 255, 255, 128));
+      mOverlayText1.setColor(sf::Color(255U, 255U, 255U, 128U));
+      mOverlayText2.setColor(sf::Color(255U, 255U, 255U, 128U));
     }
     mOverlayClock.restart();
   }
@@ -2435,7 +2435,7 @@ namespace Impact {
 
   void Game::drawStartMessage(void)
   {
-    mStartMsg.setColor(sf::Color(255, 255, 255, 192 + sf::Uint8(63 * std::sin(14 * mWallClock.getElapsedTime().asSeconds()))));
+    mStartMsg.setColor(sf::Color(255U, 255U, 255U, 192U + sf::Uint8(63U * std::sin(14 * mWallClock.getElapsedTime().asSeconds()))));
     mStartMsg.setPosition(mPlaygroundView.getCenter().x - 0.5f * mStartMsg.getLocalBounds().width, mPlaygroundView.getCenter().y + mPlaygroundView.getSize().y / 4);
     mWindow.draw(mStartMsg);
   }
@@ -2756,7 +2756,7 @@ namespace Impact {
 
   void Game::displayHighscoreMessage(void)
   {
-    mNewHighscoreMsg.setColor(sf::Color(255, 255, 255, 160 + sf::Uint8(95 * std::sin(23 * mWallClock.getElapsedTime().asSeconds()))));
+    mNewHighscoreMsg.setColor(sf::Color(255U, 255U, 255U, 160U + sf::Uint8(95 * std::sin(23 * mWallClock.getElapsedTime().asSeconds()))));
     mNewHighscoreMsg.setPosition(mPlaygroundView.getCenter().x - .5f * mNewHighscoreMsg.getLocalBounds().width, mPlaygroundView.getCenter().y - 80);
     mWindow.draw(mNewHighscoreMsg);
   }
