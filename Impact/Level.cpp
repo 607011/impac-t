@@ -23,14 +23,13 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
+#include <boost/filesystem/path.hpp>
 
 #include <zlib.h>
 
 #if defined(WIN32)
 #include "../zip-utils/unzip.h"
-#endif
-#if defined(LINUX_AMD64)
+#elif defined(LINUX_AMD64)
 #include <libgen.h>
 extern "C" {
 #include "../minizip/miniunz.h"
@@ -38,11 +37,6 @@ extern "C" {
 #endif
 
 #include "sha1.h"
-
-#if defined(WIN32)
-#include <Shlwapi.h>
-#endif
-
 
 // #define NDEBUG 1
 
@@ -334,14 +328,14 @@ namespace Impact {
       mNumTilesY = pt.get<int>("map.<xmlattr>.height");
       try {
         std::string bgColor = pt.get<std::string>("map.<xmlattr>.backgroundcolor");
-        int r = 0, g = 0, b = 0;
+        sf::Uint8 r = 0, g = 0, b = 0;
         if (bgColor.size() == 7 && bgColor[0] == '#') {
           bgColor.erase(0, 1);
           const uint32_t rgb = std::stoul(bgColor, 0, 16);
-          r = (rgb >> 16) & 0xff;
-          g = (rgb >> 8) & 0xff;
-          b = rgb & 0xff;
-          mBackgroundColor = sf::Color(r, g, b, 255);
+          r = (rgb >> 16) & 0xffU;
+          g = (rgb >> 8) & 0xffU;
+          b = rgb & 0xffU;
+          mBackgroundColor = sf::Color(r, g, b, 255U);
         }
       } catch (boost::property_tree::ptree_error &e) { UNUSED(e); }
 

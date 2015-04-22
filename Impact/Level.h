@@ -42,10 +42,10 @@ namespace Impact {
       , valid(false)
     { /* ... */ }
     Boundary(int top, int right, int bottom, int left)
-      : top(0)
-      , right(0)
-      , bottom(0)
-      , left(0)
+      : top(top)
+      , right(right)
+      , bottom(bottom)
+      , left(left)
       , valid(false)
     { /* ... */ }
     int top;

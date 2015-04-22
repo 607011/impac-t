@@ -691,7 +691,11 @@ namespace Impact {
     sf::ContextSettings requestedContextSettings(24U, 0U, 16U, 3U, 0U);
     mWindow.create(
       sf::VideoMode(Game::DefaultWindowWidth, Game::DefaultWindowHeight, Game::ColorDepth),
-      std::string("Impac't") + " v" + std::string(IMPACT_VERSION),
+      std::string("Impac't") + " v" + std::string(IMPACT_VERSION)
+#ifdef CT_VERSION_INTERNAL
+      + " [CT_VERSION_INTERNAL]"
+#endif
+      ,
       sf::Style::Titlebar,
       requestedContextSettings);
 #ifndef NDEBUG
@@ -1107,19 +1111,19 @@ namespace Impact {
     }
 
     if (t > 350) {
-      mMenuSingleLevel.setColor(sf::Color(255, 255, 255, mMenuSingleLevel.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mMenuSingleLevel.setColor(sf::Color(255U, 255U, 255U, mMenuSingleLevel.getGlobalBounds().contains(mousePos) ? 255U : 192U));
       mWindow.draw(mMenuSingleLevel);
-      mMenuCampaignText.setColor(sf::Color(255, 255, 255, mMenuCampaignText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mMenuCampaignText.setColor(sf::Color(255U, 255U, 255U, mMenuCampaignText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
       mWindow.draw(mMenuCampaignText);
-      mMenuLoadLevelText.setColor(sf::Color(255, 255, 255, mMenuLoadLevelText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mMenuLoadLevelText.setColor(sf::Color(255U, 255U, 255U, mMenuLoadLevelText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
       mWindow.draw(mMenuLoadLevelText);
-      mMenuAchievementsText.setColor(sf::Color(255, 255, 255, mMenuAchievementsText.getGlobalBounds().contains(mousePos) ? 16 : 16));
+      mMenuAchievementsText.setColor(sf::Color(255U, 255U, 255U, mMenuAchievementsText.getGlobalBounds().contains(mousePos) ? 16U : 16U));
       mWindow.draw(mMenuAchievementsText);
-      mMenuOptionsText.setColor(sf::Color(255, 255, 255, mMenuOptionsText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mMenuOptionsText.setColor(sf::Color(255U, 255U, 255U, mMenuOptionsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
       mWindow.draw(mMenuOptionsText);
-      mMenuCreditsText.setColor(sf::Color(255, 255, 255, mMenuCreditsText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mMenuCreditsText.setColor(sf::Color(255U, 255U, 255U, mMenuCreditsText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
       mWindow.draw(mMenuCreditsText);
-      mMenuExitText.setColor(sf::Color(255, 255, 255, mMenuExitText.getGlobalBounds().contains(mousePos) ? 255 : 192));
+      mMenuExitText.setColor(sf::Color(255U, 255U, 255U, mMenuExitText.getGlobalBounds().contains(mousePos) ? 255U : 192U));
       mWindow.draw(mMenuExitText);
 
       if (mWelcomeLevel == 1) {
@@ -1501,7 +1505,7 @@ namespace Impact {
 
         const b2AABB &aabb = mRacket->aabb();
         const float32 w = aabb.upperBound.x - aabb.lowerBound.x;
-        const float32 h = aabb.upperBound.y - aabb.lowerBound.y;
+        // const float32 h = aabb.upperBound.y - aabb.lowerBound.y;
         if (mousePos.x < 0) {
           mousePos.x = int(Game::Scale * w);
         }
@@ -2109,6 +2113,7 @@ namespace Impact {
 
   inline void Game::executeBlur(sf::RenderTexture &out, sf::RenderTexture &in, bool copyBack)
   {
+    UNUSED(copyBack);
     if (gLocalSettings().useShaders()) {
       sf::RenderStates states0;
       states0.shader = &mHBlurShader;
@@ -2408,8 +2413,6 @@ namespace Impact {
 
     for (int i = 0; i < mContactPointCount; ++i) {
       ContactPoint &cp = mPoints[i];
-      b2Body *bodyA = cp.fixtureA->GetBody();
-      b2Body *bodyB = cp.fixtureB->GetBody();
       Body *a = reinterpret_cast<Body *>(cp.fixtureA->GetUserData());
       Body *b = reinterpret_cast<Body *>(cp.fixtureB->GetUserData());
       if (a == nullptr || b == nullptr)

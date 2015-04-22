@@ -43,6 +43,7 @@ namespace Impact {
 
   void TextBody::onUpdate(float elapsedSeconds)
   {
+    UNUSED(elapsedSeconds);
     mText.setPosition(Game::Scale * mBody->GetPosition().x, Game::Scale * mBody->GetPosition().y);
     if (overAge())
       this->kill();
@@ -51,6 +52,7 @@ namespace Impact {
 
   void TextBody::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
   {
+    UNUSED(states);
     target.draw(mText);
   }
 
