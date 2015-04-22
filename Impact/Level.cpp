@@ -426,7 +426,6 @@ namespace Impact {
                 else if (propName == "fixed") {
                   tileParam.fixed = property.get<bool>("<xmlattr>.value", false);
                 }
-                //MOD Property2
                 else if (propName == "friction") {
                   tileParam.friction = property.get<float32>("<xmlattr>.value", .5f);
                 }
@@ -471,6 +470,9 @@ namespace Impact {
                 }
                 else if (propName == "earthquakeintensity") {
                   tileParam.earthquakeIntensity = .05f * property.get<float32>("<xmlattr>.value", 0.f) ;
+                }
+                else if (propName == "keyhole") {
+                  tileParam.keyholeEffect = property.get<bool>("<xmlattr>.value", false);
                 }
                 else if (propName == "impulse") {
                   tileParam.bumperImpulse = property.get<float32>("<xmlattr>.value", 20.f);

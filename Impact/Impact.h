@@ -249,6 +249,7 @@ namespace Impact {
     sf::Shader mVBlurShader;
     bool mBlurPlayground;
     sf::Shader mKeyholeShader;
+    bool mKeyholeEffect;
     bool mVignettizePlayground;
     sf::Vector3f mHSVShift;
     sf::Shader mVignetteShader;

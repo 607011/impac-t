@@ -163,6 +163,7 @@ namespace Impact {
     , mScaleBallDensityEnabled(false)
     , mAberrationIntensity(0.f)
     , mBlurPlayground(false)
+    , mKeyholeEffect(false)
     , mVignettizePlayground(false)
     , mHSVShift(sf::Vector3f(1.f, 1.f, 1.f))
     , mOverlayDuration(DefaultOverlayDuration)
@@ -1417,7 +1418,6 @@ namespace Impact {
       mPenaltyClock.restart();
       mLevelScore = 0;
       mWindow.setFramerateLimit(gLocalSettings().framerateLimit());
-      //MOD KeyholeEnable
     }
     else {
       gotoPlayerWon();
@@ -2288,10 +2288,11 @@ namespace Impact {
           mRenderTexture0.draw(*body);
       }
 
-      //MOD Keyhole
-      //if (mBall != nullptr && gLocalSettings().useShaders) {
-      //  executeKeyhole(mRenderTexture1, mRenderTexture0, mBall->position(), true);
-      //}
+      if (mKeyholeEffect && mBalls.size() > 0 && gLocalSettings().useShaders()) {
+        std::vector<Ball*>::const_iterator ball;
+        for (ball = mBalls.cbegin(); ball != mBalls.cend(); ++ball)
+          executeKeyhole(mRenderTexture1, mRenderTexture0, (*ball)->position(), true);
+      }
 
       if (mVignettizePlayground) {
         executeVignette(mRenderTexture1, mRenderTexture0, true);
@@ -2983,7 +2984,9 @@ namespace Impact {
         startEarthquake(tileParam.earthquakeIntensity, tileParam.earthquakeDuration);
         addSpecialEffect(SpecialEffect(mEarthquakeDuration, &mEarthquakeClock, killedBody->texture()));
       }
-      //MOD Tileparam
+      if (tileParam.keyholeEffect) {
+        mKeyholeEffect = true;
+      }
       if (tileParam.scaleGravityDuration > sf::Time::Zero) {
         mWorld->SetGravity(tileParam.scaleGravityBy * mWorld->GetGravity());
         mScaleGravityEnabled = true;

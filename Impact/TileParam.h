@@ -42,7 +42,7 @@ namespace Impact {
       , earthquakeIntensity(.1f)
       , bumperImpulse(20.f)
       , multiball(false)
-      //MOD Keyhole2
+      , keyholeEffect(false)
     { /* ... */ }
     TileParam(const TileParam &other)
       : score(other.score)
@@ -88,7 +88,7 @@ namespace Impact {
     float32 earthquakeIntensity;
     float32 bumperImpulse;
     bool multiball;
-    //MOD Keyhole1
+    bool keyholeEffect;
   };
 
 
