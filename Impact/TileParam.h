@@ -65,7 +65,9 @@ namespace Impact {
       , earthquakeIntensity(other.earthquakeIntensity)
       , bumperImpulse(other.bumperImpulse)
       , multiball(other.multiball)
-    { /* ... */ }
+      , keyholeEffect(other.keyholeEffect)
+    { /* ... */
+    }
     int64_t score;
     std::string textureName;
     sf::Texture texture;
