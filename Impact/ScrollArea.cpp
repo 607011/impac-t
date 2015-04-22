@@ -100,16 +100,21 @@ namespace Impact {
   }
 
 
-  void ScrollArea::scrollArea(const float d)
+  void ScrollArea::scrollArea(float d)
   {
     if (d < 0.f) {
       if (mScrollTop > 0.f) {
+        if (mScrollTop + d < 0.f)
+          d = 0;
         mRenderView.move(0.f, d);
       }
     }
     else {
-      if (mScrollBottom < mTotalArea.height)
+      if (mScrollBottom < mTotalArea.height) {
+        if (mScrollBottom + d > mTotalArea.height)
+          d = 0;
         mRenderView.move(0.f, d);
+      }
     }
   }
 
