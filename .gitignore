@@ -4,6 +4,7 @@
 *.suo
 *.o
 deploy/*.exe
+Impact/resources/levels/0*/*
 Impact/impact
 Impact/*.aps
 Impact/Debug
