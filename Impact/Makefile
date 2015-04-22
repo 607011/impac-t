@@ -12,7 +12,7 @@ CXXFLAGS = $(GTKCFLAGS) -pthread -std=c++11 -DNO_RECORDER -DLINUX_AMD64
 LDFLAGS = 
 LDLIBS = $(GTKLIBS) -pthread -lsfml-graphics -lsfml-window -lsfml-audio	\
      -lsfml-system -lm -lGLEW -lGL -lz -lBox2D -lboost_serialization	\
-     -lboost_regex -lX11
+     -lboost_regex -lX11 -lboost_system -lboost_filesystem
 
 SRCS = Ball.cpp Block.cpp Body.cpp Bumper.cpp Explosion.cpp		\
      globals.cpp Ground.cpp Impact.cpp Level.cpp LocalSettings.cpp	\

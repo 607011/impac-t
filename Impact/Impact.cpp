@@ -23,6 +23,7 @@
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
+#include <boost/filesystem.hpp>
 
 #include <zlib.h>
 
@@ -890,14 +891,12 @@ namespace Impact {
 #ifdef CT_VERSION_INTERNAL
       if (!mLevelZipFilename.empty()) {
         if (mDisplayCount++ > 10) {
-          char szPath[MAX_PATH];
-          strcpy_s(szPath, MAX_PATH, mLevelZipFilename.c_str());
-          PathRemoveFileSpec(szPath);
-          const std::string &cwd = std::string(szPath);
+          boost::filesystem::path oPath(mLevelZipFilename);
+          const std::string &cwd = oPath.parent_path().generic_string();
           const std::string &fname = cwd + "/" + mLevel.hash();
           mWindow.capture().saveToFile(fname + ".png");
           const std::string &newZipFilename = fname + ".zip";
-          MoveFile(mLevelZipFilename.c_str(), newZipFilename.c_str());
+          boost::filesystem::rename(mLevelZipFilename, newZipFilename);
           std::stringstream metadata;
           metadata << std::endl << std::endl
             << "[[" << mLevel.hash() << ".jpg" << "]]" << std::endl << std::endl;
