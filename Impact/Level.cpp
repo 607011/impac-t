@@ -23,6 +23,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 
 #include <zlib.h>
 
@@ -174,22 +175,8 @@ namespace Impact {
 
     safeDelete(mMusic);
 
-#if defined(WIN32)
-    char szPath[MAX_PATH];
-    strcpy_s(szPath, MAX_PATH, zipFilename.c_str());
-    PathStripPath(szPath);
-    PathRemoveExtension(szPath);
-    mName = szPath;
-#elif defined(LINUX_AMD64)
-    char szPath[MAX_PATH];
-    strncpy(szPath, zipFilename.c_str(), MAX_PATH);
-    char* fName = basename(szPath);
-    char* dot = index(fName, '.');
-    if (dot) {
-       *dot = 0;
-    }
-    mName = basename(fName);
-#endif
+    boost::filesystem::path p(zipFilename);
+    mName = p.filename().replace_extension().generic_string();
 
 #ifndef NDEBUG
     std::cout << "LEVEL NAME: " << mName << std::endl;
@@ -222,7 +209,6 @@ namespace Impact {
         }
       }
       CloseZip(hz);
-      calcSHA1(zipFilename);
     }
 #elif defined(LINUX_AMD64)
     unzFile hz = unzOpen(zipFilename.c_str());
@@ -265,8 +251,9 @@ namespace Impact {
       }
       rc = chdir(curwd);
       unzClose(hz);
-  }
+    }
 #endif
+    calcSHA1(zipFilename);
 
     ok = fileExists(levelFilename);
     if (!ok)
