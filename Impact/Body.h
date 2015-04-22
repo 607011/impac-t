@@ -84,9 +84,6 @@ namespace Impact {
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
     virtual void setDensity(float32);
-    virtual void setLinearDamping(float32);
-    virtual void setAngularDamping(float32);
-    virtual void setFixedRotation(bool);
 
     virtual void setPosition(const b2Vec2 &);
     virtual void setPosition(float32 x, float32 y);

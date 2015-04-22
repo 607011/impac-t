@@ -85,24 +85,6 @@ namespace Impact {
   }
 
 
-  void Body::setLinearDamping(float32 linearDamping)
-  {
-    mBody->SetLinearDamping(linearDamping);
-  }
-
-
-  void Body::setAngularDamping(float32 angularDamping)
-  {
-    mBody->SetAngularDamping(angularDamping);
-  }
-
-
-  void Body::setFixedRotation(bool fixedRotation)
-  {
-    mBody->SetFixedRotation(fixedRotation);
-  }
-
-
   void Body::setPosition(float32 x, float32 y)
   {
     setPosition(b2Vec2(x, y));
