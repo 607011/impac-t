@@ -892,33 +892,47 @@ namespace Impact {
       if (!mLevelZipFilename.empty()) {
         if (mDisplayCount++ > 10) {
           boost::filesystem::path oPath(mLevelZipFilename);
-          const std::string &cwd = oPath.parent_path().generic_string();
-          const std::string &fname = cwd + "/" + mLevel.hash();
-          mWindow.capture().saveToFile(fname + ".png");
-          const std::string &newZipFilename = fname + ".zip";
-          boost::filesystem::rename(mLevelZipFilename, newZipFilename);
-          std::stringstream metadata;
-          metadata << std::endl << std::endl
-            << "[[" << mLevel.hash() << ".jpg" << "]]" << std::endl << std::endl;
-          if (!mLevel.name().empty())
-            metadata << "**" << mLevel.name() << "**" << std::endl << std::endl;
-          if (!mLevel.author().empty())
-            metadata << "Autor: " << mLevel.author() << std::endl << std::endl;
-          if (!mLevel.info().empty())
-            metadata << mLevel.info() << std::endl << std::endl;
-          if (!mLevel.credits().empty())
-            metadata << "Credits: " << mLevel.credits() << std::endl << std::endl;
-          if (!mLevel.copyright().empty())
-            metadata << mLevel.copyright() << std::endl << std::endl;
-          metadata << "[Level herunterladen](" << mLevel.hash() << ".zip)"
-            << std::endl << std::endl
-            << "***"
-            << std::endl << std::endl;
-          std::ofstream mdOut;
-          mdOut.open(cwd + "/UserContributedLevels.md", std::ios_base::app);
-          mdOut << metadata.str() << std::endl;
-          mdOut.close();
-          mWindow.close();
+	  if (boost::filesystem::is_regular_file(oPath)) {
+            const std::string &cwd = oPath.parent_path().generic_string();
+            const std::string &fname = cwd + "/" + mLevel.hash();
+            const std::string &newZipFilename = fname + ".zip";
+            if(!boost::filesystem::exists(newZipFilename)) {
+              mWindow.capture().saveToFile(fname + ".png");
+              boost::filesystem::rename(mLevelZipFilename, newZipFilename);
+              std::stringstream metadata;
+              metadata << std::endl << std::endl
+                << "[[" << mLevel.hash() << ".jpg" << "]]" << std::endl
+                << std::endl;
+              if (!mLevel.name().empty())
+                metadata << "**" << mLevel.name() << "**" << std::endl
+                  << std::endl;
+              if (!mLevel.author().empty())
+                metadata << "Autor: " << mLevel.author() << std::endl
+                  << std::endl;
+              if (!mLevel.info().empty())
+                metadata << mLevel.info() << std::endl << std::endl;
+              if (!mLevel.credits().empty())
+                metadata << "Credits: " << mLevel.credits() << std::endl
+                  << std::endl;
+              if (!mLevel.copyright().empty())
+                metadata << mLevel.copyright() << std::endl << std::endl;
+              metadata << "[Level herunterladen](" << mLevel.hash() << ".zip)"
+                << std::endl << std::endl
+                << "***"
+                << std::endl << std::endl;
+              std::ofstream mdOut;
+              mdOut.open(cwd + "/UserContributedLevels.md", std::ios_base::app);
+              mdOut << metadata.str() << std::endl;
+              mdOut.close();
+              mWindow.close();
+            } else {
+              std::cerr << "Skipping " << oPath << ", target "
+                << newZipFilename << " already exists!" << std::endl;
+	    }
+	  } else {
+            std::cerr << "Skipping " << oPath << ", not a regular file!"
+              << std::endl;
+	  }
         }
       }
 #endif
