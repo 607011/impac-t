@@ -23,8 +23,6 @@
 
 namespace Impact {
 
-// #define EXPLOSION_PARTICLES_CANNOT_ROTATE
-
   std::vector<sf::Shader*>::size_type Explosion::sCurrentShaderIndex = 0;
   std::vector<sf::Shader*> Explosion::sShaders;
   Explosion::ShaderPool Explosion::sShaderPool;
@@ -62,11 +60,7 @@ namespace Impact {
       b2BodyDef bd;
       bd.type = b2_dynamicBody;
       bd.position = def.pos + Game::InvScale * b2Vec2(randomOffset(gRNG()), randomOffset(gRNG()));
-#ifdef EXPLOSION_PARTICLES_CANNOT_ROTATE
       bd.fixedRotation = true;
-#else
-      bd.fixedRotation = false;
-#endif
       bd.bullet = false;
       bd.allowSleep = true;
       bd.userData = this;
@@ -113,13 +107,7 @@ namespace Impact {
         mGame->world()->DestroyBody(p.body);
       }
       else {
-#ifdef EXPLOSION_PARTICLES_CANNOT_ROTATE
         p.sprite.setPosition(float(Game::Scale) * sf::Vector2f(p.body->GetPosition().x, p.body->GetPosition().y));
-#else
-        const b2Transform &tx = p.body->GetTransform();
-        p.sprite.setPosition(float(Game::Scale) * sf::Vector2f(tx.p.x, tx.p.y));
-        p.sprite.setRotation(rad2deg(tx.q.GetAngle()));
-#endif
         if (mShader == nullptr) {
           const float alpha = Easing<float>::quadEaseIn(age().asSeconds(), 0U, 255U, p.lifeTime.asSeconds());
           p.sprite.setColor(sf::Color(255U, 255U, 255U, 255U - sf::Uint8(alpha)));
