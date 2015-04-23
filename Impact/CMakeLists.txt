@@ -21,10 +21,11 @@ set(impact_sources
 		Wall.cpp
 )
 
-# TODO check out, what's missing for Recorder.cpp to be built
-#if(not UNIX)
-#		list(APPEND impact_sources Recorder.cpp)
-#endif()
+if(UNIX)
+		list(APPEND impact_sources miniunz.c)
+else()	# TODO check out, what's missing for Recorder.cpp to be built
+		list(APPEND impact_sources Recorder.cpp)
+endif()
 
 # name our target
 add_executable(impact ${impact_sources})

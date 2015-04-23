@@ -31,9 +31,8 @@
 #include "../zip-utils/unzip.h"
 #elif defined(LINUX_AMD64)
 #include <libgen.h>
-extern "C" {
-#include "../minizip/miniunz.h"
-}
+#include <minizip/unzip.h>
+#include "miniunz.h"
 #endif
 
 #include "sha1.h"

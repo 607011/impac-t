@@ -1,7 +1,7 @@
 /*
-   sample part of the MiniZip project - ( http://www.winimage.com/zLibDll/minizip.html )
-
-   for changes see miniunz.c
+ * Part of the sample of the MiniZip sources - ( http://www.winimage.com/zLibDll/minizip.html )
+ *
+ * Bsically just the two extraction functions.
 */
 
 
@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-#include "unzip.h"
+#include <minizip/unzip.h>
 
 int do_extract(unzFile uf, int opt_extract_without_path, int opt_overwrite, const char* password);
 int do_extract_currentfile(unzFile uf, const int* popt_extract_without_path, int* popt_overwrite, const char* password);
