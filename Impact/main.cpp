@@ -26,12 +26,10 @@
 #include <gtk/gtk.h>
 #endif
 
+Impact::Game breakout;
 
 int main(int argc, char *argv[])
 {
-  Impact::Game *breakout = new Impact::Game;
-  if (breakout == nullptr)
-    return EXIT_FAILURE;
 #if defined(LINUX_AMD64)   
   gtk_init(&argc, &argv);
 #endif
@@ -48,7 +46,6 @@ int main(int argc, char *argv[])
     UNUSED(argv);
 #endif
   }
-  breakout->loop();
-  delete breakout;
+  breakout.loop();
   return EXIT_SUCCESS;
 }
