@@ -55,49 +55,33 @@ namespace Impact {
   class LeftBoundary : public Body
   {
   public:
-    LeftBoundary(Game *game)
-      : Body(Body::BodyType::LeftBoundary, game)
-    { /* ... */
-    }
-    BodyType type(void) const { return Body::BodyType::LeftBoundary; }
-    virtual void onUpdate(float) { /* ... */ }
-    virtual void onDraw(sf::RenderTarget &, sf::RenderStates) const  { /* ... */ };
+    LeftBoundary(Game *game) : Body(Body::BodyType::LeftBoundary, game) {}
+    virtual void onUpdate(float) {}
+    virtual void onDraw(sf::RenderTarget &, sf::RenderStates) const {}
   };
 
   class RightBoundary : public Body
   {
   public:
-    RightBoundary(Game *game)
-      : Body(Body::BodyType::RightBoundary, game)
-    { /* ... */
-    }
-    BodyType type(void) const { return Body::BodyType::RightBoundary; }
-    virtual void onUpdate(float) { /* ... */ }
-    virtual void onDraw(sf::RenderTarget &, sf::RenderStates) const  { /* ... */ };
+    RightBoundary(Game *game) : Body(Body::BodyType::RightBoundary, game) {}
+    virtual void onUpdate(float) {}
+    virtual void onDraw(sf::RenderTarget &, sf::RenderStates) const {}
   };
 
   class TopBoundary : public Body
   {
   public:
-    TopBoundary(Game *game)
-      : Body(Body::BodyType::TopBoundary, game)
-    { /* ... */
-    }
-    BodyType type(void) const { return Body::BodyType::TopBoundary; }
-    virtual void onUpdate(float) {/* ... */ }
-    virtual void onDraw(sf::RenderTarget &, sf::RenderStates) const  { /* ... */ };
+    TopBoundary(Game *game) : Body(Body::BodyType::TopBoundary, game) {}
+    virtual void onUpdate(float) {}
+    virtual void onDraw(sf::RenderTarget &, sf::RenderStates) const {}
   };
 
   class BottomBoundary : public Body
   {
   public:
-    BottomBoundary(Game *game)
-      : Body(Body::BodyType::BottomBoundary, game)
-    { /* ... */
-    }
-    BodyType type(void) const { return Body::BodyType::BottomBoundary; }
-    virtual void onUpdate(float) { /* ... */ }
-    virtual void onDraw(sf::RenderTarget &, sf::RenderStates) const  { /* ... */ };
+    BottomBoundary(Game *game) : Body(Body::BodyType::BottomBoundary, game) {}
+    virtual void onUpdate(float) {}
+    virtual void onDraw(sf::RenderTarget &, sf::RenderStates) const {}
   };
 
 
@@ -362,7 +346,7 @@ namespace Impact {
       "GLEW: Copyright (c) Milan Ikits, Marcelo Magallon et al.\n"
       "easings: https://github.com/jesusgollonet/ofpennereasing\n"
       "Linux port by Kai Schwebke (@schwebke).\n"
-      "With contributions by Torsten Harling and @Daniboy4000.\n"
+      "With contributions by Torsten Harling, @Daniboy4000 and kaw@ct.de.\n"
       "\n"), mFixedFont, 8U);
 
     mLevelsScrollArea.create(600, 170);
