@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8) # FIXME upgrade to 3.1 (see Impact/CMakeLists.txt for details)
+cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 project(impact)
 
 # default build type
@@ -10,7 +10,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 find_package(Boost 1.55.0 REQUIRED COMPONENTS system filesystem regex serialization signals)
-# XXX FindThreads.cmake does dumb things before CMake 3.1, enforce that version soon
 find_package(Threads REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)

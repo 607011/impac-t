@@ -62,15 +62,6 @@ if(UNIX)
 		set(CMAKE_CXX_FLAGS_MINSIZEREL     "${CMAKE_CXX_FLAGS_MINSIZEREL} -Os")
 		set(CMAKE_CXX_FLAGS_CTINTERNAL     "${CMAKE_CXX_FLAGS_CTINTERNAL} -O4")
 
-		# FIXME enforce CMake 3.1 usage, then we can enable C++11 as a target feature
-		include(CheckCXXCompilerFlag)
-		CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-		if(COMPILER_SUPPORTS_CXX11)
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-		else()
-			message(FATAL_ERROR "Compiler ${CMAKE_CXX_COMPILER} has no C++11 support.")
-		endif()
-
 		# add default defines
 		target_compile_definitions(impact
 			PUBLIC "NO_RECORDER"
@@ -80,6 +71,9 @@ if(UNIX)
 		# since we have Gtk in our dependency chain, we use -Wl,--as-needed here
 		set_target_properties(impact PROPERTIES LINK_FLAGS "-Wl,--as-needed")
 endif()
+
+set_property(TARGET impact PROPERTY CXX_STANDARD 11)
+set_property(TARGET impact PROPERTY CXX_STANDARD_REQUIRED ON)
 
 # link our target
 target_link_libraries(impact LINK_PUBLIC
