@@ -40,6 +40,7 @@ target_include_directories(impact PUBLIC
 		${GTK3_INCLUDE_DIRS}
 		${MINIZIP_INCLUDE_DIRS}
 		${BOX2D_INCLUDE_DIRS}
+		${X11_X11_INCLUDE_PATH}
 		${CMAKE_CURRENT_SOURCE_DIR}
 		${CMAKE_SOURCE_DIR}
 )
@@ -86,5 +87,6 @@ target_link_libraries(impact LINK_PUBLIC
 		${BOX2D_LIBRARIES}
 		${MINIZIP_LIBRARIES}
 		${CMAKE_THREAD_LIBS_INIT}
+		${X11_X11_LIB}
 )
 

@@ -10,11 +10,13 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 find_package(Boost 1.55.0 REQUIRED COMPONENTS system filesystem regex serialization signals)
-find_package(Threads REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(Threads REQUIRED)
 # FIXME this is needed for libminizip and looks like a bug in that pkg-config file. We shouldn't need this
 find_package(ZLIB REQUIRED)
+# XXX Needed for XInitThreads()
+find_package(X11 REQUIRED)
 
 # we don't have CMake modules for all libraries used, but they all come with pkg-config files AFAICT
 find_package(PkgConfig REQUIRED)
