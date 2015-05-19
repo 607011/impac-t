@@ -9,7 +9,6 @@ set(impact_sources
 		Ground.cpp
 		Impact.cpp
 		Level.cpp
-		linux_amd64.cpp
 		LocalSettings.cpp
 		main.cpp
 		Racket.cpp
@@ -22,7 +21,7 @@ set(impact_sources
 )
 
 if(UNIX)
-		list(APPEND impact_sources miniunz.c)
+		list(APPEND impact_sources linux_amd64.cpp miniunz.c)
 else()	# TODO check out, what's missing for Recorder.cpp to be built
 		list(APPEND impact_sources Recorder.cpp)
 endif()
@@ -52,8 +51,8 @@ set(CMAKE_CXX_FLAGS_RELEASE        "-DNDEBUG")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-DNDEBUG")
 
 # custom build target
-set(CMAKE_BUILD_TYPE ctinternal)
-set(CMAKE_CXX_FLAGS_CTINTERNAL "-DDEBUG -DCT_VERSION_INTERNAL")
+set(CMAKE_CXX_FLAGS_CTINTERNAL "-DDEBUG -DCT_VERSION_INTERNAL" CACHE STRING "Options for the c't interal build" FORCE)
+mark_as_advanced(CMAKE_CXX_FLAGS_CTINTERNAL)
 
 # right now we only set this for Linux
 if(UNIX)
