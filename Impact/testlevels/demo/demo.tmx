@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="25" tilewidth="16" tileheight="16" backgroundcolor="#4d6f74">
+ <properties>
+  <property name="Author" value="Oliver Lau, ola@ct.de"/>
+  <property name="Copyright" value="Oliver Lau, Heise Medien &amp; Co. KG"/>
+  <property name="ExplosionParticlesCollideWithBall" value="true"/>
+  <property name="Gravity" value="9.81"/>
+  <property name="KillingSpreeBonus" value="1000"/>
+  <property name="KillingSpreeInterval" value="2500"/>
+  <property name="KillingsPerKillingSpree" value="5"/>
+  <property name="Name" value="Once upon a time ..."/>
+ </properties>
+ <tileset firstgid="1" name="Default" tilewidth="64" tileheight="16">
+  <tile id="0">
+   <properties>
+    <property name="Points" value="100"/>
+   </properties>
+   <image width="32" height="16" source="blue-block.png"/>
+  </tile>
+  <tile id="1">
+   <properties>
+    <property name="Points" value="20"/>
+   </properties>
+   <image width="32" height="16" source="green-block.png"/>
+  </tile>
+  <tile id="2">
+   <properties>
+    <property name="Points" value="500"/>
+   </properties>
+   <image width="32" height="16" source="red-block.png"/>
+  </tile>
+  <tile id="3">
+   <properties>
+    <property name="Points" value="50"/>
+    <property name="Restitution" value="1"/>
+   </properties>
+   <image width="32" height="16" source="yellow-block.png"/>
+  </tile>
+  <tile id="4">
+   <properties>
+    <property name="Points" value="500"/>
+   </properties>
+   <image width="32" height="16" source="dark-block.png"/>
+  </tile>
+  <tile id="5">
+   <properties>
+    <property name="Density" value="200"/>
+    <property name="Name" value="Racket"/>
+    <property name="Restitution" value="0.1"/>
+   </properties>
+   <image width="64" height="16" source="pad.png"/>
+  </tile>
+  <tile id="6">
+   <properties>
+    <property name="Name" value="Ball"/>
+    <property name="Smooth" value="1"/>
+   </properties>
+   <image width="16" height="16" source="ball.png"/>
+  </tile>
+  <tile id="7">
+   <properties>
+    <property name="Multiball" value="true"/>
+    <property name="Points" value="1"/>
+   </properties>
+   <image width="32" height="16" source="multiball-block.png"/>
+  </tile>
+  <tile id="8">
+   <properties>
+    <property name="Points" value="250"/>
+   </properties>
+   <image width="32" height="16" source="../multiball/light-block.png"/>
+  </tile>
+ </tileset>
+ <imagelayer name="Background" opacity="0.87">
+  <image source="abstract-background-25.jpg" trans="aaaa00"/>
+ </imagelayer>
+ <layer name="Tile Layer" width="40" height="25">
+  <data encoding="base64" compression="zlib">
+   eJztk0EKwCAMBG1tWvz/h3ttwyZKQZLizmVZ42EIWkp+tmiBBw2c/clvVzOvHyoR1ZkJ8NJp+fUSeY16inlrzv5Qr0Zm80Odfm+fkXeH/omotPy+4nllILsfWYsrWoCQpJzRAoQsyA2YpAEU
+  </data>
+ </layer>
+ <objectgroup name="Boundaries" visible="0"/>
+</map>
