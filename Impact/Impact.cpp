@@ -176,7 +176,7 @@ namespace Impact {
   {
     bool ok;
 
-    glewInit();
+    // glewInit();
     glGetIntegerv(GL_MAJOR_VERSION, &mGLVersionMajor);
     glGetIntegerv(GL_MINOR_VERSION, &mGLVersionMinor);
 
